@@ -5,7 +5,7 @@
 	"type": "module",
 	"engines": {
 		"node": ">=24",
-		"npm": ">=10"
+		"npm": ">=11"
 	},
 	"scripts": {
 		"dev": "vite --force",
@@ -30,7 +30,8 @@
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.5"
+		"webitel-sdk": "^26.4.5",
+		"axios": "^1.17.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
