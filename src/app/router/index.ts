@@ -34,7 +34,7 @@ export const initRouter = async ({
 		},
 	});
 
-	router.beforeEach((to, from, next) => {
+	router.beforeEach((to, _, next) => {
 		if (!localStorage.getItem('access-token') && !to.query.accessToken) {
 			// @author @Lear24
 			// remove flag about shown notifications from localStorage
