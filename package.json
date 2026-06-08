@@ -18,9 +18,14 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
+		"@webitel/api-services": "^0.1.40",
+		"@webitel/chat-web-sdk": "^0.0.19",
+		"@webitel/ui-chats": "^0.1.37",
+		"@webitel/ui-sdk": "~26.6",
 		"pinia": "^3.x",
 		"vue": "^3.5.x",
-		"vue-router": "^5.1.x"
+		"vue-router": "^5.1.x",
+		"webitel-sdk": "^26.4.5"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.55.1",
@@ -38,5 +43,8 @@
 		"vite-plugin-vue-devtools": "^8.1.x",
 		"vitest": "^4.x",
 		"vue-tsc": "^3.1.0"
+	},
+	"overrides": {
+		"vue-router": "^5.1.x"
 	}
 }
