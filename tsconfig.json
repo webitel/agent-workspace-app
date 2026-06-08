@@ -17,6 +17,8 @@
 			}
 		],
 		"types": [
+			"node",
+			"vite/client"
 			// "vidstack/vue"
 		],
 		"moduleResolution": "Bundler",

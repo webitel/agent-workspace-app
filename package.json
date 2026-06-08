@@ -8,14 +8,16 @@
 		"npm": ">=10"
 	},
 	"scripts": {
-		"dev": "vite",
+		"dev": "vite --force",
 		"build": "run-p type-check \"build-only {@}\" --",
 		"preview": "vite preview",
 		"test:unit": "vitest",
+		"lint:fix": "npx biome check --write ./src",
+		"lint:fix-staged": "npx lint-staged",
 		"test:e2e": "playwright test",
 		"build-only": "vite build",
-		"type-check": "vue-tsc --build",
-		"prepare": "husky"
+		"typecheck": "vue-tsc --build",
+		"prepare": "husky || true"
 	},
 	"dependencies": {
 		"@webitel/api-services": "^0.1.40",
@@ -29,6 +31,7 @@
 		"webitel-sdk": "^26.4.5"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.4.16",
 		"@playwright/test": "^1.55.1",
 		"@types/node": "^25.9.2",
 		"@vitejs/plugin-vue": "^6.x",
