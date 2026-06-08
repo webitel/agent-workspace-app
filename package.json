@@ -1,0 +1,42 @@
+{
+	"name": "@webitel/agent-workspace-app",
+	"version": "0.0.0",
+	"private": false,
+	"type": "module",
+	"engines": {
+		"node": ">=24",
+		"npm": ">=10"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "run-p type-check \"build-only {@}\" --",
+		"preview": "vite preview",
+		"test:unit": "vitest",
+		"test:e2e": "playwright test",
+		"build-only": "vite build",
+		"type-check": "vue-tsc --build",
+		"prepare": "husky"
+	},
+	"dependencies": {
+		"pinia": "^3.x",
+		"vue": "^3.5.x",
+		"vue-router": "^5.1.x"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.55.1",
+		"@types/node": "^25.9.2",
+		"@vitejs/plugin-vue": "^6.x",
+		"@vue/test-utils": "^2.4.6",
+		"@vue/tsconfig": "^0.8.1",
+		"husky": "^9.1.7",
+		"jsdom": "^27.0.0",
+		"lint-staged": "^17.x",
+		"npm-run-all2": "^8.0.4",
+		"typescript": "~5.9.x",
+		"typescript-plugin-css-modules": "^5.x",
+		"vite": "^8.x",
+		"vite-plugin-vue-devtools": "^8.1.x",
+		"vitest": "^4.x",
+		"vue-tsc": "^3.1.0"
+	}
+}

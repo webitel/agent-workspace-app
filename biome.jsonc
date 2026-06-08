@@ -1,0 +1,67 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"includes": [
+			"**",
+			"!!**/dist",
+			"!!src/components/wt-select/multiselect.css"
+		]
+	},
+	"html": {
+		// "experimentalFullSupportEnabled": true // https://github.com/biomejs/biome/issues/7978
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"expand": "always",
+		"attributePosition": "multiline"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedVariables": "off",
+				"noUnusedFunctionParameters": "off"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	// https://biomejs.dev/internals/language-support/#linting-html-ish-languages
+	"overrides": [
+		{
+			"includes": [
+				"**/*.vue"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"useConst": "off",
+						"useImportType": "off"
+					},
+					"correctness": {
+						"noUnusedVariables": "off",
+						"noUnusedImports": "off"
+					}
+				}
+			}
+		}
+	]
+}
