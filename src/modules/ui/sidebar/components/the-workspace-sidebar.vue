@@ -9,5 +9,7 @@
 </script>
 
 <style scoped>
-
+.workspace-sidebar {
+    width: 280px;
+}
 </style>

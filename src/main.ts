@@ -8,7 +8,7 @@ import App from './app/the-app.vue';
 import './app/plugins/webitel/ui-sdk';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
 import { initRouter, router } from './app/router';
-import { useUserinfoStore } from './modules/userinfo/userinfoStore';
+import { useUserinfoStore } from './modules/features/userinfo/stores/userinfoStore';
 
 setApiServicesConfig({
 	eventBus,

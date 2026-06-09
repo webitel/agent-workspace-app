@@ -36,12 +36,4 @@ import TheWorkspaceSidebar from '../../modules/ui/sidebar/components/the-workspa
     flex: 1;
     display: flex;
 }
-
-.workspace-sidebar {
-    width: 280px;
-}
-
-* {
-    border: 1px solid red;
-}
 </style>
