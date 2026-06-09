@@ -2,8 +2,8 @@ import { WtApplication } from '@webitel/ui-sdk/enums';
 import { createRouter, createWebHistory, NavigationGuard } from 'vue-router';
 
 import AgentWorkspace from '../components/the-agent-workspace.vue';
-import TheCallsWorkspace from '../../modules/ui/pages/modules/calls/components/the-calls-workspace.vue';
-import TheChatsWorkspace from '../../modules/ui/pages/modules/chats/components/the-chats-workspace.vue';
+import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
+import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 
 const routes = [
 	{

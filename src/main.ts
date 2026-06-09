@@ -8,8 +8,8 @@ import App from './app/the-app.vue';
 import './app/plugins/webitel/ui-sdk';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
 import { initRouter, router } from './app/router';
-import { initializeConfig } from './modules/AppConfig/config';
-import { useUserinfoStore } from './modules/features/userinfo/stores/userinfoStore';
+import { initializeConfig } from './features/AppConfig/config';
+import { useUserinfoStore } from './features/userinfo/stores/userinfoStore';
 import { setTokenFromUrl } from './app/scripts/setTokenFromUrl';
 
 setTokenFromUrl();

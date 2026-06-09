@@ -15,9 +15,9 @@
     setup
     lang="ts"
 >
-import TheWorkspaceHeader from '../../modules/ui/header/components/the-workspace-header.vue';
-import TheWorkspaceNav from '../../modules/ui/nav/components/the-workspace-nav.vue';
-import TheWorkspaceSidebar from '../../modules/ui/sidebar/components/the-workspace-sidebar.vue';
+import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
+import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
+import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
 </script>
 
 <style scoped>
