@@ -18,6 +18,12 @@
 import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
 import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
+
+import { useSocketNotifications } from '../../ui/notifications/composables/useSocketNotifications';
+
+const { subscribeToWebSocketEvents } = useSocketNotifications();
+
+subscribeToWebSocketEvents();
 </script>
 
 <style scoped>
