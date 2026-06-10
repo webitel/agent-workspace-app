@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { WebSocketClientEvent } from '../../../app/api/socket/enums/WebSocketClientEvent.enum';
 import { useWebSocketClient } from '../../../app/api/socket/useWebSocketClient';
 
-interface WebSocketError {
+interface WebSocketError extends Error {
 	id?: string;
 	[key: string]: unknown;
 }
