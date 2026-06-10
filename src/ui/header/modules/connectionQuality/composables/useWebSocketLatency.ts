@@ -10,6 +10,7 @@ const LATENCY_REFRESH_DELAY = 5000;
 
 let latencyIntervalId: number | null = null;
 
+// https://webitel.atlassian.net/browse/WTEL-8733
 export const useWebSocketLatency = () => {
 	const latencyRef = ref<number | null>(null);
 	const rtpRef = ref<RtpMetrics | null>(null);
@@ -37,6 +38,7 @@ export const useWebSocketLatency = () => {
 
 		latencyIntervalId = window.setInterval(async () => {
 			try {
+				// https://webitel.atlassian.net/browse/WTEL-8733
 				// @ts-ignore should access and overwrite private property!
 				latencyRef.value = await cli.latency();
 			} catch (e) {
