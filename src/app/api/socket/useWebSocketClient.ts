@@ -1,6 +1,6 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { markRaw, reactive, readonly, ref, shallowReactive } from 'vue';
-import type { RtpMetrics, ClientEvents } from 'webitel-sdk';
+import type { RtpMetrics, ClientEvents, SipPhone } from 'webitel-sdk';
 import { Client } from 'webitel-sdk';
 import { WebSocketClientEvent } from './enums/WebSocketClientEvent.enum';
 import { WebSocketConnectionState } from './enums/WebSocketConnectionState.enum';
@@ -58,12 +58,13 @@ const endpoint =
  * Helpers
  * ========================================================================== */
 
-function emit(
-	event: WebSocketClientEvent,
-	payload: Parameters<EventMap[WebSocketClientEvent]>,
+function emit<K extends WebSocketClientEvent>(
+	event: K,
+	...payload: Parameters<EventMap[K]>
 ) {
 	listeners[event].forEach((cb) => {
-		cb(payload);
+		// TS can't correlate union of callbacks with union of payloads, so cast
+		(cb as (...args: Parameters<EventMap[K]>) => void)(...payload);
 	});
 }
 
@@ -91,9 +92,9 @@ function attachCoreHandlers(cli: Client, generation: number) {
 		emit(WebSocketClientEvent.Error, e);
 	});
 
-	cli.on('disconnected', (payload) => {
+	cli.on('disconnected', (code, err) => {
 		if (generation !== clientGenerationCount) return;
-		emit(WebSocketClientEvent.Disconnected, payload);
+		emit(WebSocketClientEvent.Disconnected, code, err);
 	});
 
 	cli.on('show_message', (e: unknown) => {
@@ -143,13 +144,16 @@ async function markAsyncPhoneRaw(cli: Client) {
 		const timeout = window.setTimeout(resolve, 5000);
 
 		const markUa = () => {
-			if (!cli.phone?.ua) return;
-			cli.phone.ua = markRaw(cli.phone.ua);
+			// @ts-ignore should access and overwrite private property!
+			if (!(cli.phone as SipPhone).ua) return;
+			// @ts-ignore should access and overwrite private property!
+			(cli.phone as SipPhone).ua = markRaw((cli.phone as SipPhone).ua);
 			clearTimeout(timeout);
 			resolve();
 		};
 
-		cli.phone?.ua ? markUa() : cli.on('phone_connected', markUa);
+		// @ts-ignore should access and overwrite private property!
+		(cli.phone as SipPhone)?.ua ? markUa() : cli.on('phone_connected', markUa);
 	});
 }
 

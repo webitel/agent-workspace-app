@@ -37,6 +37,7 @@ export const useWebSocketLatency = () => {
 
 		latencyIntervalId = window.setInterval(async () => {
 			try {
+				// @ts-ignore should access and overwrite private property!
 				latencyRef.value = await cli.latency();
 			} catch (e) {
 				console.warn('[WS] latency error', e);
@@ -70,38 +71,34 @@ export const useWebSocketLatency = () => {
 		const packetLossAvg = rtp.packetloss?.average ?? 0;
 		const mosAvg = rtp.mos?.average ?? 5;
 
-		let level: ConnectionQualityLevel | null = ConnectionQualityLevel.High;
+		let level: ConnectionQualityLevel = ConnectionQualityLevel.High;
 		const reasons: string[] = [];
 
-		const setLevel = (next: ConnectionQualityLevel) => {
-			level = next;
-		};
-
 		if (jitterAvg > 50) {
-			setLevel(ConnectionQualityLevel.Low);
+			level = ConnectionQualityLevel.Low;
 			reasons.push(`jitter ${Math.round(jitterAvg)} ms (> 50)`);
 		} else if (jitterAvg >= 30) {
-			setLevel(ConnectionQualityLevel.Medium);
+			level = ConnectionQualityLevel.Medium;
 			reasons.push(`jitter ${Math.round(jitterAvg)} ms (30–50)`);
 		}
 
 		if (packetLossAvg > 3) {
-			setLevel(ConnectionQualityLevel.Low);
+			level = ConnectionQualityLevel.Low;
 			reasons.push(`packet loss ${packetLossAvg.toFixed(1)} % (> 3%)`);
 		} else if (packetLossAvg > 1) {
-			setLevel(ConnectionQualityLevel.Medium);
+			level = ConnectionQualityLevel.Medium;
 			reasons.push(`packet loss ${packetLossAvg.toFixed(1)} % (1–3%)`);
 		}
 
 		if (mosAvg < 3.5) {
-			setLevel(ConnectionQualityLevel.Low);
+			level = ConnectionQualityLevel.Low;
 			reasons.push(`MOS ${mosAvg.toFixed(2)} (< 3.5)`);
 		} else if (mosAvg < 4.0) {
-			setLevel(ConnectionQualityLevel.Medium);
+			level = ConnectionQualityLevel.Medium;
 			reasons.push(`MOS ${mosAvg.toFixed(2)} (3.5–4.0)`);
 		}
 
-		if (level && level === ConnectionQualityLevel.Low) {
+		if (level === ConnectionQualityLevel.Low) {
 			eventBus.$emit('notification', {
 				type: 'error',
 				text: t(
@@ -109,7 +106,7 @@ export const useWebSocketLatency = () => {
 				),
 				timeout: 8000,
 			});
-		} else if (level && level === ConnectionQualityLevel.Medium) {
+		} else if (level === ConnectionQualityLevel.Medium) {
 			eventBus.$emit('notification', {
 				type: 'warning',
 				text: t(
