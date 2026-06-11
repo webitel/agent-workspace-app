@@ -11,7 +11,7 @@ import { initRouter, router } from './app/router';
 import { initializeConfig } from './features/appConfig/config';
 import { useUserinfoStore } from './features/userinfo/stores/userinfoStore';
 import { setTokenFromUrl } from './app/scripts/setTokenFromUrl';
-import { useWorkspaceStore } from './app/stores/workspaceStore';
+import { useWorkspaceStore } from './app/stores/workspace';
 
 setTokenFromUrl();
 
