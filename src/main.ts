@@ -11,6 +11,7 @@ import { initRouter, router } from './app/router';
 import { initializeConfig } from './features/appConfig/config';
 import { useUserinfoStore } from './features/userinfo/stores/userinfoStore';
 import { setTokenFromUrl } from './app/scripts/setTokenFromUrl';
+import { useWorkspaceStore } from './app/stores/workspaceStore';
 
 setTokenFromUrl();
 
@@ -26,11 +27,17 @@ const pinia = createPinia();
 const initApp = async () => {
 	const app = createApp(App).use(i18n).use(pinia);
 
-	const { initialize, routeAccessGuard, clearStorageNotifications } =
-		useUserinfoStore();
+	const {
+		initialize: initializeUserinfo,
+		routeAccessGuard,
+		clearStorageNotifications,
+	} = useUserinfoStore();
+
+	const { initialize: initializeWorkspace } = useWorkspaceStore();
 	try {
 		await initializeConfig();
-		await initialize();
+		await initializeUserinfo();
+		await initializeWorkspace();
 		createUserAccessControl(useUserinfoStore);
 		await initRouter({
 			beforeEach: [
