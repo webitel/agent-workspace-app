@@ -9,7 +9,7 @@ export default mergeConfig(
 			globals: true,
 			environment: 'jsdom',
 			setupFiles: [
-				'src/test/setup.ts',
+				'test/setup.ts',
 			],
 			exclude: [
 				...configDefaults.exclude,
