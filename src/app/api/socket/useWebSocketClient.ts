@@ -1,402 +1,64 @@
-import { eventBus } from '@webitel/ui-sdk/scripts';
-import { markRaw, reactive, readonly, ref, shallowReactive } from 'vue';
-import type { ClientEvents, RtpMetrics, SipPhone } from 'webitel-sdk';
-import { Client } from 'webitel-sdk';
+import { computed, readonly } from 'vue';
 import { WebSocketClientEvent } from './enums/WebSocketClientEvent.enum';
-import { WebSocketConnectionState } from './enums/WebSocketConnectionState.enum';
+import {
+	client,
+	connect,
+	destroyClient,
+	getAgentSession,
+	getClient,
+	getCliInstance,
+	on,
+	state,
+} from './webSocketClient';
 
 /* ============================================================================
- * Constants
+ * useWebSocketClient
+ *
+ * Thin Vue layer over the singleton manager (`webSocketClient.ts`). The Client
+ * is a large library class, so we do NOT expose it as one big reactive object:
+ * most of its surface is consumed imperatively (connect, auth, call,
+ * subscribeCall, on, ...). Only the sub-objects modules actually observe are
+ * exposed reactively, as computeds derived from the `client` shallowRef.
+ *
+ * The slices resolve to `undefined` until the instance exists (`getClient` /
+ * `connect`), then track their underlying reactive store. Because reconnects
+ * reuse the same instance, the proxy identity is stable across reconnects;
+ * because `client` is a ref, the computeds re-resolve if the instance is
+ * swapped (logout -> re-login).
  * ========================================================================== */
 
-const MAX_RECONNECT_ATTEMPTS = 10;
-const MAX_RECONNECT_DELAY = 15000;
-
-/* ============================================================================
- * Singleton state
- * ========================================================================== */
-
-type EventCallback<T = unknown> = (payload: T) => void;
-
-type EventMap = {
-	[WebSocketClientEvent.AfterAuth]: EventCallback<Client>;
-	[WebSocketClientEvent.Error]: ClientEvents['error'];
-	[WebSocketClientEvent.CallMediaMetric]: ClientEvents['call_media_metric'];
-	[WebSocketClientEvent.Disconnected]: ClientEvents['disconnected'];
-};
-
-let client: Client | null = null;
-const state = ref<WebSocketConnectionState>(WebSocketConnectionState.Idle);
-
-let connectPromise: Promise<void> | null = null;
-let reconnectAttemptCount = 0;
-let reconnectTimerId: number | null = null;
-
-const listeners: { [T in WebSocketClientEvent]: EventMap[T][] } = {
-	[WebSocketClientEvent.AfterAuth]: [],
-	[WebSocketClientEvent.Error]: [],
-	[WebSocketClientEvent.CallMediaMetric]: [],
-	[WebSocketClientEvent.Disconnected]: [
-		handleDisconnect,
-	],
-};
-
-/* ============================================================================
- * Environment
- * ========================================================================== */
-
-const { hostname, protocol } = window.location;
-const origin = `${protocol}//${hostname}`.replace(/^http/, 'ws');
-
-const endpoint =
-	import.meta.env.MODE === 'production'
-		? `${origin}/ws`
-		: import.meta.env.VITE_WEB_SOCKET_URL;
-
-/* ============================================================================
- * Helpers
- * ========================================================================== */
-
-function emit<K extends WebSocketClientEvent>(
-	event: K,
-	...payload: Parameters<EventMap[K]>
-) {
-	listeners[event].forEach((cb) => {
-		// TS can't correlate union of callbacks with union of payloads, so cast
-		(cb as (...args: Parameters<EventMap[K]>) => void)(...payload);
-	});
-}
-
-type CliConfig = {
-	registerWebDevice?: boolean;
-	debug?: boolean;
-};
-
-function getCliConfig(): CliConfig {
-	try {
-		const configStr = localStorage.getItem('CONFIG');
-		if (!configStr) return {};
-		const parsedConfig = JSON.parse(configStr) as {
-			CLI?: CliConfig;
-		};
-		return parsedConfig.CLI ?? {};
-	} catch {
-		return {};
-	}
-}
-
-function attachCoreHandlers(cli: Client) {
-	cli.on('error', (e) => {
-		emit(WebSocketClientEvent.Error, e);
-	});
-
-	cli.on('disconnected', (code, err) => {
-		emit(WebSocketClientEvent.Disconnected, code, err);
-	});
-
-	cli.on('show_message', (e: unknown) => {
-		const event = (e ?? {}) as {
-			type?: string;
-			message?: string;
-			timeout?: number;
-		};
-		eventBus.$emit('notification', {
-			type: event.type,
-			text: event.message,
-			timeout: event.timeout,
-		});
-	});
-
-	cli.on('call_media_metric', (e: RtpMetrics) => {
-		emit(WebSocketClientEvent.CallMediaMetric, e);
-	});
-
-	cli.on('open_link', (e: unknown) => {
-		const event = (e ?? {}) as {
-			url?: string;
-		};
-		if (!event.url) return;
-		const url = event.url.startsWith('https://')
-			? event.url
-			: `https://${event.url}`;
-		window.open(url, '_blank');
-	});
-}
-
-/**
- * Mark the asynchronously created phone UA instance as raw.
- *
- * The phone instance is created after auth, so we wait for it to appear
- * (or for the `phone_connected` event) and then wrap `cli.phone.ua` in
- * `markRaw` to prevent Vue from making it reactive.
- */
-async function markAsyncPhoneRaw(cli: Client) {
-	/*
-    cli.phone.ua contains "configuration" property, which has no setter so cannot be wrapped with reactivity.
-    so that, reactivity breaks
-     for more info, see WTEL-4236
-     */
-	return new Promise<void>((resolve) => {
-		const timeout = window.setTimeout(resolve, 5000);
-
-		const markUa = () => {
-			// @ts-expect-error should access and overwrite private property!
-			if (!(cli.phone as SipPhone).ua) return;
-			// @ts-expect-error should access and overwrite private property!
-			(cli.phone as SipPhone).ua = markRaw((cli.phone as SipPhone).ua);
-			clearTimeout(timeout);
-			resolve();
-		};
-
-		// @ts-expect-error should access and overwrite private property!
-		(cli.phone as SipPhone)?.ua ? markUa() : cli.on('phone_connected', markUa);
-	});
-}
-
-/* ============================================================================
- * Lifecycle
- *
- * Creating the Client is synchronous (`getClient`); establishing the live
- * session is asynchronous (`connect`). Splitting them lets consumers read the
- * reactive slices synchronously — the stores exist (empty) the moment the
- * instance does, and fill in once `connect` completes.
- *
- * A single Client instance lives for the whole app session. Reconnects reuse
- * it (`disconnect` + reconnect) so the reactive store proxies keep their
- * identity — a component that grabbed `getCallStore()` once keeps seeing
- * updates across reconnects. The instance is only torn down by `destroyClient`
- * (logout/teardown); the next `getClient` builds a fresh one with a fresh token.
- * ========================================================================== */
-
-function createClient(): Client {
-	const token = localStorage.getItem('access-token');
-	const cliConfig = getCliConfig();
-
-	// why reactive? https://github.com/vuejs/core/discussions/7811#discussioncomment-5181921
-	const cli = shallowReactive(
-		new Client({
-			endpoint,
-			token,
-			registerWebDevice: cliConfig.registerWebDevice ?? true,
-			debug: cliConfig.debug,
-		}),
-	);
-
-	// why reactive? https://github.com/vuejs/core/discussions/7811#discussioncomment-5181921
-	// @ts-expect-error should access and overwrite private property!
-	cli.conversationStore = reactive(cli.conversationStore);
-	// @ts-expect-error should access and overwrite private property!
-	cli.callStore = reactive(cli.callStore);
-
-	attachCoreHandlers(cli);
-
-	return cli;
-}
-
-/**
- * Return the singleton Client, creating it synchronously on first access.
- * Does NOT connect — call `connect()` (or `getCliInstance()`) for that.
- */
-function getClient(): Client {
-	if (!client) {
-		client = createClient();
-	}
-	return client;
-}
-
-/**
- * Tear down the current session's socket and drop the entities that belonged
- * to it, so a reconnect on the same instance doesn't resurface stale
- * calls/conversations. The reactive store proxies are kept (only emptied).
- */
-async function resetSession(cli: Client) {
-	try {
-		await cli.disconnect();
-	} catch (e) {
-		console.warn('[WS] disconnect error', e);
-	}
-}
-
-/**
- * Establish (or re-establish) the live session: connect + auth on the singleton
- * instance. Idempotent — concurrent calls share one in-flight promise, and a
- * no-op when already Connected unless `force` is set.
- */
-async function connect({
-	force = false,
-}: {
-	force?: boolean;
-} = {}): Promise<void> {
-	const cli = getClient();
-
-	if (!force && state.value === WebSocketConnectionState.Connected) {
-		return;
-	}
-	if (connectPromise) return connectPromise;
-
-	const reconnecting =
-		force ||
-		state.value === WebSocketConnectionState.Connected ||
-		state.value === WebSocketConnectionState.Reconnecting;
-	state.value = reconnecting
-		? WebSocketConnectionState.Reconnecting
-		: WebSocketConnectionState.Connecting;
-
-	connectPromise = (async () => {
-		try {
-			if (force) await resetSession(cli);
-
-			await cli.connect();
-			await cli.auth();
-
-			state.value = WebSocketConnectionState.Connected;
-			reconnectAttemptCount = 0;
-
-			emit(WebSocketClientEvent.AfterAuth, cli);
-			await markAsyncPhoneRaw(cli);
-
-			(
-				window as unknown as {
-					cli?: Client | null;
-				}
-			).cli = cli;
-		} finally {
-			connectPromise = null;
-		}
-	})();
-
-	return connectPromise;
-}
-
-async function destroyClient() {
-	if (!client) return;
-
-	try {
-		await client.destroy?.();
-	} catch (e) {
-		console.warn('[WS] destroy error', e);
-	} finally {
-		client = null;
-		state.value = WebSocketConnectionState.Disconnected;
-		(
-			window as unknown as {
-				cli?: Client | null;
-			}
-		).cli = null;
-	}
-}
-
-function scheduleReconnect() {
-	if (reconnectTimerId || reconnectAttemptCount >= MAX_RECONNECT_ATTEMPTS)
-		return;
-
-	const delay = Math.min(
-		1000 * 2 ** reconnectAttemptCount,
-		MAX_RECONNECT_DELAY,
-	);
-	reconnectAttemptCount++;
-
-	reconnectTimerId = window.setTimeout(async () => {
-		reconnectTimerId = null;
-		try {
-			await connect({
-				force: true,
-			});
-		} catch {
-			scheduleReconnect();
-		}
-	}, delay);
-}
-
-async function handleDisconnect() {
-	if (state.value === WebSocketConnectionState.Reconnecting) return;
-
-	state.value = WebSocketConnectionState.Reconnecting;
-	scheduleReconnect();
-}
-
-/**
- * Ensure a connected, authenticated client and return it.
- *
- * Backwards-compatible async accessor. Prefer the synchronous `getClient` +
- * `connect` split for new code; this remains for callers that want "give me a
- * ready client" in one await.
- */
-async function getCliInstance({
-	forceReconnect = false,
-}: {
-	forceReconnect?: boolean;
-} = {}): Promise<Client> {
-	await connect({
-		force: forceReconnect,
-	});
-	return getClient();
-}
-
-/* ============================================================================
- * Public API
- * ========================================================================== */
-
-function on<K extends keyof EventMap>(
-	event: K,
-	cb: EventMap[K] | EventMap[K][],
-) {
-	Array.isArray(cb) ? listeners[event].push(...cb) : listeners[event].push(cb);
-}
-
-/* ----------------------------------------------------------------------------
- * Reactive slices
- *
- * The Client is a large library class. We do NOT expose it as one big reactive
- * object: most of its surface is consumed imperatively (connect, auth, call,
- * subscribeCall, on, ...). Reactivity is owned here, at the singleton, and
- * applied only to the sub-objects that modules actually observe.
- *
- * `callStore` / `conversationStore` are wrapped with `reactive()` at creation,
- * so these getters are synchronous — the proxy exists (empty) before connect
- * and fills in afterwards. `agent` is created lazily by `agentSession()` (a
- * network call), so `getAgentSession` stays async. `reactive()` is idempotent
- * (same proxy from Vue's WeakMap), so every accessor returns the one shared
- * proxy — no per-module wrapping, no proxy-identity races.
- * ------------------------------------------------------------------------- */
-
-function getCallStore() {
+// callStore / conversationStore are private on Client but wrapped with
+// reactive() at creation; read them through the (reactive) instance.
+const callStore = computed(() => {
 	// @ts-expect-error private; wrapped reactive in createClient
-	return getClient().callStore;
-}
+	return client.value?.callStore;
+});
 
-function getConversationStore() {
+const conversationStore = computed(() => {
 	// @ts-expect-error private; wrapped reactive in createClient
-	return getClient().conversationStore;
-}
+	return client.value?.conversationStore;
+});
 
-async function getAgentSession() {
-	const cli = getClient();
-	await cli.agentSession(); // populates cli.agent
-	// idempotent — same proxy across modules. Cast: reactive()'s
-	// UnwrapNestedRefs return type drops some Agent members.
-	cli.agent = reactive(cli.agent) as typeof cli.agent;
-	return cli.agent;
-}
+// `agent` is populated by getAgentSession(); undefined until then.
+const agent = computed(() => client.value?.agent);
+
+const readonlyClient = readonly(client);
+const readonlyState = readonly(state);
 
 export function useWebSocketClient() {
 	return {
-		// live read — `client` is reassigned across teardown/recreate, so a
-		// captured value would go stale (it starts null before the first connect)
-		get client() {
-			return client;
-		},
-		state: readonly(state),
-
-		// instance access (synchronous)
-		getClient,
+		// reactive primitives
+		client: readonlyClient,
+		state: readonlyState,
 
 		// reactive slices (observe in templates/computed/watch)
-		getCallStore,
-		getConversationStore,
-		getAgentSession,
+		callStore,
+		conversationStore,
+		agent,
 
-		// lifecycle
+		// instance access + lifecycle (imperative)
+		getClient,
+		getAgentSession,
 		connect,
 		getCliInstance,
 		destroyClient,

@@ -114,7 +114,9 @@ describe('useWebSocketClient', () => {
 			cli.callStore.set('c1', {});
 			cli.conversationStore.set('conv1', {});
 
-			await api.getCliInstance({ forceReconnect: true });
+			await api.getCliInstance({
+				forceReconnect: true,
+			});
 
 			expect(cli.callStore.size).toBe(0);
 			expect(cli.conversationStore.size).toBe(0);
@@ -226,17 +228,43 @@ describe('useWebSocketClient', () => {
 			expect(api.state.value).toBe(WebSocketConnectionState.Idle);
 		});
 
-		it('exposes the same store proxies before and after connect', async () => {
+		it('store slices are undefined until the instance exists', async () => {
 			const api = await loadModule();
 
-			const callStoreBefore = api.getCallStore();
-			const convStoreBefore = api.getConversationStore();
+			expect(api.callStore.value).toBeUndefined();
+			expect(api.conversationStore.value).toBeUndefined();
+		});
+
+		it('exposes a stable store proxy across connect + reconnect', async () => {
+			const api = await loadModule();
+
+			api.getClient(); // create the instance synchronously
+			const callStoreInitial = api.callStore.value;
+			const convStoreInitial = api.conversationStore.value;
+			expect(callStoreInitial).toBeDefined();
 
 			await api.connect();
+			await api.getCliInstance({
+				forceReconnect: true,
+			});
 
-			// identity preserved — components binding before connect stay live
-			expect(api.getCallStore()).toBe(callStoreBefore);
-			expect(api.getConversationStore()).toBe(convStoreBefore);
+			// identity preserved — the instance is reused, so components binding
+			// the slice once stay live across reconnects
+			expect(api.callStore.value).toBe(callStoreInitial);
+			expect(api.conversationStore.value).toBe(convStoreInitial);
+		});
+
+		it('resets slices to undefined after destroy (instance swap)', async () => {
+			const api = await loadModule();
+
+			await api.connect();
+			expect(api.callStore.value).toBeDefined();
+
+			await api.destroyClient();
+
+			expect(api.client.value).toBeNull();
+			expect(api.callStore.value).toBeUndefined();
+			expect(api.conversationStore.value).toBeUndefined();
 		});
 
 		it('getAgentSession resolves the agent and wraps it once', async () => {
@@ -247,6 +275,31 @@ describe('useWebSocketClient', () => {
 
 			expect(api.getClient().agentSession).toHaveBeenCalledTimes(2);
 			expect(agentA).toBe(agentB); // idempotent reactive wrap
+			expect(api.agent.value).toBe(agentA); // computed mirrors it
+		});
+	});
+
+	describe('event subscription', () => {
+		it('on() returns an unsubscribe that stops further delivery', async () => {
+			const api = await loadModule();
+			const onMetric = vi.fn();
+
+			const off = api.on(api.Event.CallMediaMetric, onMetric);
+			const cli = await api.getCliInstance();
+
+			cli.fire('call_media_metric', {
+				mos: {
+					average: 4,
+				},
+			});
+			off();
+			cli.fire('call_media_metric', {
+				mos: {
+					average: 3,
+				},
+			});
+
+			expect(onMetric).toHaveBeenCalledOnce();
 		});
 	});
 });
