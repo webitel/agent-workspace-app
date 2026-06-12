@@ -50,24 +50,15 @@ const readonlyClient = readonly(client);
 const readonlyState = readonly(state);
 
 export function useWebSocketClient() {
-	// Track this caller's subscriptions and tear them down when its effect
-	// scope is disposed (component unmount, store dispose, watcher stop).
-	const disposers: Array<() => void> = [];
-
+	// Subscribe and, when called inside an effect scope (component setup, store,
+	// watcher), auto-remove the listener on scope dispose so it doesn't leak.
 	function on<K extends keyof EventMap>(
 		event: K,
 		cb: EventMap[K] | EventMap[K][],
 	): () => void {
 		const off = subscribeToEvent(event, cb);
-		disposers.push(off);
+		if (getCurrentScope()) onScopeDispose(off);
 		return off;
-	}
-
-	if (getCurrentScope()) {
-		onScopeDispose(() => {
-			for (const off of disposers) off();
-			disposers.length = 0;
-		});
 	}
 
 	return {
