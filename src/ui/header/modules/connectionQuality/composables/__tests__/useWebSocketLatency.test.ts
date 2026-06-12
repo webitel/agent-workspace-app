@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RtpMetrics } from 'webitel-sdk';
-import { mockEmit as emitMock } from '../../../../../../test/setup';
+import { mockEmit as emitMock } from '../../../../../../../test/setup';
 import { ConnectionQualityLevel } from '../../enums/ConnectionQualityLevel.enum';
 
 const onMock = vi.fn();

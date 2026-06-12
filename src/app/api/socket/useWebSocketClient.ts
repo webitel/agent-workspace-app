@@ -28,10 +28,9 @@ type EventMap = {
 let client: Client | null = null;
 const state = ref<WebSocketConnectionState>(WebSocketConnectionState.Idle);
 
-let clientInitPromise: Promise<Client> | null = null;
+let connectPromise: Promise<void> | null = null;
 let reconnectAttemptCount = 0;
 let reconnectTimerId: number | null = null;
-let clientGenerationCount = 0;
 
 const listeners: { [T in WebSocketClientEvent]: EventMap[T][] } = {
 	[WebSocketClientEvent.AfterAuth]: [],
@@ -86,19 +85,16 @@ function getCliConfig(): CliConfig {
 	}
 }
 
-function attachCoreHandlers(cli: Client, generation: number) {
+function attachCoreHandlers(cli: Client) {
 	cli.on('error', (e) => {
-		if (generation !== clientGenerationCount) return;
 		emit(WebSocketClientEvent.Error, e);
 	});
 
 	cli.on('disconnected', (code, err) => {
-		if (generation !== clientGenerationCount) return;
 		emit(WebSocketClientEvent.Disconnected, code, err);
 	});
 
 	cli.on('show_message', (e: unknown) => {
-		if (generation !== clientGenerationCount) return;
 		const event = (e ?? {}) as {
 			type?: string;
 			message?: string;
@@ -159,15 +155,24 @@ async function markAsyncPhoneRaw(cli: Client) {
 
 /* ============================================================================
  * Lifecycle
+ *
+ * Creating the Client is synchronous (`getClient`); establishing the live
+ * session is asynchronous (`connect`). Splitting them lets consumers read the
+ * reactive slices synchronously — the stores exist (empty) the moment the
+ * instance does, and fill in once `connect` completes.
+ *
+ * A single Client instance lives for the whole app session. Reconnects reuse
+ * it (`disconnect` + reconnect) so the reactive store proxies keep their
+ * identity — a component that grabbed `getCallStore()` once keeps seeing
+ * updates across reconnects. The instance is only torn down by `destroyClient`
+ * (logout/teardown); the next `getClient` builds a fresh one with a fresh token.
  * ========================================================================== */
 
-async function createClient(): Promise<Client> {
-	const generation = ++clientGenerationCount;
+function createClient(): Client {
 	const token = localStorage.getItem('access-token');
 	const cliConfig = getCliConfig();
 
 	// why reactive? https://github.com/vuejs/core/discussions/7811#discussioncomment-5181921
-	// const cli = new Client(config);
 	const cli = shallowReactive(
 		new Client({
 			endpoint,
@@ -183,20 +188,84 @@ async function createClient(): Promise<Client> {
 	// @ts-expect-error should access and overwrite private property!
 	cli.callStore = reactive(cli.callStore);
 
-	attachCoreHandlers(cli, generation);
+	attachCoreHandlers(cli);
 
-	await cli.connect();
-	await cli.auth();
-
-	emit(WebSocketClientEvent.AfterAuth, cli);
-	await markAsyncPhoneRaw(cli);
-
-	(
-		window as unknown as {
-			cli?: Client | null;
-		}
-	).cli = cli;
 	return cli;
+}
+
+/**
+ * Return the singleton Client, creating it synchronously on first access.
+ * Does NOT connect — call `connect()` (or `getCliInstance()`) for that.
+ */
+function getClient(): Client {
+	if (!client) {
+		client = createClient();
+	}
+	return client;
+}
+
+/**
+ * Tear down the current session's socket and drop the entities that belonged
+ * to it, so a reconnect on the same instance doesn't resurface stale
+ * calls/conversations. The reactive store proxies are kept (only emptied).
+ */
+async function resetSession(cli: Client) {
+	try {
+		await cli.disconnect();
+	} catch (e) {
+		console.warn('[WS] disconnect error', e);
+	}
+}
+
+/**
+ * Establish (or re-establish) the live session: connect + auth on the singleton
+ * instance. Idempotent — concurrent calls share one in-flight promise, and a
+ * no-op when already Connected unless `force` is set.
+ */
+async function connect({
+	force = false,
+}: {
+	force?: boolean;
+} = {}): Promise<void> {
+	const cli = getClient();
+
+	if (!force && state.value === WebSocketConnectionState.Connected) {
+		return;
+	}
+	if (connectPromise) return connectPromise;
+
+	const reconnecting =
+		force ||
+		state.value === WebSocketConnectionState.Connected ||
+		state.value === WebSocketConnectionState.Reconnecting;
+	state.value = reconnecting
+		? WebSocketConnectionState.Reconnecting
+		: WebSocketConnectionState.Connecting;
+
+	connectPromise = (async () => {
+		try {
+			if (force) await resetSession(cli);
+
+			await cli.connect();
+			await cli.auth();
+
+			state.value = WebSocketConnectionState.Connected;
+			reconnectAttemptCount = 0;
+
+			emit(WebSocketClientEvent.AfterAuth, cli);
+			await markAsyncPhoneRaw(cli);
+
+			(
+				window as unknown as {
+					cli?: Client | null;
+				}
+			).cli = cli;
+		} finally {
+			connectPromise = null;
+		}
+	})();
+
+	return connectPromise;
 }
 
 async function destroyClient() {
@@ -230,10 +299,9 @@ function scheduleReconnect() {
 	reconnectTimerId = window.setTimeout(async () => {
 		reconnectTimerId = null;
 		try {
-			await getCliInstance({
-				forceReconnect: true,
+			await connect({
+				force: true,
 			});
-			reconnectAttemptCount = 0;
 		} catch {
 			scheduleReconnect();
 		}
@@ -244,41 +312,25 @@ async function handleDisconnect() {
 	if (state.value === WebSocketConnectionState.Reconnecting) return;
 
 	state.value = WebSocketConnectionState.Reconnecting;
-	await destroyClient();
 	scheduleReconnect();
 }
 
+/**
+ * Ensure a connected, authenticated client and return it.
+ *
+ * Backwards-compatible async accessor. Prefer the synchronous `getClient` +
+ * `connect` split for new code; this remains for callers that want "give me a
+ * ready client" in one await.
+ */
 async function getCliInstance({
 	forceReconnect = false,
 }: {
 	forceReconnect?: boolean;
 } = {}): Promise<Client> {
-	if (
-		!forceReconnect &&
-		client &&
-		state.value === WebSocketConnectionState.Connected
-	) {
-		return client;
-	}
-
-	if (clientInitPromise) return clientInitPromise;
-
-	state.value = client
-		? WebSocketConnectionState.Reconnecting
-		: WebSocketConnectionState.Connecting;
-
-	clientInitPromise = (async () => {
-		try {
-			const cli = await createClient();
-			client = cli;
-			state.value = WebSocketConnectionState.Connected;
-			return cli;
-		} finally {
-			clientInitPromise = null;
-		}
-	})();
-
-	return clientInitPromise;
+	await connect({
+		force: forceReconnect,
+	});
+	return getClient();
 }
 
 /* ============================================================================
@@ -300,27 +352,26 @@ function on<K extends keyof EventMap>(
  * subscribeCall, on, ...). Reactivity is owned here, at the singleton, and
  * applied only to the sub-objects that modules actually observe.
  *
- * `callStore` / `conversationStore` are wrapped with `reactive()` in
- * `createClient`. `agent` is created lazily by `agentSession()`, so it is
- * wrapped on first access below. `reactive()` is idempotent (same proxy from
- * Vue's WeakMap), so every accessor returns the one shared proxy — no
- * per-module wrapping, no proxy-identity races.
+ * `callStore` / `conversationStore` are wrapped with `reactive()` at creation,
+ * so these getters are synchronous — the proxy exists (empty) before connect
+ * and fills in afterwards. `agent` is created lazily by `agentSession()` (a
+ * network call), so `getAgentSession` stays async. `reactive()` is idempotent
+ * (same proxy from Vue's WeakMap), so every accessor returns the one shared
+ * proxy — no per-module wrapping, no proxy-identity races.
  * ------------------------------------------------------------------------- */
 
-async function getCallStore() {
-	const cli = await getCliInstance();
+function getCallStore() {
 	// @ts-expect-error private; wrapped reactive in createClient
-	return cli.callStore;
+	return getClient().callStore;
 }
 
-async function getConversationStore() {
-	const cli = await getCliInstance();
+function getConversationStore() {
 	// @ts-expect-error private; wrapped reactive in createClient
-	return cli.conversationStore;
+	return getClient().conversationStore;
 }
 
 async function getAgentSession() {
-	const cli = await getCliInstance();
+	const cli = getClient();
 	await cli.agentSession(); // populates cli.agent
 	// idempotent — same proxy across modules. Cast: reactive()'s
 	// UnwrapNestedRefs return type drops some Agent members.
@@ -330,19 +381,23 @@ async function getAgentSession() {
 
 export function useWebSocketClient() {
 	return {
-		// live read — `client` is reassigned across reconnects, so a captured
-		// value would go stale (it starts null before the first connect)
+		// live read — `client` is reassigned across teardown/recreate, so a
+		// captured value would go stale (it starts null before the first connect)
 		get client() {
 			return client;
 		},
 		state: readonly(state),
+
+		// instance access (synchronous)
+		getClient,
 
 		// reactive slices (observe in templates/computed/watch)
 		getCallStore,
 		getConversationStore,
 		getAgentSession,
 
-		// imperative API
+		// lifecycle
+		connect,
 		getCliInstance,
 		destroyClient,
 

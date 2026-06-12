@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mockEmit as emitMock, mockTe } from '../../../../test/setup';
+import { mockEmit as emitMock, mockTe } from '../../../../../test/setup';
 
 const onMock = vi.fn();
 
