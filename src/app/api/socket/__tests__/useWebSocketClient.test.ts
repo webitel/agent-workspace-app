@@ -52,6 +52,11 @@ vi.mock('webitel-sdk', () => ({
 	Client: FakeClient,
 }));
 
+// The mocked Client is a FakeClient at runtime; the manager's types still see
+// the real Client, so cast when touching test-only members (fire, *Store).
+type Cli = InstanceType<typeof FakeClient>;
+const asFake = (c: unknown) => c as unknown as Cli;
+
 // Fresh module (singleton state) per test.
 async function loadModule() {
 	vi.resetModules();
@@ -69,7 +74,7 @@ describe('useWebSocketClient', () => {
 		it('connects + authenticates and reports Connected', async () => {
 			const api = await loadModule();
 
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 
 			expect(FakeClient.instances).toHaveLength(1);
 			// cli is a shallowReactive proxy over the raw instance — assert through it
@@ -119,7 +124,7 @@ describe('useWebSocketClient', () => {
 		it('forceReconnect clears the entity stores from the dropped session', async () => {
 			const api = await loadModule();
 
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 			cli.callStore.set('c1', {});
 			cli.conversationStore.set('conv1', {});
 
@@ -156,7 +161,7 @@ describe('useWebSocketClient', () => {
 	describe('destroyClient', () => {
 		it('destroys the client and reports Disconnected', async () => {
 			const api = await loadModule();
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 
 			await api.destroyClient();
 
@@ -171,7 +176,7 @@ describe('useWebSocketClient', () => {
 			const onMetric = vi.fn();
 			api.on(api.Event.CallMediaMetric, onMetric);
 
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 			cli.fire('call_media_metric', {
 				mos: {
 					average: 4,
@@ -187,7 +192,7 @@ describe('useWebSocketClient', () => {
 
 		it('emits a notification on the SDK show_message event', async () => {
 			const api = await loadModule();
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 
 			cli.fire('show_message', {
 				type: 'info',
@@ -209,7 +214,7 @@ describe('useWebSocketClient', () => {
 
 		it('enters Reconnecting and re-establishes the same instance after backoff', async () => {
 			const api = await loadModule();
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 
 			cli.fire('disconnected', 1006, 'gone');
 			expect(api.state.value).toBe(WebSocketConnectionState.Reconnecting);
@@ -247,7 +252,7 @@ describe('useWebSocketClient', () => {
 		it('calls reflects the callStore contents reactively', async () => {
 			const api = await loadModule();
 
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 			expect(api.calls.value).toEqual([]);
 
 			const call = {
@@ -263,7 +268,7 @@ describe('useWebSocketClient', () => {
 		it('conversations reflects the conversationStore contents reactively', async () => {
 			const api = await loadModule();
 
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 			expect(api.conversations.value).toEqual([]);
 
 			const conversation = {
@@ -308,7 +313,7 @@ describe('useWebSocketClient', () => {
 			const onMetric = vi.fn();
 
 			const off = api.on(api.Event.CallMediaMetric, onMetric);
-			const cli = await api.getCliInstance();
+			const cli = asFake(await api.getCliInstance());
 
 			cli.fire('call_media_metric', {
 				mos: {

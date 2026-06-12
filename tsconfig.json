@@ -36,11 +36,8 @@
 		"src/**/*.ts",
 		"docs/pages/**/*.ts",
 		"env.d.ts",
+		"test/**/*.ts",
 		"packages/*/src/**/*.ts",
 		"packages/*/src/**/*.vue"
-	],
-	"exclude": [
-		"**/*.spec.ts",
-		"**/*.test.ts"
 	]
 }
