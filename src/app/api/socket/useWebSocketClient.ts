@@ -1,6 +1,6 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { markRaw, reactive, readonly, ref, shallowReactive } from 'vue';
-import type { RtpMetrics, ClientEvents, SipPhone } from 'webitel-sdk';
+import type { ClientEvents, RtpMetrics, SipPhone } from 'webitel-sdk';
 import { Client } from 'webitel-sdk';
 import { WebSocketClientEvent } from './enums/WebSocketClientEvent.enum';
 import { WebSocketConnectionState } from './enums/WebSocketConnectionState.enum';
@@ -144,15 +144,15 @@ async function markAsyncPhoneRaw(cli: Client) {
 		const timeout = window.setTimeout(resolve, 5000);
 
 		const markUa = () => {
-			// @ts-ignore should access and overwrite private property!
+			// @ts-expect-error should access and overwrite private property!
 			if (!(cli.phone as SipPhone).ua) return;
-			// @ts-ignore should access and overwrite private property!
+			// @ts-expect-error should access and overwrite private property!
 			(cli.phone as SipPhone).ua = markRaw((cli.phone as SipPhone).ua);
 			clearTimeout(timeout);
 			resolve();
 		};
 
-		// @ts-ignore should access and overwrite private property!
+		// @ts-expect-error should access and overwrite private property!
 		(cli.phone as SipPhone)?.ua ? markUa() : cli.on('phone_connected', markUa);
 	});
 }
@@ -178,9 +178,9 @@ async function createClient(): Promise<Client> {
 	);
 
 	// why reactive? https://github.com/vuejs/core/discussions/7811#discussioncomment-5181921
-	// @ts-ignore should access and overwrite private property!
+	// @ts-expect-error should access and overwrite private property!
 	cli.conversationStore = reactive(cli.conversationStore);
-	// @ts-ignore should access and overwrite private property!
+	// @ts-expect-error should access and overwrite private property!
 	cli.callStore = reactive(cli.callStore);
 
 	attachCoreHandlers(cli, generation);
@@ -285,20 +285,64 @@ async function getCliInstance({
  * Public API
  * ========================================================================== */
 
-export function useWebSocketClient() {
-	function on<K extends keyof EventMap>(
-		event: K,
-		cb: EventMap[K] | EventMap[K][],
-	) {
-		Array.isArray(cb)
-			? listeners[event].push(...cb)
-			: listeners[event].push(cb);
-	}
+function on<K extends keyof EventMap>(
+	event: K,
+	cb: EventMap[K] | EventMap[K][],
+) {
+	Array.isArray(cb) ? listeners[event].push(...cb) : listeners[event].push(cb);
+}
 
+/* ----------------------------------------------------------------------------
+ * Reactive slices
+ *
+ * The Client is a large library class. We do NOT expose it as one big reactive
+ * object: most of its surface is consumed imperatively (connect, auth, call,
+ * subscribeCall, on, ...). Reactivity is owned here, at the singleton, and
+ * applied only to the sub-objects that modules actually observe.
+ *
+ * `callStore` / `conversationStore` are wrapped with `reactive()` in
+ * `createClient`. `agent` is created lazily by `agentSession()`, so it is
+ * wrapped on first access below. `reactive()` is idempotent (same proxy from
+ * Vue's WeakMap), so every accessor returns the one shared proxy — no
+ * per-module wrapping, no proxy-identity races.
+ * ------------------------------------------------------------------------- */
+
+async function getCallStore() {
+	const cli = await getCliInstance();
+	// @ts-expect-error private; wrapped reactive in createClient
+	return cli.callStore;
+}
+
+async function getConversationStore() {
+	const cli = await getCliInstance();
+	// @ts-expect-error private; wrapped reactive in createClient
+	return cli.conversationStore;
+}
+
+async function getAgentSession() {
+	const cli = await getCliInstance();
+	await cli.agentSession(); // populates cli.agent
+	// idempotent — same proxy across modules. Cast: reactive()'s
+	// UnwrapNestedRefs return type drops some Agent members.
+	cli.agent = reactive(cli.agent) as typeof cli.agent;
+	return cli.agent;
+}
+
+export function useWebSocketClient() {
 	return {
-		client,
+		// live read — `client` is reassigned across reconnects, so a captured
+		// value would go stale (it starts null before the first connect)
+		get client() {
+			return client;
+		},
 		state: readonly(state),
 
+		// reactive slices (observe in templates/computed/watch)
+		getCallStore,
+		getConversationStore,
+		getAgentSession,
+
+		// imperative API
 		getCliInstance,
 		destroyClient,
 
