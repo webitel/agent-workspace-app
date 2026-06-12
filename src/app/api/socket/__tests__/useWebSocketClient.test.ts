@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mockEmit as emitMock } from '../../../../test/setup';
+import { effectScope } from 'vue';
+import { mockEmit as emitMock } from '../../../../../test/setup';
 import { WebSocketConnectionState } from '../enums/WebSocketConnectionState.enum';
 
 // eventBus is mocked globally in src/test/setup.ts (eventBus.$emit -> mockEmit)
@@ -13,15 +14,26 @@ class FakeClient {
 	phone = {
 		ua: {},
 	};
-	conversationStore = {};
-	callStore = {};
+	conversationStore = new Map();
+	callStore = new Map();
 	connect = vi.fn().mockResolvedValue(undefined);
 	auth = vi.fn().mockResolvedValue(undefined);
+	disconnect = vi.fn().mockResolvedValue(undefined);
 	destroy = vi.fn().mockResolvedValue(undefined);
+	agent = {};
+	agentSession = vi.fn().mockResolvedValue(undefined);
 
 	constructor(config: unknown) {
 		this.config = config;
 		FakeClient.instances.push(this);
+	}
+
+	allCall() {
+		return Array.from(this.callStore.values());
+	}
+
+	allConversations() {
+		return Array.from(this.conversationStore.values());
 	}
 
 	on(event: string, cb: (...a: unknown[]) => void) {
@@ -44,7 +56,7 @@ vi.mock('webitel-sdk', () => ({
 async function loadModule() {
 	vi.resetModules();
 	FakeClient.instances = [];
-	const mod = await import('../useWebSocketClient');
+	const mod = await import('../composables/useWebSocketClient');
 	return mod.useWebSocketClient();
 }
 
@@ -88,15 +100,35 @@ describe('useWebSocketClient', () => {
 			expect(FakeClient.instances).toHaveLength(1);
 		});
 
-		it('forceReconnect builds a new client even when Connected', async () => {
+		it('forceReconnect reuses the same instance, re-establishing its session', async () => {
 			const api = await loadModule();
 
-			await api.getCliInstance();
+			const a = await api.getCliInstance();
+			const b = await api.getCliInstance({
+				forceReconnect: true,
+			});
+
+			// one stable instance across reconnects (preserves reactive proxies)
+			expect(a).toBe(b);
+			expect(FakeClient.instances).toHaveLength(1);
+			expect(a.disconnect).toHaveBeenCalledOnce();
+			expect(a.connect).toHaveBeenCalledTimes(2);
+			expect(a.auth).toHaveBeenCalledTimes(2);
+		});
+
+		it('forceReconnect clears the entity stores from the dropped session', async () => {
+			const api = await loadModule();
+
+			const cli = await api.getCliInstance();
+			cli.callStore.set('c1', {});
+			cli.conversationStore.set('conv1', {});
+
 			await api.getCliInstance({
 				forceReconnect: true,
 			});
 
-			expect(FakeClient.instances).toHaveLength(2);
+			expect(cli.callStore.size).toBe(0);
+			expect(cli.conversationStore.size).toBe(0);
 		});
 
 		it('reads endpoint/token config from localStorage', async () => {
@@ -153,21 +185,6 @@ describe('useWebSocketClient', () => {
 			});
 		});
 
-		it('ignores events from a stale (superseded) client generation', async () => {
-			const api = await loadModule();
-			const onError = vi.fn();
-			api.on(api.Event.Error, onError);
-
-			const first = await api.getCliInstance();
-			await api.getCliInstance({
-				forceReconnect: true,
-			}); // bumps generation
-
-			first.fire('error', new Error('stale'));
-
-			expect(onError).not.toHaveBeenCalled();
-		});
-
 		it('emits a notification on the SDK show_message event', async () => {
 			const api = await loadModule();
 			const cli = await api.getCliInstance();
@@ -190,7 +207,7 @@ describe('useWebSocketClient', () => {
 		beforeEach(() => vi.useFakeTimers());
 		afterEach(() => vi.useRealTimers());
 
-		it('enters Reconnecting and rebuilds the client after backoff', async () => {
+		it('enters Reconnecting and re-establishes the same instance after backoff', async () => {
 			const api = await loadModule();
 			const cli = await api.getCliInstance();
 
@@ -200,8 +217,144 @@ describe('useWebSocketClient', () => {
 			// first backoff is 1000 * 2^0 = 1000ms
 			await vi.advanceTimersByTimeAsync(1000);
 
-			expect(FakeClient.instances).toHaveLength(2);
+			// reused, not rebuilt — reactive proxies survive the reconnect
+			expect(FakeClient.instances).toHaveLength(1);
+			expect(cli.disconnect).toHaveBeenCalledOnce();
+			expect(cli.connect).toHaveBeenCalledTimes(2);
 			expect(api.state.value).toBe(WebSocketConnectionState.Connected);
+		});
+	});
+
+	describe('reactive slices', () => {
+		it('getClient creates the instance synchronously without connecting', async () => {
+			const api = await loadModule();
+
+			const cli = api.getClient();
+
+			expect(cli).toBeDefined();
+			expect(FakeClient.instances).toHaveLength(1);
+			expect(cli.connect).not.toHaveBeenCalled();
+			expect(api.state.value).toBe(WebSocketConnectionState.Idle);
+		});
+
+		it('slices are undefined until the instance exists', async () => {
+			const api = await loadModule();
+
+			expect(api.calls.value).toBeUndefined();
+			expect(api.conversations.value).toBeUndefined();
+		});
+
+		it('calls reflects the callStore contents reactively', async () => {
+			const api = await loadModule();
+
+			const cli = await api.getCliInstance();
+			expect(api.calls.value).toEqual([]);
+
+			const call = {
+				id: 'c1',
+			};
+			cli.callStore.set('c1', call);
+
+			expect(api.calls.value).toEqual([
+				call,
+			]);
+		});
+
+		it('conversations reflects the conversationStore contents reactively', async () => {
+			const api = await loadModule();
+
+			const cli = await api.getCliInstance();
+			expect(api.conversations.value).toEqual([]);
+
+			const conversation = {
+				id: 'conv1',
+			};
+			cli.conversationStore.set('conv1', conversation);
+
+			expect(api.conversations.value).toEqual([
+				conversation,
+			]);
+		});
+
+		it('resets slices to undefined after destroy (instance swap)', async () => {
+			const api = await loadModule();
+
+			await api.connect();
+			expect(api.calls.value).toBeDefined();
+			expect(api.conversations.value).toBeDefined();
+
+			await api.destroyClient();
+
+			expect(api.client.value).toBeNull();
+			expect(api.calls.value).toBeUndefined();
+			expect(api.conversations.value).toBeUndefined();
+		});
+
+		it('getAgentSession resolves the agent and wraps it once', async () => {
+			const api = await loadModule();
+
+			const agentA = await api.getAgentSession();
+			const agentB = await api.getAgentSession();
+
+			expect(api.getClient().agentSession).toHaveBeenCalledTimes(2);
+			expect(agentA).toBe(agentB); // idempotent reactive wrap
+			expect(api.agent.value).toBe(agentA); // computed mirrors it
+		});
+	});
+
+	describe('event subscription', () => {
+		it('on() returns an unsubscribe that stops further delivery', async () => {
+			const api = await loadModule();
+			const onMetric = vi.fn();
+
+			const off = api.on(api.Event.CallMediaMetric, onMetric);
+			const cli = await api.getCliInstance();
+
+			cli.fire('call_media_metric', {
+				mos: {
+					average: 4,
+				},
+			});
+			off();
+			cli.fire('call_media_metric', {
+				mos: {
+					average: 3,
+				},
+			});
+
+			expect(onMetric).toHaveBeenCalledOnce();
+		});
+
+		it('auto-removes listeners when the caller effect scope is disposed', async () => {
+			vi.resetModules();
+			FakeClient.instances = [];
+			const mod = await import('../composables/useWebSocketClient');
+			const onMetric = vi.fn();
+
+			const scope = effectScope();
+			let cli: InstanceType<typeof FakeClient> | undefined;
+			await scope.run(async () => {
+				const api = mod.useWebSocketClient();
+				api.on(api.Event.CallMediaMetric, onMetric);
+				cli = (await api.getCliInstance()) as unknown as InstanceType<
+					typeof FakeClient
+				>;
+			});
+
+			cli?.fire('call_media_metric', {
+				mos: {
+					average: 4,
+				},
+			});
+			expect(onMetric).toHaveBeenCalledOnce();
+
+			scope.stop(); // disposes scope -> listener auto-removed
+			cli?.fire('call_media_metric', {
+				mos: {
+					average: 3,
+				},
+			});
+			expect(onMetric).toHaveBeenCalledOnce(); // no further delivery
 		});
 	});
 });

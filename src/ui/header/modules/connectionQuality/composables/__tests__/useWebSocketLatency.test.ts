@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RtpMetrics } from 'webitel-sdk';
-import { mockEmit as emitMock } from '../../../../../../test/setup';
+import { mockEmit as emitMock } from '../../../../../../../test/setup';
 import { ConnectionQualityLevel } from '../../enums/ConnectionQualityLevel.enum';
 
 const onMock = vi.fn();
@@ -9,7 +9,7 @@ const getCliInstanceMock = vi.fn();
 // vue-i18n + eventBus are mocked globally in src/test/setup.ts
 // (t echoes the key back; eventBus.$emit -> mockEmit)
 
-vi.mock('../../../../../../app/api/socket/useWebSocketClient', () => ({
+vi.mock('../../../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
 		on: onMock,
 		getCliInstance: getCliInstanceMock,
