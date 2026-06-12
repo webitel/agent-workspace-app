@@ -56,7 +56,7 @@ vi.mock('webitel-sdk', () => ({
 async function loadModule() {
 	vi.resetModules();
 	FakeClient.instances = [];
-	const mod = await import('../useWebSocketClient');
+	const mod = await import('../composables/useWebSocketClient');
 	return mod.useWebSocketClient();
 }
 
@@ -328,7 +328,7 @@ describe('useWebSocketClient', () => {
 		it('auto-removes listeners when the caller effect scope is disposed', async () => {
 			vi.resetModules();
 			FakeClient.instances = [];
-			const mod = await import('../useWebSocketClient');
+			const mod = await import('../composables/useWebSocketClient');
 			const onMetric = vi.fn();
 
 			const scope = effectScope();

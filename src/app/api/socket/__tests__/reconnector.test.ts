@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createReconnector } from '../reconnector';
+import { createReconnector } from '../utils/reconnector';
 
 describe('createReconnector', () => {
 	beforeEach(() => vi.useFakeTimers());

@@ -6,7 +6,7 @@ const onMock = vi.fn();
 
 // eventBus + vue-i18n are mocked globally in src/test/setup.ts
 
-vi.mock('../../../../app/api/socket/useWebSocketClient', () => ({
+vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
 		on: onMock,
 	}),

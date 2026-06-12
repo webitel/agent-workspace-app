@@ -4,17 +4,14 @@ import type { ClientEvents, RtpMetrics, SipPhone } from 'webitel-sdk';
 import { Client } from 'webitel-sdk';
 import { WebSocketClientEvent } from './enums/WebSocketClientEvent.enum';
 import { WebSocketConnectionState } from './enums/WebSocketConnectionState.enum';
-import { createReconnector } from './reconnector';
+import { createReconnector } from './utils/reconnector';
 
-/* ============================================================================
- * WebSocket client manager
- *
- * Owns the singleton webitel-sdk `Client` and its lifecycle. This is the
- * imperative core (connect/auth/reconnect/destroy + event fan-out) plus the
- * two mutable reactive primitives (`client`, `state`) it drives. The Vue
- * composable in `useWebSocketClient.ts` is a thin layer on top — it derives
- * the `computed` reactive slices and assembles the public API.
- * ========================================================================== */
+/**
+ * Socket client manager: owns the singleton webitel-sdk `Client`, its lifecycle
+ * (connect/auth/reconnect/destroy), event fan-out and the reactive primitives
+ * (`client`, `state`). `useWebSocketClient` layers the reactive slices and
+ * public API on top.
+ */
 
 const MAX_RECONNECT_ATTEMPTS = 10;
 const MAX_RECONNECT_DELAY = 15000;
@@ -28,14 +25,9 @@ export type EventMap = {
 	[WebSocketClientEvent.Disconnected]: ClientEvents['disconnected'];
 };
 
-/* ----------------------------------------------------------------------------
- * Reactive singleton state
- *
- * `client` is a shallowRef so derived computeds re-evaluate when the instance
- * is swapped (destroy -> recreate). The instance itself is shallowReactive so
- * its top-level fields (e.g. `agent`) stay tracked.
- * ------------------------------------------------------------------------- */
-
+// shallowRef so derived computeds re-resolve when the instance is swapped
+// (destroy -> recreate); the instance stays shallowReactive so its top-level
+// fields (e.g. agent) track.
 export const client = shallowRef<Client | null>(null);
 export const state = ref<WebSocketConnectionState>(
 	WebSocketConnectionState.Idle,
@@ -52,10 +44,6 @@ const listeners: { [T in WebSocketClientEvent]: EventMap[T][] } = {
 	],
 };
 
-/* ----------------------------------------------------------------------------
- * Environment
- * ------------------------------------------------------------------------- */
-
 const { hostname, protocol } = window.location;
 const origin = `${protocol}//${hostname}`.replace(/^http/, 'ws');
 
@@ -63,10 +51,6 @@ const endpoint =
 	import.meta.env.MODE === 'production'
 		? `${origin}/ws`
 		: import.meta.env.VITE_WEB_SOCKET_URL;
-
-/* ----------------------------------------------------------------------------
- * Events
- * ------------------------------------------------------------------------- */
 
 function emit<K extends WebSocketClientEvent>(
 	event: K,
@@ -78,10 +62,7 @@ function emit<K extends WebSocketClientEvent>(
 	});
 }
 
-/**
- * Register a listener for a forwarded SDK event. Returns an unsubscribe
- * function so consuming composables can clean up on unmount.
- */
+/** Subscribe to a forwarded SDK event; returns an unsubscribe fn. */
 export function on<K extends keyof EventMap>(
 	event: K,
 	cb: EventMap[K] | EventMap[K][],
@@ -100,10 +81,6 @@ export function on<K extends keyof EventMap>(
 		}
 	};
 }
-
-/* ----------------------------------------------------------------------------
- * Helpers
- * ------------------------------------------------------------------------- */
 
 type CliConfig = {
 	registerWebDevice?: boolean;
@@ -162,48 +139,31 @@ function attachCoreHandlers(cli: Client) {
 }
 
 /**
- * Mark the asynchronously created phone UA instance as raw.
- *
- * The phone instance is created after auth, so we wait for it to appear
- * (or for the `phone_connected` event) and then wrap `cli.phone.ua` in
- * `markRaw` to prevent Vue from making it reactive.
+ * cli.phone.ua is created after auth and has a setter-less `configuration` prop
+ * that breaks Vue reactivity (WTEL-4236), so markRaw it once it appears (or on
+ * `phone_connected`).
  */
 async function markAsyncPhoneRaw(cli: Client) {
-	/*
-    cli.phone.ua contains "configuration" property, which has no setter so cannot be wrapped with reactivity.
-    so that, reactivity breaks
-     for more info, see WTEL-4236
-     */
 	return new Promise<void>((resolve) => {
 		const timeout = window.setTimeout(resolve, 5000);
 
 		const markUa = () => {
-			// @ts-expect-error should access and overwrite private property!
+			// @ts-expect-error private
 			if (!(cli.phone as SipPhone).ua) return;
-			// @ts-expect-error should access and overwrite private property!
+			// @ts-expect-error private
 			(cli.phone as SipPhone).ua = markRaw((cli.phone as SipPhone).ua);
 			clearTimeout(timeout);
 			resolve();
 		};
 
-		// @ts-expect-error should access and overwrite private property!
+		// @ts-expect-error private
 		(cli.phone as SipPhone)?.ua ? markUa() : cli.on('phone_connected', markUa);
 	});
 }
 
-/* ----------------------------------------------------------------------------
- * Lifecycle
- *
- * Creating the Client is synchronous (`getClient`); establishing the live
- * session is asynchronous (`connect`). Splitting them lets the composable
- * expose the reactive slices as plain computeds — they resolve as soon as the
- * instance exists and fill in once `connect` completes.
- *
- * A single Client instance lives for the whole app session. Reconnects reuse
- * it (`disconnect` + reconnect) so the reactive store proxies keep their
- * identity. The instance is only torn down by `destroyClient` (logout); the
- * next `getClient` builds a fresh one with a fresh token.
- * ------------------------------------------------------------------------- */
+// Creating the Client is sync (getClient); establishing the session is async
+// (connect). One instance lives for the whole session — reconnects reuse it so
+// the reactive store proxies keep identity; only destroyClient tears it down.
 
 function createClient(): Client {
 	const token = localStorage.getItem('access-token');
@@ -219,10 +179,9 @@ function createClient(): Client {
 		}),
 	);
 
-	// why reactive? https://github.com/vuejs/core/discussions/7811#discussioncomment-5181921
-	// @ts-expect-error should access and overwrite private property!
+	// @ts-expect-error private
 	cli.conversationStore = reactive(cli.conversationStore);
-	// @ts-expect-error should access and overwrite private property!
+	// @ts-expect-error private
 	cli.callStore = reactive(cli.callStore);
 
 	attachCoreHandlers(cli);
@@ -230,10 +189,7 @@ function createClient(): Client {
 	return cli;
 }
 
-/**
- * Return the singleton Client, creating it synchronously on first access.
- * Does NOT connect — call `connect()` (or `getCliInstance()`) for that.
- */
+/** Singleton Client, created (sync) on first access. Does not connect. */
 export function getClient(): Client {
 	if (!client.value) {
 		client.value = createClient();
@@ -242,9 +198,8 @@ export function getClient(): Client {
 }
 
 /**
- * Tear down the current session's socket and drop the entities that belonged
- * to it, so a reconnect on the same instance doesn't resurface stale
- * calls/conversations. The reactive store proxies are kept (only emptied).
+ * Close the socket and empty this session's stores so a reconnect doesn't
+ * resurface stale calls/conversations (store proxies kept, just cleared).
  */
 async function resetSession(cli: Client) {
 	try {
@@ -252,16 +207,15 @@ async function resetSession(cli: Client) {
 	} catch (e) {
 		console.warn('[WS] disconnect error', e);
 	}
-	// @ts-expect-error should access private property!
+	// @ts-expect-error private
 	cli.callStore.clear();
-	// @ts-expect-error should access private property!
+	// @ts-expect-error private
 	cli.conversationStore.clear();
 }
 
 /**
- * Establish (or re-establish) the live session: connect + auth on the singleton
- * instance. Idempotent — concurrent calls share one in-flight promise, and a
- * no-op when already Connected unless `force` is set.
+ * Connect + auth on the singleton. Idempotent: concurrent calls share one
+ * in-flight promise; no-op when Connected unless `force`.
  */
 export async function connect({
 	force = false,
@@ -346,13 +300,7 @@ async function handleDisconnect() {
 	reconnector.schedule();
 }
 
-/**
- * Ensure a connected, authenticated client and return it.
- *
- * Backwards-compatible async accessor. Prefer the synchronous `getClient` +
- * `connect` split for new code; this remains for callers that want "give me a
- * ready client" in one await.
- */
+/** Connected client in one await (back-compat). Prefer getClient() + connect(). */
 export async function getCliInstance({
 	forceReconnect = false,
 }: {
@@ -364,12 +312,7 @@ export async function getCliInstance({
 	return getClient();
 }
 
-/**
- * Resolve the agent session and wrap `agent` reactively. `agentSession()` is a
- * network call, so this stays async — the `agent` computed slice mirrors the
- * wrapped value once this resolves. `reactive()` is idempotent, so repeated
- * calls return the one shared proxy.
- */
+/** Resolve the agent session (network) and wrap `agent` reactively (idempotent). */
 export async function getAgentSession() {
 	const cli = getClient();
 	await cli.agentSession(); // populates cli.agent

@@ -9,7 +9,7 @@ const getCliInstanceMock = vi.fn();
 // vue-i18n + eventBus are mocked globally in src/test/setup.ts
 // (t echoes the key back; eventBus.$emit -> mockEmit)
 
-vi.mock('../../../../../../app/api/socket/useWebSocketClient', () => ({
+vi.mock('../../../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
 		on: onMock,
 		getCliInstance: getCliInstanceMock,

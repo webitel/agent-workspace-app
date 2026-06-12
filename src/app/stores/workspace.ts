@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { useWebSocketClient } from '../api/socket/useWebSocketClient';
+import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
 
 export const useWorkspaceStore = defineStore('workspace', () => {
 	const { connect } = useWebSocketClient();

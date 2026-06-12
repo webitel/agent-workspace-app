@@ -2,7 +2,7 @@ import { eventBus } from '@webitel/ui-sdk/scripts';
 import type { RtpMetrics } from 'webitel-sdk';
 import { ConnectionQualityLevel } from '../enums/ConnectionQualityLevel.enum';
 import { useI18n } from 'vue-i18n';
-import { useWebSocketClient } from '../../../../../app/api/socket/useWebSocketClient';
+import { useWebSocketClient } from '../../../../../app/api/socket/composables/useWebSocketClient';
 import { WebSocketClientEvent } from '../../../../../app/api/socket/enums/WebSocketClientEvent.enum';
 import { ref } from 'vue';
 
