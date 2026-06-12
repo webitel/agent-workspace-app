@@ -4,6 +4,7 @@ import type { ClientEvents, RtpMetrics, SipPhone } from 'webitel-sdk';
 import { Client } from 'webitel-sdk';
 import { WebSocketClientEvent } from './enums/WebSocketClientEvent.enum';
 import { WebSocketConnectionState } from './enums/WebSocketConnectionState.enum';
+import { createReconnector } from './reconnector';
 
 /* ============================================================================
  * WebSocket client manager
@@ -41,8 +42,6 @@ export const state = ref<WebSocketConnectionState>(
 );
 
 let connectPromise: Promise<void> | null = null;
-let reconnectAttemptCount = 0;
-let reconnectTimerId: number | null = null;
 
 const listeners: { [T in WebSocketClientEvent]: EventMap[T][] } = {
 	[WebSocketClientEvent.AfterAuth]: [],
@@ -292,7 +291,7 @@ export async function connect({
 			await cli.auth();
 
 			state.value = WebSocketConnectionState.Connected;
-			reconnectAttemptCount = 0;
+			reconnector.reset();
 
 			emit(WebSocketClientEvent.AfterAuth, cli);
 			await markAsyncPhoneRaw(cli);
@@ -318,6 +317,7 @@ export async function destroyClient() {
 	} catch (e) {
 		console.warn('[WS] destroy error', e);
 	} finally {
+		reconnector.cancel();
 		client.value = null;
 		state.value = WebSocketConnectionState.Disconnected;
 		(
@@ -328,33 +328,22 @@ export async function destroyClient() {
 	}
 }
 
-function scheduleReconnect() {
-	if (reconnectTimerId || reconnectAttemptCount >= MAX_RECONNECT_ATTEMPTS)
-		return;
-
-	const delay = Math.min(
-		1000 * 2 ** reconnectAttemptCount,
-		MAX_RECONNECT_DELAY,
-	);
-	reconnectAttemptCount++;
-
-	reconnectTimerId = window.setTimeout(async () => {
-		reconnectTimerId = null;
-		try {
-			await connect({
-				force: true,
-			});
-		} catch {
-			scheduleReconnect();
-		}
-	}, delay);
-}
+const reconnector = createReconnector(
+	() =>
+		connect({
+			force: true,
+		}),
+	{
+		maxAttempts: MAX_RECONNECT_ATTEMPTS,
+		maxDelay: MAX_RECONNECT_DELAY,
+	},
+);
 
 async function handleDisconnect() {
 	if (state.value === WebSocketConnectionState.Reconnecting) return;
 
 	state.value = WebSocketConnectionState.Reconnecting;
-	scheduleReconnect();
+	reconnector.schedule();
 }
 
 /**
