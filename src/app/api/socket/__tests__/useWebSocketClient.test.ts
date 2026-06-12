@@ -27,6 +27,14 @@ class FakeClient {
 		FakeClient.instances.push(this);
 	}
 
+	allCall() {
+		return Array.from(this.callStore.values());
+	}
+
+	allConversations() {
+		return Array.from(this.conversationStore.values());
+	}
+
 	on(event: string, cb: (...a: unknown[]) => void) {
 		this.handlers[event] ??= [];
 		this.handlers[event].push(cb);
@@ -228,43 +236,57 @@ describe('useWebSocketClient', () => {
 			expect(api.state.value).toBe(WebSocketConnectionState.Idle);
 		});
 
-		it('store slices are undefined until the instance exists', async () => {
+		it('slices are undefined until the instance exists', async () => {
 			const api = await loadModule();
 
-			expect(api.callStore.value).toBeUndefined();
-			expect(api.conversationStore.value).toBeUndefined();
+			expect(api.calls.value).toBeUndefined();
+			expect(api.conversations.value).toBeUndefined();
 		});
 
-		it('exposes a stable store proxy across connect + reconnect', async () => {
+		it('calls reflects the callStore contents reactively', async () => {
 			const api = await loadModule();
 
-			api.getClient(); // create the instance synchronously
-			const callStoreInitial = api.callStore.value;
-			const convStoreInitial = api.conversationStore.value;
-			expect(callStoreInitial).toBeDefined();
+			const cli = await api.getCliInstance();
+			expect(api.calls.value).toEqual([]);
 
-			await api.connect();
-			await api.getCliInstance({
-				forceReconnect: true,
-			});
+			const call = {
+				id: 'c1',
+			};
+			cli.callStore.set('c1', call);
 
-			// identity preserved — the instance is reused, so components binding
-			// the slice once stay live across reconnects
-			expect(api.callStore.value).toBe(callStoreInitial);
-			expect(api.conversationStore.value).toBe(convStoreInitial);
+			expect(api.calls.value).toEqual([
+				call,
+			]);
+		});
+
+		it('conversations reflects the conversationStore contents reactively', async () => {
+			const api = await loadModule();
+
+			const cli = await api.getCliInstance();
+			expect(api.conversations.value).toEqual([]);
+
+			const conversation = {
+				id: 'conv1',
+			};
+			cli.conversationStore.set('conv1', conversation);
+
+			expect(api.conversations.value).toEqual([
+				conversation,
+			]);
 		});
 
 		it('resets slices to undefined after destroy (instance swap)', async () => {
 			const api = await loadModule();
 
 			await api.connect();
-			expect(api.callStore.value).toBeDefined();
+			expect(api.calls.value).toBeDefined();
+			expect(api.conversations.value).toBeDefined();
 
 			await api.destroyClient();
 
 			expect(api.client.value).toBeNull();
-			expect(api.callStore.value).toBeUndefined();
-			expect(api.conversationStore.value).toBeUndefined();
+			expect(api.calls.value).toBeUndefined();
+			expect(api.conversations.value).toBeUndefined();
 		});
 
 		it('getAgentSession resolves the agent and wraps it once', async () => {

@@ -27,17 +27,12 @@ import {
  * swapped (logout -> re-login).
  * ========================================================================== */
 
-// callStore / conversationStore are private on Client but wrapped with
-// reactive() at creation; read them through the (reactive) instance.
-const callStore = computed(() => {
-	// @ts-expect-error private; wrapped reactive in createClient
-	return client.value?.callStore;
-});
-
-const conversationStore = computed(() => {
-	// @ts-expect-error private; wrapped reactive in createClient
-	return client.value?.conversationStore;
-});
+// `calls` / `conversations` read the public allCall() / allConversations()
+// accessors — they iterate the reactive callStore / conversationStore Maps, so
+// the computeds re-evaluate when entries are added/removed. (Per-entity field
+// changes update bindings directly via the reactive Call / Conversation.)
+const calls = computed(() => client.value?.allCall());
+const conversations = computed(() => client.value?.allConversations());
 
 // `agent` is populated by getAgentSession(); undefined until then.
 const agent = computed(() => client.value?.agent);
@@ -52,8 +47,8 @@ export function useWebSocketClient() {
 		state: readonlyState,
 
 		// reactive slices (observe in templates/computed/watch)
-		callStore,
-		conversationStore,
+		calls,
+		conversations,
 		agent,
 
 		// instance access + lifecycle (imperative)
