@@ -1,30 +1,39 @@
-import { computed, readonly } from 'vue';
+import { computed, getCurrentScope, onScopeDispose, readonly } from 'vue';
 import { WebSocketClientEvent } from './enums/WebSocketClientEvent.enum';
 import {
 	client,
 	connect,
 	destroyClient,
+	type EventMap,
 	getAgentSession,
 	getClient,
 	getCliInstance,
-	on,
 	state,
+	on as subscribeToEvent,
 } from './webSocketClient';
 
 /* ============================================================================
  * useWebSocketClient
  *
- * Thin Vue layer over the singleton manager (`webSocketClient.ts`). The Client
- * is a large library class, so we do NOT expose it as one big reactive object:
- * most of its surface is consumed imperatively (connect, auth, call,
- * subscribeCall, on, ...). Only the sub-objects modules actually observe are
- * exposed reactively, as computeds derived from the `client` shallowRef.
+ * Vue composable over the singleton manager (`webSocketClient.ts`).
  *
- * The slices resolve to `undefined` until the instance exists (`getClient` /
+ * The connection state is a process-wide singleton, so the reactive bits
+ * (state, slices) are shared module-level refs/computeds rather than recreated
+ * per call. What makes this a composable — and not just a getter — is the
+ * lifecycle binding: event listeners registered through the returned `on` are
+ * automatically removed when the caller's effect scope (component setup, store,
+ * watcher) is disposed, so consumers never leak handlers on unmount.
+ *
+ * The Client is a large library class, so we do NOT expose it as one big
+ * reactive object: most of its surface is consumed imperatively (connect, auth,
+ * call, subscribeCall, ...). Only the sub-objects modules observe are exposed
+ * reactively, as computeds derived from the `client` shallowRef.
+ *
+ * Slices resolve to `undefined` until the instance exists (`getClient` /
  * `connect`), then track their underlying reactive store. Because reconnects
- * reuse the same instance, the proxy identity is stable across reconnects;
- * because `client` is a ref, the computeds re-resolve if the instance is
- * swapped (logout -> re-login).
+ * reuse the same instance, identity is stable across reconnects; because
+ * `client` is a ref, the computeds re-resolve if the instance is swapped
+ * (logout -> re-login).
  * ========================================================================== */
 
 // `calls` / `conversations` read the public allCall() / allConversations()
@@ -41,6 +50,26 @@ const readonlyClient = readonly(client);
 const readonlyState = readonly(state);
 
 export function useWebSocketClient() {
+	// Track this caller's subscriptions and tear them down when its effect
+	// scope is disposed (component unmount, store dispose, watcher stop).
+	const disposers: Array<() => void> = [];
+
+	function on<K extends keyof EventMap>(
+		event: K,
+		cb: EventMap[K] | EventMap[K][],
+	): () => void {
+		const off = subscribeToEvent(event, cb);
+		disposers.push(off);
+		return off;
+	}
+
+	if (getCurrentScope()) {
+		onScopeDispose(() => {
+			for (const off of disposers) off();
+			disposers.length = 0;
+		});
+	}
+
 	return {
 		// reactive primitives
 		client: readonlyClient,
@@ -58,6 +87,7 @@ export function useWebSocketClient() {
 		getCliInstance,
 		destroyClient,
 
+		// scope-bound event subscription (auto-removed on scope dispose)
 		on,
 		Event: WebSocketClientEvent,
 	};

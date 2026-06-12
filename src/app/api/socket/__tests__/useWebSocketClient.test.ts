@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { effectScope } from 'vue';
 import { mockEmit as emitMock } from '../../../../../test/setup';
 import { WebSocketConnectionState } from '../enums/WebSocketConnectionState.enum';
 
@@ -322,6 +323,38 @@ describe('useWebSocketClient', () => {
 			});
 
 			expect(onMetric).toHaveBeenCalledOnce();
+		});
+
+		it('auto-removes listeners when the caller effect scope is disposed', async () => {
+			vi.resetModules();
+			FakeClient.instances = [];
+			const mod = await import('../useWebSocketClient');
+			const onMetric = vi.fn();
+
+			const scope = effectScope();
+			let cli: InstanceType<typeof FakeClient> | undefined;
+			await scope.run(async () => {
+				const api = mod.useWebSocketClient();
+				api.on(api.Event.CallMediaMetric, onMetric);
+				cli = (await api.getCliInstance()) as unknown as InstanceType<
+					typeof FakeClient
+				>;
+			});
+
+			cli?.fire('call_media_metric', {
+				mos: {
+					average: 4,
+				},
+			});
+			expect(onMetric).toHaveBeenCalledOnce();
+
+			scope.stop(); // disposes scope -> listener auto-removed
+			cli?.fire('call_media_metric', {
+				mos: {
+					average: 3,
+				},
+			});
+			expect(onMetric).toHaveBeenCalledOnce(); // no further delivery
 		});
 	});
 });
