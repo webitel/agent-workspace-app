@@ -41,85 +41,23 @@ describe('useWebSocketLatency', () => {
 		latencyMock.mockReset();
 	});
 
-	describe('websocketRtpConnectionLevelHandler', () => {
-		it('returns High with no reasons when rtp is missing', () => {
+	// Pure scoring (level + reasons) is covered in scoreConnection.test.ts.
+	// Here we cover the composable's side effect: the degrade notification.
+	describe('connection-quality notification', () => {
+		it('stays silent when rtp is missing', () => {
 			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
 
-			expect(websocketRtpConnectionLevelHandler()).toEqual({
-				level: ConnectionQualityLevel.High,
-				reasons: [],
-			});
+			websocketRtpConnectionLevelHandler();
+
 			expect(emitMock).not.toHaveBeenCalled();
 		});
 
-		it('returns High for healthy metrics', () => {
+		it('stays silent on healthy metrics (High)', () => {
 			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
 
-			const result = websocketRtpConnectionLevelHandler(rtp());
+			websocketRtpConnectionLevelHandler(rtp());
 
-			expect(result.level).toBe(ConnectionQualityLevel.High);
-			expect(result.reasons).toEqual([]);
 			expect(emitMock).not.toHaveBeenCalled();
-		});
-
-		it('flags Medium on borderline jitter (30–50ms)', () => {
-			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
-
-			const result = websocketRtpConnectionLevelHandler(
-				rtp({
-					jitter: {
-						average: 40,
-					},
-				} as Partial<RtpMetrics>),
-			);
-
-			expect(result.level).toBe(ConnectionQualityLevel.Medium);
-			expect(result.reasons).toContain('jitter 40 ms (30–50)');
-		});
-
-		it('flags Low on high jitter (>50ms)', () => {
-			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
-
-			const result = websocketRtpConnectionLevelHandler(
-				rtp({
-					jitter: {
-						average: 80,
-					},
-				} as Partial<RtpMetrics>),
-			);
-
-			expect(result.level).toBe(ConnectionQualityLevel.Low);
-			expect(result.reasons).toContain('jitter 80 ms (> 50)');
-		});
-
-		it('flags Low on high packet loss (>3%)', () => {
-			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
-
-			const result = websocketRtpConnectionLevelHandler(
-				rtp({
-					packetloss: {
-						average: 5,
-					},
-				} as Partial<RtpMetrics>),
-			);
-
-			expect(result.level).toBe(ConnectionQualityLevel.Low);
-			expect(result.reasons).toContain('packet loss 5.0 % (> 3%)');
-		});
-
-		it('flags Low on poor MOS (<3.5)', () => {
-			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
-
-			const result = websocketRtpConnectionLevelHandler(
-				rtp({
-					mos: {
-						average: 3.0,
-					},
-				} as Partial<RtpMetrics>),
-			);
-
-			expect(result.level).toBe(ConnectionQualityLevel.Low);
-			expect(result.reasons).toContain('MOS 3.00 (< 3.5)');
 		});
 
 		it('emits an error notification on Low quality', () => {
@@ -156,24 +94,6 @@ describe('useWebSocketLatency', () => {
 				text: `notifications.connectionQuality.${ConnectionQualityLevel.Medium}`,
 				timeout: 8000,
 			});
-		});
-
-		it('falls to worst level when multiple metrics degrade', () => {
-			const { websocketRtpConnectionLevelHandler } = useWebSocketLatency();
-
-			const result = websocketRtpConnectionLevelHandler(
-				rtp({
-					jitter: {
-						average: 40,
-					}, // medium
-					mos: {
-						average: 3.0,
-					}, // low
-				} as Partial<RtpMetrics>),
-			);
-
-			expect(result.level).toBe(ConnectionQualityLevel.Low);
-			expect(result.reasons.length).toBeGreaterThanOrEqual(2);
 		});
 	});
 
