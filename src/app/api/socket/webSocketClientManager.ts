@@ -312,16 +312,19 @@ export async function getCliInstance({
 	return getClient();
 }
 
-/** Current socket round-trip latency (ms). Ensures the session is connected first. */
+// SDK Client.latency() is marked private (looks unintentional — likely a backend
+// oversight, not a real contract). Until it's exposed upstream, the cast lives
+// here in one place instead of at every call site. WTEL-8733.
+type WithLatency = {
+	latency(): Promise<number>;
+};
+
+/**
+ * Current socket round-trip latency (ms), read from the already-connected
+ * singleton (the session is brought up once in the workspace store).
+ */
 export async function latency(): Promise<number> {
-	await connect();
-	// latency() is private on the SDK Client (WTEL-8733); the cast is contained
-	// here so call sites stay clean.
-	return (
-		getClient() as unknown as {
-			latency(): Promise<number>;
-		}
-	).latency();
+	return (getClient() as unknown as WithLatency).latency();
 }
 
 /** Resolve the agent session (network) and wrap `agent` reactively (idempotent). */

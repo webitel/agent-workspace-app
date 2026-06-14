@@ -160,14 +160,13 @@ describe('useWebSocketClient', () => {
 	});
 
 	describe('domain operations', () => {
-		it('latency connects then resolves the SDK client latency', async () => {
+		it('resolves the SDK client latency without connecting', async () => {
 			const api = await loadModule();
 
 			const value = await api.latency();
 
 			const cli = asFake(api.getClient());
-			expect(cli.connect).toHaveBeenCalledOnce();
-			expect(cli.auth).toHaveBeenCalledOnce();
+			expect(cli.connect).not.toHaveBeenCalled();
 			expect(cli.latency).toHaveBeenCalledOnce();
 			expect(value).toBe(42);
 		});
