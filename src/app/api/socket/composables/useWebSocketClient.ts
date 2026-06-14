@@ -8,6 +8,7 @@ import {
 	getAgentSession,
 	getClient,
 	getCliInstance,
+	latency,
 	state,
 	on as subscribeToEvent,
 } from '../webSocketClientManager';
@@ -49,6 +50,9 @@ export function useWebSocketClient() {
 		calls,
 		conversations,
 		agent,
+
+		// domain operation: seals access to the private SDK latency() (WTEL-8733)
+		latency,
 
 		// imperative
 		getClient,

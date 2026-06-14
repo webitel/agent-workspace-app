@@ -312,6 +312,21 @@ export async function getCliInstance({
 	return getClient();
 }
 
+// SDK Client.latency() is marked private (looks unintentional — likely a backend
+// oversight, not a real contract). Until it's exposed upstream, the cast lives
+// here in one place instead of at every call site. WTEL-8733.
+type WithLatency = {
+	latency(): Promise<number>;
+};
+
+/**
+ * Current socket round-trip latency (ms), read from the already-connected
+ * singleton (the session is brought up once in the workspace store).
+ */
+export async function latency(): Promise<number> {
+	return (getClient() as unknown as WithLatency).latency();
+}
+
 /** Resolve the agent session (network) and wrap `agent` reactively (idempotent). */
 export async function getAgentSession() {
 	const cli = getClient();
