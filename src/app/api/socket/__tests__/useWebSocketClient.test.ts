@@ -22,6 +22,7 @@ class FakeClient {
 	destroy = vi.fn().mockResolvedValue(undefined);
 	agent = {};
 	agentSession = vi.fn().mockResolvedValue(undefined);
+	latency = vi.fn().mockResolvedValue(42);
 
 	constructor(config: unknown) {
 		this.config = config;
@@ -155,6 +156,20 @@ describe('useWebSocketClient', () => {
 				debug: true,
 				registerWebDevice: true, // defaulted on
 			});
+		});
+	});
+
+	describe('domain operations', () => {
+		it('latency connects then resolves the SDK client latency', async () => {
+			const api = await loadModule();
+
+			const value = await api.latency();
+
+			const cli = asFake(api.getClient());
+			expect(cli.connect).toHaveBeenCalledOnce();
+			expect(cli.auth).toHaveBeenCalledOnce();
+			expect(cli.latency).toHaveBeenCalledOnce();
+			expect(value).toBe(42);
 		});
 	});
 

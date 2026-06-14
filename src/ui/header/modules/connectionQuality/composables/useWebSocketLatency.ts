@@ -1,10 +1,10 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
-import type { RtpMetrics } from 'webitel-sdk';
-import { ConnectionQualityLevel } from '../enums/ConnectionQualityLevel.enum';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import type { RtpMetrics } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../../../app/api/socket/composables/useWebSocketClient';
 import { WebSocketClientEvent } from '../../../../../app/api/socket/enums/WebSocketClientEvent.enum';
-import { ref } from 'vue';
+import { ConnectionQualityLevel } from '../enums/ConnectionQualityLevel.enum';
 
 const LATENCY_REFRESH_DELAY = 5000;
 
@@ -16,7 +16,7 @@ export const useWebSocketLatency = () => {
 	const rtpRef = ref<RtpMetrics | null>(null);
 
 	const { t } = useI18n();
-	const { on: onWebSocketEvent, getCliInstance } = useWebSocketClient();
+	const { on: onWebSocketEvent, latency } = useWebSocketClient();
 
 	onWebSocketEvent(WebSocketClientEvent.CallMediaMetric, (rtp: RtpMetrics) => {
 		websocketRtpConnectionLevelHandler(rtp);
@@ -29,8 +29,6 @@ export const useWebSocketLatency = () => {
 	});
 
 	const startLatencyTracking = async () => {
-		const cli = await getCliInstance();
-
 		if (latencyIntervalId) {
 			console.warn('[WS]: latency tracking already started');
 			return;
@@ -38,9 +36,7 @@ export const useWebSocketLatency = () => {
 
 		latencyIntervalId = window.setInterval(async () => {
 			try {
-				// https://webitel.atlassian.net/browse/WTEL-8733
-				// @ts-ignore should access and overwrite private property!
-				latencyRef.value = await cli.latency();
+				latencyRef.value = await latency();
 			} catch (e) {
 				console.warn('[WS] latency error', e);
 			}

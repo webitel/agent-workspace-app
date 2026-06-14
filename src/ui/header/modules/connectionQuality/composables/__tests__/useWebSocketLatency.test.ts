@@ -4,17 +4,20 @@ import { mockEmit as emitMock } from '../../../../../../../test/setup';
 import { ConnectionQualityLevel } from '../../enums/ConnectionQualityLevel.enum';
 
 const onMock = vi.fn();
-const getCliInstanceMock = vi.fn();
+const latencyMock = vi.fn();
 
 // vue-i18n + eventBus are mocked globally in src/test/setup.ts
 // (t echoes the key back; eventBus.$emit -> mockEmit)
 
-vi.mock('../../../../../../app/api/socket/composables/useWebSocketClient', () => ({
-	useWebSocketClient: () => ({
-		on: onMock,
-		getCliInstance: getCliInstanceMock,
+vi.mock(
+	'../../../../../../app/api/socket/composables/useWebSocketClient',
+	() => ({
+		useWebSocketClient: () => ({
+			on: onMock,
+			latency: latencyMock,
+		}),
 	}),
-}));
+);
 
 import { useWebSocketLatency } from '../useWebSocketLatency';
 
@@ -35,7 +38,7 @@ const rtp = (over: Partial<RtpMetrics> = {}): RtpMetrics =>
 describe('useWebSocketLatency', () => {
 	beforeEach(() => {
 		onMock.mockClear();
-		getCliInstanceMock.mockReset();
+		latencyMock.mockReset();
 	});
 
 	describe('websocketRtpConnectionLevelHandler', () => {
@@ -182,11 +185,8 @@ describe('useWebSocketLatency', () => {
 			vi.useRealTimers();
 		});
 
-		it('polls cli.latency on an interval after start', async () => {
-			const latency = vi.fn().mockResolvedValue(42);
-			getCliInstanceMock.mockResolvedValue({
-				latency,
-			});
+		it('polls latency on an interval after start', async () => {
+			latencyMock.mockResolvedValue(42);
 
 			const { startLatencyTracking, stopLatencyTracking } =
 				useWebSocketLatency();
@@ -194,25 +194,22 @@ describe('useWebSocketLatency', () => {
 			await startLatencyTracking();
 			await vi.advanceTimersByTimeAsync(5000);
 
-			expect(latency).toHaveBeenCalled();
+			expect(latencyMock).toHaveBeenCalled();
 			stopLatencyTracking();
 		});
 
 		it('stops polling after stop', async () => {
-			const latency = vi.fn().mockResolvedValue(42);
-			getCliInstanceMock.mockResolvedValue({
-				latency,
-			});
+			latencyMock.mockResolvedValue(42);
 
 			const { startLatencyTracking, stopLatencyTracking } =
 				useWebSocketLatency();
 
 			await startLatencyTracking();
 			stopLatencyTracking();
-			latency.mockClear();
+			latencyMock.mockClear();
 			await vi.advanceTimersByTimeAsync(10000);
 
-			expect(latency).not.toHaveBeenCalled();
+			expect(latencyMock).not.toHaveBeenCalled();
 		});
 	});
 });
