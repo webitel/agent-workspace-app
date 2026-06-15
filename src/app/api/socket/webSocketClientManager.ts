@@ -300,18 +300,6 @@ async function handleDisconnect() {
 	reconnector.schedule();
 }
 
-/** Connected client in one await (back-compat). Prefer getClient() + connect(). */
-export async function getCliInstance({
-	forceReconnect = false,
-}: {
-	forceReconnect?: boolean;
-} = {}): Promise<Client> {
-	await connect({
-		force: forceReconnect,
-	});
-	return getClient();
-}
-
 // SDK Client.latency() is marked private (looks unintentional — likely a backend
 // oversight, not a real contract). Until it's exposed upstream, the cast lives
 // here in one place instead of at every call site. WTEL-8733.
