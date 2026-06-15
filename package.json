@@ -26,15 +26,16 @@
 		"@webitel/chat-web-sdk": "^0.0.19",
 		"@webitel/ui-chats": "^0.1.37",
 		"@webitel/ui-sdk": "~26.6",
+		"axios": "^1.17.0",
 		"pinia": "^3.x",
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.5",
-		"axios": "^1.17.0"
+		"webitel-sdk": "^26.4.5"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
+		"@pinia/testing": "^1.0.3",
 		"@playwright/test": "^1.55.1",
 		"@types/node": "^25.9.2",
 		"@vitejs/plugin-vue": "^6.x",
