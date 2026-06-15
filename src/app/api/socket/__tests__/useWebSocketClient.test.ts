@@ -320,7 +320,7 @@ describe('useWebSocketClient', () => {
 
 			await api.destroyClient();
 
-			expect(api.client.value).toBeNull();
+			// slices going undefined proves the instance was torn down
 			expect(api.calls.value).toBeUndefined();
 			expect(api.conversations.value).toBeUndefined();
 		});

@@ -28,7 +28,6 @@ const conversations = computed(() => client.value?.allConversations());
 // populated by getAgentSession(); undefined until then.
 const agent = computed(() => client.value?.agent);
 
-const readonlyClient = readonly(client);
 const readonlyState = readonly(state);
 
 export function useWebSocketClient() {
@@ -44,7 +43,6 @@ export function useWebSocketClient() {
 
 	return {
 		// reactive
-		client: readonlyClient,
 		state: readonlyState,
 		calls,
 		conversations,
