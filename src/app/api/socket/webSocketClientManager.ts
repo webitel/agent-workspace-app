@@ -197,6 +197,15 @@ export function getClient(): Client {
 	return client.value;
 }
 
+/** Expose the live client on window for debugging. */
+function setWindowCli(cli: Client | null) {
+	(
+		window as unknown as {
+			cli?: Client | null;
+		}
+	).cli = cli;
+}
+
 /**
  * Close the socket and empty this session's stores so a reconnect doesn't
  * resurface stale calls/conversations (store proxies kept, just cleared).
@@ -245,16 +254,14 @@ export async function connect({
 			await cli.auth();
 
 			state.value = WebSocketConnectionState.Connected;
-			reconnector.reset();
+			// cancel (not just reset) so a backoff timer pending from a prior
+			// disconnect can't later force-reconnect this healthy socket
+			reconnector.cancel();
 
 			emit(WebSocketClientEvent.AfterAuth, cli);
 			await markAsyncPhoneRaw(cli);
 
-			(
-				window as unknown as {
-					cli?: Client | null;
-				}
-			).cli = cli;
+			setWindowCli(cli);
 		} finally {
 			connectPromise = null;
 		}
@@ -274,11 +281,7 @@ export async function destroyClient() {
 		reconnector.cancel();
 		client.value = null;
 		state.value = WebSocketConnectionState.Disconnected;
-		(
-			window as unknown as {
-				cli?: Client | null;
-			}
-		).cli = null;
+		setWindowCli(null);
 	}
 }
 

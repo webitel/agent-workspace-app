@@ -58,8 +58,7 @@ vi.mock('webitel-sdk', () => ({
 type Cli = InstanceType<typeof FakeClient>;
 const asFake = (c: unknown) => c as unknown as Cli;
 
-// Connect the singleton and return its (faked) client — replaces the old
-// getCliInstance one-shot.
+// Connect the singleton and return its (faked) client.
 async function connectCli(
 	api: Awaited<ReturnType<typeof loadModule>>,
 	{
