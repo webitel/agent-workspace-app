@@ -22,8 +22,6 @@ export const useAgentStore = defineStore('agent', () => {
     };
 
     return {
-        agent,
-
         initializeAgent,
         setAgentWaitingStatus,
         setAgentPauseStatus,
