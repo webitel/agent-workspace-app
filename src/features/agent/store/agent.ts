@@ -2,38 +2,31 @@ import { defineStore } from 'pinia';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 
-export const createUserStore = ({ namespace } = {}) => {
-    return defineStore(`${namespace}`, () => {
-        const { agent, getAgentSession } = useWebSocketClient();
+export const useAgentStore = defineStore('agent', () => {
+    const { agent, getAgentSession } = useWebSocketClient();
 
+    const initializeAgent = async () => {
+        await getAgentSession();
+    }
 
-        const setAgentWaitingStatus = async () => {
-            const agentInstance = await getAgentSession();
-            agentInstance.online();
-        };
+    const setAgentWaitingStatus = async () => {
+        agent.online();
+    };
 
-        const setAgentPauseStatus = async (note = '') => {
-            const agentInstance = await getAgentSession();
-            await agentInstance.pause(note);
-        };
+    const setAgentPauseStatus = async (note = '') => {
+        agent.pause(note);
+    };
 
-        const agentLogout = async () => {
-            const agentInstance = await getAgentSession();
-            agentInstance.offline();
-        };
+    const agentLogout = async () => {
+        agent.offline();
+    };
 
-        const setAgentInstance = (value) => {
-            agent.value = value;
-        };
+    return {
+        agent,
 
-        return {
-            agent,
-
-            setAgentWaitingStatus,
-            setAgentPauseStatus,
-            agentLogout,
-
-            setAgentInstance,
-        };
-    });
-};
+        initializeAgent,
+        setAgentWaitingStatus,
+        setAgentPauseStatus,
+        agentLogout,
+    }
+});
