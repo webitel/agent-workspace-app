@@ -11,7 +11,7 @@
 		"dev": "vite --force",
 		"build": "vite build",
 		"preview": "vite preview",
-		"test:unit": "vitest",
+		"test:unit": "vitest run",
 		"lint:fix": "npx biome check --write ./src",
 		"lint:fix-staged": "npx lint-staged",
 		"test:e2e": "playwright test",

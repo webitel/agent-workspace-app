@@ -20,10 +20,10 @@ import {
  * store; they re-resolve if the instance is swapped (logout -> re-login).
  */
 
-// allCall()/allConversations() iterate the reactive Maps, so these recompute on
-// add/remove (per-entity field changes bind via the reactive Call/Conversation).
+// allCall()/allTask() iterate the reactive Maps, so these recompute on
+// add/remove (per-entity field changes bind via the reactive Call/Task).
 const calls = computed(() => client.value?.allCall());
-const conversations = computed(() => client.value?.allConversations());
+const tasks = computed(() => client.value?.allTask());
 
 // populated by getAgentSession(); undefined until then.
 const agent = computed(() => client.value?.agent);
@@ -45,7 +45,7 @@ export function useWebSocketClient() {
 		// reactive
 		state: readonlyState,
 		calls,
-		conversations,
+		tasks,
 		agent,
 
 		// domain operation: seals access to the private SDK latency() (WTEL-8733)

@@ -1,16 +1,27 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
+import { computed } from 'vue';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 
 export const useChatsStore = defineStore('chats', () => {
+	const { getClient, tasks } = useWebSocketClient();
+
+	const chatList = computed(() => {
+		return tasks.value?.filter(({ channel }) => channel === 'im');
+	});
+
 	function initialize() {
-		// Connection is established once in the workspace store; here we grab the
-		// already-connected singleton and subscribe through the SDK's public API.
-		const { getClient } = useWebSocketClient();
-		getClient().subscribeTask(() => {});
+		const client = getClient();
+		client.subscribeTask(() => {
+			// todo: show notifications about new tasks
+		});
 	}
 
 	return {
+		// getters
+		chatList,
+
+		// actions
 		initialize,
 	};
 });

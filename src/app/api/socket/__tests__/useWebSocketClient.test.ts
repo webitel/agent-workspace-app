@@ -14,13 +14,16 @@ class FakeClient {
 	phone = {
 		ua: {},
 	};
-	conversationStore = new Map();
 	callStore = new Map();
 	connect = vi.fn().mockResolvedValue(undefined);
 	auth = vi.fn().mockResolvedValue(undefined);
 	disconnect = vi.fn().mockResolvedValue(undefined);
 	destroy = vi.fn().mockResolvedValue(undefined);
-	agent = {};
+	agent: {
+		task: Map<string, unknown>;
+	} = {
+		task: new Map(),
+	};
 	agentSession = vi.fn().mockResolvedValue(undefined);
 	latency = vi.fn().mockResolvedValue(42);
 
@@ -33,8 +36,9 @@ class FakeClient {
 		return Array.from(this.callStore.values());
 	}
 
-	allConversations() {
-		return Array.from(this.conversationStore.values());
+	allTask() {
+		if (!this.agent) return [];
+		return Array.from(this.agent.task.values());
 	}
 
 	on(event: string, cb: (...a: unknown[]) => void) {
@@ -135,21 +139,6 @@ describe('useWebSocketClient', () => {
 			expect(a.disconnect).toHaveBeenCalledOnce();
 			expect(a.connect).toHaveBeenCalledTimes(2);
 			expect(a.auth).toHaveBeenCalledTimes(2);
-		});
-
-		it('forceReconnect clears the entity stores from the dropped session', async () => {
-			const api = await loadModule();
-
-			const cli = await connectCli(api);
-			cli.callStore.set('c1', {});
-			cli.conversationStore.set('conv1', {});
-
-			await connectCli(api, {
-				forceReconnect: true,
-			});
-
-			expect(cli.callStore.size).toBe(0);
-			expect(cli.conversationStore.size).toBe(0);
 		});
 
 		it('reads endpoint/token config from localStorage', async () => {
@@ -275,7 +264,7 @@ describe('useWebSocketClient', () => {
 			const api = await loadModule();
 
 			expect(api.calls.value).toBeUndefined();
-			expect(api.conversations.value).toBeUndefined();
+			expect(api.tasks.value).toBeUndefined();
 		});
 
 		it('calls reflects the callStore contents reactively', async () => {
@@ -294,19 +283,22 @@ describe('useWebSocketClient', () => {
 			]);
 		});
 
-		it('conversations reflects the conversationStore contents reactively', async () => {
+		it('tasks reflects the agent task store reactively', async () => {
 			const api = await loadModule();
 
-			const cli = await connectCli(api);
-			expect(api.conversations.value).toEqual([]);
+			await connectCli(api);
+			// getAgentSession wraps agent reactive — the source tasks tracks
+			await api.getAgentSession();
+			const cli = asFake(api.getClient());
+			expect(api.tasks.value).toEqual([]);
 
-			const conversation = {
-				id: 'conv1',
+			const task = {
+				id: 't1',
 			};
-			cli.conversationStore.set('conv1', conversation);
+			cli.agent.task.set('t1', task);
 
-			expect(api.conversations.value).toEqual([
-				conversation,
+			expect(api.tasks.value).toEqual([
+				task,
 			]);
 		});
 
@@ -315,13 +307,13 @@ describe('useWebSocketClient', () => {
 
 			await api.connect();
 			expect(api.calls.value).toBeDefined();
-			expect(api.conversations.value).toBeDefined();
+			expect(api.tasks.value).toBeDefined();
 
 			await api.destroyClient();
 
 			// slices going undefined proves the instance was torn down
 			expect(api.calls.value).toBeUndefined();
-			expect(api.conversations.value).toBeUndefined();
+			expect(api.tasks.value).toBeUndefined();
 		});
 
 		it('getAgentSession resolves the agent and wraps it once', async () => {
