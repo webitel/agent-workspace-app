@@ -6,7 +6,7 @@ import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSo
 export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
 
-	const chatList = computed(() => {
+	const chatTaskList = computed(() => {
 		return tasks.value?.filter(({ channel }) => channel === 'im');
 	});
 
@@ -19,7 +19,8 @@ export const useChatsStore = defineStore('chats', () => {
 
 	return {
 		// getters
-		chatList,
+		// tasks,
+		chatTaskList,
 
 		// actions
 		initialize,
