@@ -1,6 +1,7 @@
 <template>
     <section class="the-chats-workspace">
         <the-chat-previews-list />
+        <router-view />
     </section>
 </template>
 

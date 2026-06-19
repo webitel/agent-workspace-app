@@ -320,3 +320,5 @@ export async function getAgentSession() {
 	cli.agent = reactive(cli.agent) as typeof cli.agent;
 	return cli.agent;
 }
+
+// window.getAgentSession = getAgentSession;
