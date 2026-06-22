@@ -36,8 +36,8 @@ export function useChatSessionStore(chatId: string) {
 				messages.value = page.items;
 				olderCursor.value = page.nextCursor?.id ?? null;
 				initialized.value = true;
-			} catch (error_) {
-				error.value = error_;
+			} catch (err) {
+				error.value = err;
 			} finally {
 				isLoading.value = false;
 			}
@@ -57,8 +57,8 @@ export function useChatSessionStore(chatId: string) {
 					...messages.value,
 				];
 				olderCursor.value = page.nextCursor?.id ?? null;
-			} catch (error_) {
-				error.value = error_;
+			} catch (err) {
+				error.value = err;
 			} finally {
 				isLoading.value = false;
 			}
