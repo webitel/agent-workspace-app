@@ -1,4 +1,5 @@
-import { createPinia, getActivePinia, setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { getActivePinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchThreadMock = vi.fn();
@@ -34,7 +35,12 @@ const historyPage = (ids: string[], nextCursorId: string | null) => ({
 
 describe('chat-session store', () => {
 	beforeEach(() => {
-		setActivePinia(createPinia());
+		setActivePinia(
+			createTestingPinia({
+				stubActions: false,
+				createSpy: vi.fn,
+			}),
+		);
 		fetchThreadMock.mockReset();
 		fetchMessageHistoryMock.mockReset();
 		fetchThreadMock.mockResolvedValue(thread());

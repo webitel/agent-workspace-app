@@ -1,4 +1,5 @@
-import { createPinia, setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 
@@ -34,7 +35,12 @@ import { useChatsStore } from '../chats';
 
 describe('chats store', () => {
 	beforeEach(() => {
-		setActivePinia(createPinia());
+		setActivePinia(
+			createTestingPinia({
+				stubActions: false,
+				createSpy: vi.fn,
+			}),
+		);
 		vi.clearAllMocks();
 		tasks.value = [];
 	});
