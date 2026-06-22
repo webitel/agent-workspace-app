@@ -1,11 +1,17 @@
 import { WtApplication } from '@webitel/ui-sdk/enums';
-import { createRouter, createWebHistory, NavigationGuard } from 'vue-router';
+import {
+	createRouter,
+	createWebHistory,
+	NavigationGuard,
+	RouteRecordRaw,
+} from 'vue-router';
 
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
+import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 
-const routes = [
+const routes: RouteRecordRaw[] = [
 	{
 		path: '/',
 		name: 'workspace',
@@ -23,6 +29,13 @@ const routes = [
 				path: '/chats',
 				name: 'chats',
 				component: TheChatsWorkspace,
+				children: [
+					{
+						path: ':threadId',
+						name: 'chat-window',
+						component: TheChatWindow,
+					},
+				],
 			},
 		],
 	},

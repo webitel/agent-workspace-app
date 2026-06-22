@@ -180,8 +180,6 @@ function createClient(): Client {
 	);
 
 	// @ts-expect-error private
-	cli.conversationStore = reactive(cli.conversationStore);
-	// @ts-expect-error private
 	cli.callStore = reactive(cli.callStore);
 
 	attachCoreHandlers(cli);
@@ -207,8 +205,8 @@ function setWindowCli(cli: Client | null) {
 }
 
 /**
- * Close the socket and empty this session's stores so a reconnect doesn't
- * resurface stale calls/conversations (store proxies kept, just cleared).
+ * Close the socket before a reconnect. The SDK client empties its own stores
+ * on disconnect, so we don't clear them here.
  */
 async function resetSession(cli: Client) {
 	try {
@@ -216,10 +214,6 @@ async function resetSession(cli: Client) {
 	} catch (e) {
 		console.warn('[WS] disconnect error', e);
 	}
-	// @ts-expect-error private
-	cli.callStore.clear();
-	// @ts-expect-error private
-	cli.conversationStore.clear();
 }
 
 /**
@@ -326,3 +320,5 @@ export async function getAgentSession() {
 	cli.agent = reactive(cli.agent) as typeof cli.agent;
 	return cli.agent;
 }
+
+// window.getAgentSession = getAgentSession;

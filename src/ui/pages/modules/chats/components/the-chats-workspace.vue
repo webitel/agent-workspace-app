@@ -1,13 +1,15 @@
 <template>
     <section class="the-chats-workspace">
-        <h1>Chats Workspace</h1>
+        <the-chat-previews-list />
+        <router-view />
     </section>
 </template>
 
-<script setup lang="ts">
-
+<script
+    setup
+    lang="ts"
+>
+import TheChatPreviewsList from './the-chat-previews-list.vue';
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
