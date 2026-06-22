@@ -1,5 +1,4 @@
-// Per-chat data shapes come straight from the SDK; re-exported here so feature
-// code has one import surface and does not reach into the sdk for every type.
+// SDK domain types re-exported for a single feature-level import surface.
 export type {
 	IMessage,
 	MessageHistorySearchParams,
@@ -7,7 +6,7 @@ export type {
 } from '@webitel/chat-web-sdk';
 export type { IThread, ThreadModel } from '@webitel/chat-web-sdk';
 
-// UI-only window layout state — not part of the SDK domain.
+// UI-only window layout state (not an SDK concept).
 export type ChatWindowMode = 'main' | 'minimized';
 
 export interface OpenChat {

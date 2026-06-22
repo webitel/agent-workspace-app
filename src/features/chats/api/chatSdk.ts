@@ -4,8 +4,7 @@ import {
 	createThreadsService,
 } from '@webitel/chat-web-sdk';
 
-// Single shared SDK config for every chat service. Token is read lazily on
-// each request so it survives refreshes set elsewhere in the app.
+// Shared config for all chat services; token read lazily to survive refreshes.
 const serviceConfig = createServiceConfig({
 	baseUrl: import.meta.env.VITE_CHAT_URL,
 	accessToken: () => localStorage.getItem('access-token') ?? '',

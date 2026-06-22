@@ -5,28 +5,23 @@ import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSo
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
-/**
- * Coordinator (singleton). Owns the SDK task feed + which chats are open and
- * their window layout. Per-chat history/data lives in dynamic chat-session
- * stores — see ./chat-session. This store never holds message history.
- */
+// Singleton coordinator: owns the SDK task feed and window layout. Per-chat
+// history lives in dynamic chat-session stores; this store never holds it.
 export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
 
-	// --- SDK-driven feed ---
 	const chatTaskList = computed(() => {
 		return tasks.value?.filter(({ channel }) => channel === 'im');
 	});
 
-	// --- UI-driven window state ---
 	const openChats = ref<OpenChat[]>([]);
 	const mainChat = computed(() =>
-		openChats.value.find((c) => c.mode === 'main'),
+		openChats.value.find((chat) => chat.mode === 'main'),
 	);
 	const minimizedChats = computed(() =>
-		openChats.value.filter((c) => c.mode === 'minimized'),
+		openChats.value.filter((chat) => chat.mode === 'minimized'),
 	);
-	const isOpen = (id: string) => openChats.value.some((c) => c.id === id);
+	const isOpen = (id: string) => openChats.value.some((chat) => chat.id === id);
 
 	function openChat(id: string, mode: ChatWindowMode = 'main') {
 		if (!isOpen(id))
@@ -35,24 +30,24 @@ export const useChatsStore = defineStore('chats', () => {
 				mode,
 			});
 		setMode(id, mode);
-		// create + warm up the per-chat store
 		useChatSessionStore(id).load();
 	}
 
 	function setMode(id: string, mode: ChatWindowMode) {
-		const chat = openChats.value.find((c) => c.id === id);
-		if (!chat) return;
+		const target = openChats.value.find((chat) => chat.id === id);
+		if (!target) return;
+		// only one main window — demote the current main
 		if (mode === 'main') {
-			openChats.value.forEach((c) => {
-				if (c.mode === 'main') c.mode = 'minimized';
+			openChats.value.forEach((chat) => {
+				if (chat.mode === 'main') chat.mode = 'minimized';
 			});
 		}
-		chat.mode = mode;
+		target.mode = mode;
 	}
 
 	function closeChat(id: string) {
-		openChats.value = openChats.value.filter((c) => c.id !== id);
-		disposeChatSession(id); // teardown per-chat store + state
+		openChats.value = openChats.value.filter((chat) => chat.id !== id);
+		disposeChatSession(id);
 	}
 
 	function initialize() {
