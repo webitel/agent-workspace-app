@@ -3,28 +3,28 @@ import { defineStore } from 'pinia';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 
 export const useAgentStore = defineStore('agent', () => {
-    const { agent, getAgentSession } = useWebSocketClient();
+	const { agent, getAgentSession } = useWebSocketClient();
 
-    const initializeAgent = async () => {
-        await getAgentSession();
-    }
+	const initializeAgent = async () => {
+		await getAgentSession();
+	};
 
-    const setAgentWaitingStatus = async () => {
-        agent.online();
-    };
+	const setAgentWaitingStatus = async () => {
+		await agent.value?.online(undefined, undefined);
+	};
 
-    const setAgentPauseStatus = async (note = '') => {
-        agent.pause(note);
-    };
+	const setAgentPauseStatus = async (note = '') => {
+		await agent.value?.pause(note);
+	};
 
-    const agentLogout = async () => {
-        agent.offline();
-    };
+	const agentLogout = async () => {
+		await agent.value?.offline();
+	};
 
-    return {
-        initializeAgent,
-        setAgentWaitingStatus,
-        setAgentPauseStatus,
-        agentLogout,
-    }
+	return {
+		initializeAgent,
+		setAgentWaitingStatus,
+		setAgentPauseStatus,
+		agentLogout,
+	};
 });

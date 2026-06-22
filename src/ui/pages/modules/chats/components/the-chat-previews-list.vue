@@ -14,9 +14,8 @@
     lang="ts"
 >
 import { storeToRefs } from 'pinia';
-
-import { useChatsStore } from '../../../../../features/chats/store/chats';
 import ChatPreview from '../../../../../features/chats/components/chat-preview/chat-preview.vue';
+import { useChatsStore } from '../../../../../features/chats/store/chats';
 import type { TaskPreview } from '../../../../../features/chats/types/ChatPreview.types';
 
 const chatsStore = useChatsStore();
