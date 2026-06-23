@@ -26,9 +26,9 @@ const getUserStatus = async () => {
 	}
 };
 
-const usersAPIRepository = {
+const usersStatusAPIRepository = {
 	getUserStatus,
 	setUserStatus,
 };
 
-export default usersAPIRepository;
+export default usersStatusAPIRepository;
