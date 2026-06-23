@@ -15,7 +15,7 @@ const setUserStatus = async (status) => {
 };
 
 const getUserStatus = async () => {
-	const url = '/user';
+	const url = '/user-status';
 	try {
 		const response = await instance.get(url);
 		return response.data.presence;

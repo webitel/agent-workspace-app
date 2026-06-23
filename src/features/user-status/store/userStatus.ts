@@ -1,26 +1,21 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import UsersAPIRepository from '../../../app/api/endpoints/users/UsersAPIRepository';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
-import UserStatus from '../enums/UserStatus';
+import { UserStatus } from '../enums/UserStatus';
 import parseUserStatus from '../scripts/parseUserStatus';
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStatusStore = defineStore('user', () => {
 	const { getClient } = useWebSocketClient();
 
-	const user = ref({
-		status: {},
-	});
-
-	const userStatusHandler = (user) => ({
-		status: parseUserStatus(user),
-	});
+	const userStatus = ref(null);
+	const isDnd = computed(() => !!userStatus.value?.[UserStatus.DND]);
 
 	async function subscribeUserStatus() {
 		try {
 			const client = getClient();
-			await client.subscribeUsersStatus((presence) => {
-				user.value = userStatusHandler(presence);
+			await client.subscribeUsersStatus((value) => {
+				userStatus.value = parseUserStatus(value);
 			});
 
 			await getCurrentUserStatus();
@@ -29,19 +24,19 @@ export const useUserStore = defineStore('user', () => {
 		}
 	}
 
-	// helper action to get initial user status from HTTP request
+	// helper action to get initial user-status status from HTTP request
 	async function getCurrentUserStatus() {
 		try {
-			const presence = await UsersAPIRepository.getUserStatus();
-			user.value = userStatusHandler(presence);
+			const response = await UsersAPIRepository.getUserStatus();
+			userStatus.value = parseUserStatus(response);
 		} catch (error) {
 			console.error('[User Store] getCurrentUserStatus failed', error);
 		}
 	}
 
-	async function toggleUserDND() {
+	async function toggleUserDnd() {
 		try {
-			const status = user.value.status?.[UserStatus.DND] ? '' : UserStatus.DND;
+			const status = userStatus.value?.[UserStatus.DND] ? '' : UserStatus.DND;
 			await UsersAPIRepository.setUserStatus(status);
 		} catch (error) {
 			console.error('[User Store] toggleUserDND failed', error);
@@ -49,10 +44,11 @@ export const useUserStore = defineStore('user', () => {
 	}
 
 	return {
-		user,
+		userStatus,
+		isDnd,
 
 		subscribeUserStatus,
 		getCurrentUserStatus,
-		toggleUserDND,
+		toggleUserDnd,
 	};
 });

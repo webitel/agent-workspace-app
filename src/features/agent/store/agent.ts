@@ -17,7 +17,7 @@ export const useAgentStore = defineStore('agent', () => {
 		await agent.value?.pause(note);
 	};
 
-	const agentLogout = async () => {
+	const setAgentOfflineStatus = async () => {
 		await agent.value?.offline();
 	};
 
@@ -25,6 +25,6 @@ export const useAgentStore = defineStore('agent', () => {
 		initializeAgent,
 		setAgentWaitingStatus,
 		setAgentPauseStatus,
-		agentLogout,
+		setAgentOfflineStatus,
 	};
 });
