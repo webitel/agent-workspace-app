@@ -1,7 +1,7 @@
 import { applyTransform, notify } from '@webitel/api-services/api/transformers';
 import instance from '../../instance';
 
-const setUserStatus = async (status) => {
+const setUserStatus = async (status: string) => {
 	const url = '/presence';
 	try {
 		await instance.patch(url, {
@@ -26,9 +26,7 @@ const getUserStatus = async () => {
 	}
 };
 
-const usersStatusAPIRepository = {
-	getUserStatus,
-	setUserStatus,
+export const userStatusAPIRepository = {
+	get: getUserStatus,
+	set: setUserStatus,
 };
-
-export default usersStatusAPIRepository;

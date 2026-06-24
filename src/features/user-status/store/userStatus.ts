@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import UserStatusAPIRepository from '../../../app/api/endpoints/users/UsersStatusAPIRepository';
+import { userStatusAPIRepository } from '../../../app/api/endpoints/users/UsersStatusAPIRepository';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import { UserStatus } from '../enums/UserStatus';
 import parseUserStatus from '../scripts/parseUserStatus';
@@ -9,7 +9,7 @@ export const useUserStatusStore = defineStore('user', () => {
 	const { getClient } = useWebSocketClient();
 
 	const userStatus = ref(null);
-	const isDnd = computed(() => !!userStatus.value?.[UserStatus.DND]);
+	const isDnd = computed(() => !!userStatus.value?.[UserStatus.Dnd]);
 
 	async function subscribeUserStatus() {
 		try {
@@ -27,7 +27,7 @@ export const useUserStatusStore = defineStore('user', () => {
 	// helper action to get initial user-status status from HTTP request
 	async function getCurrentUserStatus() {
 		try {
-			const response = await UserStatusAPIRepository.getUserStatus();
+			const response = await userStatusAPIRepository.get();
 			userStatus.value = parseUserStatus(response);
 		} catch (error) {
 			console.error('[User Store] getCurrentUserStatus failed', error);
@@ -36,8 +36,8 @@ export const useUserStatusStore = defineStore('user', () => {
 
 	async function toggleUserDnd() {
 		try {
-			const status = userStatus.value?.[UserStatus.DND] ? '' : UserStatus.DND;
-			await UserStatusAPIRepository.setUserStatus(status);
+			const status = isDnd.value ? '' : UserStatus.Dnd;
+			await userStatusAPIRepository.set(status);
 		} catch (error) {
 			console.error('[User Store] toggleUserDND failed', error);
 		}

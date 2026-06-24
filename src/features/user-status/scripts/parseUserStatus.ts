@@ -1,10 +1,10 @@
 import { UserStatus } from '../enums/UserStatus';
 
 const parseUserStatus = (status) => ({
-	[UserStatus.DND]: status?.includes('dnd'),
-	[UserStatus.BUSY]: status?.includes('dlg'),
-	[UserStatus.SIP]: status?.status?.includes('sip'),
-	[UserStatus.WEB]: status?.status?.includes('web'),
+	[UserStatus.Dnd]: status?.includes('dnd'),
+	[UserStatus.Busy]: status?.includes('dlg'),
+	[UserStatus.Sip]: status?.includes('sip'),
+	[UserStatus.Web]: status?.includes('web'),
 });
 
 export default parseUserStatus;
