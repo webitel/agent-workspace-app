@@ -7,11 +7,15 @@ import i18n from './app/locale/i18n';
 import App from './app/the-app.vue';
 import './app/plugins/webitel/ui-sdk';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
+import {
+	plugin as WebitelUi,
+	options as WebitelUiOptions,
+} from './app/plugins/webitel/ui-sdk';
 import { initRouter, router } from './app/router';
-import { initializeConfig } from './features/appConfig/config';
-import { useUserinfoStore } from './features/userinfo/stores/userinfoStore';
 import { setTokenFromUrl } from './app/scripts/setTokenFromUrl';
 import { useWorkspaceStore } from './app/stores/workspace';
+import { initializeConfig } from './features/AppConfig/config';
+import { useUserinfoStore } from './features/userinfo/stores/userinfoStore';
 
 setTokenFromUrl();
 
@@ -50,6 +54,7 @@ const initApp = async () => {
 	}
 
 	app.use(router);
+	app.use(WebitelUi, WebitelUiOptions); // setup webitel ui after router init
 
 	app.mount('#app');
 

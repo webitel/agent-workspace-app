@@ -3,7 +3,7 @@ export default {
 		sip: 'SIP',
 		dnd: {
 			label: 'DnD',
-			tooltip: 'You will receive calls from queues only',
+			tooltip: 'Vei primi apeluri doar din cozi',
 		},
 	},
 };

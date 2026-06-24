@@ -10,15 +10,15 @@ export const useAgentStore = defineStore('agent', () => {
 	};
 
 	const setAgentWaitingStatus = async () => {
-		await agent.online();
+		await agent.value?.online(undefined, undefined);
 	};
 
 	const setAgentPauseStatus = async (note = '') => {
-		await agent.pause(note);
+		await agent.value?.pause(note);
 	};
 
 	const setAgentOfflineStatus = async () => {
-		await agent.offline();
+		await agent.value?.offline();
 	};
 
 	return {

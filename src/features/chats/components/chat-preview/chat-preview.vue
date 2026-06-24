@@ -18,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { TaskPreview } from '../../types/ChatPreview.types';
 import ChatPreviewHeader from './header/chat-preview-header.vue';
-import { computed } from 'vue';
 
 const props = defineProps<{
 	task: TaskPreview;
