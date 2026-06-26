@@ -17,8 +17,8 @@ const setUserStatus = async (status: string) => {
 const getUserStatus = async () => {
 	const url = '/user-status';
 	try {
-		const response = await instance.get(url);
-		return response.data.presence;
+		const { data } = await instance.get(url);
+		return data.presence;
 	} catch (err) {
 		throw applyTransform(err, [
 			notify,
