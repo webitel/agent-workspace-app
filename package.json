@@ -45,7 +45,7 @@
 		"jsdom": "^27.0.0",
 		"lint-staged": "^17.x",
 		"npm-run-all2": "^8.0.4",
-		"typescript": "~5.9.x",
+		"typescript": "~6.0.x",
 		"typescript-plugin-css-modules": "^5.x",
 		"vite": "^8.x",
 		"vite-plugin-vue-devtools": "^8.1.x",
