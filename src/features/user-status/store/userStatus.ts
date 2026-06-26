@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { userStatusAPIRepository } from '../../../app/api/endpoints/users/UsersStatusAPIRepository';
+import { userStatusAPI } from '../api/UsersStatusAPI';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import { UserStatus } from '../enums/UserStatus';
 import parseUserStatus from '../scripts/parseUserStatus';
@@ -27,7 +27,7 @@ export const useUserStatusStore = defineStore('user', () => {
 	// helper action to get initial user-status status from HTTP request
 	async function getCurrentUserStatus() {
 		try {
-			const response = await userStatusAPIRepository.get();
+			const response = await userStatusAPI.get();
 			userStatus.value = parseUserStatus(response);
 		} catch (error) {
 			throw error;
@@ -37,7 +37,7 @@ export const useUserStatusStore = defineStore('user', () => {
 	async function toggleUserDnd() {
 		try {
 			const status = isDnd.value ? '' : UserStatus.Dnd;
-			await userStatusAPIRepository.set(status);
+			await userStatusAPI.set(status);
 		} catch (error) {
 			throw error;
 		}
