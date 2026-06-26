@@ -10,7 +10,7 @@ export const useAgentStore = defineStore('agent', () => {
 	};
 
 	const setAgentWaitingStatus = async () => {
-		await agent.value?.online(undefined, undefined);
+		await agent.value?.online();
 	};
 
 	const setAgentPauseStatus = async (note = '') => {

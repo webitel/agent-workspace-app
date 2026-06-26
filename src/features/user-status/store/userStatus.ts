@@ -30,7 +30,7 @@ export const useUserStatusStore = defineStore('user', () => {
 			const response = await userStatusAPIRepository.get();
 			userStatus.value = parseUserStatus(response);
 		} catch (error) {
-			console.error('[User Store] getCurrentUserStatus failed', error);
+			throw error;
 		}
 	}
 
@@ -39,7 +39,7 @@ export const useUserStatusStore = defineStore('user', () => {
 			const status = isDnd.value ? '' : UserStatus.Dnd;
 			await userStatusAPIRepository.set(status);
 		} catch (error) {
-			console.error('[User Store] toggleUserDND failed', error);
+			throw error;
 		}
 	}
 
