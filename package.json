@@ -31,7 +31,7 @@
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.5"
+		"webitel-sdk": "^26.4.14"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
