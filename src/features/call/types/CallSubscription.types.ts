@@ -1,6 +1,5 @@
 import type { Call, CallInfo } from './Call.types';
 
-/** Subset of useCallStore consumed by useCallSubscription. */
 export interface CallSubscriptionStore {
 	callList: { value: Call[] };
 	callOnWorkspace: { value: Call | null };
