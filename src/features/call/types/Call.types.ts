@@ -22,7 +22,7 @@ export interface Call {
 	isHold: boolean;
 	allowHold: boolean;
 	allowUnHold: boolean;
-	allowAnswer: boolean;
+	allowAnswer: boolean | undefined;
 	allowHangup: boolean;
 	allowDtmf: boolean;
 	isEavesdrop: boolean;
@@ -30,7 +30,7 @@ export interface Call {
 	displayName: string;
 	displayNumber: string;
 	answeredAt?: number;
-	digits?: string;
+	digits?: string[];
 	params?: { autoAnswer?: boolean };
 	queue?: CallQueue;
 	peerStreams: MediaStream[];
