@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 import { QueueTypeName } from '@webitel/ui-sdk/enums';
+import { VideoMediaFlow } from 'webitel-sdk';
 
 import { useWorkspaceStore } from '../../../app/stores/workspace';
 import { getConfig } from '../../appConfig/config';
@@ -40,6 +41,12 @@ export const useCallStore = defineStore('call', () => {
 	const isOfflineCall = computed(
 		() => callOnWorkspace.value?.queue?.queue_type === QueueTypeName.OFFLINE_QUEUE,
 	);
+
+	function isVideoCall(call: any): boolean {
+		return call?.remoteVideo === VideoMediaFlow.SendRecv;
+	}
+
+	const isVideoCallOnWorkspace = computed(() => isVideoCall(callOnWorkspace.value));
 
 	function getCallById(callId: string) {
 		return callList.value.find((call) => call.id === callId);
@@ -225,6 +232,11 @@ export const useCallStore = defineStore('call', () => {
 		if (value) setVideo(JSON.parse(value));
 	}
 
+	function toggleVideoMute({ callId }: { callId?: string } = {}) {
+		const targetCall = callId ? getCallById(callId) : callOnWorkspace.value;
+		targetCall.muteVideo(!targetCall.mutedVideo);
+	}
+
 	function setWorkspace(task: any) {
 		workspaceStore.setWorkspaceState({ type: WorkspaceStates.CALL, task });
 	}
@@ -261,6 +273,8 @@ export const useCallStore = defineStore('call', () => {
 		currentCallDigits,
 		isAnyRinging,
 		isOfflineCall,
+		isVideoCall,
+		isVideoCallOnWorkspace,
 		getCallById,
 		normalizePhoneNumber,
 
@@ -289,6 +303,7 @@ export const useCallStore = defineStore('call', () => {
 		holdOtherCalls,
 		toggleVideo,
 		restoreVideoParam,
+		toggleVideoMute,
 		setWorkspace,
 		resetWorkspace,
 		subscribe,
