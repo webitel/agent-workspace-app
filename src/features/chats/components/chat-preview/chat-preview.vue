@@ -18,16 +18,19 @@
 </template>
 
 <script setup lang="ts">
-import type { TaskPreview } from '../../types/ChatPreview.types';
-import ChatPreviewHeader from './header/chat-preview-header.vue';
+import { type Task } from 'webitel-sdk';
 import { computed } from 'vue';
 
+import ChatPreviewHeader from './preview-header/chat-preview-header.vue';
+import ChatPreviewBody from './preview-body/chat-preview-body.vue';
+import ChatPreviewFooter from './preview-footer/chat-preview-footer.vue';
+
 const props = defineProps<{
-	task: TaskPreview;
+	task: Task;
 }>();
 
-const thread = computed(() => props.task.distribute.communication.thread);
-const threadId = computed(() => props.task.distribute.member_channel_id);
+const thread = computed(() => props.task.thread);
+const threadId = computed(() => props.task.thread.id);
 const avatar = computed(() => '');
 const unreadCount = computed(() => 0);
 </script>
