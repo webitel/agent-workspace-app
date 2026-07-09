@@ -5,7 +5,10 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import i18n from './app/locale/i18n';
 import App from './app/the-app.vue';
-import './app/plugins/webitel/ui-sdk';
+import {
+	plugin as WebitelUI,
+	options as WebitelUIOptions,
+} from './app/plugins/webitel/ui-sdk';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
 import { initRouter, router } from './app/router';
 import { initializeConfig } from './features/appConfig/config';
@@ -25,7 +28,10 @@ setChatsServicesConfig({
 const pinia = createPinia();
 
 const initApp = async () => {
-	const app = createApp(App).use(i18n).use(pinia);
+	const app = createApp(App)
+		.use(i18n)
+		.use(pinia)
+		.use(WebitelUI, WebitelUIOptions);
 
 	const {
 		initialize: initializeUserinfo,
