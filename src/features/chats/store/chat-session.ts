@@ -8,10 +8,15 @@ const storeId = (chatId: string) => `chat:${chatId}`;
 
 const PAGE_SIZE = 30;
 
-// One isolated store per chat (namespaced by chatId). Coordinator owns its
-// lifecycle, not components — a minimized chat outlives its unmounted component.
-export function useChatSessionStore(chatId: string) {
-	const useStore = defineStore(storeId(chatId), () => {
+// Cache of store definitions so repeated useChatSessionStore(id) calls (e.g.
+// coordinator + component) reuse one defineStore wrapper, not a fresh one each time.
+const storeDefinitions = new Map<
+	string,
+	ReturnType<typeof createStoreDefinition>
+>();
+
+function createStoreDefinition(chatId: string) {
+	return defineStore(storeId(chatId), () => {
 		// shallowRef: SDK class instances carry methods — keep them out of deep proxies, reassign to update
 		const thread = shallowRef<IThread | null>(null);
 		const messages = shallowRef<IMessage[]>([]);
@@ -84,15 +89,27 @@ export function useChatSessionStore(chatId: string) {
 			appendMessage,
 		};
 	});
+}
 
+// One isolated store per chat (namespaced by chatId). Coordinator owns its
+// lifecycle, not components — a minimized chat outlives its unmounted component.
+export function useChatSessionStore(chatId: string) {
+	const id = storeId(chatId);
+	let useStore = storeDefinitions.get(id);
+	if (!useStore) {
+		useStore = createStoreDefinition(chatId);
+		storeDefinitions.set(id, useStore);
+	}
 	return useStore();
 }
 
 // $dispose() stops the scope but leaves state in pinia.state.value for setup
-// stores — delete it manually or the chat's state leaks.
+// stores — delete it manually or the chat's state leaks. Drop the cached
+// definition too so a reopened chat gets a fresh store, not a stale wrapper.
 export function disposeChatSession(chatId: string) {
-	const store = useChatSessionStore(chatId);
-	store.$dispose();
+	const id = storeId(chatId);
+	useChatSessionStore(chatId).$dispose();
 	const pinia = getActivePinia();
-	if (pinia) delete pinia.state.value[storeId(chatId)];
+	if (pinia) delete pinia.state.value[id];
+	storeDefinitions.delete(id);
 }
