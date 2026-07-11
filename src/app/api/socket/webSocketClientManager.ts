@@ -321,4 +321,9 @@ export async function getAgentSession() {
 	return cli.agent;
 }
 
-// window.getAgentSession = getAgentSession;
+// todo: rm me after app-header will be added
+(
+	window as unknown as {
+		getAgentSession: () => unknown;
+	}
+).getAgentSession = getAgentSession;

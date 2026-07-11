@@ -10,4 +10,9 @@ defineProps<{
 }>();
 </script>
 
-<style scoped></style>
+<style scoped>
+.chat-preview-body {
+    padding: var(--spacing-xs);
+    color: var(--grey-lighten-2);
+}
+</style>

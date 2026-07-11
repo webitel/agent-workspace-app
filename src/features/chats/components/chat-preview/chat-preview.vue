@@ -36,4 +36,7 @@ const unreadCount = computed(() => 0);
 </script>
 
 <style scoped>
+.chat-preview {
+    padding: var(--spacing-xs);
+}
 </style>

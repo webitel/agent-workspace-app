@@ -11,5 +11,6 @@
 <style scoped>
 .workspace-sidebar {
     width: 280px;
+    background-color: var(--white);
 }
 </style>
