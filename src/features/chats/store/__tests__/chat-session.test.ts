@@ -220,5 +220,25 @@ describe('chat-session store', () => {
 
 			expect(getActivePinia()?.state.value['chat:chat-1']).toBeUndefined();
 		});
+
+		it('gives a fresh uninitialized store when a chat is reopened', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(
+				historyPage(
+					[
+						'm1',
+					],
+					null,
+				),
+			);
+			const first = useChatSessionStore('chat-1');
+			await first.load();
+			expect(first.initialized).toBe(true);
+
+			disposeChatSession('chat-1');
+			const reopened = useChatSessionStore('chat-1');
+
+			expect(reopened.initialized).toBe(false);
+			expect(reopened.messages).toEqual([]);
+		});
 	});
 });
