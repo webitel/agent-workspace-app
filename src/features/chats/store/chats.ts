@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
+import { useChatsSocket } from '../composables/useChatsSocket';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
@@ -9,6 +10,7 @@ import { disposeChatSession, useChatSessionStore } from './chat-session';
 // history lives in dynamic chat-session stores; this store never holds it.
 export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
+	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
 
 	const chatTaskList = computed(() => {
 		return tasks.value?.filter(({ channel }) => channel === 'im');
@@ -54,6 +56,12 @@ export const useChatsStore = defineStore('chats', () => {
 		const client = getClient();
 		client.subscribeTask(() => {
 			// todo: show notifications about new tasks
+		});
+
+		connectChatsSocket();
+		onThreadMessage((message) => {
+			if (!message.threadId || !isOpen(message.threadId)) return;
+			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
 	}
 

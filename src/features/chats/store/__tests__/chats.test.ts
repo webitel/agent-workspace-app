@@ -21,14 +21,35 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 }));
 
 const loadMock = vi.fn();
+const receiveMessageMock = vi.fn();
 const useChatSessionStoreMock = vi.fn((..._args: unknown[]) => ({
 	load: loadMock,
+	receiveMessage: receiveMessageMock,
 }));
 const disposeChatSessionMock = vi.fn();
 
 vi.mock('../chat-session', () => ({
 	useChatSessionStore: (...args: unknown[]) => useChatSessionStoreMock(...args),
 	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
+}));
+
+const connectChatsSocketMock = vi.fn();
+// Captures the handler chats registers so tests can emit a socket message.
+let threadMessageHandler: ((message: { threadId?: string }) => void) | null =
+	null;
+const onThreadMessageMock = vi.fn(
+	(cb: (message: { threadId?: string }) => void) => {
+		threadMessageHandler = cb;
+		return () => {};
+	},
+);
+
+vi.mock('../../composables/useChatsSocket', () => ({
+	useChatsSocket: () => ({
+		connect: connectChatsSocketMock,
+		disconnect: vi.fn(),
+		onThreadMessage: onThreadMessageMock,
+	}),
 }));
 
 import { useChatsStore } from '../chats';
@@ -43,6 +64,7 @@ describe('chats store', () => {
 		);
 		vi.clearAllMocks();
 		tasks.value = [];
+		threadMessageHandler = null;
 	});
 
 	it('subscribes to tasks on the connected client on initialize', () => {
@@ -52,6 +74,44 @@ describe('chats store', () => {
 
 		expect(subscribeTaskMock).toHaveBeenCalledOnce();
 		expect(subscribeTaskMock).toHaveBeenCalledWith(expect.any(Function));
+	});
+
+	describe('chats socket routing', () => {
+		it('connects the chats socket and registers a message handler on initialize', () => {
+			const store = useChatsStore();
+
+			store.initialize();
+
+			expect(connectChatsSocketMock).toHaveBeenCalledOnce();
+			expect(onThreadMessageMock).toHaveBeenCalledWith(expect.any(Function));
+		});
+
+		it('routes a live message to the matching open session store', () => {
+			const store = useChatsStore();
+			store.initialize();
+			store.openChat('chat-1');
+			useChatSessionStoreMock.mockClear();
+
+			threadMessageHandler?.({
+				threadId: 'chat-1',
+			});
+
+			expect(useChatSessionStoreMock).toHaveBeenCalledWith('chat-1');
+			expect(receiveMessageMock).toHaveBeenCalledWith({
+				threadId: 'chat-1',
+			});
+		});
+
+		it('ignores a message for a chat that is not open', () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			threadMessageHandler?.({
+				threadId: 'chat-unknown',
+			});
+
+			expect(receiveMessageMock).not.toHaveBeenCalled();
+		});
 	});
 
 	it('exposes only im-channel tasks in chatTaskList', () => {

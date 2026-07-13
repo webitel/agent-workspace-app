@@ -212,6 +212,71 @@ describe('chat-session store', () => {
 		});
 	});
 
+	describe('receiveMessage', () => {
+		// message carrying a threadId + optional marker field to prove replacement
+		const threadMessage = (id: string, threadId: string, body?: string) =>
+			({
+				id,
+				threadId,
+				body,
+			}) as never;
+
+		const loadedChat1 = async () => {
+			fetchMessageHistoryMock.mockResolvedValue(
+				historyPage(
+					[
+						'm1',
+					],
+					null,
+				),
+			);
+			const store = useChatSessionStore('chat-1');
+			await store.load();
+			return store;
+		};
+
+		it('appends a new live message to the tail', async () => {
+			const store = await loadedChat1();
+
+			store.receiveMessage(threadMessage('m2', 'chat-1'));
+
+			expect(store.messages.map((message) => message.id)).toEqual([
+				'm1',
+				'm2',
+			]);
+		});
+
+		it('replaces an existing message by id in place (edit / own echo)', async () => {
+			const store = await loadedChat1();
+			store.receiveMessage(threadMessage('m2', 'chat-1', 'original'));
+
+			store.receiveMessage(threadMessage('m2', 'chat-1', 'edited'));
+
+			expect(store.messages.map((message) => message.id)).toEqual([
+				'm1',
+				'm2',
+			]);
+			const replaced = store.messages.find((message) => message.id === 'm2');
+			expect(
+				(
+					replaced as {
+						body?: string;
+					}
+				).body,
+			).toBe('edited');
+		});
+
+		it('ignores a message whose threadId is a different chat', async () => {
+			const store = await loadedChat1();
+
+			store.receiveMessage(threadMessage('other', 'chat-2'));
+
+			expect(store.messages.map((message) => message.id)).toEqual([
+				'm1',
+			]);
+		});
+	});
+
 	const loadedStore = async () => {
 		fetchMessageHistoryMock.mockResolvedValue(
 			historyPage(
