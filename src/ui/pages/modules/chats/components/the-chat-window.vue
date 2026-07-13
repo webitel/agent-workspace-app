@@ -20,23 +20,23 @@
 import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
 import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
 import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
-import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useChatsStore } from '../../../../../features/chats/store/chats';
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
 
 const route = useRoute();
 const threadId = computed(() => route.params.threadId as string);
 
-const chatsStore = useChatsStore();
-const { openChat } = chatsStore;
-openChat(threadId.value);
-
-// per-chat store (created/warmed by the coordinator on open)
-const chatSession = useChatSessionStore(threadId.value);
-const { thread, messages, hasMore, isLoading } = storeToRefs(chatSession);
+// Presentation only: the coordinator (via the workspace deep-link bridge / open
+// triggers) registers and warms the session. This component is reused across
+// threadId changes, so resolve the per-chat store reactively and read through it
+// with computeds — destructured storeToRefs would stay pinned to the first store.
+const chatSession = computed(() => useChatSessionStore(threadId.value));
+const thread = computed(() => chatSession.value.thread);
+const messages = computed(() => chatSession.value.messages);
+const hasMore = computed(() => chatSession.value.hasMore);
+const isLoading = computed(() => chatSession.value.isLoading);
 
 // SDK IMessage[] -> ui-chats ChatMessageType[] (presentation contract)
 const chatMessages = computed(() => mapMessagesToChatMessages(messages.value));
@@ -53,7 +53,7 @@ async function handleSendMessage(
 	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
 ) {
 	try {
-		await chatSession.sendText(text);
+		await chatSession.value.sendText(text);
 		onSuccess?.();
 	} catch (error) {
 		onError?.(error as Error);
@@ -67,7 +67,7 @@ async function handleAttachFiles(
 	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
 ) {
 	try {
-		await chatSession.sendFiles(files);
+		await chatSession.value.sendFiles(files);
 		onSuccess?.();
 	} catch (error) {
 		onError?.(error as Error);
@@ -84,6 +84,11 @@ async function handleAttachFiles(
     flex-direction: column;
     width: 100%;
     height: 100%;
+    min-height: 0;
+}
+
+.the-chat-container {
+    flex: 1;
     min-height: 0;
 }
 </style>

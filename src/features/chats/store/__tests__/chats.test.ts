@@ -52,6 +52,34 @@ vi.mock('../../composables/useChatsSocket', () => ({
 	}),
 }));
 
+// Router singleton: push mirrors the URL so the "already there" guard can be
+// exercised (a repeat main-open must not re-push).
+const routerPushMock = vi.fn((path: string) => {
+	routerCurrentRoute.value.params.threadId =
+		String(path).split('/').pop() ?? '';
+});
+const routerCurrentRoute = {
+	value: {
+		params: {} as Record<string, string>,
+	},
+};
+
+vi.mock('../../../../app/router', () => ({
+	// Getters keep the factory hoist-safe: the outer consts are read lazily at
+	// access time, not when the factory itself is evaluated.
+	router: {
+		push: (...args: unknown[]) =>
+			routerPushMock(
+				...(args as [
+					string,
+				]),
+			),
+		get currentRoute() {
+			return routerCurrentRoute;
+		},
+	},
+}));
+
 import { useChatsStore } from '../chats';
 
 describe('chats store', () => {
@@ -65,6 +93,7 @@ describe('chats store', () => {
 		vi.clearAllMocks();
 		tasks.value = [];
 		threadMessageHandler = null;
+		routerCurrentRoute.value.params = {};
 	});
 
 	it('subscribes to tasks on the connected client on initialize', () => {
@@ -144,6 +173,31 @@ describe('chats store', () => {
 			expect(store.mainChat?.id).toBe('chat-1');
 			expect(useChatSessionStoreMock).toHaveBeenCalledWith('chat-1');
 			expect(loadMock).toHaveBeenCalledOnce();
+		});
+
+		it('pushes the route when opening as main', () => {
+			const store = useChatsStore();
+
+			store.openChat('chat-1');
+
+			expect(routerPushMock).toHaveBeenCalledWith('/chats/chat-1');
+		});
+
+		it('does not push when opening as minimized', () => {
+			const store = useChatsStore();
+
+			store.openChat('chat-1', 'minimized');
+
+			expect(routerPushMock).not.toHaveBeenCalled();
+		});
+
+		it('does not re-push when the route already points at the chat', () => {
+			const store = useChatsStore();
+
+			store.openChat('chat-1');
+			store.openChat('chat-1');
+
+			expect(routerPushMock).toHaveBeenCalledOnce();
 		});
 
 		it('demotes the previous main when a new chat opens as main', () => {

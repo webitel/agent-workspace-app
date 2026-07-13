@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
+import { router } from '../../../app/router';
 import { useChatsSocket } from '../composables/useChatsSocket';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
@@ -33,6 +33,15 @@ export const useChatsStore = defineStore('chats', () => {
 			});
 		setMode(id, mode);
 		useChatSessionStore(id).load();
+		// main window mirrors the URL; skip the push when already there so a
+		// route-triggered open (deep link, back/forward) doesn't loop back.
+		if (
+			mode === 'main' &&
+			router &&
+			router.currentRoute.value.params.threadId !== id
+		) {
+			router.push(`/chats/${id}`);
+		}
 	}
 
 	function setMode(id: string, mode: ChatWindowMode) {
