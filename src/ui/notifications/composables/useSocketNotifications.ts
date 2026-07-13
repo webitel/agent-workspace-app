@@ -1,8 +1,7 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { useI18n } from 'vue-i18n';
-
-import { WebSocketClientEvent } from '../../../app/api/socket/enums/WebSocketClientEvent.enum';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
+import { WebSocketClientEvent } from '../../../app/api/socket/enums/WebSocketClientEvent.enum';
 
 interface WebSocketError extends Error {
 	id?: string;

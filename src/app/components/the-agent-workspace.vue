@@ -9,6 +9,7 @@
                 <the-task-dock-panel />
             </section>
         </div>
+        <the-notifications />
     </main>
 </template>
 
@@ -18,6 +19,7 @@
 >
 import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
+import TheNotifications from '../../ui/notifications/components/the-notifications.vue';
 import { useSocketNotifications } from '../../ui/notifications/composables/useSocketNotifications';
 import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
 import TheTaskDockPanel from '../../ui/task-dock/components/the-task-dock-panel.vue';
