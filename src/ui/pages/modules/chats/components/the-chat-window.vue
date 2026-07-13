@@ -1,7 +1,7 @@
 <template>
     <section class="the-chat-window">
         <h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
-        <chat-container :messages="[]" />
+        <chat-container :messages="chatMessages" />
     </section>
 </template>
 
@@ -9,6 +9,7 @@
     setup
     lang="ts"
 >
+import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
 import { ChatContainer } from '@webitel/ui-chats/ui';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
@@ -21,7 +22,10 @@ const threadId = computed(() => route.params.threadId as string);
 
 // per-chat store (created/warmed by the coordinator on open)
 const chatSession = useChatSessionStore(threadId.value);
-const { thread } = storeToRefs(chatSession);
+const { thread, messages } = storeToRefs(chatSession);
+
+// SDK IMessage[] -> ui-chats ChatMessageType[] (presentation contract)
+const chatMessages = computed(() => mapMessagesToChatMessages(messages.value));
 </script>
 
 <style scoped>
