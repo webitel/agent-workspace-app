@@ -1,3 +1,4 @@
+import { MessageAttachmentType } from '@webitel/chat-web-sdk';
 import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
@@ -76,6 +77,30 @@ function createStoreDefinition(chatId: string) {
 			];
 		}
 
+		async function sendText(text: string) {
+			const body = text.trim();
+			if (!thread.value || !body) return;
+			await thread.value.sendMessage({
+				body,
+			});
+		}
+
+		async function sendFiles(files: File[], body?: string) {
+			if (!thread.value || files.length === 0) return;
+			// The SDK tags one attachment kind per send; treat the batch as images
+			// only when every file is an image, otherwise send them as documents.
+			const type = files.every((file) => file.type.startsWith('image/'))
+				? MessageAttachmentType.Images
+				: MessageAttachmentType.Documents;
+			await thread.value.sendMessage({
+				body,
+				attachments: {
+					type,
+					files,
+				},
+			});
+		}
+
 		return {
 			thread,
 			messages,
@@ -87,6 +112,8 @@ function createStoreDefinition(chatId: string) {
 			load,
 			loadMore,
 			appendMessage,
+			sendText,
+			sendFiles,
 		};
 	});
 }
