@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchThreadMock = vi.fn();
 const fetchMessageHistoryMock = vi.fn();
+const sendMessageMock = vi.fn();
 
 vi.mock('../../api/chatSdk', () => ({
 	threadsService: {
@@ -22,6 +23,14 @@ const message = (id: string) =>
 const thread = () =>
 	({
 		fetchMessageHistory: fetchMessageHistoryMock,
+		sendMessage: sendMessageMock,
+	}) as never;
+
+// A File whose `type` drives images-vs-documents classification in sendFiles.
+const file = (name: string, mime: string) =>
+	({
+		name,
+		type: mime,
 	}) as never;
 
 const historyPage = (ids: string[], nextCursorId: string | null) => ({
@@ -43,6 +52,7 @@ describe('chat-session store', () => {
 		);
 		fetchThreadMock.mockReset();
 		fetchMessageHistoryMock.mockReset();
+		sendMessageMock.mockReset();
 		fetchThreadMock.mockResolvedValue(thread());
 	});
 
@@ -199,6 +209,94 @@ describe('chat-session store', () => {
 				'm1',
 				'm2',
 			]);
+		});
+	});
+
+	const loadedStore = async () => {
+		fetchMessageHistoryMock.mockResolvedValue(
+			historyPage(
+				[
+					'm1',
+				],
+				null,
+			),
+		);
+		const store = useChatSessionStore('chat-1');
+		await store.load();
+		return store;
+	};
+
+	describe('sendText', () => {
+		it('sends the trimmed body through the thread', async () => {
+			const store = await loadedStore();
+
+			await store.sendText('  hello  ');
+
+			expect(sendMessageMock).toHaveBeenCalledWith({
+				body: 'hello',
+			});
+		});
+
+		it('does nothing for blank text', async () => {
+			const store = await loadedStore();
+
+			await store.sendText('   ');
+
+			expect(sendMessageMock).not.toHaveBeenCalled();
+		});
+
+		it('does nothing before a thread is loaded', async () => {
+			const store = useChatSessionStore('chat-1');
+
+			await store.sendText('hello');
+
+			expect(sendMessageMock).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('sendFiles', () => {
+		it('classifies an all-image batch as images', async () => {
+			const store = await loadedStore();
+			const files = [
+				file('a.png', 'image/png'),
+				file('b.jpg', 'image/jpeg'),
+			];
+
+			await store.sendFiles(files, 'caption');
+
+			expect(sendMessageMock).toHaveBeenCalledWith({
+				body: 'caption',
+				attachments: {
+					type: 'images',
+					files,
+				},
+			});
+		});
+
+		it('classifies a mixed batch as documents', async () => {
+			const store = await loadedStore();
+			const files = [
+				file('a.png', 'image/png'),
+				file('b.pdf', 'application/pdf'),
+			];
+
+			await store.sendFiles(files);
+
+			expect(sendMessageMock).toHaveBeenCalledWith({
+				body: undefined,
+				attachments: {
+					type: 'documents',
+					files,
+				},
+			});
+		});
+
+		it('does nothing for an empty file list', async () => {
+			const store = await loadedStore();
+
+			await store.sendFiles([]);
+
+			expect(sendMessageMock).not.toHaveBeenCalled();
 		});
 	});
 
