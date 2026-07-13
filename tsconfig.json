@@ -21,6 +21,18 @@
 			"vite/client"
 			// "vidstack/vue"
 		],
+		"baseUrl": ".",
+		"paths": {
+			"vue": [
+				"./node_modules/vue"
+			],
+			"vue-i18n": [
+				"./node_modules/vue-i18n"
+			],
+			"vue-router": [
+				"./node_modules/vue-router"
+			]
+		},
 		"moduleResolution": "Bundler",
 		"isolatedModules": true,
 		"moduleDetection": "force",

@@ -6,7 +6,7 @@ import {
 
 // Shared config for all chat services; token read lazily to survive refreshes.
 export const serviceConfig = createServiceConfig({
-	baseUrl: import.meta.env.VITE_CHAT_URL,
+	baseUrl: import.meta.env.VITE_API_URL,
 	accessToken: () => localStorage.getItem('access-token') ?? '',
 });
 

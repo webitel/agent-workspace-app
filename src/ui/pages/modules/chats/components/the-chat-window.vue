@@ -24,10 +24,15 @@ import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { useChatsStore } from '../../../../../features/chats/store/chats';
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
 
 const route = useRoute();
 const threadId = computed(() => route.params.threadId as string);
+
+const chatsStore = useChatsStore();
+const { openChat } = chatsStore;
+openChat(threadId.value);
 
 // per-chat store (created/warmed by the coordinator on open)
 const chatSession = useChatSessionStore(threadId.value);

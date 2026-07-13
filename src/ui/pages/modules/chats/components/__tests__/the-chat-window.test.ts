@@ -70,7 +70,7 @@ describe('the-chat-window', () => {
 				body: 'hello',
 			},
 		] as never;
-		store.hasMore = true;
+		store.olderCursor = 'cursor-1';
 		store.isLoading = true;
 		await wrapper.vm.$nextTick();
 

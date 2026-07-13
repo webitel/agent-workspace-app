@@ -19,6 +19,13 @@ export default ({ mode }) => {
 			vueDevTools(),
 		],
 		resolve: {
+			// Linked @webitel/* packages pull their own vue / vue-i18n / vue-router;
+			// force a single copy so types and runtime stay compatible.
+			dedupe: [
+				'vue',
+				'vue-i18n',
+				'vue-router',
+			],
 			alias: {
 				lodash: 'lodash-es',
 				'@aliasedDeps/api-services/axios': resolve(

@@ -24,6 +24,6 @@ import TaskDockChatLane from './task-dock-chat-lane.vue';
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    pointer-events: auto;
+    pointer-events: none; /* click-through to elements during development*/
 }
 </style>
