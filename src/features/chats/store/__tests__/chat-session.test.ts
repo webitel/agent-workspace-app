@@ -57,12 +57,13 @@ describe('chat-session store', () => {
 	});
 
 	describe('load', () => {
-		it('fetches thread then first history page and exposes state', async () => {
+		it('fetches thread then first history page and stores it oldest->newest', async () => {
+			// API returns newest->oldest (DESC); the store reverses it to ASC.
 			fetchMessageHistoryMock.mockResolvedValue(
 				historyPage(
 					[
-						'm1',
 						'm2',
+						'm1',
 					],
 					'cursor-older',
 				),
@@ -133,12 +134,13 @@ describe('chat-session store', () => {
 	});
 
 	describe('loadMore', () => {
-		it('pages older messages via keyset cursor and prepends them', async () => {
+		it('pages older messages via keyset cursor, reverses to ASC and prepends the block', async () => {
+			// Both pages arrive newest->oldest (DESC). First page: m4 (newest), m3.
 			fetchMessageHistoryMock.mockResolvedValueOnce(
 				historyPage(
 					[
-						'm3',
 						'm4',
+						'm3',
 					],
 					'cursor-older',
 				),
@@ -146,11 +148,12 @@ describe('chat-session store', () => {
 			const store = useChatSessionStore('chat-1');
 			await store.load();
 
+			// Older page: m2 (newer), m1 (oldest) — both older than the loaded block.
 			fetchMessageHistoryMock.mockResolvedValueOnce(
 				historyPage(
 					[
-						'm1',
 						'm2',
+						'm1',
 					],
 					null,
 				),

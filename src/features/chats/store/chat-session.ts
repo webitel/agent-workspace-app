@@ -39,7 +39,11 @@ function createStoreDefinition(chatId: string) {
 					size: PAGE_SIZE,
 				});
 				thread.value = fetchedThread;
-				messages.value = page.items;
+				// API returns newest->oldest (DESC); the UI renders top->bottom with
+				// newest at the bottom, so store oldest->newest (ASC).
+				messages.value = [
+					...page.items,
+				].reverse();
 				olderCursor.value = page.nextCursor?.id ?? null;
 				initialized.value = true;
 			} catch (err) {
@@ -58,8 +62,12 @@ function createStoreDefinition(chatId: string) {
 					cursorId: olderCursor.value,
 					cursorBefore: false, // false -> older direction
 				});
+				// Older page is also DESC; reverse to ASC, then prepend the whole
+				// (older) block ahead of the messages already in view.
 				messages.value = [
-					...page.items,
+					...[
+						...page.items,
+					].reverse(),
 					...messages.value,
 				];
 				olderCursor.value = page.nextCursor?.id ?? null;
