@@ -20,18 +20,32 @@
 import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
 import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
 import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
+import { useChatsStore } from '../../../../../features/chats/store/chats';
 
 const route = useRoute();
+const router = useRouter();
 const threadId = computed(() => route.params.threadId as string);
 
-// Presentation only: the coordinator (via the workspace deep-link bridge / open
-// triggers) registers and warms the session. This component is reused across
-// threadId changes, so resolve the per-chat store reactively and read through it
-// with computeds — destructured storeToRefs would stay pinned to the first store.
+const chatsStore = useChatsStore();
+
+// A chat window only exists for a chat opened this session. A stale URL (e.g.
+// after refresh, when openChats is empty) has no backing window — redirect to
+// the list instead of loading history for a chat with no preview.
+watchEffect(() => {
+	if (threadId.value && !chatsStore.isOpen(threadId.value)) {
+		router.replace('/chats');
+	}
+});
+
+// Presentation only: open triggers (preview click, future notification /
+// fullscreen) register and warm the session via the coordinator. This component
+// is reused across threadId changes, so resolve the per-chat store reactively
+// and read through it with computeds — destructured storeToRefs would stay
+// pinned to the first store.
 const chatSession = computed(() => useChatSessionStore(threadId.value));
 const thread = computed(() => chatSession.value.thread);
 const messages = computed(() => chatSession.value.messages);

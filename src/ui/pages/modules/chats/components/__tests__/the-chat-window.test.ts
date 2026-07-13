@@ -5,11 +5,24 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useChatSessionStore } from '../../../../../../features/chats/store/chat-session';
 import TheChatWindow from '../the-chat-window.vue';
 
+const routerReplaceMock = vi.fn();
 vi.mock('vue-router', () => ({
 	useRoute: () => ({
 		params: {
 			threadId: 'chat-1',
 		},
+	}),
+	useRouter: () => ({
+		replace: (...args: unknown[]) => routerReplaceMock(...args),
+	}),
+}));
+
+// The window renders only for a chat that is open in the coordinator; default
+// the mock to open so the presentation tests exercise a live window.
+const isOpenMock = vi.fn((..._args: unknown[]) => true);
+vi.mock('../../../../../../features/chats/store/chats', () => ({
+	useChatsStore: () => ({
+		isOpen: (...args: unknown[]) => isOpenMock(...args),
 	}),
 }));
 
@@ -59,6 +72,21 @@ const container = (wrapper: ReturnType<typeof mountWindow>) =>
 describe('the-chat-window', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		isOpenMock.mockReturnValue(true);
+	});
+
+	it('redirects to the list when the chat is not open (stale URL)', () => {
+		isOpenMock.mockReturnValue(false);
+
+		mountWindow();
+
+		expect(routerReplaceMock).toHaveBeenCalledWith('/chats');
+	});
+
+	it('does not redirect when the chat is open', () => {
+		mountWindow();
+
+		expect(routerReplaceMock).not.toHaveBeenCalled();
 	});
 
 	it('maps store messages into the container and mirrors paging state', async () => {

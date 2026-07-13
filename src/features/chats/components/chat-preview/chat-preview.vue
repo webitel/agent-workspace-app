@@ -3,7 +3,7 @@
         <button
             type="button"
             class="chat-preview__open"
-            @click="chatsStore.openChat(threadId)"
+            @click="openChat(threadId)"
         >
             <chat-preview-header
                 :name="thread.subject ?? ''"
@@ -34,7 +34,8 @@ const props = defineProps<{
 	task: Task;
 }>();
 
-const chatsStore = useChatsStore();
+// openChat is an action — safe to destructure (stays bound, unlike state/getters)
+const { openChat } = useChatsStore();
 
 const thread = computed(() => props.task.thread);
 const threadId = computed(() => props.task.thread.id);
