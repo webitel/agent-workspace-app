@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
 	readonly VITE_STAGING_ENV: string;
+	readonly VITE_CHAT_WEB_SOCKET_URL: string;
 }
 
 interface ImportMeta {

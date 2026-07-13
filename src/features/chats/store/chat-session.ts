@@ -77,6 +77,24 @@ function createStoreDefinition(chatId: string) {
 			];
 		}
 
+		// Socket entry point: a live messageEvent for this thread. Replaces an
+		// existing message by id (edits, and the echo of our own send), otherwise
+		// appends. Ignores foreign threads defensively — the coordinator already
+		// routes by threadId, but the payload may carry an unexpected one.
+		function receiveMessage(message: IMessage) {
+			if (message.threadId && message.threadId !== chatId) return;
+			const isKnown = messages.value.some(
+				(existing) => existing.id === message.id,
+			);
+			if (isKnown) {
+				messages.value = messages.value.map((existing) =>
+					existing.id === message.id ? message : existing,
+				);
+			} else {
+				appendMessage(message);
+			}
+		}
+
 		async function sendText(text: string) {
 			const body = text.trim();
 			if (!thread.value || !body) return;
@@ -112,6 +130,7 @@ function createStoreDefinition(chatId: string) {
 			load,
 			loadMore,
 			appendMessage,
+			receiveMessage,
 			sendText,
 			sendFiles,
 		};
