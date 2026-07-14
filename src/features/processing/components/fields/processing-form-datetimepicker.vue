@@ -13,20 +13,27 @@ import { computed } from 'vue';
 
 import { getUserTimezone } from '../../utils/getUserTimezone';
 
+// Mirror the underlying wt-datepicker model type (epoch ms | null; type-only import).
+type ModelValue = InstanceType<
+	typeof import('@webitel/ui-sdk/components').WtDatepicker
+>['$props']['modelValue'];
+
 const props = defineProps<{
-	modelValue?: string | number;
+	// backend may also send the string sentinel 'now'
+	modelValue?: ModelValue | string;
 }>();
 
 const emit = defineEmits<{
 	'update:modelValue': [
-		value: unknown,
+		value: ModelValue,
 	];
 }>();
 
-const date = computed(() =>
-	!props.modelValue || props.modelValue === 'now'
-		? Date.now()
-		: props.modelValue,
-);
+// Coerce to the epoch/null the datepicker expects; 'now' / empty -> now.
+const date = computed<number | null>(() => {
+	const value = props.modelValue;
+	if (!value || value === 'now') return Date.now();
+	return typeof value === 'number' ? value : new Date(value).getTime();
+});
 const timezone = computed(() => getUserTimezone());
 </script>

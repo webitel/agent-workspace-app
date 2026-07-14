@@ -25,10 +25,23 @@ import { computed, watch } from 'vue';
 
 import type { FormSelectOption } from '../../types/ProcessingForm.types';
 
+// Underlying wt-single-select model is a primitive; processing forms also carry
+// the resolved option object (and arrays of either for the multi variant).
+// Type-only import so tests/bundle don't pull the heavy component at runtime.
+type WtSingleSelectProps = InstanceType<
+	typeof import('@webitel/ui-sdk/components').WtSingleSelect
+>['$props'];
+type SelectPrimitive = WtSingleSelectProps['modelValue'];
+type SelectModelValue =
+	| SelectPrimitive
+	| FormSelectOption
+	| Array<SelectPrimitive | FormSelectOption>;
+type SelectOptions = WtSingleSelectProps['options'];
+
 const props = withDefaults(
 	defineProps<{
-		modelValue?: unknown;
-		options?: FormSelectOption[];
+		modelValue?: SelectModelValue;
+		options?: SelectOptions;
 		multiple?: boolean;
 	}>(),
 	{
@@ -38,12 +51,16 @@ const props = withDefaults(
 
 const emit = defineEmits<{
 	'update:modelValue': [
-		value: unknown,
+		value: SelectModelValue,
 	];
 }>();
 
+const optionList = computed<FormSelectOption[]>(
+	() => (props.options ?? []) as FormSelectOption[],
+);
+
 const trackBy = computed(() =>
-	typeof props.options[0] === 'object' ? 'value' : null,
+	typeof optionList.value[0] === 'object' ? 'value' : null,
 );
 
 const isPrimitiveArray = (
@@ -66,7 +83,7 @@ watch(
 	() => props.modelValue,
 	(newValue) => {
 		if (isPrimitiveArray(newValue)) {
-			const mappedValues = mapToOptions(newValue, props.options);
+			const mappedValues = mapToOptions(newValue, optionList.value);
 			// re-emit only when at least one primitive was mapped to an option
 			const changed = mappedValues.some((item, i) => item !== newValue[i]);
 			if (changed) emit('update:modelValue', mappedValues);
@@ -74,7 +91,7 @@ watch(
 		}
 
 		if (newValue && typeof newValue !== 'object') {
-			const matchedOption = findMatchingOption(newValue, props.options);
+			const matchedOption = findMatchingOption(newValue, optionList.value);
 			if (matchedOption) emit('update:modelValue', matchedOption);
 		}
 	},

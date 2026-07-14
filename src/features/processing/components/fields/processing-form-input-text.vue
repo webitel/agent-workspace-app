@@ -8,13 +8,18 @@
 </template>
 
 <script setup lang="ts">
+// Mirror the underlying wt-input-text model type (type-only import — no runtime load).
+type ModelValue = InstanceType<
+	typeof import('@webitel/ui-sdk/components').WtInputText
+>['$props']['modelValue'];
+
 defineProps<{
-	modelValue?: string;
+	modelValue?: ModelValue;
 }>();
 
 const emit = defineEmits<{
 	'update:modelValue': [
-		value: string,
+		value: ModelValue,
 	];
 }>();
 </script>
