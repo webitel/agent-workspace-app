@@ -43,13 +43,11 @@ import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
 import { WtTabs } from '@webitel/ui-sdk/components';
 import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
 import { computed, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 import { TheProcessingForm } from '../../../../../features/processing';
 
-const { t } = useI18n();
 const route = useRoute();
 const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
@@ -79,13 +77,13 @@ const tabs = computed(() => {
 	const result = [
 		{
 			value: 'chat',
-			text: t('processing.chatTab'),
+			text: 'Chat',
 		},
 	];
 	if (hasForm.value)
 		result.push({
 			value: 'processing',
-			text: t('processing.title'),
+			text: 'Task processing',
 		});
 	return result;
 });

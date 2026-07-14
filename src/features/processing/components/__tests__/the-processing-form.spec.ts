@@ -7,12 +7,6 @@ import ProcessingFormInputText from '../fields/processing-form-input-text.vue';
 import ProcessingFormSelect from '../fields/processing-form-select.vue';
 import TheProcessingForm from '../the-processing-form.vue';
 
-vi.mock('vue-i18n', () => ({
-	useI18n: () => ({
-		t: (key: string) => key,
-	}),
-}));
-
 const globalStubs = {
 	'wt-single-select': true,
 	'wt-multi-select': true,

@@ -24,7 +24,7 @@
 					v-else
 					class="the-processing-form__unsupported"
 				>
-					{{ t('processing.unsupportedField', { component: element.view.component }) }}
+					Unsupported field: {{ element.view.component }}
 				</p>
 			</template>
 		</template>
@@ -44,7 +44,6 @@
 
 <script setup lang="ts">
 import { type Component, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
 
 import { useProcessingForm } from '../composables/useProcessingForm';
@@ -57,8 +56,6 @@ import ProcessingWrapper from './processing-wrapper.vue';
 const props = defineProps<{
 	task: Task;
 }>();
-
-const { t } = useI18n();
 
 // Raw backend component name -> local field component. Unmapped names render a
 // placeholder, so heavier field types can be added later without touching this.
