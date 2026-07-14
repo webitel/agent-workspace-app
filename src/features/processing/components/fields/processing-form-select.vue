@@ -2,21 +2,21 @@
 	<wt-single-select
 		v-if="!multiple"
 		v-bind="$attrs"
-		:model-value="value"
+		:model-value="modelValue"
 		:options="options"
 		:data-key="trackBy"
 		@reset="resetValue"
-		@update:model-value="emit('input', $event)"
+		@update:model-value="emit('update:modelValue', $event)"
 	/>
 
 	<wt-multi-select
 		v-else
 		v-bind="$attrs"
-		:model-value="value"
+		:model-value="modelValue"
 		:options="options"
 		:data-key="trackBy"
 		@reset="resetValue"
-		@update:model-value="emit('input', $event)"
+		@update:model-value="emit('update:modelValue', $event)"
 	/>
 </template>
 
@@ -27,7 +27,7 @@ import type { FormSelectOption } from '../../types/ProcessingForm.types';
 
 const props = withDefaults(
 	defineProps<{
-		value?: unknown;
+		modelValue?: unknown;
 		options?: FormSelectOption[];
 		multiple?: boolean;
 	}>(),
@@ -37,7 +37,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-	input: [
+	'update:modelValue': [
 		value: unknown,
 	];
 }>();
@@ -63,19 +63,19 @@ const findMatchingOption = (value: unknown, options: FormSelectOption[]) =>
 // Normalize primitive value(s) to the matching option object(s) so the select
 // renders the label, re-emitting only when the mapping actually changes.
 watch(
-	() => props.value,
+	() => props.modelValue,
 	(newValue) => {
 		if (isPrimitiveArray(newValue)) {
 			const mappedValues = mapToOptions(newValue, props.options);
 			// re-emit only when at least one primitive was mapped to an option
 			const changed = mappedValues.some((item, i) => item !== newValue[i]);
-			if (changed) emit('input', mappedValues);
+			if (changed) emit('update:modelValue', mappedValues);
 			return;
 		}
 
 		if (newValue && typeof newValue !== 'object') {
 			const matchedOption = findMatchingOption(newValue, props.options);
-			if (matchedOption) emit('input', matchedOption);
+			if (matchedOption) emit('update:modelValue', matchedOption);
 		}
 	},
 	{
@@ -84,6 +84,6 @@ watch(
 );
 
 const resetValue = () => {
-	emit('input', '');
+	emit('update:modelValue', '');
 };
 </script>

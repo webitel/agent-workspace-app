@@ -27,7 +27,7 @@ describe('processing-form-select', () => {
 	it('renders the single select by default and the multi select when multiple', () => {
 		const single = mount(ProcessingFormSelect, {
 			props: {
-				value: '',
+				modelValue: '',
 				options,
 			},
 			global: {
@@ -38,7 +38,7 @@ describe('processing-form-select', () => {
 
 		const multi = mount(ProcessingFormSelect, {
 			props: {
-				value: [],
+				modelValue: [],
 				options,
 				multiple: true,
 			},
@@ -52,7 +52,7 @@ describe('processing-form-select', () => {
 	it('maps a primitive value to its option object and emits it', () => {
 		const wrapper = mount(ProcessingFormSelect, {
 			props: {
-				value: 'b',
+				modelValue: 'b',
 				options,
 			},
 			global: {
@@ -60,7 +60,7 @@ describe('processing-form-select', () => {
 			},
 		});
 
-		expect(wrapper.emitted('input')?.[0]).toEqual([
+		expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([
 			{
 				value: 'b',
 				name: 'B',
@@ -71,7 +71,7 @@ describe('processing-form-select', () => {
 	it('maps a primitive array to option objects', () => {
 		const wrapper = mount(ProcessingFormSelect, {
 			props: {
-				value: [
+				modelValue: [
 					'a',
 					'b',
 				],
@@ -83,7 +83,7 @@ describe('processing-form-select', () => {
 			},
 		});
 
-		expect(wrapper.emitted('input')?.[0]).toEqual([
+		expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([
 			[
 				{
 					value: 'a',
@@ -100,7 +100,7 @@ describe('processing-form-select', () => {
 	it('emits an empty string on reset', async () => {
 		const wrapper = mount(ProcessingFormSelect, {
 			props: {
-				value: {
+				modelValue: {
 					value: 'a',
 					name: 'A',
 				},
@@ -113,7 +113,7 @@ describe('processing-form-select', () => {
 
 		await wrapper.find('.single').trigger('reset');
 
-		expect(wrapper.emitted('input')?.at(-1)).toEqual([
+		expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([
 			'',
 		]);
 	});

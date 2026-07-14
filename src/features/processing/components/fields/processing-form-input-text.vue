@@ -1,20 +1,19 @@
 <template>
 	<wt-input-text
 		v-bind="$attrs"
-		:value="value"
+		:model-value="modelValue"
 		prevent-trim
-		@update:model-value="emit('input', $event)"
+		@update:model-value="emit('update:modelValue', $event)"
 	/>
 </template>
 
 <script setup lang="ts">
 defineProps<{
 	modelValue?: string;
-	value?: string;
 }>();
 
 const emit = defineEmits<{
-	input: [
+	'update:modelValue': [
 		value: string,
 	];
 }>();

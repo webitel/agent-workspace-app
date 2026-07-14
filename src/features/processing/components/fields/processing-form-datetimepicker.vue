@@ -4,7 +4,7 @@
 		:model-value="date"
 		:timezone="timezone"
 		show-time
-		@update:model-value="emit('input', $event)"
+		@update:model-value="emit('update:modelValue', $event)"
 	/>
 </template>
 
@@ -14,17 +14,19 @@ import { computed } from 'vue';
 import { getUserTimezone } from '../../utils/getUserTimezone';
 
 const props = defineProps<{
-	value?: string | number;
+	modelValue?: string | number;
 }>();
 
 const emit = defineEmits<{
-	input: [
+	'update:modelValue': [
 		value: unknown,
 	];
 }>();
 
 const date = computed(() =>
-	!props.value || props.value === 'now' ? Date.now() : props.value,
+	!props.modelValue || props.modelValue === 'now'
+		? Date.now()
+		: props.modelValue,
 );
 const timezone = computed(() => getUserTimezone());
 </script>

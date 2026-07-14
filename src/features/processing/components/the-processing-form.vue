@@ -15,10 +15,10 @@
 				<component
 					:is="fieldComponents[element.view.component]"
 					v-if="fieldComponents[element.view.component]"
-					:value="element.value"
+					:model-value="element.value"
 					:label-props="{ hint: element.view.hint }"
 					v-bind="element.view"
-					@input="change(element, $event)"
+					@update:model-value="change(element, $event)"
 				/>
 				<p
 					v-else
