@@ -8,29 +8,13 @@
 			@change="activeTab = $event.value"
 		/>
 
-		<div
-			v-show="activeTab === 'chat'"
-			class="the-chat-window__panel"
-		>
-			<h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
-			<chat-container
-				:messages="chatMessages"
-				:chat-actions="chatActions"
-				:can-load-next-messages="hasMore"
-				:is-next-messages-loading="isLoading"
-				@load-next-messages="chatSession.loadMore"
-				@action:sendMessage="handleSendMessage"
-				@action:attachFiles="handleAttachFiles"
+		<keep-alive>
+			<component
+				:is="currentTab.is"
+				v-bind="currentTab.props"
+				class="the-chat-window__panel"
 			/>
-		</div>
-
-		<div
-			v-if="task && hasForm"
-			v-show="activeTab === 'processing'"
-			class="the-chat-window__panel"
-		>
-			<the-processing-form :task="task" />
-		</div>
+		</keep-alive>
 	</section>
 </template>
 
@@ -38,34 +22,16 @@
 	setup
 	lang="ts"
 >
-import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
-import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
 import { WtTabs } from '@webitel/ui-sdk/components';
-import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
-import { TheProcessingForm } from '../../../../../features/processing';
+import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
+import TheChatConversation from './the-chat-conversation.vue';
 
 const route = useRoute();
 const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
-
-// Resolve reactively so the window rebinds when threadId changes; a destructured
-// storeToRefs would stay pinned to the first chat's store.
-const chatSession = computed(() => useChatSessionStore(threadId.value));
-const thread = computed(() => chatSession.value.thread);
-const messages = computed(() => chatSession.value.messages);
-const hasMore = computed(() => chatSession.value.hasMore);
-const isLoading = computed(() => chatSession.value.isLoading);
-
-const chatMessages = computed(() => mapMessagesToChatMessages(messages.value));
-
-const chatActions = [
-	ChatAction.SendMessage,
-	ChatAction.AttachFiles,
-];
 
 // The SDK task backing the open chat carries the processing form.
 const task = computed(() => chatsStore.getTaskByThreadId(threadId.value));
@@ -88,6 +54,22 @@ const tabs = computed(() => {
 	return result;
 });
 
+// Dispatch the active tab to its component; keep-alive preserves each panel's
+// state (chat scroll, form input) across switches.
+const currentTab = computed(() =>
+	activeTab.value === 'processing' && task.value
+		? {
+				is: TheProcessingForm,
+				props: {
+					task: task.value,
+				},
+			}
+		: {
+				is: TheChatConversation,
+				props: {},
+			},
+);
+
 // If the processing tab disappears (form gone / task closed) while it is active,
 // or when switching to a chat without a form, fall back to the chat tab.
 watch(hasForm, (value) => {
@@ -96,34 +78,6 @@ watch(hasForm, (value) => {
 watch(threadId, () => {
 	activeTab.value = 'chat';
 });
-
-async function handleSendMessage(
-	text: string,
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendText(text);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
-
-async function handleAttachFiles(
-	files: File[],
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendFiles(files);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
 </script>
 
 <style scoped>
@@ -145,11 +99,6 @@ async function handleAttachFiles(
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	min-height: 0;
-}
-
-.the-chat-container {
-	flex: 1;
 	min-height: 0;
 }
 </style>
