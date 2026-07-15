@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed } from 'vue';
+import { type Component, computed, watch } from 'vue';
 import type { Task } from 'webitel-sdk';
 
 import { useProcessingForm } from '../composables/useProcessingForm';
@@ -65,9 +65,13 @@ const fieldComponents: Record<string, Component> = {
 	[ProcessingFieldComponent.Datetimepicker]: ProcessingFormDatetimepicker,
 };
 
-const { formTitle, formBody, formActions, change, submit } = useProcessingForm(
-	computed(() => props.task),
-);
+const { formTitle, formBody, formActions, initialize, change, submit } =
+	useProcessingForm(computed(() => props.task));
+
+// Seed field defaults once the form body arrives (and on task switch).
+watch(formBody, initialize, {
+	immediate: true,
+});
 </script>
 
 <style scoped>

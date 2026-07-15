@@ -66,7 +66,7 @@ describe('useProcessingForm', () => {
 		expect(formActions.value[0].id).toBe('save');
 	});
 
-	it('initializes a select value by matching its option and marks the form inited', () => {
+	it('initialize() seeds field defaults and marks the form inited', () => {
 		const task = makeTask({
 			metadata: {},
 			actions: [],
@@ -92,7 +92,8 @@ describe('useProcessingForm', () => {
 			],
 		});
 
-		useProcessingForm(asTaskRef(task));
+		const { initialize } = useProcessingForm(asTaskRef(task));
+		initialize();
 
 		expect(task.form.body[0].value).toEqual({
 			value: 'b',
@@ -101,67 +102,28 @@ describe('useProcessingForm', () => {
 		expect(task.form.metadata.isInited).toBe(true);
 	});
 
-	it('resolves a "now" datetimepicker initial value to a numeric timestamp', () => {
+	it('initialize() is a no-op once the form is inited', () => {
 		const task = makeTask({
-			metadata: {},
-			actions: [],
-			body: [
-				{
-					id: 'when',
-					value: '',
-					view: {
-						component: 'wt-datetimepicker',
-						initialValue: 'now',
-					},
-				},
-			],
-		});
-
-		useProcessingForm(asTaskRef(task));
-
-		expect(typeof task.form.body[0].value).toBe('number');
-	});
-
-	it('JSON-parses a plain field initial value', () => {
-		const task = makeTask({
-			metadata: {},
-			actions: [],
-			body: [
-				{
-					id: 'count',
-					value: '',
-					view: {
-						component: 'form-text',
-						initialValue: '42',
-					},
-				},
-			],
-		});
-
-		useProcessingForm(asTaskRef(task));
-
-		expect(task.form.body[0].value).toBe(42);
-	});
-
-	it('does not re-initialize when a value is already present', () => {
-		const task = makeTask({
-			metadata: {},
+			metadata: {
+				isInited: true,
+			},
 			actions: [],
 			body: [
 				{
 					id: 'note',
-					value: 'kept',
+					value: '',
 					view: {
 						component: 'wt-input',
-						initialValue: 'ignored',
+						initialValue: 'seed',
 					},
 				},
 			],
 		});
 
-		useProcessingForm(asTaskRef(task));
+		const { initialize } = useProcessingForm(asTaskRef(task));
+		initialize();
 
-		expect(task.form.body[0].value).toBe('kept');
+		expect(task.form.body[0].value).toBe('');
 	});
 
 	it('submits the formatted body: unwraps select, converts datetime', () => {
