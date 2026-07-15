@@ -1,3 +1,5 @@
+import { isEmpty } from '@webitel/ui-sdk/scripts';
+
 import { ProcessingFieldComponent } from '../enums/ProcessingFieldComponent.enum';
 import type {
 	FormBodyElement,
@@ -38,15 +40,6 @@ function parseInitialValueToJson(initialValue: unknown): unknown {
 	} catch {
 		return initialValue;
 	}
-}
-
-// Falsy, including empty arrays/objects (mirrors @webitel/ui-sdk isEmpty).
-// Inlined: the ./scripts barrel pulls icon assets vitest denies, and the deep
-// ./scripts/isEmpty subpath does not resolve types under this bundler config.
-function isEmpty(value: unknown): boolean {
-	if (Array.isArray(value)) return !value.length;
-	if (value && typeof value === 'object') return !Object.keys(value).length;
-	return !value;
 }
 
 function shouldInitComponent(element: FormBodyElement): boolean {

@@ -29,6 +29,13 @@ vi.mock('@webitel/ui-sdk/scripts', () => ({
 	eventBus: {
 		$emit: (...args: unknown[]) => mockEmit(...args),
 	},
+	// Real semantics — mocked here only so the whole scripts barrel (icons, heavy
+	// deps) isn't loaded into jsdom just to reach a pure helper.
+	isEmpty: (value: unknown) => {
+		if (Array.isArray(value)) return !value.length;
+		if (value && typeof value === 'object') return !Object.keys(value).length;
+		return !value;
+	},
 }));
 
 beforeEach(() => {
