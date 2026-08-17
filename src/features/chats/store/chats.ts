@@ -18,6 +18,11 @@ export const useChatsStore = defineStore('chats', () => {
 		return tasks.value?.filter(({ channel }) => channel === 'im');
 	});
 
+	// The route param threadId equals task.thread.id, so the open chat's SDK task
+	// (carrying its processing form) is looked up by thread id.
+	const getTaskByThreadId = (id: string) =>
+		chatTaskList.value?.find((task) => task.thread?.id === id);
+
 	const openChats = ref<OpenChat[]>([]);
 	const mainChat = computed(() =>
 		openChats.value.find((chat) => chat.mode === 'main'),
@@ -111,6 +116,7 @@ export const useChatsStore = defineStore('chats', () => {
 	return {
 		// getters
 		chatTaskList,
+		getTaskByThreadId,
 		openChats,
 		mainChat,
 		minimizedChats,

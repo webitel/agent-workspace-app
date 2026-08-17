@@ -29,6 +29,15 @@ vi.mock('@webitel/ui-sdk/scripts', () => ({
 	eventBus: {
 		$emit: (...args: unknown[]) => mockEmit(...args),
 	},
+	// Stubbed with the real semantics. We can't pull the actual export here: the
+	// whole scripts barrel drags in icons/heavy deps jsdom can't load, and
+	// importActual of the deep module resolves through the linked sibling's
+	// out-of-root path, which vite's server.fs.allow blocks.
+	isEmpty: (value: unknown) => {
+		if (Array.isArray(value)) return !value.length;
+		if (value && typeof value === 'object') return !Object.keys(value).length;
+		return !value;
+	},
 }));
 
 beforeEach(() => {

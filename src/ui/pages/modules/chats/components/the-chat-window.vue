@@ -1,89 +1,104 @@
 <template>
-    <section class="the-chat-window">
-        <h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
-        <chat-container
-            :messages="chatMessages"
-            :chat-actions="chatActions"
-            :can-load-next-messages="hasMore"
-            :is-next-messages-loading="isLoading"
-            @load-next-messages="chatSession.loadMore"
-            @action:sendMessage="handleSendMessage"
-            @action:attachFiles="handleAttachFiles"
-        />
-    </section>
+	<section class="the-chat-window">
+		<wt-tabs
+			v-if="showTabs"
+			class="the-chat-window__tabs"
+			:current="{ value: activeTab }"
+			:tabs="tabs"
+			@change="activeTab = $event.value"
+		/>
+
+		<keep-alive>
+			<component
+				:is="currentTab.is"
+				v-bind="currentTab.props"
+				class="the-chat-window__panel"
+			/>
+		</keep-alive>
+	</section>
 </template>
 
 <script
-    setup
-    lang="ts"
+	setup
+	lang="ts"
 >
-import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
-import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
-import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
-import { computed } from 'vue';
+import { WtTabs } from '@webitel/ui-sdk/components';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-
-import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
+import { useChatsStore } from '../../../../../features/chats/store/chats';
+import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
+import TheChatConversation from './the-chat-conversation.vue';
 
 const route = useRoute();
+const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
 
-// Resolve reactively so the window rebinds when threadId changes; a destructured
-// storeToRefs would stay pinned to the first chat's store.
-const chatSession = computed(() => useChatSessionStore(threadId.value));
-const thread = computed(() => chatSession.value.thread);
-const messages = computed(() => chatSession.value.messages);
-const hasMore = computed(() => chatSession.value.hasMore);
-const isLoading = computed(() => chatSession.value.isLoading);
+// The SDK task backing the open chat carries the processing form.
+const task = computed(() => chatsStore.getTaskByThreadId(threadId.value));
+const hasForm = computed(() => Boolean(task.value?.attempt?.hasForm));
 
-const chatMessages = computed(() => mapMessagesToChatMessages(messages.value));
+const activeTab = ref<'chat' | 'processing'>('chat');
+const showTabs = computed(() => hasForm.value);
+const tabs = computed(() => {
+	const result = [
+		{
+			value: 'chat',
+			text: 'Chat',
+		},
+	];
+	if (hasForm.value)
+		result.push({
+			value: 'processing',
+			text: 'Task processing',
+		});
+	return result;
+});
 
-const chatActions = [
-	ChatAction.SendMessage,
-	ChatAction.AttachFiles,
-];
+// Dispatch the active tab to its component; keep-alive preserves each panel's
+// state (chat scroll, form input) across switches.
+const currentTab = computed(() =>
+	activeTab.value === 'processing' && task.value
+		? {
+				is: TheProcessingForm,
+				props: {
+					task: task.value,
+				},
+			}
+		: {
+				is: TheChatConversation,
+				props: {},
+			},
+);
 
-async function handleSendMessage(
-	text: string,
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendText(text);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
-
-async function handleAttachFiles(
-	files: File[],
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendFiles(files);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
+// If the processing tab disappears (form gone / task closed) while it is active,
+// or when switching to a chat without a form, fall back to the chat tab.
+watch(hasForm, (value) => {
+	if (!value && activeTab.value === 'processing') activeTab.value = 'chat';
+});
+watch(threadId, () => {
+	activeTab.value = 'chat';
+});
 </script>
 
 <style scoped>
 .the-chat-window {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
 }
 
-.the-chat-container {
-    flex: 1;
-    min-height: 0;
+.the-chat-window__tabs {
+	flex: 0 0 auto;
+	padding-bottom: var(--spacing-xs);
+}
+
+.the-chat-window__panel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 </style>
