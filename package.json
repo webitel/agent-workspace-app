@@ -24,7 +24,7 @@
 		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
 	},
 	"dependencies": {
-		"@webitel/api-services": "^0.1.40",
+		"@webitel/api-services": "^1.0.3",
 		"@webitel/chat-web-sdk": "^0.0.19",
 		"@webitel/ui-chats": "^0.1.37",
 		"@webitel/ui-sdk": "^26.6.47",
