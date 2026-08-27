@@ -16,12 +16,13 @@
 		"lint:fix-staged": "npx lint-staged",
 		"test:e2e": "playwright test",
 		"typecheck": "vue-tsc --build",
-		"prepare": "husky || true",
+		"prepare": "husky",
 		"biome:ci:gh": "biome ci ./src --reporter=github",
 		"test:unit:ci": "vitest run --coverage",
 		"typecheck:ci": "npm run typecheck",
 		"libs:ln": "npm link @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk && npm run libs:ls",
-		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
+		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
+		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
 	},
 	"dependencies": {
 		"@webitel/api-services": "^1.0.3",
