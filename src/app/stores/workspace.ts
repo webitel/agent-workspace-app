@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { useClientHandlersStore } from '../../features/client-handlers/store/client-handlers';
+import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
 import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
 
 export const useWorkspaceStore = defineStore('workspace', () => {
 	const { connect: connectWebSocket } = useWebSocketClient();
-	const { subscribeToPhoneRegistration } = useClientHandlersStore();
+	const { subscribeToPhoneRegistration } = useGlobalHandlersStore();
 
 	async function initialize() {
 		// Establish the single WebSocket session for the whole app here, once.

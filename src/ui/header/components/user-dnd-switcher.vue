@@ -1,6 +1,6 @@
 <template>
 	<wt-switcher
-		:label="t('header.dnd.label')"
+		:label="t('ui.header.dnd.label')"
 		:model-value="isDnd"
 		@update:model-value="toggleUserDnd"
 	/>

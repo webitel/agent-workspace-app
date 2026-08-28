@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 
-export const useClientHandlersStore = defineStore('clientHandlers', () => {
+export const useGlobalHandlersStore = defineStore('globalHandlers', () => {
 	const { getClient } = useWebSocketClient();
 
 	const isPhoneReg = ref(false);
