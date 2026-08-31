@@ -1,5 +1,7 @@
+import { getDefaultInstance } from '@webitel/api-services/api/defaults';
 import { applyTransform, notify } from '@webitel/api-services/api/transformers';
-import instance from '../../../app/api/instance';
+
+const instance = getDefaultInstance();
 
 export const setUserStatus = async (status: string) => {
 	const url = '/presence';

@@ -5,7 +5,7 @@
             :username="name"
         />
         <div class="chat-preview-header__info">
-            <h3 class="chat-preview-header__title">{{ name }}</h3>
+            <h3 class="chat-preview-header__title typo-body-1-bold">{{ name }}</h3>
             <p class="chat-preview-header__subtitle">{{ username }}</p>
         </div>
         <wt-chip v-show="unreadCount">
@@ -27,4 +27,10 @@ defineProps<{
 }>();
 </script>
 
-<style scoped></style>
+<style scoped>
+.chat-preview-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+</style>

@@ -1,7 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
+import { router } from '../../../app/router';
+import { useNotificationsStore } from '../../../ui/notifications/store/notifications';
+import { useChatsSocket } from '../composables/useChatsSocket';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
@@ -9,6 +11,8 @@ import { disposeChatSession, useChatSessionStore } from './chat-session';
 // history lives in dynamic chat-session stores; this store never holds it.
 export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
+	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
+	const notifications = useNotificationsStore();
 
 	const chatTaskList = computed(() => {
 		return tasks.value?.filter(({ channel }) => channel === 'im');
@@ -31,6 +35,15 @@ export const useChatsStore = defineStore('chats', () => {
 			});
 		setMode(id, mode);
 		useChatSessionStore(id).load();
+		// main window mirrors the URL; skip the push when already there so a
+		// route-triggered open (deep link, back/forward) doesn't loop back.
+		if (
+			mode === 'main' &&
+			router &&
+			router.currentRoute.value.params.threadId !== id
+		) {
+			router.push(`/chats/${id}`);
+		}
 	}
 
 	function setMode(id: string, mode: ChatWindowMode) {
@@ -50,10 +63,48 @@ export const useChatsStore = defineStore('chats', () => {
 		disposeChatSession(id);
 	}
 
+	// task.id -> notification id, so the offer notification can be dropped once
+	// the task resolves on its own (bridged / missed / closed).
+	const taskNotifications = new Map<number, string>();
+
 	function initialize() {
 		const client = getClient();
-		client.subscribeTask(() => {
-			// todo: show notifications about new tasks
+		client.subscribeTask((_action, task) => {
+			if (!task || task.channel !== 'im') return;
+			const offered = task.bridgedAt === 0 && task.closedAt === 0;
+
+			if (offered) {
+				if (taskNotifications.has(task.id)) return; // already showing
+				const notificationId = notifications.notify({
+					title: 'New chat',
+					text: task.thread?.subject || task.displayName || task.display,
+					actions: [
+						{
+							label: 'Accept',
+							color: 'success',
+							handler: () => task.accept(),
+						},
+						{
+							label: 'Reject',
+							color: 'error',
+							handler: () => task.decline(),
+						},
+					],
+				});
+				taskNotifications.set(task.id, notificationId);
+			} else {
+				const notificationId = taskNotifications.get(task.id);
+				if (notificationId) {
+					notifications.dismiss(notificationId);
+					taskNotifications.delete(task.id);
+				}
+			}
+		});
+
+		connectChatsSocket();
+		onThreadMessage((message) => {
+			if (!message.threadId || !isOpen(message.threadId)) return;
+			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
 	}
 

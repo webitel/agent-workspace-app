@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
+import { useChatsStore } from '../../features/chats/store/chats';
 import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
 
 export const useWorkspaceStore = defineStore('workspace', () => {
@@ -11,6 +12,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		// Every other consumer uses getClient() (sync) and the reactive slices,
 		// assuming the connection has already been brought up at this point.
 		await connectWebSocket();
+		// Chats coordinator (task feed + chats socket) needs the app socket up first.
+		useChatsStore().initialize();
 		subscribeToPhoneRegistration();
 	}
 

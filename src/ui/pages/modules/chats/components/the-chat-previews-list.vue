@@ -4,7 +4,8 @@
             v-for="chat in chatTaskList"
             :key="chat.id"
         >
-            <chat-preview :task="(chat as TaskPreview)" />
+            <chat-preview :task="(chat as Task)" />
+            <wt-divider />
         </li>
     </ul>
 </template>
@@ -14,12 +15,17 @@
     lang="ts"
 >
 import { storeToRefs } from 'pinia';
-import ChatPreview from '../../../../../features/chats/components/chat-preview/chat-preview.vue';
+import { type Task } from 'webitel-sdk';
+import { WtDivider } from '@webitel/ui-sdk/components';
+
 import { useChatsStore } from '../../../../../features/chats/store/chats';
-import type { TaskPreview } from '../../../../../features/chats/types/ChatPreview.types';
+import ChatPreview from '../../../../../features/chats/components/chat-preview/chat-preview.vue';
 
 const chatsStore = useChatsStore();
 const { chatTaskList } = storeToRefs(chatsStore);
 </script>
 
-<style scoped></style>
+<style scoped>
+.the-chat-previews-list {
+}
+</style>

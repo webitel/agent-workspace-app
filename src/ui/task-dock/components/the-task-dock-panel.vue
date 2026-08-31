@@ -19,19 +19,11 @@ import TaskDockChatLane from './task-dock-chat-lane.vue';
 </script>
 
 <style scoped>
-.the-task-dock-panel {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    pointer-events: none;
-}
 
 .the-task-dock-panel__lanes {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    pointer-events: auto;
+    pointer-events: none; /* click-through to elements during development*/
 }
 </style>
