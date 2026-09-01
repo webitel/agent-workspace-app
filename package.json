@@ -8,6 +8,7 @@
 		"npm": ">=11"
 	},
 	"scripts": {
+		"check:libs-train": "node scripts/check-webitel-train.mjs",
 		"dev": "vite --force",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -25,10 +26,10 @@
 		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
 	},
 	"dependencies": {
-		"@webitel/api-services": "^1.0.3",
+		"@webitel/api-services": "1.0.3",
 		"@webitel/chat-web-sdk": "^0.0.19",
-		"@webitel/ui-chats": "^0.1.37",
-		"@webitel/ui-sdk": "^26.6.47",
+		"@webitel/ui-chats": "0.1.40",
+		"@webitel/ui-sdk": "26.6.47",
 		"axios": "^1.17.0",
 		"pinia": "^3.x",
 		"vue": "^3.5.x",
