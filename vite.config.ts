@@ -13,6 +13,17 @@ export default ({ mode }) => {
 			sourcemap: isStagingEnv,
 			minify: !isStagingEnv, // Disable minification for readable debugging
 		},
+		optimizeDeps: {
+			// CommonJS-only packages that @webitel/ui-sdk imports without declaring;
+			// force pre-bundling so the default-export interop works.
+			include: [
+				'clipboard-copy',
+				'deep-equal',
+				'deepmerge',
+				'jszip',
+				'jszip-utils',
+			],
+		},
 		plugins: [
 			vue(),
 			vueDevTools(),

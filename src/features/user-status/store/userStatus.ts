@@ -12,16 +12,12 @@ export const useUserStatusStore = defineStore('user', () => {
 	const isDnd = computed(() => !!userStatus.value?.[UserStatus.Dnd]);
 
 	async function subscribeUserStatus() {
-		try {
-			const client = getClient();
-			await client.subscribeUsersStatus((value) => {
-				userStatus.value = parseUserStatus(value);
-			});
+		const client = getClient();
+		await client.subscribeUsersStatus((value) => {
+			userStatus.value = parseUserStatus(value.status);
+		});
 
-			await getCurrentUserStatus();
-		} catch (error) {
-			throw error;
-		}
+		await getCurrentUserStatus();
 	}
 
 	// helper action to get initial user-status status from HTTP request

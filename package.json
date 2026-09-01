@@ -25,15 +25,19 @@
 		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
 	},
 	"dependencies": {
+		"@vuelidate/validators": "^2.0.4",
 		"@webitel/api-services": "^1.0.3",
 		"@webitel/chat-web-sdk": "^0.0.19",
 		"@webitel/ui-chats": "^0.1.54",
 		"@webitel/ui-sdk": "^26.6.47",
 		"axios": "^1.17.0",
+		"jszip": "^3.10.1",
+		"jszip-utils": "^0.1.0",
 		"pinia": "^3.x",
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
+		"vuex": "^4.1.0",
 		"webitel-sdk": "^26.4.14"
 	},
 	"devDependencies": {
@@ -44,6 +48,7 @@
 		"@vitejs/plugin-vue": "^6.x",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.8.1",
+		"clipboard-copy": "^4.0.1",
 		"husky": "^9.1.7",
 		"jsdom": "^27.0.0",
 		"lint-staged": "^17.x",
