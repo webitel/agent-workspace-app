@@ -1,9 +1,10 @@
+import type { ButtonColor } from '@webitel/ui-sdk/enums';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export interface NotificationAction {
 	label: string;
-	color?: string;
+	color?: ButtonColor;
 	handler: () => void;
 }
 

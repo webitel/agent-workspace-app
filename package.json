@@ -28,7 +28,7 @@
 	"dependencies": {
 		"@webitel/api-services": "1.0.3",
 		"@webitel/chat-web-sdk": "^0.0.19",
-		"@webitel/ui-chats": "0.1.40",
+		"@webitel/ui-chats": "0.1.54,
 		"@webitel/ui-sdk": "26.6.47",
 		"axios": "^1.17.0",
 		"pinia": "^3.x",

@@ -86,7 +86,7 @@ export const useChatsStore = defineStore('chats', () => {
 						},
 						{
 							label: 'Reject',
-							color: 'danger',
+							color: 'error',
 							handler: () => task.decline(),
 						},
 					],
