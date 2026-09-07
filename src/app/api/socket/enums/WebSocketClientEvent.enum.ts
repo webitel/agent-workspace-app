@@ -3,6 +3,7 @@ export const WebSocketClientEvent = {
 	Error: 'error',
 	CallMediaMetric: 'call_media_metric',
 	Disconnected: 'disconnected',
+	SubscribeToPhoneRegistration: 'subscribe_to_phone_registration',
 } as const;
 
 export type WebSocketClientEvent =
