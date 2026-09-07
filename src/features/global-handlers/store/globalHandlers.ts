@@ -2,16 +2,17 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
+import { WebSocketClientEvent } from '../../../app/api/socket/enums/WebSocketClientEvent.enum';
 
 export const useGlobalHandlersStore = defineStore('globalHandlers', () => {
-	const { getClient } = useWebSocketClient();
+	const { getClient, on: onWebSocketEvent } = useWebSocketClient();
 
 	const isPhoneReg = ref(false);
 
 	const subscribeToPhoneRegistration = async () => {
 		const client = getClient();
 
-		client.on('phone_registered', (value) => {
+		onWebSocketEvent(WebSocketClientEvent.PhoneRegistered, (value: boolean) => {
 			isPhoneReg.value = value;
 		});
 
