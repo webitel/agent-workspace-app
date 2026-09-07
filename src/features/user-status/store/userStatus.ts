@@ -5,10 +5,10 @@ import { getUserStatus, setUserStatus } from '../api/UsersStatusAPI';
 import { UserStatus } from '../enums/UserStatus';
 import { parseUserStatus } from '../scripts/parseUserStatus';
 
-export const useUserStatusStore = defineStore('user', () => {
+export const useUserStatusStore = defineStore('user-status', () => {
 	const { getClient } = useWebSocketClient();
 
-	const userStatus = ref(null);
+	const userStatus = ref<Record<UserStatus, boolean> | null>(null);
 	const isDnd = computed(() => !!userStatus.value?.[UserStatus.Dnd]);
 
 	async function subscribeUserStatus() {
