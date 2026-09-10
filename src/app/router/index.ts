@@ -2,14 +2,13 @@ import { WtApplication } from '@webitel/ui-sdk/enums';
 import {
 	createRouter,
 	createWebHistory,
-	NavigationGuard,
-	RouteRecordRaw,
+	type NavigationGuard,
+	type RouteRecordRaw,
 } from 'vue-router';
-
-import AgentWorkspace from '../components/the-agent-workspace.vue';
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
-import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
+import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
+import AgentWorkspace from '../components/the-agent-workspace.vue';
 
 const routes: RouteRecordRaw[] = [
 	{

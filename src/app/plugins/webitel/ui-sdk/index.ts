@@ -5,6 +5,10 @@ import { eventBus } from '@webitel/ui-sdk/scripts';
 
 import i18n from '../../../locale/i18n';
 
+const globals = {
+	$baseURL: import.meta.env.BASE_URL,
+};
+
 Object.entries(locales).forEach(([locale, messages]) => {
 	i18n.global.mergeLocaleMessage(locale, messages);
 });
@@ -12,4 +16,5 @@ Object.entries(locales).forEach(([locale, messages]) => {
 export const plugin = WebitelUI;
 export const options = {
 	eventBus,
+	globals,
 };

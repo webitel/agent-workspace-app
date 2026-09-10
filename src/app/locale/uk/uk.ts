@@ -4,7 +4,7 @@ export default {
 			sip: 'SIP',
 			dnd: {
 				label: 'DnD',
-				tooltip: 'You will receive calls from queues only',
+				tooltip: 'Ви будете отримувати дзвінки тільки з черг',
 			},
 		},
 	},
