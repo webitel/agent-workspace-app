@@ -48,9 +48,9 @@ const props = withDefaults(
   padding: var(--spacing-sm);
 }
 
-//.ws-page-wrapper__main {
-//  padding: var(--page-wrapper-section-padding);
-//}
+.ws-page-wrapper__main {
+  padding: var(--spacing-sm);
+}
 
 .ws-page-wrapper__main {
   display: flex;

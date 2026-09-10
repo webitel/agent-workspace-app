@@ -8,6 +8,7 @@ import {
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
+import TheContacts from '../../ui/pages/modules/contacts/the-contacts.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -35,6 +36,11 @@ const routes: RouteRecordRaw[] = [
 						component: TheChatWindow,
 					},
 				],
+			},
+			{
+				path: '/contacts',
+				name: 'contacts',
+				component: TheContacts,
 			},
 		],
 	},

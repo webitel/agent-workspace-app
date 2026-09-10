@@ -28,8 +28,25 @@ import {
 	ContactsSearchMode,
 	getContactAccessFromMode,
 } from '@webitel/api-services/api';
+import {useContactsDataListStore} from "./store/contacts";
+import {storeToRefs} from "pinia";
 
-const tableStore = useContactsDatalistStore();
+const tableStore = useContactsDataListStore();
+
+const {
+  initialize,
+  loadDataList,
+  dataList,
+  selected,
+  isLoading,
+  headers,
+  page,
+  size,
+  next,
+  error,
+} = storeToRefs(tableStore);
+
+initialize();
 </script>
 
 <style scoped>

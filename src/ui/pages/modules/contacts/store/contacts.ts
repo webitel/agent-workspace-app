@@ -1,11 +1,10 @@
 import { ContactsAPI } from '@webitel/api-services/api';
 import { createTableStore } from '@webitel/ui-datalist';
 
-import { headers } from '../../_shared/store/_internals/headers';
-import { ContactsNamespace } from '../../namespace';
+import { headers } from './_internals/headers';
 
-export const useContactsStore = createTableStore(
-	`${ContactsNamespace}/datalist`,
+export const useContactsDataListStore = createTableStore(
+	'ui/contacts/datalist',
 	{
 		apiModule: ContactsAPI,
 		headers,
