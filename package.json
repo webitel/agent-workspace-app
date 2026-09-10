@@ -26,10 +26,10 @@
 		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
 	},
 	"dependencies": {
-		"@webitel/api-services": "26.8.8",
+		"@webitel/api-services": "~26.8.8",
 		"@webitel/chat-web-sdk": "^0.0.19",
-		"@webitel/ui-chats": "26.8.1",
-		"@webitel/ui-sdk": "26.8.75",
+		"@webitel/ui-chats": "~26.8.1",
+		"@webitel/ui-sdk": "~26.8.75",
 		"axios": "^1.17.0",
 		"pinia": "^3.x",
 		"vue": "^3.5.x",
