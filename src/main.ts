@@ -5,6 +5,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import i18n from './app/locale/i18n';
 import App from './app/the-app.vue';
+import './app/css/main.css';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
 import {
 	plugin as WebitelUi,

@@ -8,5 +8,6 @@ export const useContactsDataListStore = createTableStore(
 	{
 		apiModule: ContactsAPI,
 		headers,
+		isAppendDataList: true,
 	},
 );
