@@ -1,3 +1,6 @@
+import './app/css/main.css';
+import './app/assets/icons/sprite';
+
 import { setConfig as setApiServicesConfig } from '@webitel/api-services';
 import { setConfig as setChatsServicesConfig } from '@webitel/ui-chats';
 import { eventBus } from '@webitel/ui-sdk/scripts';
@@ -5,7 +8,6 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import i18n from './app/locale/i18n';
 import App from './app/the-app.vue';
-import './app/css/main.css';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
 import {
 	plugin as WebitelUi,

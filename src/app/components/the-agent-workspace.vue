@@ -5,7 +5,7 @@
             <the-workspace-nav />
             <section class="workspace-content-wrapper">
                 <router-view class="workspace-content" />
-<!--                <the-workspace-sidebar />-->
+                <the-workspace-sidebar />
                 <the-task-dock-panel />
             </section>
         </div>

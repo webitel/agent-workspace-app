@@ -1,5 +1,10 @@
 <template>
- <ws-page-wrapper class="the-contacts">
+ <ws-page-wrapper
+   class="the-contacts"
+   search
+   v-model:search-value="searchValue"
+   @search="handleSearch"
+ >
    <template #header>
      Contacts
    </template>
@@ -89,7 +94,15 @@ import { ref } from 'vue';
 
 const tableStore = useContactsDataListStore();
 
-const { initialize, loadDataList, appendToDataList } = tableStore;
+const {
+	initialize,
+	loadDataList,
+	appendToDataList,
+	hasFilter,
+	addFilter,
+	updateFilter,
+	deleteFilter,
+} = tableStore;
 
 const { dataList, selected, isLoading, headers, page, size, next, error } =
 	storeToRefs(tableStore);
@@ -99,6 +112,26 @@ const onLoading = async () => {
 	if (!next.value && isFirstLoad.value) return;
 	await appendToDataList();
 	isFirstLoad.value = true;
+};
+
+const searchValue = ref('');
+const handleSearch = (value: string) => {
+	if (!value) {
+		if (hasFilter('search'))
+			deleteFilter({
+				name: 'search',
+			});
+		return;
+	}
+	hasFilter('search')
+		? updateFilter({
+				name: 'search',
+				value,
+			})
+		: addFilter({
+				name: 'search',
+				value,
+			});
 };
 
 initialize();
