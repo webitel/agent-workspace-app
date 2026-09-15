@@ -14,7 +14,6 @@
        class="table-wrapper"
      >
        <wt-table
-         v-if="dataList.length"
          class="the-contacts__table"
          :data="dataList"
          :headers="headers"
@@ -25,20 +24,17 @@
          sortable
        >
          <template #name="{ item }">
-           <div class="username-wrapper">
+           <div class="the-contacts__username-wrapper">
              <wt-avatar
                size="xs"
                :username="item.name?.commonName"
              />
 
-  <!--           <wt-item-link-->
-  <!--             :link="{-->
-  <!--                  name: `${CrmSections.Contacts}-card`,-->
-  <!--                  params: { id: item.id },-->
-  <!--                }"-->
-  <!--           >-->
-  <!--             {{ item.name?.commonName }}-->
-  <!--           </wt-item-link>-->
+             <wt-item-link
+               :link="contactLink(item.id)"
+             >
+               {{ item.name?.commonName }}
+             </wt-item-link>
            </div>
          </template>
 
@@ -49,12 +45,15 @@
            />
          </template>
 
-         <template #about="{ item }">
-           {{ item.about }}
+         <template #groups="{ item }">
+           <wt-display-chip-items
+             v-if="item.groups?.data"
+             :items="getGroupItems(item)"
+           />
          </template>
 
-         <template #managers="{ item }">
-           {{ item.managers?.data?.[0]?.user?.name }}
+         <template #about="{ item }">
+           {{ item.about }}
          </template>
 
          <template #labels="{ item }">
@@ -83,15 +82,15 @@
 </template>
 
 <script setup lang="ts">
-import WsPageWrapper from '../../components/ws-page-wrapper.vue';
-import {
-	ContactsSearchMode,
-	getContactAccessFromMode,
-} from '@webitel/api-services/api';
-import { useContactsDataListStore } from './modules/contacts/store/contacts';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { WtTable } from '@webitel/ui-sdk/components';
+import { useI18n } from 'vue-i18n';
+import WsPageWrapper from '../../components/ws-page-wrapper.vue';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
+import { useContactsDataListStore } from './modules/contacts/store/contacts';
 
+const { t } = useI18n();
 const tableStore = useContactsDataListStore();
 
 const {
@@ -108,13 +107,25 @@ const { dataList, selected, isLoading, headers, page, size, next, error } =
 	storeToRefs(tableStore);
 
 const isFirstLoad = ref(false);
+const searchValue = ref('');
+
+const tabList = [
+	{
+		text: t('timeline.timeline'),
+		value: 'contacts',
+		pathName: `contacts`,
+	},
+	{
+		text: t('contacts.communications.communications', 2),
+		value: 'users',
+		pathName: `users`,
+	},
+];
 const onLoading = async () => {
 	if (!next.value && isFirstLoad.value) return;
 	await appendToDataList();
 	isFirstLoad.value = true;
 };
-
-const searchValue = ref('');
 const handleSearch = (value: string) => {
 	if (!value) {
 		if (hasFilter('search'))
@@ -134,6 +145,14 @@ const handleSearch = (value: string) => {
 			});
 };
 
+const contactLink = (id) => {
+	return `${import.meta.env.VITE_CRM_URL}/contacts/${id}`;
+};
+
+function getGroupItems(item: WebitelContactsContact) {
+	return item.groups?.data?.map(({ group }) => group).filter(Boolean) ?? [];
+}
+
 initialize();
 </script>
 
@@ -144,6 +163,11 @@ initialize();
 
 .table-section {
   height: 100%;
+}
+
+.the-contacts__username-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 </style>

@@ -2,6 +2,11 @@
   <section class="ws-page-wrapper">
     <div v-if="!hideHeader" class="ws-page-wrapper__header">
       <slot name="header"></slot>
+      <wt-tabs
+        :current="currentTab"
+        :tabs="tabs"
+        @change="changeTab"
+      />
       <div
         v-if="actionsPanel"
         class="ws-page-wrapper__actions-panel"
@@ -18,20 +23,21 @@
     </div>
 
     <div class="ws-page-wrapper__main">
-      <slot name="main" />
+      <slot name="main" > </slot>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
 import { WtIconBtn, WtSearchBar } from '@webitel/ui-sdk/components';
+import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
 
 const props = withDefaults(
 	defineProps<{
 		hideHeader?: boolean;
 		actionsPanel?: boolean;
+		tabs?: object;
 		search?: boolean;
 		searchValue?: string;
 	}>(),
