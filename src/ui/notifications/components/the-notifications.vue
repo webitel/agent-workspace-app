@@ -60,7 +60,7 @@ const notificationsStore = useNotificationsStore();
     gap: var(--spacing-xs);
     padding: var(--spacing-sm);
     border-radius: var(--border-radius, 6px);
-    background-color: var(--white);
+    background-color: var(--content-wrapper-color);
     box-shadow: var(--elevation-3, 0 4px 12px rgba(0, 0, 0, 0.15));
 }
 

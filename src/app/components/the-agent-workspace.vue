@@ -34,7 +34,7 @@ subscribeToWebSocketEvents();
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background-color: var(--grey-lighten-4);
+    background-color: var(--wt-page-wrapper-background-color);
 }
 
 .workspace-content-nav-wrapper {
@@ -63,6 +63,6 @@ subscribeToWebSocketEvents();
 .workspace-content {
     flex: 1;
     display: flex;
-    background-color: var(--white);
+    background-color: var(--content-wrapper-color);
 }
 </style>

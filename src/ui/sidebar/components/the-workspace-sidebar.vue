@@ -10,6 +10,6 @@
 <style scoped>
 .workspace-sidebar {
     width: 280px;
-    background-color: var(--white);
+    background-color: var(--content-wrapper-color);
 }
 </style>
