@@ -15,7 +15,7 @@
 		"test:unit": "vitest run",
 		"lint:fix": "npx biome check --write ./src",
 		"lint:fix-staged": "npx lint-staged",
-		"test:e2e": "playwright test",
+		"test:e2e": "playwright test --project=mocked",
 		"typecheck": "vue-tsc --build",
 		"prepare": "husky",
 		"biome:ci:gh": "biome ci ./src --reporter=github",
@@ -23,7 +23,10 @@
 		"typecheck:ci": "npm run typecheck",
 		"libs:ln": "npm link @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk && npm run libs:ls",
 		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
-		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk"
+		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
+		"test:e2e:live": "playwright test --project=live",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:ci": "playwright test --project=mocked"
 	},
 	"dependencies": {
 		"@webitel/api-services": "~26.8.8",

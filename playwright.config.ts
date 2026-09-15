@@ -1,15 +1,23 @@
 import process from 'node:process';
 import { defineConfig, devices } from '@playwright/test';
+import { loadEnv } from 'vite';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * E2E env comes from the `e2e` vite mode: `.env.e2e` (committed, points at the
+ * test instance) plus `.env.e2e.local` (gitignored, holds the access token).
+ * Reusing vite's loader keeps the config and the dev server on the same values
+ * without pulling in dotenv.
  */
-// require('dotenv').config();
+const env = loadEnv('e2e', process.cwd(), '');
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const accessToken = env.E2E_ACCESS_TOKEN;
+
+/* Re-exported so the `live` fixture can skip with a reason instead of failing. */
+process.env.E2E_ACCESS_TOKEN = accessToken ?? '';
+
+const port = process.env.CI ? 4173 : 5273;
+const origin = `http://localhost:${port}`;
+
 export default defineConfig({
 	testDir: './e2e',
 	/* Maximum time one test can run for. */
@@ -33,8 +41,12 @@ export default defineConfig({
 	use: {
 		/* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
 		actionTimeout: 0,
-		/* Base URL to use in actions like `await page.goto('/')`. */
-		baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
+		/**
+		 * The app is served under `/agent-workspace`. Keep the trailing slash:
+		 * specs navigate with relative paths (`page.goto('calls')`), and a
+		 * root-relative `/calls` would drop the base path.
+		 */
+		baseURL: `${origin}/agent-workspace/`,
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
@@ -43,68 +55,54 @@ export default defineConfig({
 		headless: !!process.env.CI,
 	},
 
-	/* Configure projects for major browsers */
 	projects: [
+		/**
+		 * Hermetic: every backend call is intercepted (see `e2e/fixtures`), so
+		 * these need no token and no reachable instance.
+		 */
 		{
-			name: 'chromium',
+			name: 'mocked',
+			testMatch: /(?<!\.live)\.spec\.ts$/,
 			use: {
 				...devices['Desktop Chrome'],
 			},
 		},
+		/**
+		 * Hits the real instance from `.env.e2e` with a long-lived token seeded
+		 * into localStorage, which is all the router guard checks for.
+		 * Without a token the project still exists, but its tests skip.
+		 */
 		{
-			name: 'firefox',
+			name: 'live',
+			testMatch: /\.live\.spec\.ts$/,
 			use: {
-				...devices['Desktop Firefox'],
+				...devices['Desktop Chrome'],
+				storageState: {
+					cookies: [],
+					origins: accessToken
+						? [
+								{
+									origin,
+									localStorage: [
+										{
+											name: 'access-token',
+											value: accessToken,
+										},
+									],
+								},
+							]
+						: [],
+				},
 			},
 		},
-		{
-			name: 'webkit',
-			use: {
-				...devices['Desktop Safari'],
-			},
-		},
-
-		/* Test against mobile viewports. */
-		// {
-		//   name: 'Mobile Chrome',
-		//   use: {
-		//     ...devices['Pixel 5'],
-		//   },
-		// },
-		// {
-		//   name: 'Mobile Safari',
-		//   use: {
-		//     ...devices['iPhone 12'],
-		//   },
-		// },
-
-		/* Test against branded browsers. */
-		// {
-		//   name: 'Microsoft Edge',
-		//   use: {
-		//     channel: 'msedge',
-		//   },
-		// },
-		// {
-		//   name: 'Google Chrome',
-		//   use: {
-		//     channel: 'chrome',
-		//   },
-		// },
 	],
 
-	/* Folder for test artifacts such as screenshots, videos, traces, etc. */
-	// outputDir: 'test-results/',
-
-	/* Run your local dev server before starting the tests */
 	webServer: {
-		/**
-		 * Use the dev server by default for faster feedback loop.
-		 * Use the preview server on CI for more realistic testing.
-		 * Playwright will re-use the local server if there is already a dev-server running.
-		 */
-		command: process.env.CI ? 'npm run preview' : 'npm run dev',
-		port: process.env.CI ? 4173 : 5173,
+		command: process.env.CI
+			? `npm run build -- --mode e2e && npm run preview -- --mode e2e --port ${port}`
+			: `npm run dev -- --mode e2e --port ${port} --strictPort`,
+		port,
 		reuseExistingServer: !process.env.CI,
+		timeout: 120 * 1000,
 	},
 });
