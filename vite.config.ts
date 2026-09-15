@@ -39,8 +39,6 @@ export default ({ mode }) => {
 				'clipboard-copy',
 				'deep-equal',
 				'deepmerge',
-				'jszip',
-				'jszip-utils',
 			],
 		},
 		server: {
