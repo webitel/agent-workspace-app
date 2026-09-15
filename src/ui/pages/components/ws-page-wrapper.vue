@@ -3,6 +3,7 @@
     <div v-if="!hideHeader" class="ws-page-wrapper__header">
       <slot name="header"></slot>
       <wt-tabs
+        v-if="tabs.length"
         :current="currentTab"
         :tabs="tabs"
         @change="changeTab"
@@ -29,27 +30,42 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
 import { WtIconBtn, WtSearchBar } from '@webitel/ui-sdk/components';
+import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
+
+export interface WsPageTab {
+	text: string;
+	value: string;
+	/** name of the route this tab navigates to */
+	pathName: string;
+}
 
 const props = withDefaults(
 	defineProps<{
 		hideHeader?: boolean;
 		actionsPanel?: boolean;
-		tabs?: object;
+		tabs?: WsPageTab[];
 		search?: boolean;
 		searchValue?: string;
 	}>(),
 	{
 		hideHeader: false,
 		actionsPanel: true,
+		tabs: () => [],
 		search: false,
 		searchValue: '',
 	},
 );
 
-const { isOpen, toggle: toggleSidebar } = useWorkspaceSidebarStore();
+const sidebarStore = useWorkspaceSidebarStore();
+const { isOpen } = storeToRefs(sidebarStore);
+const { toggle: toggleSidebar } = sidebarStore;
+
+const route = useRoute();
+const router = useRouter();
 
 const emit = defineEmits<{
 	'update:search-value': [
@@ -61,8 +77,19 @@ const emit = defineEmits<{
 }>();
 
 const sidebarIcon = computed(() =>
-	isOpen ? 'ws-sidebar-open' : 'ws-sidebar-close',
+	isOpen.value ? 'ws-sidebar-open' : 'ws-sidebar-close',
 );
+
+const currentTab = computed(
+	() => props.tabs.find(({ pathName }) => pathName === route.name) ?? {},
+);
+
+const changeTab = ({ pathName }: WsPageTab) => {
+	if (pathName === route.name) return;
+	router.push({
+		name: pathName,
+	});
+};
 </script>
 
 <style scoped>

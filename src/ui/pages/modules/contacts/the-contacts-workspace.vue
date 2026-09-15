@@ -2,6 +2,7 @@
  <ws-page-wrapper
    class="the-contacts"
    search
+   :tabs="tabs"
    v-model:search-value="searchValue"
    @search="handleSearch"
  >
@@ -101,14 +102,15 @@
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { WtTable } from '@webitel/ui-sdk/components';
-import { useI18n } from 'vue-i18n';
 import WsPageWrapper from '../../components/ws-page-wrapper.vue';
 import TableCellInfo from '../../../components/table-cell-info.vue';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
+import { useContactsTabs } from './composables/useContactsTabs';
 import { useContactsDataListStore } from './modules/contacts/store/contacts';
+import { contactLink } from '../../../../app/scripts/contactLink';
 
-const { t } = useI18n();
 const tableStore = useContactsDataListStore();
+const { tabs } = useContactsTabs();
 
 const {
 	initialize,
@@ -126,18 +128,6 @@ const { dataList, selected, isLoading, headers, page, size, next, error } =
 const isFirstLoad = ref(false);
 const searchValue = ref('');
 
-const tabList = [
-	{
-		text: t('timeline.timeline'),
-		value: 'contacts',
-		pathName: `contacts`,
-	},
-	{
-		text: t('contacts.communications.communications', 2),
-		value: 'users',
-		pathName: `users`,
-	},
-];
 const onLoading = async () => {
 	if (!next.value && isFirstLoad.value) return;
 	await appendToDataList();
@@ -160,10 +150,6 @@ const handleSearch = (value: string) => {
 				name: 'search',
 				value,
 			});
-};
-
-const contactLink = (id) => {
-	return `${import.meta.env.VITE_CRM_URL}/contacts/${id}`;
 };
 
 function getGroupItems(item: WebitelContactsContact) {

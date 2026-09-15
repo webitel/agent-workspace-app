@@ -9,6 +9,7 @@ import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import TheContactsWorkspace from '../../ui/pages/modules/contacts/the-contacts-workspace.vue';
+import TheUsersWorkspace from '../../ui/pages/modules/contacts/the-users-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -41,6 +42,11 @@ const routes: RouteRecordRaw[] = [
 				path: '/contacts',
 				name: 'contacts',
 				component: TheContactsWorkspace,
+			},
+			{
+				path: '/contacts/users',
+				name: 'users',
+				component: TheUsersWorkspace,
 			},
 		],
 	},
