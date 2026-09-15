@@ -99,7 +99,7 @@ export default defineConfig({
 
 	webServer: {
 		command: process.env.CI
-			? `npm run build -- --mode e2e && npm run preview -- --port ${port}`
+			? `npm run build -- --mode e2e && npm run preview -- --mode e2e --port ${port}`
 			: `npm run dev -- --mode e2e --port ${port} --strictPort`,
 		port,
 		reuseExistingServer: !process.env.CI,

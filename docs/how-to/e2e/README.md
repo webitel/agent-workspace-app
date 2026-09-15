@@ -38,6 +38,14 @@ and they use their own port so they never reuse a dev server started by hand.
 to `E2E_API_ORIGIN` — the instance rejects CORS preflights from `localhost`, so
 the live tests need the proxy to get past app bootstrap.
 
+## CI
+
+`.github/workflows/e2e.yml` runs the `mocked` project on every pull request and
+uploads the HTML report as an artifact. `live` is deliberately not in CI: it
+would need `E2E_ACCESS_TOKEN` as a repo secret and would fail whenever the test
+instance is down or mid-deploy. Run it locally before touching bootstrap, auth
+or the API layer.
+
 ## Known gap
 
 `GET /api/user-status` does not exist on `test.webitel.me` yet, and app
