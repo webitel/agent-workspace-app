@@ -46,9 +46,25 @@
          </template>
 
          <template #groups="{ item }">
-           <wt-display-chip-items
-             v-if="item.groups?.data"
+           <table-cell-info
+             icon="group"
              :items="getGroupItems(item)"
+           />
+         </template>
+
+         <template #phones="{ item }">
+           <table-cell-info
+             icon="call"
+             icon-color="success"
+             :items="item.phones?.data"
+             item-label="number"
+           />
+         </template>
+
+         <template #managers="{ item }">
+           <table-cell-info
+             icon="user"
+             :items="getManagerItems(item)"
            />
          </template>
 
@@ -87,6 +103,7 @@ import { ref } from 'vue';
 import { WtTable } from '@webitel/ui-sdk/components';
 import { useI18n } from 'vue-i18n';
 import WsPageWrapper from '../../components/ws-page-wrapper.vue';
+import TableCellInfo from '../../../components/table-cell-info.vue';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { useContactsDataListStore } from './modules/contacts/store/contacts';
 
@@ -151,6 +168,10 @@ const contactLink = (id) => {
 
 function getGroupItems(item: WebitelContactsContact) {
 	return item.groups?.data?.map(({ group }) => group).filter(Boolean) ?? [];
+}
+
+function getManagerItems(item: WebitelContactsContact) {
+	return item.managers?.data?.map(({ user }) => user).filter(Boolean) ?? [];
 }
 
 initialize();
