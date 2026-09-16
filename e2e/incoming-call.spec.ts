@@ -62,6 +62,34 @@ test.describe('incoming call notification', () => {
 		await expect(card).toHaveCount(0);
 	});
 
+	/**
+	 * Registration is the app's job, not the worker's, so it is covered here
+	 * rather than in the service worker spec — this is the first point in the
+	 * stack where something actually calls `useOsNotifications.initialize()`.
+	 *
+	 * Regression: vite's `base` has no trailing slash, and a worker at
+	 * `<base>/sw.js` can only claim `<base>/`. Registering with the bare base
+	 * failed with a SecurityError on every load and went unnoticed.
+	 */
+	test('registers the notification service worker under the app base path', async ({
+		page,
+	}) => {
+		test.setTimeout(60_000);
+
+		await page.goto('calls');
+
+		const registration = await page.evaluate(async () => {
+			const reg = await navigator.serviceWorker.ready;
+			return {
+				scope: reg.scope,
+				hasActive: !!reg.active,
+			};
+		});
+
+		expect(registration.scope).toContain('/agent-workspace/');
+		expect(registration.hasActive).toBe(true);
+	});
+
 	test('masks the number when the call hides it', async ({ page, socket }) => {
 		test.setTimeout(60_000);
 
