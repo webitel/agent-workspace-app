@@ -7,5 +7,19 @@ export default {
 				tooltip: 'Ви будете отримувати дзвінки тільки з черг',
 			},
 		},
+		notifications: {
+			incoming: {
+				title: {
+					call: 'Вхідний дзвінок',
+					chat: 'Вхідний чат',
+				},
+				unknownContact: 'Невідомий контакт',
+				queue: 'Черга',
+				channel: 'Канал',
+				waitingTime: 'Час очікування',
+				accept: 'Прийняти',
+				decline: 'Відхилити',
+			},
+		},
 	},
 };

@@ -7,5 +7,19 @@ export default {
 				tooltip: 'You will receive calls from queues only',
 			},
 		},
+		notifications: {
+			incoming: {
+				title: {
+					call: 'Incoming call request',
+					chat: 'Incoming chat request',
+				},
+				unknownContact: 'Unknown contact',
+				queue: 'Queue',
+				channel: 'Channel',
+				waitingTime: 'Waiting time',
+				accept: 'Accept',
+				decline: 'Decline',
+			},
+		},
 	},
 };

@@ -7,5 +7,19 @@ export default {
 				tooltip: 'Siz faqat navbatlardan qo‘ng‘iroqlarni qabul qilasiz',
 			},
 		},
+		notifications: {
+			incoming: {
+				title: {
+					call: 'Kiruvchi qoʻngʻiroq',
+					chat: 'Kiruvchi chat',
+				},
+				unknownContact: 'Nomaʼlum kontakt',
+				queue: 'Navbat',
+				channel: 'Kanal',
+				waitingTime: 'Kutish vaqti',
+				accept: 'Qabul qilish',
+				decline: 'Rad etish',
+			},
+		},
 	},
 };
