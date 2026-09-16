@@ -45,8 +45,16 @@ async function closeNotification({ id }) {
 self.addEventListener('message', (event) => {
 	const { type, payload } = event.data ?? {};
 
+	// A service worker receives messages from every client in its scope, so the
+	// payload is untrusted. Both operations are keyed by interaction id; without
+	// one there is nothing meaningful to do. Note that defaulting the id instead
+	// of rejecting would make `getNotifications({ tag: undefined })` match
+	// *every* notification and close all of them.
+	if (!payload?.id) return;
+
 	switch (type) {
 		case 'notification':
+			if (!payload.title) return;
 			event.waitUntil(showNotification(payload));
 			break;
 		case 'close-notification':
