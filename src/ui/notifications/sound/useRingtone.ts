@@ -36,12 +36,21 @@ function getAudio(): HTMLAudioElement {
  * very first ring after a fresh load can be swallowed. Prime the element on the
  * first gesture: a muted play/pause counts as the activation, after which later
  * `play()` calls are allowed.
+ *
+ * Both listeners are torn down through one `AbortController`. `{ once: true }`
+ * is not enough: it drops only the listener that fired, leaving the other armed,
+ * and priming a second time mid-ring pauses the ringtone — an agent who types
+ * during an offer would silence it.
  */
 function primeOnFirstGesture() {
 	if (primed || typeof window === 'undefined') return;
 	primed = true;
 
+	const gestures = new AbortController();
+
 	const prime = () => {
+		gestures.abort();
+
 		const element = getAudio();
 		const wasMuted = element.muted;
 		element.muted = true;
@@ -59,10 +68,10 @@ function primeOnFirstGesture() {
 	};
 
 	window.addEventListener('pointerdown', prime, {
-		once: true,
+		signal: gestures.signal,
 	});
 	window.addEventListener('keydown', prime, {
-		once: true,
+		signal: gestures.signal,
 	});
 }
 
