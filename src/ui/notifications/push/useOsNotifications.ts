@@ -52,17 +52,23 @@ function onWorkerMessage(event: MessageEvent) {
 function requestPermissionOnFirstGesture() {
 	if (Notification.permission !== 'default') return;
 
+	// one controller for both listeners: `{ once: true }` would drop only the
+	// one that fired, leaving the other armed to re-prompt on a later gesture
+	const gestures = new AbortController();
+
 	const ask = () => {
+		gestures.abort();
+
 		Notification.requestPermission().catch(() => {
 			// user dismissed or the browser refused; in-app card still works
 		});
 	};
 
 	window.addEventListener('pointerdown', ask, {
-		once: true,
+		signal: gestures.signal,
 	});
 	window.addEventListener('keydown', ask, {
-		once: true,
+		signal: gestures.signal,
 	});
 }
 
