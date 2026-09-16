@@ -26,7 +26,8 @@
 		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
 		"test:e2e:live": "playwright test --project=live",
 		"test:e2e:ui": "playwright test --ui",
-		"test:e2e:ci": "playwright test --project=mocked"
+		"test:e2e:ci": "playwright test --project=mocked",
+		"test:e2e:sw": "playwright test --project=mocked service-worker --workers=1"
 	},
 	"dependencies": {
 		"@webitel/api-services": "~26.8.8",

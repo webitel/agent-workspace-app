@@ -91,6 +91,22 @@ export function useOsNotifications() {
 			return;
 		}
 
+		// `register()` resolving does not mean the worker controls this page yet,
+		// and a message posted before it claims us is dropped silently — which
+		// would cost the OS notification for the first offer after a cold load.
+		await navigator.serviceWorker.ready;
+		if (!navigator.serviceWorker.controller) {
+			await new Promise<void>((resolve) => {
+				navigator.serviceWorker.addEventListener(
+					'controllerchange',
+					() => resolve(),
+					{
+						once: true,
+					},
+				);
+			});
+		}
+
 		navigator.serviceWorker.addEventListener('message', onWorkerMessage);
 		requestPermissionOnFirstGesture();
 	}
