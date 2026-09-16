@@ -11,7 +11,7 @@ import { type Call, CallDirection } from 'webitel-sdk';
  * - `allowAnswer`      — the SDK's own "this leg is answerable by me" flag
  * - `!isEavesdrop`     — a supervisor listening in must not get accept/decline
  * - `!offline queue`   — callbacks are not live offers (WTEL-4502)
- * - `!manual_distribution` — self-assigned calls are picked from a list, not offered
+ * - not manually distributed — self-assigned calls are picked from a list
  *
  * The direction triad is deliberately wider than "inbound": the platform also
  * rings the agent's own device first on preview-dialer and no-auto-answer
@@ -38,9 +38,12 @@ export function isIncomingCallOffer(call: Call): boolean {
 	const isAnswerable = Boolean(call.allowAnswer) && !call.isEavesdrop;
 	if (!isAnswerable) return false;
 
+	// `manual_distribution` is a *string* on the wire, so a plain falsy check
+	// treats the literal 'false' as "manual" and swallows the offer. The SDK's own
+	// `Call.manualDistribution` getter compares against 'true' for the same reason.
 	const isDistributedToAgent =
 		call.queue?.queue_type !== QueueTypeName.OFFLINE_QUEUE &&
-		!call.queue?.manual_distribution;
+		call.queue?.manual_distribution !== 'true';
 	if (!isDistributedToAgent) return false;
 
 	return [

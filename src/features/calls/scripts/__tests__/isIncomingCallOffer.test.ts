@@ -65,6 +65,21 @@ describe('isIncomingCallOffer', () => {
 		).toBe(false);
 	});
 
+	// the field is a string: 'false' is truthy, so a plain falsy check would
+	// wrongly suppress every call from a non-manual queue that sends it explicitly
+	it('offers a call whose queue reports manual_distribution as "false"', () => {
+		expect(
+			isIncomingCallOffer(
+				buildCall({
+					queue: {
+						queue_type: QueueTypeName.INBOUND_QUEUE,
+						manual_distribution: 'false',
+					},
+				} as unknown as Partial<Call>),
+			),
+		).toBe(true);
+	});
+
 	it('offers an outbound preview-dialer leg', () => {
 		expect(
 			isIncomingCallOffer(
