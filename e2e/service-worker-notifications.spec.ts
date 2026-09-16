@@ -72,16 +72,16 @@ const offer = (id: string, title = 'Incoming call request') => ({
 });
 
 /**
- * Must run with `--workers=1` (`npm run test:e2e:sw`). CI already does, because
- * `playwright.config.ts` pins `workers: 1` there.
+ * Runs in its own `service-worker` Playwright project, not in `mocked`, and must
+ * run single-worker: `npm run test:e2e:sw`.
  *
  * A service worker registration and the notifications it creates are per-origin
  * browser state that Playwright does not isolate per test — unlike cookies or
- * localStorage, a fresh context does not get a fresh notification store. Run
- * across parallel workers this spec fails roughly twice in twenty; serially it
- * has passed 20/20 repeatedly. `test.describe.configure({ mode: 'serial' })` is
- * not sufficient: it orders tests within the group but still lets copies of the
- * group run concurrently.
+ * localStorage, a fresh context does not get a fresh notification store. Across
+ * parallel workers this spec failed roughly twice in twenty; serially it has
+ * passed 20/20 repeatedly. `test.describe.configure({ mode: 'serial' })` is not
+ * sufficient, because it orders tests within the group while still allowing
+ * copies of the group to run concurrently.
  */
 test.describe('notification service worker', () => {
 	test.beforeEach(async ({ context, page }) => {

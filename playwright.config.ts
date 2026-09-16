@@ -63,6 +63,22 @@ export default defineConfig({
 		{
 			name: 'mocked',
 			testMatch: /(?<!\.live)\.spec\.ts$/,
+			testIgnore: /service-worker-notifications\.spec\.ts$/,
+			use: {
+				...devices['Desktop Chrome'],
+			},
+		},
+		/**
+		 * Kept out of `mocked` because it cannot run in parallel. A service worker
+		 * registration and the notifications it creates are per-origin browser
+		 * state that Playwright does not isolate per test — a fresh context does
+		 * not get a fresh notification store — so concurrent copies observe each
+		 * other. Run it with `npm run test:e2e:sw`, which pins a single worker.
+		 */
+		{
+			name: 'service-worker',
+			testMatch: /service-worker-notifications\.spec\.ts$/,
+			fullyParallel: false,
 			use: {
 				...devices['Desktop Chrome'],
 			},
