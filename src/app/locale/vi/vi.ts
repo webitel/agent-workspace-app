@@ -7,5 +7,19 @@ export default {
 				tooltip: 'Bạn sẽ chỉ nhận cuộc gọi từ hàng đợi',
 			},
 		},
+		notifications: {
+			incoming: {
+				title: {
+					call: 'Cuộc gọi đến',
+					chat: 'Trò chuyện đến',
+				},
+				unknownContact: 'Liên hệ không xác định',
+				queue: 'Hàng đợi',
+				channel: 'Kênh',
+				waitingTime: 'Thời gian chờ',
+				accept: 'Chấp nhận',
+				decline: 'Từ chối',
+			},
+		},
 	},
 };

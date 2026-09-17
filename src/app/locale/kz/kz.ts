@@ -7,5 +7,19 @@ export default {
 				tooltip: 'Сіз тек кезектерден қоңыраулар аласыз',
 			},
 		},
+		notifications: {
+			incoming: {
+				title: {
+					call: 'Кіріс қоңырау',
+					chat: 'Кіріс чат',
+				},
+				unknownContact: 'Белгісіз контакт',
+				queue: 'Кезек',
+				channel: 'Арна',
+				waitingTime: 'Күту уақыты',
+				accept: 'Қабылдау',
+				decline: 'Бас тарту',
+			},
+		},
 	},
 };

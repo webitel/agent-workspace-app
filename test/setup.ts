@@ -25,7 +25,11 @@ vi.mock('vue-i18n', () => ({
  */
 export const mockEmit = vi.fn();
 
-vi.mock('@webitel/ui-sdk/scripts', () => ({
+// spread the real module: it also exports plain helpers (convertDuration and
+// friends) that production code legitimately uses, and a wholesale replacement
+// silently turns those into undefined
+vi.mock('@webitel/ui-sdk/scripts', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	eventBus: {
 		$emit: (...args: unknown[]) => mockEmit(...args),
 	},
