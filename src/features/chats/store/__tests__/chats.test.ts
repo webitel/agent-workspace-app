@@ -1,7 +1,7 @@
 import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ref } from 'vue';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, ref } from 'vue';
 
 const subscribeTaskMock = vi.fn();
 const getClientMock = vi.fn(() => ({
@@ -10,8 +10,24 @@ const getClientMock = vi.fn(() => ({
 const tasks = ref<
 	{
 		channel: string;
+		state?: string;
 	}[]
 >([]);
+
+const incomingInteractions = {
+	initialize: vi.fn(),
+	// biome-ignore lint/suspicious/noExplicitAny: test double for the store action
+	notify: vi.fn() as any,
+	dismiss: vi.fn(),
+	retainOnly: vi.fn(),
+};
+
+vi.mock(
+	'../../../../ui/notifications/incoming/store/incomingInteractions',
+	() => ({
+		useIncomingInteractionsStore: () => incomingInteractions,
+	}),
+);
 
 vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
@@ -83,13 +99,37 @@ vi.mock('../../../../app/router', () => ({
 import { useChatsStore } from '../chats';
 
 describe('chats store', () => {
+	/**
+	 * The store watches a module-level `tasks` ref. Without disposing, every
+	 * previous test's store keeps watching it, so a later mutation fires all of
+	 * them and `notify.mock.calls[0]` belongs to a stale store.
+	 */
+	let pinia: ReturnType<typeof createTestingPinia> | null = null;
+
+	afterEach(() => {
+		// `_s` is pinia's internal store registry; `$dispose` on each is public
+		const registry = (
+			pinia as unknown as {
+				_s?: Map<
+					string,
+					{
+						$dispose: () => void;
+					}
+				>;
+			} | null
+		)?._s;
+		registry?.forEach((store) => {
+			store.$dispose();
+		});
+		pinia = null;
+	});
+
 	beforeEach(() => {
-		setActivePinia(
-			createTestingPinia({
-				stubActions: false,
-				createSpy: vi.fn,
-			}),
-		);
+		pinia = createTestingPinia({
+			stubActions: false,
+			createSpy: vi.fn,
+		});
+		setActivePinia(pinia);
 		vi.clearAllMocks();
 		tasks.value = [];
 		threadMessageHandler = null;
@@ -147,12 +187,15 @@ describe('chats store', () => {
 		tasks.value = [
 			{
 				channel: 'im',
+				state: 'bridged',
 			},
 			{
 				channel: 'call',
+				state: 'bridged',
 			},
 			{
 				channel: 'im',
+				state: 'bridged',
 			},
 		];
 		const store = useChatsStore();
@@ -161,6 +204,144 @@ describe('chats store', () => {
 		expect(store.chatTaskList?.every((task) => task.channel === 'im')).toBe(
 			true,
 		);
+	});
+
+	/**
+	 * The offer card is the only surface for an offered chat; a row here would
+	 * invite the agent to open a thread they are not a member of yet.
+	 */
+	it('keeps offered chats out of chatTaskList', () => {
+		tasks.value = [
+			{
+				channel: 'im',
+				state: 'offering',
+			},
+			{
+				channel: 'im',
+				state: 'bridged',
+			},
+		];
+		const store = useChatsStore();
+
+		expect(store.chatTaskList).toHaveLength(1);
+		expect(store.incomingOffers).toHaveLength(1);
+	});
+
+	describe('incoming offers', () => {
+		// `null`, not `undefined`: passing undefined would re-apply the default
+		const buildOffer = (id = 1, threadId: string | null = 'thread-1') => ({
+			id,
+			channel: 'im',
+			state: 'offering',
+			displayName: 'John Smith',
+			displayNumber: '@john',
+			thread: threadId
+				? {
+						id: threadId,
+						lastMsg: 'hello',
+					}
+				: undefined,
+			accept: vi.fn(async () => {}),
+			decline: vi.fn(async () => {}),
+		});
+
+		it('raises an offer when a chat starts being offered', async () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			tasks.value = [
+				buildOffer(),
+			];
+			await nextTick();
+
+			expect(incomingInteractions.notify).toHaveBeenCalledTimes(1);
+			expect(incomingInteractions.notify.mock.calls[0][0].id).toBe('1');
+		});
+
+		/**
+		 * Derived, not pushed: the card leaves on every exit path without the store
+		 * enumerating task actions.
+		 */
+		it('withdraws the offer once the chat stops being offered', async () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			tasks.value = [
+				buildOffer(),
+			];
+			await nextTick();
+
+			tasks.value[0].state = 'bridged';
+			await nextTick();
+
+			expect(incomingInteractions.retainOnly).toHaveBeenLastCalledWith(
+				'chat',
+				[],
+			);
+		});
+
+		it('accepts the chat and opens it', async () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			const offer = buildOffer();
+			tasks.value = [
+				offer,
+			];
+			await nextTick();
+
+			await incomingInteractions.notify.mock.calls[0][0].onAccept();
+
+			expect(offer.accept).toHaveBeenCalledTimes(1);
+			expect(store.isOpen('thread-1')).toBe(true);
+		});
+
+		it('declines without opening the chat', async () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			const offer = buildOffer();
+			tasks.value = [
+				offer,
+			];
+			await nextTick();
+
+			await incomingInteractions.notify.mock.calls[0][0].onDecline();
+
+			expect(offer.decline).toHaveBeenCalledTimes(1);
+			expect(store.isOpen('thread-1')).toBe(false);
+		});
+
+		/** AC_06.01.04: the body navigates, it does not accept. */
+		it('opens the chat from the card body without accepting', async () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			const offer = buildOffer();
+			tasks.value = [
+				offer,
+			];
+			await nextTick();
+
+			incomingInteractions.notify.mock.calls[0][0].onBodyClick();
+
+			expect(offer.accept).not.toHaveBeenCalled();
+			expect(store.isOpen('thread-1')).toBe(true);
+		});
+
+		it('leaves the card unclickable when the task carries no thread', async () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			tasks.value = [
+				buildOffer(2, null),
+			];
+			await nextTick();
+
+			expect(
+				incomingInteractions.notify.mock.calls[0][0].onBodyClick,
+			).toBeUndefined();
+		});
 	});
 
 	describe('openChat', () => {
