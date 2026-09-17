@@ -10,16 +10,6 @@ export const headers: DatalistTableHeader[] = [
 		sort: SortSymbols.NONE,
 	},
 	{
-		value: 'user',
-		locale: [
-			'objects.user',
-			1,
-		],
-		show: true,
-		field: 'user',
-		width: '100px',
-	},
-	{
 		value: 'groups',
 		locale: 'reusable.group',
 		show: true,
@@ -34,16 +24,6 @@ export const headers: DatalistTableHeader[] = [
 		],
 		show: true,
 		field: 'phones',
-	},
-	{
-		value: 'managers',
-		locale: [
-			'contacts.manager',
-			1,
-		],
-		show: true,
-		field: 'managers',
-		sort: SortSymbols.NONE,
 	},
 	{
 		value: 'about',

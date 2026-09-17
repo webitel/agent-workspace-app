@@ -1,8 +1,9 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
-import { computed, reactive, ref } from 'vue';
+import type { MaybeRef } from 'vue';
+import { computed, reactive, ref, toValue } from 'vue';
 
 export interface TableActionPanelStore {
-	headers: DatalistTableHeader[];
+	headers: MaybeRef<DatalistTableHeader[]>;
 	loadDataList: (options?: { withLoading?: boolean }) => Promise<void>;
 	hasFilter: (name: string) => boolean;
 	addFilter: (params: { name: string; value: string }) => unknown;
@@ -20,7 +21,7 @@ export function useTableActionPanel(tableStore: TableActionPanelStore) {
 		deleteFilter,
 		updateShownHeaders,
 	} = tableStore;
-	const headers = computed(() => tableStore.headers);
+	const headers = computed(() => toValue(tableStore.headers));
 
 	const searchValue = ref('');
 

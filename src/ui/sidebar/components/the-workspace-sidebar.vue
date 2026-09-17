@@ -2,13 +2,13 @@
     <section v-if="sidebarStore.isOpen" class="workspace-sidebar">
         <div class="workspace-sidebar__header">
             <h1>Workspace Sidebar</h1>
-            <wt-button color="secondary" @click="sidebarStore.close()">×</wt-button>
+            <wt-icon-btn icon="close" @click="sidebarStore.close()" />
         </div>
     </section>
 </template>
 
 <script setup lang="ts">
-import { WtButton } from '@webitel/ui-sdk/components';
+import { WtIconBtn } from '@webitel/ui-sdk/components';
 
 import { useWorkspaceSidebarStore } from '../store/workspace-sidebar';
 

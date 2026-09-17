@@ -9,17 +9,17 @@
 
 		<slot />
 
-		<wt-table-column-select
-			v-if="actions.includes('columnSelect')"
-			:headers="headers"
-			@change="emit('update:headers', $event)"
-		/>
+<!--		<wt-table-column-select-->
+<!--			v-if="actions.includes('columnSelect')"-->
+<!--			:headers="headers"-->
+<!--			@change="emit('update:headers', $event)"-->
+<!--		/>-->
 
-		<wt-table-actions
-			v-if="tableActionsIcons.length"
-			:icons="tableActionsIcons"
-			@input="onTableActionsInput"
-		/>
+<!--		<wt-table-actions-->
+<!--			v-if="tableActionsIcons.length"-->
+<!--			:icons="tableActionsIcons"-->
+<!--			@input="onTableActionsInput"-->
+<!--		/>-->
 
 		<wt-icon-btn :icon="sidebarIcon" @click="toggleSidebar" />
 	</div>
@@ -30,8 +30,8 @@ import type { DatalistTableHeader } from '@webitel/ui-datalist';
 import {
 	WtIconBtn,
 	WtSearchBar,
-	WtTableActions,
-	WtTableColumnSelect,
+	// WtTableActions,
+	// WtTableColumnSelect,
 } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
@@ -50,9 +50,7 @@ const props = withDefaults(
 		search: false,
 		searchValue: '',
 		headers: () => [],
-		actions: () => [
-			'refresh',
-		],
+		actions: () => [],
 	},
 );
 
@@ -64,31 +62,24 @@ const emit = defineEmits<{
 		value: string,
 	];
 	refresh: [];
+	filter: [];
 	'update:headers': [
 		headers: DatalistTableHeader[],
 	];
-	/** reserved for a future filter-field picker; not wired up yet */
-	filter: [];
 }>();
 
-// WtTableColumnSelect is self-contained (own trigger + popup) and needs the real
-// headers list, so it's rendered directly instead of going through WtTableActions'
-// generic 'column-select' icon/string emit.
-const iconMap: Partial<Record<WsTableActionPanelAction, string>> = {
-	refresh: 'refresh',
-	filter: 'settings',
-};
+// icon-emit pairs fo actions
+// WtTableColumnSelect is self-contained, so don`t need that
+// const actionIconMap = {
+// 	refresh: 'refresh',
+// 	filter: 'settings',
+// };
 
-const tableActionsIcons = computed(() =>
-	props.actions
-		.map((action) => iconMap[action])
-		.filter((icon): icon is string => Boolean(icon)),
-);
+// const tableActionsIcons = computed(() =>
+//   props.actions
+// );
 
-function onTableActionsInput(value: string) {
-	if (value === 'refresh') emit('refresh');
-	if (value === 'settings') emit('filter');
-}
+// function onTableActionsInput(value) {}
 
 const sidebarStore = useWorkspaceSidebarStore();
 const { isOpen } = storeToRefs(sidebarStore);

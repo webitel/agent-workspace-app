@@ -6,8 +6,8 @@
 		<wt-table
 			:data="dataList"
 			:headers="shownHeaders"
-			:selected="selected"
 			:lazy="true"
+      :selectable="false"
 			:on-loading="onLoading"
 			data-key="id"
 			sortable
@@ -23,49 +23,23 @@
 				</div>
 			</template>
 
-			<template #user="{ item }">
-				<wt-icon
-					v-if="item.user"
-					icon="webitel-logo"
-				/>
-			</template>
-
 			<template #groups="{ item }">
 				<table-cell-info
-					icon="group"
 					:items="getGroupItems(item)"
 				/>
 			</template>
 
 			<template #phones="{ item }">
 				<table-cell-info
-					icon="call"
+					icon="call--filled"
 					icon-color="success"
 					:items="item.phones?.data"
 					item-label="number"
 				/>
 			</template>
 
-			<template #managers="{ item }">
-				<table-cell-info
-					icon="user"
-					:items="getManagerItems(item)"
-				/>
-			</template>
-
 			<template #about="{ item }">
 				{{ item.about }}
-			</template>
-
-			<template #labels="{ item }">
-				<div v-if="item.labels?.data">
-					<wt-chip
-						v-for="{ label, id } of item.labels.data"
-						:key="id"
-					>
-						{{ label }}
-					</wt-chip>
-				</div>
 			</template>
 		</wt-table>
 	</div>
@@ -81,11 +55,13 @@ import { useContactsDataListStore } from './store/contacts';
 
 const tableStore = useContactsDataListStore();
 const { initialize, appendToDataList } = tableStore;
-const { dataList, selected, shownHeaders, next } = storeToRefs(tableStore);
+const { dataList, shownHeaders, next } = storeToRefs(tableStore);
 
 const isFirstLoad = ref(false);
+const isInitializing = ref(true);
 
 const onLoading = async () => {
+	if (isInitializing.value) return;
 	if (!next.value && isFirstLoad.value) return;
 	await appendToDataList();
 	isFirstLoad.value = true;
@@ -95,11 +71,9 @@ function getGroupItems(item: WebitelContactsContact) {
 	return item.groups?.data?.map(({ group }) => group).filter(Boolean) ?? [];
 }
 
-function getManagerItems(item: WebitelContactsContact) {
-	return item.managers?.data?.map(({ user }) => user).filter(Boolean) ?? [];
-}
-
-initialize();
+initialize().finally(() => {
+	isInitializing.value = false;
+});
 </script>
 
 <style scoped>
@@ -110,5 +84,6 @@ initialize();
 .contacts-tab__username {
 	display: flex;
 	align-items: center;
+  gap: var(--spacing-xs);
 }
 </style>

@@ -29,7 +29,6 @@ import { useRoute, useRouter } from 'vue-router';
 export interface WsPageTab {
 	text: string;
 	value: string;
-	/** name of the route this tab navigates to */
 	pathName: string;
 }
 
@@ -49,8 +48,8 @@ const props = withDefaults(
 const route = useRoute();
 const router = useRouter();
 
-const currentTab = computed(
-	() => props.tabs.find(({ pathName }) => pathName === route.name) ?? {},
+const currentTab = computed(() =>
+	props.tabs.find(({ pathName }) => pathName === route.name),
 );
 
 const changeTab = ({ pathName }: WsPageTab) => {
@@ -68,6 +67,7 @@ const changeTab = ({ pathName }: WsPageTab) => {
   box-sizing: border-box;
   max-width: 100%;
   min-height: 100%;
+  padding: var(--spacing-sm);
 }
 
 .ws-page-wrapper__header,
@@ -80,15 +80,10 @@ const changeTab = ({ pathName }: WsPageTab) => {
 .ws-page-wrapper__actions-panel {
   display: flex;
   align-items: center;
-  padding: var(--spacing-sm);
 }
 
 .ws-page-wrapper__header {
   justify-content: space-between;
-}
-
-.ws-page-wrapper__main {
-  padding: var(--spacing-sm);
 }
 
 .ws-page-wrapper__main {

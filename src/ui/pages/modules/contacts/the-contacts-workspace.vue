@@ -35,12 +35,12 @@ import ContactsTab from './modules/contacts/contacts-tab.vue';
 import { useContactsDataListStore } from './modules/contacts/store/contacts';
 import UsersTab from './modules/users/users-tab.vue';
 
-interface ContactsTabConfig {
+interface ContactsPageTab {
 	text: string;
 	value: string;
 	pathName: string;
 	component: Component;
-	useStore?: () => TableActionPanelStore;
+	getTableStore?: () => TableActionPanelStore;
 	actions: WsTableActionPanelAction[];
 	search?: boolean;
 }
@@ -48,17 +48,13 @@ interface ContactsTabConfig {
 const { t } = useI18n();
 const route = useRoute();
 
-const tabs = computed<ContactsTabConfig[]>(() => [
+const tabs = computed<ContactsPageTab[]>(() => [
 	{
 		text: t('objects.contact', 2),
 		value: 'contacts',
 		pathName: 'contacts',
 		component: ContactsTab,
-		// createTableStore's own return type keeps `headers` as a ComputedRef in
-		// its TS signature (even though Pinia unwraps it at runtime) — cast to
-		// the duck-typed shape useTableActionPanel actually needs.
-		useStore:
-			useContactsDataListStore as unknown as () => TableActionPanelStore,
+		getTableStore: useContactsDataListStore,
 		actions: [],
 		search: true,
 	},
@@ -76,8 +72,8 @@ const currentTab = computed(() =>
 	tabs.value.find((tab) => tab.pathName === route.name),
 );
 const actionPanel = computed(() =>
-	currentTab.value?.useStore
-		? useTableActionPanel(currentTab.value.useStore())
+	currentTab.value?.getTableStore
+		? useTableActionPanel(currentTab.value.getTableStore())
 		: null,
 );
 </script>
