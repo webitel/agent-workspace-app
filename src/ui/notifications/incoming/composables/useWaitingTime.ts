@@ -1,10 +1,6 @@
-import {
-	computed,
-	type MaybeRefOrGetter,
-	onScopeDispose,
-	ref,
-	toValue,
-} from 'vue';
+import { useNow } from '@vueuse/core';
+import { convertDuration } from '@webitel/ui-sdk/scripts';
+import { computed, type MaybeRefOrGetter, toValue } from 'vue';
 
 /**
  * Ticking "waiting time" plus the queue-wait progress bar (AC_14.01.04 /
@@ -23,40 +19,25 @@ export const WaitingLevel = {
 export type WaitingLevel = (typeof WaitingLevel)[keyof typeof WaitingLevel];
 
 const TICK_MS = 1000;
-
-function formatDuration(totalSeconds: number): string {
-	const seconds = Math.max(0, Math.floor(totalSeconds));
-	const hours = Math.floor(seconds / 3600);
-	const minutes = Math.floor((seconds % 3600) / 60);
-	const secs = seconds % 60;
-
-	const mm = String(minutes).padStart(2, '0');
-	const ss = String(secs).padStart(2, '0');
-
-	return hours ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
-}
-
 export function useWaitingTime(
 	waitingSince: MaybeRefOrGetter<number>,
 	maxWaitSec: MaybeRefOrGetter<number | undefined>,
 ) {
-	const now = ref(Date.now());
-
-	const interval = setInterval(() => {
-		now.value = Date.now();
-	}, TICK_MS);
-
-	onScopeDispose(() => {
-		clearInterval(interval);
+	// `useNow` owns the ticking clock and stops it when the scope is disposed
+	const now = useNow({
+		interval: TICK_MS,
 	});
 
 	const elapsedSec = computed(() => {
 		const since = toValue(waitingSince);
 		if (!since) return 0;
-		return Math.max(0, Math.floor((now.value - since) / 1000));
+		return Math.max(0, Math.floor((now.value.getTime() - since) / 1000));
 	});
 
-	const formatted = computed(() => formatDuration(elapsedSec.value));
+	// `convertDuration` (HH:MM:SS) is what every other live timer in the product
+	// uses — call duration, hold time, agent status — so the waiting timer reads
+	// the same as the call timer next to it.
+	const formatted = computed(() => convertDuration(elapsedSec.value));
 
 	/**
 	 * Undefined until the backend exposes the queue's Max wait time (WS-16 /
