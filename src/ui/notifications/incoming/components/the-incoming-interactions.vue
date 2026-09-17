@@ -1,20 +1,18 @@
 <template>
-    <Teleport to="body">
-        <div
-            v-if="store.hasInteractions"
-            class="the-incoming-interactions"
-        >
-            <incoming-interaction-preview
-                v-for="interaction in store.interactions"
-                :key="interaction.id"
-                :preview="toValue(interaction.preview)"
-                :clickable="!!interaction.onBodyClick"
-                @accept="store.accept(interaction.id)"
-                @decline="store.decline(interaction.id)"
-                @body-click="store.openBody(interaction.id)"
-            />
-        </div>
-    </Teleport>
+    <div
+        v-if="store.hasInteractions"
+        class="the-incoming-interactions"
+    >
+        <incoming-interaction-preview
+            v-for="interaction in store.interactions"
+            :key="interaction.id"
+            :preview="toValue(interaction.preview)"
+            :clickable="!!interaction.onBodyClick"
+            @accept="store.accept(interaction.id)"
+            @decline="store.decline(interaction.id)"
+            @body-click="store.openBody(interaction.id)"
+        />
+    </div>
 </template>
 
 <script
@@ -30,12 +28,8 @@ const store = useIncomingInteractionsStore();
 </script>
 
 <style scoped>
-/* top-right corner per AC_06.01.01; offers stack downwards */
+/* top-right corner per AC_06.01.01 — placement owned by `the-notifications-layer` */
 .the-incoming-interactions {
-    position: fixed;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    z-index: 1100;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);

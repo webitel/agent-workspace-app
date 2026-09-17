@@ -1,34 +1,32 @@
 <template>
-    <Teleport to="body">
-        <div class="the-notifications">
-            <article
-                v-for="notification in notificationsStore.notifications"
-                :key="notification.id"
-                class="the-notifications__item"
+    <div class="the-notifications">
+        <article
+            v-for="notification in notificationsStore.notifications"
+            :key="notification.id"
+            class="the-notifications__item"
+        >
+            <h4
+                v-if="notification.title"
+                class="the-notifications__title"
             >
-                <h4
-                    v-if="notification.title"
-                    class="the-notifications__title"
+                {{ notification.title }}
+            </h4>
+            <p class="the-notifications__text">{{ notification.text }}</p>
+            <div
+                v-if="notification.actions.length"
+                class="the-notifications__actions"
+            >
+                <wt-button
+                    v-for="action in notification.actions"
+                    :key="action.label"
+                    :color="action.color"
+                    @click="notificationsStore.runAction(notification.id, action)"
                 >
-                    {{ notification.title }}
-                </h4>
-                <p class="the-notifications__text">{{ notification.text }}</p>
-                <div
-                    v-if="notification.actions.length"
-                    class="the-notifications__actions"
-                >
-                    <wt-button
-                        v-for="action in notification.actions"
-                        :key="action.label"
-                        :color="action.color"
-                        @click="notificationsStore.runAction(notification.id, action)"
-                    >
-                        {{ action.label }}
-                    </wt-button>
-                </div>
-            </article>
-        </div>
-    </Teleport>
+                    {{ action.label }}
+                </wt-button>
+            </div>
+        </article>
+    </div>
 </template>
 
 <script
@@ -43,11 +41,8 @@ const notificationsStore = useNotificationsStore();
 </script>
 
 <style scoped>
+/* positioning belongs to `the-notifications-layer` */
 .the-notifications {
-    position: fixed;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    z-index: 1000;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);

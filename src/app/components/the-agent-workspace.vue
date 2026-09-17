@@ -9,10 +9,7 @@
                 <the-task-dock-panel />
             </section>
         </div>
-        <the-notifications />
-        <the-incoming-interactions />
-        <!-- renders `eventBus.$emit('notification', …)` — nothing displayed those until now -->
-        <wt-notifications-bar />
+        <the-notifications-layer />
     </main>
 </template>
 
@@ -20,13 +17,10 @@
     setup
     lang="ts"
 >
-import { WtNotificationsBar } from '@webitel/ui-sdk/components';
-
 import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
-import TheNotifications from '../../ui/notifications/components/the-notifications.vue';
+import TheNotificationsLayer from '../../ui/notifications/components/the-notifications-layer.vue';
 import { useSocketNotifications } from '../../ui/notifications/composables/useSocketNotifications';
-import TheIncomingInteractions from '../../ui/notifications/incoming/components/the-incoming-interactions.vue';
 import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
 import TheTaskDockPanel from '../../ui/task-dock/components/the-task-dock-panel.vue';
 
