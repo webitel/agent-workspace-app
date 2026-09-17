@@ -15,7 +15,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		// Chats coordinator (task feed + chats socket) needs the app socket up first.
 		useChatsStore().initialize();
 		useGlobalHandlersStore().initialize();
-		// await useUserStatusStore().initialize();
+		await useUserStatusStore().initialize();
 	}
 
 	return {

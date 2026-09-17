@@ -1,5 +1,4 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
-import { SortSymbols } from '@webitel/ui-sdk/src/scripts/sortQueryAdapters';
 
 export const headers: DatalistTableHeader[] = [
 	{
@@ -7,7 +6,7 @@ export const headers: DatalistTableHeader[] = [
 		locale: 'reusable.name',
 		show: true,
 		field: 'name',
-		sort: SortSymbols.NONE,
+		sort: null,
 	},
 	{
 		value: 'groups',
@@ -30,6 +29,6 @@ export const headers: DatalistTableHeader[] = [
 		locale: 'vocabulary.description',
 		show: true,
 		field: 'about',
-		sort: SortSymbols.NONE,
+		sort: null,
 	},
 ];

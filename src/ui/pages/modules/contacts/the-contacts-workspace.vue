@@ -71,9 +71,11 @@ const tabs = computed<ContactsPageTab[]>(() => [
 const currentTab = computed(() =>
 	tabs.value.find((tab) => tab.pathName === route.name),
 );
+
 const actionPanel = computed(() =>
 	currentTab.value?.getTableStore
 		? useTableActionPanel(currentTab.value.getTableStore())
 		: null,
 );
+
 </script>
