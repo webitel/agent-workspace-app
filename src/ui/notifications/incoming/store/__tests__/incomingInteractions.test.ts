@@ -154,6 +154,70 @@ describe('useIncomingInteractionsStore', () => {
 		expect(interaction.onAccept).toHaveBeenCalledTimes(1);
 	});
 
+	describe('retainOnly', () => {
+		it('dismisses offers that are no longer on the wire', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.notify(buildInteraction('call-2'));
+
+			store.retainOnly(InteractionKind.Call, [
+				'call-2',
+			]);
+
+			expect(store.interactions.map(({ id }) => id)).toEqual([
+				'call-2',
+			]);
+		});
+
+		/**
+		 * Producers own their own channel. Without the kind scope, a call-feed
+		 * update would dismiss every chat offer the moment WS-19 lands.
+		 */
+		it("leaves another channel's offers alone", () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.notify({
+				...buildInteraction('chat-1'),
+				preview: buildPreview({
+					kind: InteractionKind.Chat,
+				}),
+			});
+
+			store.retainOnly(InteractionKind.Call, []);
+
+			expect(store.interactions.map(({ id }) => id)).toEqual([
+				'chat-1',
+			]);
+		});
+
+		it('keeps everything when all offers are still live', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.notify(buildInteraction('call-2'));
+
+			store.retainOnly(InteractionKind.Call, [
+				'call-1',
+				'call-2',
+			]);
+
+			expect(store.interactions).toHaveLength(2);
+			expect(ringtone.stop).not.toHaveBeenCalled();
+		});
+
+		it('stops the ringtone once the last offer is withdrawn', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.retainOnly(InteractionKind.Call, []);
+
+			expect(store.interactions).toHaveLength(0);
+			expect(ringtone.stop).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	it('ignores dismissing an unknown interaction', () => {
 		const store = useIncomingInteractionsStore();
 
