@@ -13,12 +13,6 @@
         class="ws-page-wrapper__actions-panel"
       >
         <slot name="actions-panel"></slot>
-        <wt-search-bar
-          v-if="search"
-          :value="searchValue"
-          @input="emit('update:search-value', $event)"
-          @search="emit('search', $event)"
-        />
         <wt-icon-btn :icon="sidebarIcon" @click="toggleSidebar" />
       </div>
     </div>
@@ -30,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { WtIconBtn, WtSearchBar } from '@webitel/ui-sdk/components';
+import { WtIconBtn } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -48,15 +42,11 @@ const props = withDefaults(
 		hideHeader?: boolean;
 		actionsPanel?: boolean;
 		tabs?: WsPageTab[];
-		search?: boolean;
-		searchValue?: string;
 	}>(),
 	{
 		hideHeader: false,
 		actionsPanel: true,
 		tabs: () => [],
-		search: false,
-		searchValue: '',
 	},
 );
 
@@ -66,15 +56,6 @@ const { toggle: toggleSidebar } = sidebarStore;
 
 const route = useRoute();
 const router = useRouter();
-
-const emit = defineEmits<{
-	'update:search-value': [
-		value: string,
-	];
-	search: [
-		value: string,
-	];
-}>();
 
 const sidebarIcon = computed(() =>
 	isOpen.value ? 'ws-sidebar-open' : 'ws-sidebar-close',

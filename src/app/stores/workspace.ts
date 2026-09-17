@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
 import { useChatsStore } from '../../features/chats/store/chats';
+import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
 import { useUserStatusStore } from '../../features/user-status/store/userStatus';
 import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
 

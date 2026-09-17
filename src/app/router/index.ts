@@ -8,8 +8,11 @@ import {
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
+import ContactsTab from '../../ui/pages/modules/contacts/modules/contacts/contacts-tab.vue';
+import ContactsTabActions from '../../ui/pages/modules/contacts/modules/contacts/contacts-tab-actions.vue';
+import UsersTab from '../../ui/pages/modules/contacts/modules/users/users-tab.vue';
+import UsersTabActions from '../../ui/pages/modules/contacts/modules/users/users-tab-actions.vue';
 import TheContactsWorkspace from '../../ui/pages/modules/contacts/the-contacts-workspace.vue';
-import TheUsersWorkspace from '../../ui/pages/modules/contacts/the-users-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -40,13 +43,25 @@ const routes: RouteRecordRaw[] = [
 			},
 			{
 				path: '/contacts',
-				name: 'contacts',
 				component: TheContactsWorkspace,
-			},
-			{
-				path: '/contacts/users',
-				name: 'users',
-				component: TheUsersWorkspace,
+				children: [
+					{
+						path: '',
+						name: 'contacts',
+						components: {
+							default: ContactsTab,
+							actions: ContactsTabActions,
+						},
+					},
+					{
+						path: 'users',
+						name: 'users',
+						components: {
+							default: UsersTab,
+							actions: UsersTabActions,
+						},
+					},
+				],
 			},
 		],
 	},
