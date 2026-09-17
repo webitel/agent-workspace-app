@@ -6,6 +6,7 @@ import { useWorkspaceStore } from '../workspace';
 const connect = vi.fn(async () => {});
 const initializeAgent = vi.fn(async () => {});
 const initializeChats = vi.fn(() => {});
+const initializeCalls = vi.fn(() => {});
 const initializeGlobalHandlers = vi.fn(() => {});
 const initializeUserStatus = vi.fn(async () => {});
 
@@ -22,6 +23,11 @@ vi.mock('../../../features/agent/store/agent', () => ({
 vi.mock('../../../features/chats/store/chats', () => ({
 	useChatsStore: () => ({
 		initialize: () => initializeChats(),
+	}),
+}));
+vi.mock('../../../features/calls/store/calls', () => ({
+	useCallsStore: () => ({
+		initialize: () => initializeCalls(),
 	}),
 }));
 vi.mock('../../../features/global-handlers/store/globalHandlers', () => ({
@@ -80,6 +86,7 @@ describe('useWorkspaceStore', () => {
 		await expect(useWorkspaceStore().initialize()).resolves.toBeUndefined();
 
 		expect(initializeChats).toHaveBeenCalledTimes(1);
+		expect(initializeCalls).toHaveBeenCalledTimes(1);
 		expect(initializeGlobalHandlers).toHaveBeenCalledTimes(1);
 		expect(initializeUserStatus).toHaveBeenCalledTimes(1);
 	});
