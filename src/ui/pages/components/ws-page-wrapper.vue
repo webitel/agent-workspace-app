@@ -13,7 +13,6 @@
         class="ws-page-wrapper__actions-panel"
       >
         <slot name="actions-panel"></slot>
-        <wt-icon-btn :icon="sidebarIcon" @click="toggleSidebar" />
       </div>
     </div>
 
@@ -24,11 +23,8 @@
 </template>
 
 <script lang="ts" setup>
-import { WtIconBtn } from '@webitel/ui-sdk/components';
-import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
 
 export interface WsPageTab {
 	text: string;
@@ -50,16 +46,8 @@ const props = withDefaults(
 	},
 );
 
-const sidebarStore = useWorkspaceSidebarStore();
-const { isOpen } = storeToRefs(sidebarStore);
-const { toggle: toggleSidebar } = sidebarStore;
-
 const route = useRoute();
 const router = useRouter();
-
-const sidebarIcon = computed(() =>
-	isOpen.value ? 'ws-sidebar-open' : 'ws-sidebar-close',
-);
 
 const currentTab = computed(
 	() => props.tabs.find(({ pathName }) => pathName === route.name) ?? {},

@@ -1,33 +1,83 @@
 <template>
-	<ws-page-wrapper
-		class="the-contacts-workspace"
-		:tabs="tabs"
-	>
+	<ws-page-wrapper :tabs="tabs">
 		<template #actions-panel>
-			<router-view name="actions" />
+			<ws-table-action-panel
+				:search="!!currentTab?.search"
+				:search-value="actionPanel?.searchValue"
+				:headers="actionPanel?.headers"
+				:actions="currentTab?.actions ?? []"
+				@update:search-value="(value) => { if (actionPanel) actionPanel.searchValue = value }"
+				@search="(value) => actionPanel?.handleSearch(value)"
+				@refresh="() => actionPanel?.refresh()"
+				@update:headers="(headers) => actionPanel?.updateShownHeaders(headers)"
+			/>
 		</template>
 		<template #main>
-			<router-view />
+			<component :is="currentTab?.component" />
 		</template>
 	</ws-page-wrapper>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import WsPageWrapper from '../../components/ws-page-wrapper.vue';
-import { useI18n } from "vue-i18n";
+import WsTableActionPanel, {
+	type WsTableActionPanelAction,
+} from '../../components/ws-table-action-panel.vue';
+import {
+	type TableActionPanelStore,
+	useTableActionPanel,
+} from '../../composables/useTableActionPanel';
+import ContactsTab from './modules/contacts/contacts-tab.vue';
+import { useContactsDataListStore } from './modules/contacts/store/contacts';
+import UsersTab from './modules/users/users-tab.vue';
+
+interface ContactsTabConfig {
+	text: string;
+	value: string;
+	pathName: string;
+	component: Component;
+	useStore?: () => TableActionPanelStore;
+	actions: WsTableActionPanelAction[];
+	search?: boolean;
+}
 
 const { t } = useI18n();
+const route = useRoute();
 
-const tabs = computed<WsPageTab[]>(() => [
-  {
-    text: t('objects.contact', 2),
-    value: 'contacts',
-    pathName: 'contacts',
-  },
-  {
-    text: t('objects.user', 2),
-    value: 'users',
-    pathName: 'users',
-  },
+const tabs = computed<ContactsTabConfig[]>(() => [
+	{
+		text: t('objects.contact', 2),
+		value: 'contacts',
+		pathName: 'contacts',
+		component: ContactsTab,
+		// createTableStore's own return type keeps `headers` as a ComputedRef in
+		// its TS signature (even though Pinia unwraps it at runtime) — cast to
+		// the duck-typed shape useTableActionPanel actually needs.
+		useStore:
+			useContactsDataListStore as unknown as () => TableActionPanelStore,
+		actions: [],
+		search: true,
+	},
+	{
+		text: t('objects.user', 2),
+		value: 'users',
+		pathName: 'users',
+		component: UsersTab,
+		actions: [],
+		search: true,
+	},
 ]);
+
+const currentTab = computed(() =>
+	tabs.value.find((tab) => tab.pathName === route.name),
+);
+const actionPanel = computed(() =>
+	currentTab.value?.useStore
+		? useTableActionPanel(currentTab.value.useStore())
+		: null,
+);
 </script>

@@ -1,10 +1,9 @@
 <template>
 	<div
 		v-show="dataList.length"
-		class="table-wrapper"
+		class="contacts-tab table-wrapper"
 	>
 		<wt-table
-			class="the-contacts__table"
 			:data="dataList"
 			:headers="shownHeaders"
 			:selected="selected"
@@ -14,7 +13,7 @@
 			sortable
 		>
 			<template #name="{ item }">
-				<div class="the-contacts__username-wrapper">
+				<div class="contacts-tab__username">
 					<wt-avatar
 						size="xs"
 						:username="item.name?.commonName"
@@ -59,10 +58,7 @@
 			</template>
 
 			<template #labels="{ item }">
-				<div
-					v-if="item.labels?.data"
-					class="contacts-labels-wrapper"
-				>
+				<div v-if="item.labels?.data">
 					<wt-chip
 						v-for="{ label, id } of item.labels.data"
 						:key="id"
@@ -107,11 +103,11 @@ initialize();
 </script>
 
 <style scoped>
-.table-wrapper {
+.contacts-tab {
 	width: 100%;
 }
 
-.the-contacts__username-wrapper {
+.contacts-tab__username {
 	display: flex;
 	align-items: center;
 }

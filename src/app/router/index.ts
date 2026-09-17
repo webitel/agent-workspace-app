@@ -1,4 +1,5 @@
 import { WtApplication } from '@webitel/ui-sdk/enums';
+import { defineComponent } from 'vue';
 import {
 	createRouter,
 	createWebHistory,
@@ -8,12 +9,14 @@ import {
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
-import ContactsTab from '../../ui/pages/modules/contacts/modules/contacts/contacts-tab.vue';
-import ContactsTabActions from '../../ui/pages/modules/contacts/modules/contacts/contacts-tab-actions.vue';
-import UsersTab from '../../ui/pages/modules/contacts/modules/users/users-tab.vue';
-import UsersTabActions from '../../ui/pages/modules/contacts/modules/users/users-tab-actions.vue';
 import TheContactsWorkspace from '../../ui/pages/modules/contacts/the-contacts-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
+
+// Contacts tabs render entirely inside TheContactsWorkspace (no <router-view>),
+// so these child routes only need to exist for route.name matching/navigation.
+const NoopRouteComponent = defineComponent({
+	render: () => null,
+});
 
 const routes: RouteRecordRaw[] = [
 	{
@@ -48,18 +51,12 @@ const routes: RouteRecordRaw[] = [
 					{
 						path: '',
 						name: 'contacts',
-						components: {
-							default: ContactsTab,
-							actions: ContactsTabActions,
-						},
+						component: NoopRouteComponent,
 					},
 					{
 						path: 'users',
 						name: 'users',
-						components: {
-							default: UsersTab,
-							actions: UsersTabActions,
-						},
+						component: NoopRouteComponent,
 					},
 				],
 			},
