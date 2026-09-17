@@ -100,9 +100,20 @@ export async function mockAppApis(page: Page) {
 	});
 }
 
-export async function mockAppWebSocket(page: Page) {
+/** Lets a spec push server-initiated frames once the app has connected. */
+export interface MockedSocket {
+	send(event: string, data: unknown): void;
+}
+
+export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
+	let socket: Parameters<Parameters<Page['routeWebSocket']>[1]>[0] | null =
+		null;
+	// frames a spec pushed before the app finished connecting
+	const queued: string[] = [];
+
 	// Do not intercept Vite HMR (`ws://localhost:...`).
 	await page.routeWebSocket(/wss:\/\/.*\/(ws|im\/ws)/, (ws) => {
+		socket = ws;
 		ws.onMessage((payload) => {
 			const raw = typeof payload === 'string' ? payload : payload.toString();
 			let message: {
@@ -130,5 +141,68 @@ export async function mockAppWebSocket(page: Page) {
 				data: helloPayload,
 			}),
 		);
+
+		for (const frame of queued.splice(0)) {
+			ws.send(frame);
+		}
 	});
+
+	return {
+		send(event, data) {
+			const frame = JSON.stringify({
+				event,
+				data,
+			});
+			if (socket) socket.send(frame);
+			else queued.push(frame);
+		},
+	};
+}
+
+/**
+ * A `ringing` call frame, shaped the way `Client.handleCallEvents` expects so the
+ * SDK builds a real `Call` from it.
+ */
+export function callRingingFrame({
+	id = 'e2e-call-1',
+	name = 'John Smith',
+	number = '380671234678',
+	queueName = 'Support',
+	hideNumber = false,
+}: {
+	id?: string;
+	name?: string;
+	number?: string;
+	queueName?: string;
+	hideNumber?: boolean;
+} = {}) {
+	return {
+		call: {
+			id,
+			app_id: 'e2e',
+			cc_app_id: '',
+			event: 'ringing',
+			timestamp: Date.now(),
+			data: {
+				direction: 'inbound',
+				destination: number,
+				from: {
+					name,
+					number,
+					type: 'sip',
+				},
+				queue: {
+					attempt_id: 1,
+					member_id: '1',
+					queue_id: '1',
+					queue_name: queueName,
+					queue_type: 'inbound',
+					reporting: '',
+				},
+				params: {},
+				payload: {},
+				hide_number: hideNumber,
+			},
+		},
+	};
 }

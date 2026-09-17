@@ -1,0 +1,65 @@
+import { useNow } from '@vueuse/core';
+import { convertDuration } from '@webitel/ui-sdk/scripts';
+import { computed, type MaybeRefOrGetter, toValue } from 'vue';
+
+/**
+ * Ticking "waiting time" plus the queue-wait progress bar (AC_14.01.04 /
+ * AC_06.01.05).
+ *
+ * The producer passes an absolute `waitingSince`, not a duration, so the counter
+ * stays correct across re-renders and tab sleep without anyone pushing updates.
+ */
+
+export const WaitingLevel = {
+	Low: 'low',
+	Medium: 'medium',
+	High: 'high',
+} as const;
+
+export type WaitingLevel = (typeof WaitingLevel)[keyof typeof WaitingLevel];
+
+const TICK_MS = 1000;
+export function useWaitingTime(
+	waitingSince: MaybeRefOrGetter<number>,
+	maxWaitSec: MaybeRefOrGetter<number | undefined>,
+) {
+	// `useNow` owns the ticking clock and stops it when the scope is disposed
+	const now = useNow({
+		interval: TICK_MS,
+	});
+
+	const elapsedSec = computed(() => {
+		const since = toValue(waitingSince);
+		if (!since) return 0;
+		return Math.max(0, Math.floor((now.value.getTime() - since) / 1000));
+	});
+
+	// `convertDuration` (HH:MM:SS) is what every other live timer in the product
+	// uses — call duration, hold time, agent status — so the waiting timer reads
+	// the same as the call timer next to it.
+	const formatted = computed(() => convertDuration(elapsedSec.value));
+
+	/**
+	 * Undefined until the backend exposes the queue's Max wait time (WS-16 /
+	 * WS-35). The consumer hides the bar and keeps the counter.
+	 */
+	const progress = computed(() => {
+		const max = toValue(maxWaitSec);
+		if (!max || max <= 0) return undefined;
+		return Math.min(100, (elapsedSec.value / max) * 100);
+	});
+
+	const level = computed<WaitingLevel | undefined>(() => {
+		if (progress.value === undefined) return undefined;
+		if (progress.value <= 33) return WaitingLevel.Low;
+		if (progress.value <= 66) return WaitingLevel.Medium;
+		return WaitingLevel.High;
+	});
+
+	return {
+		elapsedSec,
+		formatted,
+		progress,
+		level,
+	};
+}
