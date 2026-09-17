@@ -15,7 +15,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		await connectWebSocket();
 		// Chats coordinator (task feed + chats socket) needs the app socket up first.
 		useChatsStore().initialize();
-		// Call offers: same requirement, the app socket must already be up.
 		useCallsStore().initialize();
 		useGlobalHandlersStore().initialize();
 		await useUserStatusStore().initialize();
