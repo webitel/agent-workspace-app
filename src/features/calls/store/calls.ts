@@ -5,6 +5,7 @@ import { type Call, DeviceNotAllowPermissionError } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import i18n from '../../../app/locale/i18n';
 import { useIncomingInteractionsStore } from '../../../ui/notifications/incoming/store/incomingInteractions';
+import { InteractionKind } from '../../../ui/notifications/types/IncomingInteraction.types';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { toIncomingCallPreview } from '../scripts/toIncomingCallPreview';
@@ -74,13 +75,10 @@ export const useCallsStore = defineStore('calls', () => {
 		watch(
 			incomingOffers,
 			(offers) => {
-				const offeredIds = new Set(offers.map((call) => call.id));
-
-				for (const interaction of incomingInteractions.interactions) {
-					if (!offeredIds.has(interaction.id)) {
-						incomingInteractions.dismiss(interaction.id);
-					}
-				}
+				incomingInteractions.retainOnly(
+					InteractionKind.Call,
+					offers.map((call) => call.id),
+				);
 
 				for (const call of offers) {
 					incomingInteractions.notify({
