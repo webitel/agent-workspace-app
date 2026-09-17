@@ -77,5 +77,4 @@ const actionPanel = computed(() =>
 		? useTableActionPanel(currentTab.value.getTableStore())
 		: null,
 );
-
 </script>

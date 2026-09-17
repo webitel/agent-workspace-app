@@ -3,7 +3,7 @@
 		<wt-search-bar
 			v-if="search"
 			:value="searchValue"
-			@input="emit('update:search-value', $event)"
+			@input="emit('update:searchValue', $event)"
 			@search="emit('search', $event)"
 		/>
 
@@ -55,7 +55,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-	'update:search-value': [
+	'update:searchValue': [
 		value: string,
 	];
 	search: [
