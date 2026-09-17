@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { useChatsStore } from '../../features/chats/store/chats';
 import { useCallsStore } from '../../features/calls/store/calls';
 import { useChatsStore } from '../../features/chats/store/chats';
 import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
