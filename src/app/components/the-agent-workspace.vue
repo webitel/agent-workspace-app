@@ -11,6 +11,8 @@
         </div>
         <the-notifications />
         <the-incoming-interactions />
+        <!-- renders `eventBus.$emit('notification', …)` — nothing displayed those until now -->
+        <wt-notifications-bar />
     </main>
 </template>
 
@@ -18,6 +20,8 @@
     setup
     lang="ts"
 >
+import { WtNotificationsBar } from '@webitel/ui-sdk/components';
+
 import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
 import TheNotifications from '../../ui/notifications/components/the-notifications.vue';
