@@ -1,3 +1,5 @@
+import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+
 export default {
 	ui: {
 		header: {
@@ -20,6 +22,12 @@ export default {
 				accept: 'Қабылдау',
 				decline: 'Бас тарту',
 			},
+		},
+	},
+	error: {
+		websocket: {
+			[DeviceNotAllowPermissionError.id]:
+				'Микрофонға қол жеткізу мүмкін емес. Әрекетті орындау мүмкін емес.',
 		},
 	},
 };

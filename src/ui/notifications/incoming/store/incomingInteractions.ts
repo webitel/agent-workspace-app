@@ -4,7 +4,10 @@ import { computed, shallowRef, toValue } from 'vue';
 import i18n from '../../../../app/locale/i18n';
 import { useOsNotifications } from '../../push/useOsNotifications';
 import { useRingtone } from '../../sound/useRingtone';
-import type { IncomingInteraction } from '../../types/IncomingInteraction.types';
+import type {
+	IncomingInteraction,
+	InteractionKind,
+} from '../../types/IncomingInteraction.types';
 
 /**
  * Incoming call/chat offers.
@@ -93,6 +96,26 @@ export const useIncomingInteractionsStore = defineStore(
 		}
 
 		/**
+		 * Reconcile one channel's offers against what is still on the wire.
+		 *
+		 * Scoped by kind: producers own their own channel, and a call-feed update
+		 * must not dismiss chat offers (or the reverse) once both are live. Keeping
+		 * the reconciliation here also spares producers from walking this store's
+		 * internals.
+		 */
+		function retainOnly(kind: InteractionKind, ids: string[]) {
+			const live = new Set(ids);
+
+			// iterate a copy — dismiss() replaces the backing array
+			for (const interaction of [
+				...interactions.value,
+			]) {
+				if (toValue(interaction.preview).kind !== kind) continue;
+				if (!live.has(interaction.id)) dismiss(interaction.id);
+			}
+		}
+
+		/**
 		 * Accept/decline dismiss optimistically so the card can't be clicked twice
 		 * while the SDK round-trips. The producer's own teardown is idempotent.
 		 */
@@ -125,6 +148,7 @@ export const useIncomingInteractionsStore = defineStore(
 			initialize,
 			notify,
 			dismiss,
+			retainOnly,
 			accept,
 			decline,
 			openBody,
