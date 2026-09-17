@@ -1,0 +1,67 @@
+# Runs the mocked end-to-end suite on every pull request.
+#
+# Standalone rather than a step in the shared reusable-workflows checks, for the
+# same reason as check-libs-train.yml: it is repo-local and needs a browser the
+# shared node-checks job has no business installing.
+#
+# Only the `mocked` project runs here. It intercepts every backend call, so it
+# needs no access token and no reachable Webitel instance. The `live` project is
+# deliberately left out of CI — it would need E2E_ACCESS_TOKEN as a repo secret
+# and would fail whenever the test instance is down or mid-deploy. See
+# docs/how-to/e2e/README.md.
+
+name: E2E
+
+on:
+  pull_request:
+
+permissions: { contents: read }
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Mocked
+    runs-on: [ arc-frontend-runner-set ]
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+
+      # Keyed on the installed Playwright version: browser builds are pinned to
+      # it, so a bump has to miss the cache rather than reuse stale binaries.
+      - name: Resolve Playwright version
+        id: playwright
+        run: echo "version=$(npm ls @playwright/test --depth=0 --json | jq -r '.dependencies["@playwright/test"].version')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache browsers
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      # System libraries are not covered by the cache above, so `--with-deps`
+      # runs either way; only the browser download is skipped on a hit.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: npm run test:e2e:ci
+
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

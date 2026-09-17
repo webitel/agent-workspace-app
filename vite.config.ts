@@ -1,11 +1,30 @@
-import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { defineConfig, loadEnv } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 
 // https://vite.dev/config/
 export default ({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
 	const isStagingEnv = env.VITE_STAGING_ENV === 'true';
+
+	/**
+	 * Playwright's `live` project runs the app from localhost against a real
+	 * instance, and that instance only allows CORS preflights from its own
+	 * origin. Proxying keeps the API same-origin for the browser.
+	 */
+	const e2eProxy =
+		mode === 'e2e' && env.E2E_API_ORIGIN
+			? {
+					'/api': {
+						target: env.E2E_API_ORIGIN,
+						changeOrigin: true,
+					},
+					'/chat': {
+						target: env.E2E_API_ORIGIN,
+						changeOrigin: true,
+					},
+				}
+			: undefined;
 
 	return defineConfig({
 		base: '/agent-workspace',
@@ -20,9 +39,13 @@ export default ({ mode }) => {
 				'clipboard-copy',
 				'deep-equal',
 				'deepmerge',
-				'jszip',
-				'jszip-utils',
 			],
+		},
+		server: {
+			proxy: e2eProxy,
+		},
+		preview: {
+			proxy: e2eProxy,
 		},
 		plugins: [
 			vue(),

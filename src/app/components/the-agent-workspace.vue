@@ -10,6 +10,7 @@
             </section>
         </div>
         <the-notifications />
+        <the-incoming-interactions />
     </main>
 </template>
 
@@ -21,6 +22,7 @@ import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
 import TheNotifications from '../../ui/notifications/components/the-notifications.vue';
 import { useSocketNotifications } from '../../ui/notifications/composables/useSocketNotifications';
+import TheIncomingInteractions from '../../ui/notifications/incoming/components/the-incoming-interactions.vue';
 import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
 import TheTaskDockPanel from '../../ui/task-dock/components/the-task-dock-panel.vue';
 
@@ -34,7 +36,7 @@ subscribeToWebSocketEvents();
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background-color: var(--grey-lighten-4);
+    background-color: var(--wt-page-wrapper-background-color);
 }
 
 .workspace-content-nav-wrapper {
@@ -63,6 +65,6 @@ subscribeToWebSocketEvents();
 .workspace-content {
     flex: 1;
     display: flex;
-    background-color: var(--white);
+    background-color: var(--content-wrapper-color);
 }
 </style>

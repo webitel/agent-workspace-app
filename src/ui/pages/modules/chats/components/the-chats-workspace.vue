@@ -37,6 +37,6 @@ watchEffect(() => {
 
 .the-chat-previews-list {
     flex: 0 0 320px;
-    border-right: 1px solid var(--grey-lighten-2);
+    border-right: 1px solid var(--divider-border-color);
 }
 </style>
