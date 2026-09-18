@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { JobState, type Task } from 'webitel-sdk';
 
-import { isChatTask, isIncomingChatOffer } from '../isIncomingChatOffer';
+import { isIncomingChatOffer } from '../isIncomingChatOffer';
 
 const buildTask = (overrides: Partial<Task> = {}): Task =>
 	({
@@ -10,22 +10,6 @@ const buildTask = (overrides: Partial<Task> = {}): Task =>
 		state: JobState.Offering,
 		...overrides,
 	}) as unknown as Task;
-
-describe('isChatTask', () => {
-	it('accepts an im task', () => {
-		expect(isChatTask(buildTask())).toBe(true);
-	});
-
-	it('rejects other channels', () => {
-		expect(
-			isChatTask(
-				buildTask({
-					channel: 'call',
-				}),
-			),
-		).toBe(false);
-	});
-});
 
 describe('isIncomingChatOffer', () => {
 	it('offers a chat task in the offering state', () => {

@@ -6,10 +6,8 @@ import { router } from '../../../app/router';
 import { useIncomingInteractionsStore } from '../../../ui/notifications/incoming/store/incomingInteractions';
 import { InteractionKind } from '../../../ui/notifications/types/IncomingInteraction.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
-import {
-	isChatTask,
-	isIncomingChatOffer,
-} from '../scripts/isIncomingChatOffer';
+import { isChatTask } from '../scripts/isChatTask';
+import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toIncomingChatPreview } from '../scripts/toIncomingChatPreview';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';

@@ -1,5 +1,7 @@
 import { JobState, type Task } from 'webitel-sdk';
 
+import { isChatTask } from './isChatTask';
+
 /**
  * Whether a task is a chat currently being offered to this agent.
  *
@@ -13,12 +15,6 @@ import { JobState, type Task } from 'webitel-sdk';
  * appears *and* `chatTaskList` stops filtering — a failure with no symptom, so
  * it is worth confirming against a live instance rather than assuming.
  */
-
-export const IM_CHANNEL = 'im';
-
-export function isChatTask(task: Task): boolean {
-	return task?.channel === IM_CHANNEL;
-}
 
 export function isIncomingChatOffer(task: Task): boolean {
 	if (!task) return false;
