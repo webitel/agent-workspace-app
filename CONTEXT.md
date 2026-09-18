@@ -8,6 +8,17 @@ Not to be confused with `cc-workspaces`, the previous-generation operator
 workspace. Logic is regularly ported across from it; its conventions are older
 and should not be carried over wholesale.
 
+## Architecture decisions
+
+`docs/adr/` — read the ones touching the area you are about to work in.
+
+- [ADR-0001](docs/adr/0001-incoming-interaction-offers.md) — incoming call and
+  chat offers: the notifications module boundary, the channel-neutral preview
+  contract, offers derived from the SDK feeds, and why a field is left absent
+  rather than approximated.
+- [ADR-0002](docs/adr/0002-offer-sound-and-os-notifications.md) — ringtone vs
+  chirp, the cross-tab sound lock, and the notification-only service worker.
+
 ## Conventions
 
 ### Test file naming
