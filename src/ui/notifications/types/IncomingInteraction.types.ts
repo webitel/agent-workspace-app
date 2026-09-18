@@ -25,6 +25,15 @@ export interface IncomingInteractionPreview {
 	kind: InteractionKind;
 	/** Contact/member/schema name. Undefined renders as "Unknown contact" + N/A avatar. */
 	name?: string;
+	/**
+	 * How many *further* contacts matched, beyond the one named above. Contact
+	 * identification can return none, one or several, and the design shows the
+	 * remainder as a `+N` chip next to the name.
+	 *
+	 * Optional because nothing on the wire carries the count yet — asked for on
+	 * WS-16. Absent renders no chip, which reads the same as "exactly one match".
+	 */
+	additionalContacts?: number;
 	/** Masked phone number (calls) or username (chats). */
 	identifier?: string;
 	/** Queue name (calls) or gateway name (chats). */
