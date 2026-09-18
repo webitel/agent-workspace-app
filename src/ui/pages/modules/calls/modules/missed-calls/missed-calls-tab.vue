@@ -1,35 +1,30 @@
 <template>
-	<section class="the-missed-calls">
-		<header class="the-missed-calls__toolbar">
-			<h2 class="typo-headline-6">
-				{{ t('ui.pages.calls.missed.title') }}
-			</h2>
-      <!-- TODO SEARCH -->
-			<div>search</div>
-		</header>
-
+	<div
+		v-show="dataList.length"
+		class="missed-calls-tab table-wrapper"
+	>
 		<wt-table
-			class="the-missed-calls__table"
-			:headers="store.headers"
-			:data="store.rows"
-			:loading="store.loading"
-			:on-loading="store.loadMore"
+			class="missed-calls-tab__table"
+			:data="dataList"
+			:headers="shownHeaders"
+			:on-loading="onLoading"
 			data-key="id"
 			lazy
 			reorderable-columns
 			resizable-columns
 			sortable
-			@sort="store.applySort"
+			@sort="updateSort"
 		>
 			<template #name="{ item }">
 				<div
-					class="the-missed-calls__name-cell"
+					class="missed-calls-tab__name-cell"
 					@click="openContactCard(item)"
 				>
 					<wt-avatar
 						:username="item.name"
 						size="sm"
 					/>
+					{{ item.name }}
 				</div>
 			</template>
 
@@ -51,17 +46,14 @@
 				<wt-icon-btn
 					v-tooltip="t('ui.pages.calls.missed.actions.call')"
 					icon="call"
-					@click="store.redial(item.id)"
+					@click="redialMissedCall(item.id)"
 				/>
 			</template>
 		</wt-table>
-	</section>
+	</div>
 </template>
 
-<script
-	setup
-	lang="ts"
->
+<script setup lang="ts">
 import {
 	WtAvatar,
 	WtDatetimeText,
@@ -69,17 +61,28 @@ import {
 	WtTable,
 } from '@webitel/ui-sdk/components';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
-import { onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useMissedCallsStore } from '../store/missedCalls';
-import type { MissedCallRow } from '../types/MissedCall.types';
+import { redialMissedCall } from './api/missedCallsAPI';
+import { useMissedCallsStore } from './store/missedCalls';
+import type { MissedCallRow } from './types/MissedCall.types';
 
 const { t } = useI18n();
-const store = useMissedCallsStore();
 
-onMounted(() => {
-	store.initialize();
-});
+const tableStore = useMissedCallsStore();
+const { initialize, appendToDataList, updateSort } = tableStore;
+const { dataList, shownHeaders, next } = storeToRefs(tableStore);
+
+const isFirstLoad = ref(false);
+const isInitializing = ref(true);
+
+const onLoading = async () => {
+	if (isInitializing.value) return;
+	if (!next.value && isFirstLoad.value) return;
+	await appendToDataList();
+	isFirstLoad.value = true;
+};
 
 function openContactCard(row: MissedCallRow) {
 	console.warn(
@@ -87,29 +90,23 @@ function openContactCard(row: MissedCallRow) {
 		row.contactId,
 	);
 }
+
+initialize().finally(() => {
+	isInitializing.value = false;
+});
 </script>
 
 <style scoped>
-.the-missed-calls {
-	display: flex;
-	flex-direction: column;
-	min-height: 0;
-	height: 100%;
+.missed-calls-tab {
+	width: 100%;
 }
 
-.the-missed-calls__toolbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: var(--spacing-sm) var(--spacing-md);
-}
-
-.the-missed-calls__table {
+.missed-calls-tab__table {
 	flex: 1;
 	min-height: 0;
 }
 
-.the-missed-calls__name-cell {
+.missed-calls-tab__name-cell {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);

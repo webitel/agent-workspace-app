@@ -6,14 +6,15 @@ import {
 	type NavigationGuard,
 	type RouteRecordRaw,
 } from 'vue-router';
-import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
+import TheCallsWorkspace from '../../ui/pages/modules/calls/the-calls-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import TheContactsWorkspace from '../../ui/pages/modules/contacts/the-contacts-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
-// Contacts tabs render entirely inside TheContactsWorkspace (no <router-view>),
-// so these child routes only need to exist for route.name matching/navigation.
+// Contacts/Calls tabs render entirely inside their workspace component (no
+// <router-view>), so these child routes only need to exist for route.name
+// matching/navigation.
 const NoopRouteComponent = defineComponent({
 	render: () => null,
 });
@@ -29,8 +30,14 @@ const routes: RouteRecordRaw[] = [
 		children: [
 			{
 				path: '/calls',
-				name: 'calls',
 				component: TheCallsWorkspace,
+				children: [
+					{
+						path: '',
+						name: 'calls',
+						component: NoopRouteComponent,
+					},
+				],
 			},
 			{
 				path: '/chats',
