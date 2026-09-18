@@ -37,10 +37,17 @@ export function useWaitingTime(
 		return Math.max(0, Math.floor((now.value.getTime() - since) / 1000));
 	});
 
-	// `convertDuration` (HH:MM:SS) is what every other live timer in the product
-	// uses — call duration, hold time, agent status — so the waiting timer reads
-	// the same as the call timer next to it.
-	const formatted = computed(() => convertDuration(elapsedSec.value));
+	/**
+	 * `convertDuration` is what every other live timer in the product uses, so the
+	 * formatting stays consistent. The hours segment is dropped below an hour
+	 * because DES-727 shows the offer card's timer as `01:22` — a card that lives
+	 * for a minute or two should not carry a permanent `00:`.
+	 */
+	const formatted = computed(() =>
+		convertDuration(elapsedSec.value, {
+			alwaysShowHours: false,
+		}),
+	);
 
 	/**
 	 * Undefined until the backend exposes the queue's Max wait time (WS-16 /
