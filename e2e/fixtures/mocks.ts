@@ -99,12 +99,15 @@ export async function mockAppApis(page: Page) {
 			}),
 		});
 	});
-	await page.route('**/api/user-status', async (route) => {
+	// `getUserStatus` reads `data.presence.status` from `/user`
+	await page.route('**/api/user', async (route) => {
 		await route.fulfill({
 			status: 200,
 			contentType: 'application/json',
 			body: JSON.stringify({
-				presence: '',
+				presence: {
+					status: '',
+				},
 			}),
 		});
 	});
