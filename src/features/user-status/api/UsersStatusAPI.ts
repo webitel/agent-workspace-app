@@ -17,10 +17,10 @@ export const setUserStatus = async (status: string) => {
 };
 
 export const getUserStatus = async () => {
-	const url = '/user-status';
+	const url = '/user';
 	try {
 		const { data } = await instance.get(url);
-		return data.presence;
+		return data.presence?.status;
 	} catch (err) {
 		throw applyTransform(err, [
 			notify,
