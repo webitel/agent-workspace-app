@@ -3,7 +3,6 @@
         <div class="the-notifications-layer">
             <!-- most urgent first: an offer has a deadline, a toast does not -->
             <the-incoming-interactions />
-            <the-notifications />
             <wt-notifications-bar />
         </div>
     </Teleport>
@@ -16,14 +15,13 @@
 import { WtNotificationsBar } from '@webitel/ui-sdk/components';
 
 import TheIncomingInteractions from '../incoming/components/the-incoming-interactions.vue';
-import TheNotifications from './the-notifications.vue';
 </script>
 
 <style scoped>
 /*
  * One stacking context for everything that appears in the corner. Each surface
- * used to fix itself to the viewport independently, so offers, app toasts and
- * ui-sdk toasts overlapped instead of stacking.
+ * used to fix itself to the viewport independently, so they overlapped instead
+ * of stacking.
  */
 .the-notifications-layer {
     position: fixed;
