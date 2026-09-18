@@ -20,13 +20,16 @@ export type WaitingLevel = (typeof WaitingLevel)[keyof typeof WaitingLevel];
 
 const TICK_MS = 1000;
 export function useWaitingTime(
-	waitingSince: MaybeRefOrGetter<number>,
+	waitingSince: MaybeRefOrGetter<number | undefined>,
 	maxWaitSec: MaybeRefOrGetter<number | undefined>,
 ) {
 	// `useNow` owns the ticking clock and stops it when the scope is disposed
 	const now = useNow({
 		interval: TICK_MS,
 	});
+
+	/** False when the producer has no trustworthy epoch — the consumer hides the block. */
+	const hasWaitingTime = computed(() => !!toValue(waitingSince));
 
 	const elapsedSec = computed(() => {
 		const since = toValue(waitingSince);
@@ -44,6 +47,7 @@ export function useWaitingTime(
 	 * WS-35). The consumer hides the bar and keeps the counter.
 	 */
 	const progress = computed(() => {
+		if (!hasWaitingTime.value) return undefined;
 		const max = toValue(maxWaitSec);
 		if (!max || max <= 0) return undefined;
 		return Math.min(100, (elapsedSec.value / max) * 100);
@@ -57,6 +61,7 @@ export function useWaitingTime(
 	});
 
 	return {
+		hasWaitingTime,
 		elapsedSec,
 		formatted,
 		progress,

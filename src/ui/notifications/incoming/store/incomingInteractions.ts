@@ -3,9 +3,10 @@ import { computed, shallowRef, toValue } from 'vue';
 
 import i18n from '../../../../app/locale/i18n';
 import { useOsNotifications } from '../../push/useOsNotifications';
+import { useOfferChirp } from '../../sound/useOfferChirp';
 import { useRingtone } from '../../sound/useRingtone';
-import type {
-	IncomingInteraction,
+import {
+	type IncomingInteraction,
 	InteractionKind,
 } from '../../types/IncomingInteraction.types';
 
@@ -24,6 +25,7 @@ export const useIncomingInteractionsStore = defineStore(
 	'incomingInteractions',
 	() => {
 		const ringtone = useRingtone();
+		const chirp = useOfferChirp();
 		const osNotifications = useOsNotifications();
 
 		/**
@@ -37,6 +39,17 @@ export const useIncomingInteractionsStore = defineStore(
 
 		function find(id: string): IncomingInteraction | undefined {
 			return interactions.value.find((interaction) => interaction.id === id);
+		}
+
+		function kindOf(interaction: IncomingInteraction): InteractionKind {
+			return toValue(interaction.preview).kind;
+		}
+
+		/** Only calls ring; a chat offer must not keep the ringtone alive. */
+		function hasRingingOffer(): boolean {
+			return interactions.value.some(
+				(interaction) => kindOf(interaction) === InteractionKind.Call,
+			);
 		}
 
 		function pushOsNotification(interaction: IncomingInteraction) {
@@ -74,13 +87,22 @@ export const useIncomingInteractionsStore = defineStore(
 		function notify(interaction: IncomingInteraction) {
 			if (find(interaction.id)) return; // already offered
 
+			// a ring already in progress suppresses the chirp — read it before adding
+			const wasRinging = hasRingingOffer();
+
 			interactions.value = [
 				...interactions.value,
 				interaction,
 			];
 
-			// one ring for any number of offers
-			ringtone.start();
+			if (kindOf(interaction) === InteractionKind.Call) {
+				// one ring for any number of offers
+				ringtone.start();
+			} else if (!wasRinging) {
+				// a call has a deadline and a text chat does not: never talk over it
+				chirp.play();
+			}
+
 			pushOsNotification(interaction);
 		}
 
@@ -92,7 +114,7 @@ export const useIncomingInteractionsStore = defineStore(
 			);
 
 			osNotifications.close(id);
-			if (!interactions.value.length) ringtone.stop();
+			if (!hasRingingOffer()) ringtone.stop();
 		}
 
 		/**

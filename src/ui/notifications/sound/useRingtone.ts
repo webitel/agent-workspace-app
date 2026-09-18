@@ -1,27 +1,16 @@
 import ringingSound from '@webitel/ui-sdk/src/modules/Notifications/assets/audio/ringing.mp3';
 
+import { playSafely } from './playSafely';
 import { useSoundLock } from './useSoundLock';
 
 /**
- * The incoming-offer ringtone. One looping element for the whole app: several
+ * The looping ringtone for offers with a deadline (calls). One looping element for the whole app: several
  * simultaneous offers share a single ring (a second loop would just phase
  * against the first), and the cross-tab lock keeps other tabs quiet.
  */
 
 let audio: HTMLAudioElement | null = null;
 let primed = false;
-
-/**
- * `HTMLMediaElement.play()` only returns a promise in modern browsers — older
- * Safari (and jsdom) return undefined, so never chain off it directly.
- */
-function play(element: HTMLAudioElement): Promise<void> {
-	try {
-		return Promise.resolve(element.play());
-	} catch (err) {
-		return Promise.reject(err);
-	}
-}
 
 function getAudio(): HTMLAudioElement {
 	if (!audio) {
@@ -54,7 +43,7 @@ function primeOnFirstGesture() {
 		const element = getAudio();
 		const wasMuted = element.muted;
 		element.muted = true;
-		play(element)
+		playSafely(element)
 			.then(() => {
 				element.pause();
 				element.currentTime = 0;
@@ -86,7 +75,7 @@ export function useRingtone() {
 
 		const element = getAudio();
 		element.currentTime = 0;
-		play(element).catch(() => {
+		playSafely(element).catch(() => {
 			// autoplay blocked and no gesture yet — drop the lock so a tab that
 			// *can* play (or this one, after the next gesture) isn't shut out
 			release();

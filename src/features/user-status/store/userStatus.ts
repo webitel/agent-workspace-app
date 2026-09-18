@@ -22,7 +22,6 @@ export const useUserStatusStore = defineStore('user-status', () => {
 
 	async function getCurrentUserStatus() {
 		const status = await getUserStatus();
-		console.log('resp:', status);
 		userStatus.value = parseUserStatus(status);
 	}
 
