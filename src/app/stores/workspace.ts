@@ -24,6 +24,11 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 	}
 
 	async function initialize() {
+		// connectionQuality must subscribe before the socket connects: connect()
+		// emits AfterAuth synchronously from inside its own promise, before it
+		// resolves here — a subscriber registered after `await connectWebSocket()`
+		// would miss that first emission and never start latency tracking.
+		useConnectionQualityStore().initialize();
 		// Establish the single WebSocket session for the whole app here, once.
 		// Every other consumer uses getClient() (sync) and the reactive slices,
 		// assuming the connection has already been brought up at this point.
@@ -36,7 +41,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		useChatsStore().initialize();
 		useCallsStore().initialize();
 		useGlobalHandlersStore().initialize();
-		useConnectionQualityStore().initialize();
 		await useUserStatusStore().initialize();
 	}
 
