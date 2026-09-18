@@ -33,16 +33,16 @@ describe('useWaitingTime', () => {
 		);
 
 		expect(elapsedSec.value).toBe(65);
-		expect(formatted.value).toBe('00:01:05');
+		expect(formatted.value).toBe('01:05');
 
 		vi.advanceTimersByTime(5000);
 		expect(elapsedSec.value).toBe(70);
-		expect(formatted.value).toBe('00:01:10');
+		expect(formatted.value).toBe('01:10');
 
 		stop();
 	});
 
-	it('keeps the product-wide HH:MM:SS format past an hour', () => {
+	it('grows an hours segment once the wait passes an hour', () => {
 		const [{ formatted }, stop] = withScope(() =>
 			useWaitingTime(Date.now() - 3_725_000, undefined),
 		);

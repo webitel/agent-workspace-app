@@ -30,11 +30,11 @@
 		"test:e2e:sw": "playwright test --project=service-worker --workers=1"
 	},
 	"dependencies": {
-		"@webitel/api-services": "~26.8.8",
-		"@webitel/chat-web-sdk": "^0.0.19",
-		"@webitel/ui-chats": "~26.8.1",
 		"@vueuse/core": "^14.x",
-		"@webitel/ui-sdk": "~26.8.91",
+		"@webitel/api-services": "~26.8",
+		"@webitel/chat-web-sdk": "^0.0.19",
+		"@webitel/ui-chats": "~26.8",
+		"@webitel/ui-sdk": "~26.8",
 		"axios": "^1.17.0",
 		"pinia": "^3.x",
 		"vue": "^3.5.x",

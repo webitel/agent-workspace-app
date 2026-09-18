@@ -10,7 +10,7 @@
         >
             <wt-chip
                 class="incoming-interaction-preview__kind"
-                color="primary"
+                :color="ChipColor.INFO"
             >
                 <wt-icon
                     icon="bell"
@@ -31,7 +31,7 @@
                     <!-- identification can match several contacts; this is the remainder -->
                     <wt-chip
                         v-if="preview.additionalContacts"
-                        color="main"
+                        :color="ChipColor.MAIN"
                     >
                         +{{ preview.additionalContacts }}
                     </wt-chip>
@@ -139,7 +139,7 @@ import {
 	WtDivider,
 	WtIcon,
 } from '@webitel/ui-sdk/components';
-import { ComponentSize } from '@webitel/ui-sdk/enums';
+import { ChipColor, ComponentSize } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
