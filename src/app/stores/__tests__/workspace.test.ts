@@ -40,6 +40,14 @@ vi.mock('../../../features/user-status/store/userStatus', () => ({
 		initialize: () => initializeUserStatus(),
 	}),
 }));
+vi.mock(
+	'../../../ui/header/modules/connectionQuality/store/connectionQuality',
+	() => ({
+		useConnectionQualityStore: () => ({
+			initialize: vi.fn(),
+		}),
+	}),
+);
 
 describe('useWorkspaceStore', () => {
 	beforeEach(() => {

@@ -4,6 +4,7 @@ import { useCallsStore } from '../../features/calls/store/calls';
 import { useChatsStore } from '../../features/chats/store/chats';
 import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
 import { useUserStatusStore } from '../../features/user-status/store/userStatus';
+import { useConnectionQualityStore } from '../../ui/header/modules/connectionQuality/store/connectionQuality';
 import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
 
 export const useWorkspaceStore = defineStore('workspace', () => {
@@ -23,6 +24,11 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 	}
 
 	async function initialize() {
+		// connectionQuality must subscribe before the socket connects: connect()
+		// emits AfterAuth synchronously from inside its own promise, before it
+		// resolves here — a subscriber registered after `await connectWebSocket()`
+		// would miss that first emission and never start latency tracking.
+		useConnectionQualityStore().initialize();
 		// Establish the single WebSocket session for the whole app here, once.
 		// Every other consumer uses getClient() (sync) and the reactive slices,
 		// assuming the connection has already been brought up at this point.
