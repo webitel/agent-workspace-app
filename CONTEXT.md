@@ -23,3 +23,25 @@ include covers both suffixes and would silently adopt a `.spec.ts` placed under
 `src/` — nothing fails, it just reads as a misplaced e2e.
 
 `cc-workspaces` names its unit tests `*.spec.js`. Rename when porting from it.
+
+### Commit messages
+
+Conventional Commits, plus a link to the issue the work belongs to. The link
+goes on its own line at the end of the body, above any trailers:
+
+```
+feat(chats): raise offers for incoming chats
+
+<why, and what the reader could not infer from the diff>
+
+[WS-19](https://webitel.atlassian.net/browse/WS-19)
+```
+
+Issues live in two projects: `WS` (Workspace 2.0) for this app's product work,
+`WTEL` for everything else, including changes that originate here but land in
+`webitel-ui-sdk`.
+
+Nothing enforces this — git history predating the convention has no codes, and
+most of it never will. The link is for the reader who arrives at a line via
+`git blame` months later: the commit body says what and why, the issue says
+what the product was asked for, and only one of those survives in Jira.
