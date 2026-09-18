@@ -10,7 +10,9 @@ const getClientMock = vi.fn(() => ({
 const tasks = ref<
 	{
 		channel: string;
-		state?: string;
+		offeringAt?: number;
+		bridgedAt?: number;
+		closedAt?: number;
 	}[]
 >([]);
 
@@ -187,15 +189,18 @@ describe('chats store', () => {
 		tasks.value = [
 			{
 				channel: 'im',
-				state: 'bridged',
+				offeringAt: 1,
+				bridgedAt: 2,
 			},
 			{
 				channel: 'call',
-				state: 'bridged',
+				offeringAt: 1,
+				bridgedAt: 2,
 			},
 			{
 				channel: 'im',
-				state: 'bridged',
+				offeringAt: 1,
+				bridgedAt: 2,
 			},
 		];
 		const store = useChatsStore();
@@ -214,11 +219,15 @@ describe('chats store', () => {
 		tasks.value = [
 			{
 				channel: 'im',
-				state: 'offering',
+				offeringAt: 1,
+				bridgedAt: 0,
+				closedAt: 0,
 			},
 			{
 				channel: 'im',
-				state: 'bridged',
+				offeringAt: 1,
+				bridgedAt: 2,
+				closedAt: 0,
 			},
 		];
 		const store = useChatsStore();
@@ -232,7 +241,9 @@ describe('chats store', () => {
 		const buildOffer = (id = 1, threadId: string | null = 'thread-1') => ({
 			id,
 			channel: 'im',
-			state: 'offering',
+			offeringAt: 1,
+			bridgedAt: 0,
+			closedAt: 0,
 			displayName: 'John Smith',
 			displayNumber: '@john',
 			thread: threadId
@@ -271,7 +282,7 @@ describe('chats store', () => {
 			];
 			await nextTick();
 
-			tasks.value[0].state = 'bridged';
+			tasks.value[0].bridgedAt = 2;
 			await nextTick();
 
 			expect(incomingInteractions.retainOnly).toHaveBeenLastCalledWith(

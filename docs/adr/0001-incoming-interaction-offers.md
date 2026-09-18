@@ -113,8 +113,27 @@ Tracked on [WS-16](https://webitel.atlassian.net/browse/WS-16) (calls) and
   chats show no waiting block at all
 - the gateway a chat arrived through, for the `Channel` line
 
-One assumption is unverified: chat offers are detected by
-`state === JobState.Offering`, and nothing in this repo or `cc-workspaces`
-demonstrates an `im` task in that state. If the backend uses `Distribute`
-instead, no card appears **and** the previews list stops filtering — a failure
-with no symptom.
+## How an offer is detected
+
+Calls use `call.allowAnswer` plus the guards in `isIncomingCallOffer`.
+
+Chats cannot use a state, and this is worth stating plainly because the obvious
+reading is wrong. `isIncomingChatOffer` originally keyed on
+`state === JobState.Offering`; a chat task never reaches that state, so no card
+ever appeared and offered chats were never filtered out of the previews list.
+Both halves failed silently.
+
+The SDK assigns `"offering"` in the `Task` constructor and immediately
+overwrites it with the event's own `status`. A task is only created on a
+`distribute` frame, so `state` reads `"distribute"`; the later `offering` frame
+calls `setOffering()`, which records `offeringAt` and nothing else, and
+`setBridged` records `bridgedAt` and leaves `state` alone. A live chat task
+therefore reads `"distribute"` from creation until it leaves the feed.
+
+Detection uses the timestamps the SDK does maintain — `offeringAt > 0`,
+`bridgedAt === 0`, `closedAt === 0`. Missed and closed tasks leave the feed
+entirely, because the agent drops them from its task map.
+
+The SDK's permission getters are not an alternative: `allowAccept`,
+`allowDecline` and `allowClose` are hardcoded to `channel === 'task'`, so all
+three are `false` for every `im` task.
