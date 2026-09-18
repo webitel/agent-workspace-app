@@ -13,6 +13,9 @@ const ringtone = {
 	start: vi.fn(),
 	stop: vi.fn(),
 };
+const chirp = {
+	play: vi.fn(),
+};
 const osNotifications = {
 	initialize: vi.fn(),
 	show: vi.fn(),
@@ -21,6 +24,9 @@ const osNotifications = {
 
 vi.mock('../../../sound/useRingtone', () => ({
 	useRingtone: () => ringtone,
+}));
+vi.mock('../../../sound/useOfferChirp', () => ({
+	useOfferChirp: () => chirp,
 }));
 vi.mock('../../../push/useOsNotifications', () => ({
 	useOsNotifications: () => osNotifications,
@@ -59,6 +65,7 @@ describe('useIncomingInteractionsStore', () => {
 		);
 		ringtone.start.mockClear();
 		ringtone.stop.mockClear();
+		chirp.play.mockClear();
 		osNotifications.show.mockClear();
 		osNotifications.close.mockClear();
 	});
@@ -152,6 +159,90 @@ describe('useIncomingInteractionsStore', () => {
 		store.accept('call-1');
 
 		expect(interaction.onAccept).toHaveBeenCalledTimes(1);
+	});
+
+	describe('per-channel sound', () => {
+		const buildChatInteraction = (id = 'chat-1') => ({
+			...buildInteraction(id),
+			preview: buildPreview({
+				kind: InteractionKind.Chat,
+			}),
+		});
+
+		it('rings for a call offer and does not chirp', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+
+			expect(ringtone.start).toHaveBeenCalledTimes(1);
+			expect(chirp.play).not.toHaveBeenCalled();
+		});
+
+		it('chirps for a chat offer and does not ring', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildChatInteraction());
+
+			expect(chirp.play).toHaveBeenCalledTimes(1);
+			expect(ringtone.start).not.toHaveBeenCalled();
+		});
+
+		/** A call has a deadline; a text chat must not talk over it. */
+		it('stays silent for a chat that arrives during a ringing call', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.notify(buildChatInteraction());
+
+			expect(chirp.play).not.toHaveBeenCalled();
+		});
+
+		it('chirps again once the ringing call is gone', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.dismiss('call-1');
+			store.notify(buildChatInteraction());
+
+			expect(chirp.play).toHaveBeenCalledTimes(1);
+		});
+
+		it('keeps ringing while a call remains, even as chats come and go', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.notify(buildChatInteraction());
+			store.dismiss('chat-1');
+
+			expect(ringtone.stop).not.toHaveBeenCalled();
+		});
+
+		/** A lingering chat offer must not hold the ringtone open. */
+		it('stops the ringtone when the last call goes, even with a chat left', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildInteraction('call-1'));
+			store.notify(buildChatInteraction());
+			store.dismiss('call-1');
+
+			expect(ringtone.stop).toHaveBeenCalledTimes(1);
+			expect(store.interactions).toHaveLength(1);
+		});
+
+		/**
+		 * `stop()` is idempotent and only releases a lock this tab owns, so calling
+		 * it when nothing rings is harmless — but it must still be reached, or a
+		 * ring left over from a call that resolved in an odd order would persist.
+		 */
+		it('settles the ringtone off when no call offer remains', () => {
+			const store = useIncomingInteractionsStore();
+
+			store.notify(buildChatInteraction());
+			ringtone.stop.mockClear();
+			store.dismiss('chat-1');
+
+			expect(ringtone.stop).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	describe('retainOnly', () => {
