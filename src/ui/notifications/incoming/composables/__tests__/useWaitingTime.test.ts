@@ -51,6 +51,32 @@ describe('useWaitingTime', () => {
 		stop();
 	});
 
+	/**
+	 * A channel with no trustworthy queue-entry timestamp (chats, until WS-35)
+	 * must hide the block rather than render a counter from a wrong epoch.
+	 */
+	it('reports no waiting time when the producer has no epoch', () => {
+		const [{ hasWaitingTime, elapsedSec, progress, level }, stop] = withScope(
+			() => useWaitingTime(undefined, 100),
+		);
+
+		expect(hasWaitingTime.value).toBe(false);
+		expect(elapsedSec.value).toBe(0);
+		expect(progress.value).toBeUndefined();
+		expect(level.value).toBeUndefined();
+
+		stop();
+	});
+
+	it('reports a waiting time once an epoch is present', () => {
+		const [{ hasWaitingTime }, stop] = withScope(() =>
+			useWaitingTime(Date.now(), undefined),
+		);
+
+		expect(hasWaitingTime.value).toBe(true);
+		stop();
+	});
+
 	// the backend does not expose the queue max wait time yet (WS-16 / WS-35)
 	it('reports no progress when there is no max wait time', () => {
 		const [{ progress, level }, stop] = withScope(() =>

@@ -45,7 +45,11 @@
                 {{ preview.body }}
             </p>
 
-            <div class="incoming-interaction-preview__waiting">
+            <!-- hidden outright when the channel has no trustworthy epoch (WS-35) -->
+            <div
+                v-if="hasWaitingTime"
+                class="incoming-interaction-preview__waiting"
+            >
                 <div class="incoming-interaction-preview__waiting-row">
                     <span class="typo-body-2">{{ t('ui.notifications.incoming.waitingTime') }}</span>
                     <span class="typo-body-2">{{ formatted }}</span>
@@ -104,7 +108,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const { formatted, progress, level } = useWaitingTime(
+const { hasWaitingTime, formatted, progress, level } = useWaitingTime(
 	() => preview.waitingSince,
 	() => preview.maxWaitSec,
 );
