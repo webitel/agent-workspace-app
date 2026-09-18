@@ -24,6 +24,23 @@ export const visibilityAccess = {
 	},
 };
 
+/**
+ * `cc_agent_session` reply. The SDK's `Agent` constructor iterates `channels`
+ * immediately, so an empty object throws and the workspace falls back to its
+ * no-agent path — which would quietly disable the whole task feed in tests.
+ */
+export const agentSessionPayload = {
+	agent_id: 1,
+	channels: [],
+	status: 'online',
+	on_demand: false,
+};
+
+/** `cc_agent_tasks` reply — the agent's already-open tasks at session start. */
+export const agentTasksPayload = {
+	items: [],
+};
+
 export const helloPayload = {
 	sock_id: 'e2e-sock',
 	server_version: 'e2e',
@@ -100,6 +117,18 @@ export async function mockAppApis(page: Page) {
 	});
 }
 
+/** Per-action reply bodies; everything unmodelled still gets an empty object. */
+function replyFor(action?: string): object {
+	switch (action) {
+		case 'cc_agent_session':
+			return agentSessionPayload;
+		case 'cc_agent_tasks':
+			return agentTasksPayload;
+		default:
+			return {};
+	}
+}
+
 /** Lets a spec push server-initiated frames once the app has connected. */
 export interface MockedSocket {
 	send(event: string, data: unknown): void;
@@ -130,7 +159,7 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 				JSON.stringify({
 					seq_reply: message.seq,
 					status: 'OK',
-					data: {},
+					data: replyFor(message.action),
 				}),
 			);
 		});
