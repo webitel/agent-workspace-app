@@ -23,6 +23,10 @@ export default {
 				decline: 'Rad etish',
 			},
 		},
+		reusable: {
+			cancel: 'Bekor qilish',
+			run: 'Ishga tushirish',
+		},
 	},
 	error: {
 		websocket: {

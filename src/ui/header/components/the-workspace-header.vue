@@ -5,6 +5,7 @@
         :logo-href="startPageHref"
       />
       <wt-dark-mode-switcher @changed-mode="setTheme" />
+      <flow-schemas-button />
       <wt-chip :color="isPhoneReg ? 'success' : 'primary'">
         {{ t('ui.header.sip') }}
       </wt-chip>
@@ -19,6 +20,7 @@ import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
+import FlowSchemasButton from '../../../features/flows/components/flow-schemas-button.vue';
 import { useGlobalHandlersStore } from '../../../features/global-handlers/store/globalHandlers';
 import UserDndSwitcher from './user-dnd-switcher.vue';
 

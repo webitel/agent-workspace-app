@@ -23,6 +23,10 @@ export default {
 				decline: 'Decline',
 			},
 		},
+		reusable: {
+			cancel: 'Cancel',
+			run: 'Run',
+		},
 	},
 	error: {
 		websocket: {

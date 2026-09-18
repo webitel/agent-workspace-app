@@ -23,6 +23,10 @@ export default {
 				decline: 'Бас тарту',
 			},
 		},
+		reusable: {
+			cancel: 'Бас тарту',
+			run: 'Іске қосу',
+		},
 	},
 	error: {
 		websocket: {

@@ -23,6 +23,10 @@ export default {
 				decline: 'Отклонить',
 			},
 		},
+		reusable: {
+			cancel: 'Отменить',
+			run: 'Запустить',
+		},
 	},
 	error: {
 		websocket: {

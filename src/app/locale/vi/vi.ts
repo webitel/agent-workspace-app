@@ -23,6 +23,10 @@ export default {
 				decline: 'Từ chối',
 			},
 		},
+		reusable: {
+			cancel: 'Hủy',
+			run: 'Chạy',
+		},
 	},
 	error: {
 		websocket: {
