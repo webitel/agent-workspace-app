@@ -13,13 +13,14 @@ import {
 /**
  * Incoming call/chat offers.
  *
- * Domain stores (`features/calls`, later `features/chats`) call `notify` /
- * `dismiss`; this module owns everything the operator perceives — the card, the
- * ringtone and the OS notification. It never imports an SDK.
+ * Domain stores (`features/calls`, `features/chats`) call `notify` / `dismiss`;
+ * this module owns everything the operator perceives — the card, the ringtone
+ * and the OS notification. It never imports an SDK.
  *
- * Kept apart from `useNotificationsStore` (generic toasts) on purpose: offers
- * live until the interaction resolves rather than timing out, stack in their own
- * corner, and render a fixed layout from `DES-727`.
+ * Kept apart from toasts (`wt-notifications-bar`, fed by the shared eventBus)
+ * on purpose: offers live until the interaction resolves rather than timing
+ * out, and render a fixed layout from `DES-727`. Both share one corner via
+ * `the-notifications-layer`.
  */
 export const useIncomingInteractionsStore = defineStore(
 	'incomingInteractions',
