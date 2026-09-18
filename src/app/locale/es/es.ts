@@ -23,6 +23,31 @@ export default {
 				decline: 'Rechazar',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Perdidas',
+				},
+				missed: {
+					title: 'Llamadas perdidas',
+					columns: {
+						name: 'Nombre',
+						phoneNumber: 'Número de teléfono',
+						dateTime: 'Fecha y hora',
+						totalDuration: 'Duración total',
+						queue: 'Cola',
+					},
+					search: {
+						tooltip: 'Buscar',
+						placeholder: 'Buscar por nombre o número de teléfono',
+					},
+					actions: {
+						openContact: 'Abrir contacto',
+						call: 'Llamar',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

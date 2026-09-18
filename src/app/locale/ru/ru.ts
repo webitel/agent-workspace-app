@@ -23,6 +23,31 @@ export default {
 				decline: 'Отклонить',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Пропущенные',
+				},
+				missed: {
+					title: 'Пропущенные звонки',
+					columns: {
+						name: 'Имя',
+						phoneNumber: 'Номер телефона',
+						dateTime: 'Дата и время',
+						totalDuration: 'Общая продолжительность',
+						queue: 'Очередь',
+					},
+					search: {
+						tooltip: 'Поиск',
+						placeholder: 'Поиск по имени или номеру телефона',
+					},
+					actions: {
+						openContact: 'Открыть контакт',
+						call: 'Позвонить',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {
