@@ -23,6 +23,31 @@ export default {
 				decline: 'Бас тарту',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Қабылданбаған',
+				},
+				missed: {
+					title: 'Қабылданбаған қоңыраулар',
+					columns: {
+						name: 'Аты',
+						phoneNumber: 'Телефон нөмірі',
+						dateTime: 'Күні мен уақыты',
+						totalDuration: 'Жалпы ұзақтығы',
+						queue: 'Кезек',
+					},
+					search: {
+						tooltip: 'Іздеу',
+						placeholder: 'Аты немесе телефон нөмірі бойынша іздеу',
+					},
+					actions: {
+						openContact: 'Контактіні ашу',
+						call: 'Қоңырау шалу',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

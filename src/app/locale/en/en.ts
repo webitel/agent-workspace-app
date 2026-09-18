@@ -23,6 +23,31 @@ export default {
 				decline: 'Decline',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Missed',
+				},
+				missed: {
+					title: 'Missed calls',
+					columns: {
+						name: 'Name',
+						phoneNumber: 'Phone number',
+						dateTime: 'Date & time',
+						totalDuration: 'Total duration',
+						queue: 'Queue',
+					},
+					search: {
+						tooltip: 'Search',
+						placeholder: 'Search by name or phone number',
+					},
+					actions: {
+						openContact: 'Open contact',
+						call: 'Call',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {
