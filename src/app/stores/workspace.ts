@@ -17,7 +17,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		useChatsStore().initialize();
 		useCallsStore().initialize();
 		useGlobalHandlersStore().initialize();
-		// await useUserStatusStore().initialize();
+		await useUserStatusStore().initialize();
 	}
 
 	return {
