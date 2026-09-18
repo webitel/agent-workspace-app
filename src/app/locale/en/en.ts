@@ -23,6 +23,10 @@ export default {
 				decline: 'Decline',
 			},
 		},
+		numpad: {
+			placeholder: 'Enter phone number',
+			call: 'Call',
+		},
 	},
 	error: {
 		websocket: {

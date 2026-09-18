@@ -41,21 +41,4 @@ describe('task-dock-call-lane', () => {
 		await secondCall.trigger('click');
 		expect(store.expandedCallId).toBeNull();
 	});
-
-	it('keeps numpad always expanded and non-interactive', async () => {
-		const wrapper = mountCallLane();
-		const store = useTaskDockStore();
-		const numpad = wrapper
-			.findAll('.task-dock-item-wrapper')
-			.find((item) => item.text().includes('Numpad'));
-
-		expect(numpad?.classes()).toContain('task-dock-item-wrapper--expanded');
-		expect(numpad?.classes()).not.toContain(
-			'task-dock-item-wrapper--collapsible',
-		);
-
-		await numpad?.trigger('click');
-
-		expect(store.expandedCallId).toBeNull();
-	});
 });

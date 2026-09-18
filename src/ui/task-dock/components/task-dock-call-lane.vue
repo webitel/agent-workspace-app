@@ -1,14 +1,6 @@
 <template>
     <div class="task-dock-call-lane">
         <task-dock-item-wrapper
-            label="Numpad"
-            :expanded="true"
-            :collapsible="false"
-        >
-            Numpad
-        </task-dock-item-wrapper>
-
-        <task-dock-item-wrapper
             v-for="call in calls"
             :key="call.id"
             :label="call.label"
