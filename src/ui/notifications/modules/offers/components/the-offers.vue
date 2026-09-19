@@ -23,7 +23,7 @@
 import { toValue } from 'vue';
 
 import { useOffersStore } from '../store/offers';
-import OfferCard from './offer-card.vue';
+import OfferCard from './offer-card/offer-card.vue';
 
 const store = useOffersStore();
 </script>

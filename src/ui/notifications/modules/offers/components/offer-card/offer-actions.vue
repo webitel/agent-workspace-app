@@ -33,7 +33,7 @@ import { ComponentSize } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { type OfferAction, OfferKind } from '../types/Offer.types';
+import { type OfferAction, OfferKind } from '../../types/Offer.types';
 
 /**
  * Accept and decline. `pending` locks both buttons while the store awaits the

@@ -38,7 +38,7 @@ import { WtAvatar, WtChip } from '@webitel/ui-sdk/components';
 import { ChipColor } from '@webitel/ui-sdk/enums';
 import { useI18n } from 'vue-i18n';
 
-import type { OfferSource } from '../types/Offer.types';
+import type { OfferSource } from '../../types/Offer.types';
 import OfferSourceLine from './offer-source-line.vue';
 
 /**

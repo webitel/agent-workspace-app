@@ -58,7 +58,7 @@ import {
 	type OfferAction,
 	OfferKind,
 	type OfferPreview,
-} from '../types/Offer.types';
+} from '../../types/Offer.types';
 import OfferActions from './offer-actions.vue';
 import OfferIdentity from './offer-identity.vue';
 import OfferKindChip from './offer-kind-chip.vue';

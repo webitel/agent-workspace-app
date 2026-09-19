@@ -32,7 +32,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useWaitingTime } from '../composables/useWaitingTime';
+import { useWaitingTime } from '../../composables/useWaitingTime';
 
 /** The design draws the queue-wait bar as four discrete segments, not a fill. */
 const SEGMENTS = [

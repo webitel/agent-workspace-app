@@ -22,7 +22,7 @@
 import { WtIcon } from '@webitel/ui-sdk/components';
 import { ComponentSize } from '@webitel/ui-sdk/enums';
 
-import type { OfferSource } from '../types/Offer.types';
+import type { OfferSource } from '../../types/Offer.types';
 
 /**
  * `${label}: ${value}` — the chat's gateway and the call's queue are the same

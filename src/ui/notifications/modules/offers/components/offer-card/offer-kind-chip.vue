@@ -19,7 +19,7 @@ import { WtChip, WtIcon } from '@webitel/ui-sdk/components';
 import { ChipColor, ComponentSize } from '@webitel/ui-sdk/enums';
 import { useI18n } from 'vue-i18n';
 
-import type { OfferKind } from '../types/Offer.types';
+import type { OfferKind } from '../../types/Offer.types';
 
 /** The card's header: what is being offered, per DES-727. */
 defineProps<{
