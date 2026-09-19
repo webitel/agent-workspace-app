@@ -132,20 +132,38 @@ function replyFor(action?: string): object {
 	}
 }
 
-/** Lets a spec push server-initiated frames once the app has connected. */
+/**
+ * Lets a spec push server-initiated frames once the app has connected.
+ *
+ * `channel` picks which socket the frame goes to: the app opens two, the
+ * webitel-sdk one at `/ws` and the chat-web-sdk one at `/im/ws`.
+ */
 export interface MockedSocket {
-	send(event: string, data: unknown): void;
+	send(event: string, data: unknown, channel?: MockedSocketChannel): void;
 }
 
+export type MockedSocketChannel = 'main' | 'chat';
+
 export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
-	let socket: Parameters<Parameters<Page['routeWebSocket']>[1]>[0] | null =
-		null;
+	type RoutedSocket = Parameters<Parameters<Page['routeWebSocket']>[1]>[0];
+
+	/*
+	 * Keyed by channel, not a single slot. Both sockets match the same route, so
+	 * a single slot silently pointed at whichever connected last — the chat one.
+	 * Every call frame a spec pushed after that went to the wrong SDK and was
+	 * dropped without a trace.
+	 */
+	const sockets: Partial<Record<MockedSocketChannel, RoutedSocket>> = {};
 	// frames a spec pushed before the app finished connecting
-	const queued: string[] = [];
+	const queued: Partial<Record<MockedSocketChannel, string[]>> = {};
+
+	const channelOf = (url: string): MockedSocketChannel =>
+		/\/im\/ws\b/.test(url) ? 'chat' : 'main';
 
 	// Do not intercept Vite HMR (`ws://localhost:...`).
 	await page.routeWebSocket(/wss:\/\/.*\/(ws|im\/ws)/, (ws) => {
-		socket = ws;
+		const channel = channelOf(ws.url());
+		sockets[channel] = ws;
 		ws.onMessage((payload) => {
 			const raw = typeof payload === 'string' ? payload : payload.toString();
 			let message: {
@@ -174,19 +192,20 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 			}),
 		);
 
-		for (const frame of queued.splice(0)) {
+		for (const frame of queued[channel]?.splice(0) ?? []) {
 			ws.send(frame);
 		}
 	});
 
 	return {
-		send(event, data) {
+		send(event, data, channel = 'main') {
 			const frame = JSON.stringify({
 				event,
 				data,
 			});
-			if (socket) socket.send(frame);
-			else queued.push(frame);
+			const target = sockets[channel];
+			if (target) target.send(frame);
+			else (queued[channel] ??= []).push(frame);
 		},
 	};
 }
@@ -234,6 +253,27 @@ export function callRingingFrame({
 				params: {},
 				payload: {},
 				hide_number: hideNumber,
+			},
+		},
+	};
+}
+
+/**
+ * A `hangup` frame for a call the SDK already knows about. The SDK drops the
+ * call from its store, which is how an offer card goes away — the app never
+ * removes one itself.
+ */
+export function callHangupFrame({ id = 'e2e-call-1' }: { id?: string } = {}) {
+	return {
+		call: {
+			id,
+			app_id: 'e2e',
+			cc_app_id: '',
+			event: 'hangup',
+			timestamp: Date.now(),
+			data: {
+				cause: 'NORMAL_CLEARING',
+				sip: 200,
 			},
 		},
 	};

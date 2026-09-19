@@ -1,4 +1,4 @@
-import { callRingingFrame } from './fixtures/mocks';
+import { callHangupFrame, callRingingFrame } from './fixtures/mocks';
 import { expect, test } from './fixtures/test';
 
 /**
@@ -28,7 +28,7 @@ test.describe('incoming call notification', () => {
 		});
 	});
 
-	test('shows an offer for a ringing call and clears it on accept', async ({
+	test('shows an offer for a ringing call and clears it when the call ends', async ({
 		page,
 		socket,
 	}) => {
@@ -51,11 +51,23 @@ test.describe('incoming call notification', () => {
 		// waiting time counts up from the call's start
 		await expect(card.locator('.offer-card__waiting')).toBeVisible();
 
+		/*
+		 * Accepting must not remove the card on its own. The offer is derived
+		 * from the SDK's call list, and `answer()` can return without reaching
+		 * the SDK at all — a denied microphone does exactly that. Dismissing on
+		 * click left the agent with a call that was still ringing and no longer
+		 * visible.
+		 */
 		await card
 			.getByRole('button', {
 				name: 'Accept',
 			})
 			.click();
+
+		await expect(card).toBeVisible();
+
+		// only the call leaving the SDK's list takes the card away
+		socket.send('call', callHangupFrame());
 
 		await expect(card).toHaveCount(0);
 	});
