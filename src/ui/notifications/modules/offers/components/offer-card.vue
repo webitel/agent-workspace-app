@@ -113,6 +113,8 @@
                 :size="ComponentSize.SM"
                 color="success"
                 :icon="acceptIcon"
+                :loading="pending === 'accept'"
+                :disabled="!!pending"
                 :aria-label="t('ui.notifications.offer.accept')"
                 @click="emit('accept')"
             />
@@ -121,6 +123,8 @@
                 :size="ComponentSize.SM"
                 color="error"
                 :icon="declineIcon"
+                :loading="pending === 'decline'"
+                :disabled="!!pending"
                 :aria-label="t('ui.notifications.offer.decline')"
                 @click="emit('decline')"
             />
@@ -143,7 +147,11 @@ import { ChipColor, ComponentSize } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useWaitingTime } from '../composables/useWaitingTime';
-import { OfferKind, type OfferPreview } from '../types/Offer.types';
+import {
+	type OfferAction,
+	OfferKind,
+	type OfferPreview,
+} from '../types/Offer.types';
 
 /** The design draws the queue-wait bar as four discrete segments, not a fill. */
 const WAITING_SEGMENTS = [
@@ -153,9 +161,15 @@ const WAITING_SEGMENTS = [
 	4,
 ];
 
-const { preview, clickable = false } = defineProps<{
+const {
+	preview,
+	clickable = false,
+	pending,
+} = defineProps<{
 	preview: OfferPreview;
 	clickable?: boolean;
+	/** The action currently in flight, if any — both buttons lock while it runs. */
+	pending?: OfferAction;
 }>();
 
 const emit = defineEmits<{

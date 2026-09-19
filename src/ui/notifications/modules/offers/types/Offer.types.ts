@@ -14,6 +14,9 @@ export const OfferKind = {
 
 export type OfferKind = (typeof OfferKind)[keyof typeof OfferKind];
 
+/** What the agent can do with an offer; also the in-flight marker's value. */
+export type OfferAction = 'accept' | 'decline';
+
 /** A secondary line rendered as `${label}: ${value}` — `Queue:` / `Channel:`. */
 export interface OfferSource {
 	label: string;
@@ -62,8 +65,12 @@ export interface Offer {
 	 * the card updates in place. Callers must not spread it.
 	 */
 	preview: MaybeRefOrGetter<OfferPreview>;
-	onAccept: () => void;
-	onDecline: () => void;
+	/**
+	 * Awaited by the store, which keeps the card up until the producer settles
+	 * and leaves it in place when the producer rejects.
+	 */
+	onAccept: () => void | Promise<unknown>;
+	onDecline: () => void | Promise<unknown>;
 	/** Chats open the conversation when the card body is clicked (AC_06.01.04). */
 	onBodyClick?: () => void;
 }
