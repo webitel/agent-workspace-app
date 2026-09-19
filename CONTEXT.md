@@ -18,6 +18,21 @@ and should not be carried over wholesale.
   rather than approximated.
 - [ADR-0002](docs/adr/0002-offer-sound-and-os-notifications.md) — ringtone vs
   chirp, the cross-tab sound lock, and the notification-only service worker.
+- [ADR-0003](docs/adr/0003-agent-status-over-the-websocket.md) — why status
+  changes go over the websocket session rather than through the SDK's REST
+  status component, and which SDK pieces are reused anyway.
+
+## Language
+
+**Agent status** — an agent's call-center state: `online`, `pause`, `offline`,
+`break_out`. It lives on the websocket agent session and decides whether work is
+distributed to them.
+
+**User status** — a user's presence: `sip`, `web`, `dnd`, `busy`. It lives
+behind REST `/presence` and backs the header's DnD switcher.
+
+The two are unrelated and both are reachable from the header, one control beside
+the other. An agent can be Online and DnD at once.
 
 ## Conventions
 
