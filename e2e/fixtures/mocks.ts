@@ -140,6 +140,11 @@ function replyFor(action?: string): object {
  */
 export interface MockedSocket {
 	send(event: string, data: unknown, channel?: MockedSocketChannel): void;
+	/**
+	 * The `data` of every request frame the app sent for one action, oldest
+	 * first — for asserting what went on the wire, not just what the UI did.
+	 */
+	sent(action: string): Array<Record<string, unknown>>;
 }
 
 export type MockedSocketChannel = 'main' | 'chat';
@@ -156,6 +161,10 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 	const sockets: Partial<Record<MockedSocketChannel, RoutedSocket>> = {};
 	// frames a spec pushed before the app finished connecting
 	const queued: Partial<Record<MockedSocketChannel, string[]>> = {};
+	const requests: Array<{
+		action?: string;
+		data?: Record<string, unknown>;
+	}> = [];
 
 	const channelOf = (url: string): MockedSocketChannel =>
 		/\/im\/ws\b/.test(url) ? 'chat' : 'main';
@@ -169,12 +178,14 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 			let message: {
 				seq?: number;
 				action?: string;
+				data?: Record<string, unknown>;
 			};
 			try {
 				message = JSON.parse(raw);
 			} catch {
 				return;
 			}
+			requests.push(message);
 			if (!message.seq) return;
 			ws.send(
 				JSON.stringify({
@@ -210,6 +221,11 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 			}
 			queued[channel] ??= [];
 			queued[channel].push(frame);
+		},
+		sent(action) {
+			return requests
+				.filter((request) => request.action === action)
+				.map((request) => request.data ?? {});
 		},
 	};
 }
