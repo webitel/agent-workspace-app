@@ -49,7 +49,7 @@ test.describe('incoming call notification', () => {
 		await expect(card).toContainText('Support');
 
 		// waiting time counts up from the call's start
-		await expect(card.locator('.offer-card__waiting')).toBeVisible();
+		await expect(card.locator('.offer-waiting-time')).toBeVisible();
 
 		/*
 		 * Accepting must not remove the card on its own. The offer is derived
