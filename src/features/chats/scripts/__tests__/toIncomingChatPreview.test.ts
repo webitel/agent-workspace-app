@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Task } from 'webitel-sdk';
 
-import { InteractionKind } from '../../../../ui/notifications/types/IncomingInteraction.types';
+import { OfferKind } from '../../../../ui/notifications/modules/offers/types/Offer.types';
 import { toIncomingChatPreview } from '../toIncomingChatPreview';
 
 const buildTask = (overrides: Partial<Task> = {}): Task =>
@@ -20,7 +20,7 @@ const buildTask = (overrides: Partial<Task> = {}): Task =>
 describe('toIncomingChatPreview', () => {
 	it('maps an identified contact with the last message', () => {
 		expect(toIncomingChatPreview(buildTask())).toEqual({
-			kind: InteractionKind.Chat,
+			kind: OfferKind.Chat,
 			name: 'John Smith',
 			identifier: '@john',
 			source: undefined,

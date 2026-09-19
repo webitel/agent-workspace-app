@@ -1,9 +1,9 @@
 import type { Task } from 'webitel-sdk';
 
 import {
-	type IncomingInteractionPreview,
-	InteractionKind,
-} from '../../../ui/notifications/types/IncomingInteraction.types';
+	OfferKind,
+	type OfferPreview,
+} from '../../../ui/notifications/modules/offers/types/Offer.types';
 
 /**
  * Maps an SDK chat `Task` onto the channel-neutral preview contract, so the
@@ -19,9 +19,9 @@ function resolveName(task: Task): string | undefined {
 	return task.displayName || undefined;
 }
 
-export function toIncomingChatPreview(task: Task): IncomingInteractionPreview {
+export function toIncomingChatPreview(task: Task): OfferPreview {
 	return {
-		kind: InteractionKind.Chat,
+		kind: OfferKind.Chat,
 		name: resolveName(task),
 		// the client's username, from `communication.destination`
 		identifier: task.displayNumber || undefined,

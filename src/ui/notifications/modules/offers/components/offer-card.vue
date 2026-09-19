@@ -1,32 +1,32 @@
 <template>
     <article
-        class="incoming-interaction-preview"
-        :class="`incoming-interaction-preview--${preview.kind}`"
+        class="offer-card"
+        :class="`offer-card--${preview.kind}`"
     >
         <div
-            class="incoming-interaction-preview__body"
-            :class="{ 'incoming-interaction-preview__body--clickable': clickable }"
+            class="offer-card__body"
+            :class="{ 'offer-card__body--clickable': clickable }"
             @click="onBodyClick"
         >
             <wt-chip
-                class="incoming-interaction-preview__kind"
+                class="offer-card__kind"
                 :color="ChipColor.INFO"
             >
                 <wt-icon
                     icon="bell"
                     :size="ComponentSize.SM"
                 />
-                {{ t(`ui.notifications.incoming.title.${preview.kind}`) }}
+                {{ t(`ui.notifications.offer.title.${preview.kind}`) }}
             </wt-chip>
 
-            <div class="incoming-interaction-preview__identity">
+            <div class="offer-card__identity">
                 <wt-avatar
                     :username="preview.name"
                     size="lg"
                 />
-                <div class="incoming-interaction-preview__name-row">
-                    <p class="incoming-interaction-preview__name typo-body-1-bold">
-                        {{ preview.name || t('ui.notifications.incoming.unknownContact') }}
+                <div class="offer-card__name-row">
+                    <p class="offer-card__name typo-body-1-bold">
+                        {{ preview.name || t('ui.notifications.offer.unknownContact') }}
                     </p>
                     <!-- identification can match several contacts; this is the remainder -->
                     <wt-chip
@@ -38,20 +38,20 @@
                 </div>
                 <p
                     v-if="preview.identifier"
-                    class="incoming-interaction-preview__identifier typo-body-1"
+                    class="offer-card__identifier typo-body-1"
                 >
                     {{ preview.identifier }}
                 </p>
                 <p
                     v-if="channelSource"
-                    class="incoming-interaction-preview__channel typo-caption"
+                    class="offer-card__channel typo-caption"
                     :title="channelSource.value"
                 >
                     <wt-icon
                         icon="chat"
                         :size="ComponentSize.XS"
                     />
-                    <span class="incoming-interaction-preview__channel-label">
+                    <span class="offer-card__channel-label">
                         {{ channelSource.label }}:
                     </span>
                     {{ channelSource.value }}
@@ -60,7 +60,7 @@
 
             <p
                 v-if="preview.body"
-                class="incoming-interaction-preview__message typo-body-1"
+                class="offer-card__message typo-body-1"
             >
                 {{ preview.body }}
             </p>
@@ -68,23 +68,23 @@
             <!-- hidden outright when the channel has no trustworthy epoch (WS-35) -->
             <div
                 v-if="hasWaitingTime"
-                class="incoming-interaction-preview__waiting"
+                class="offer-card__waiting"
             >
-                <div class="incoming-interaction-preview__waiting-row">
-                    <span class="typo-caption-bold">{{ t('ui.notifications.incoming.waitingTime') }}</span>
+                <div class="offer-card__waiting-row">
+                    <span class="typo-caption-bold">{{ t('ui.notifications.offer.waitingTime') }}</span>
                     <span class="typo-caption">{{ formatted }}</span>
                 </div>
                 <!-- hidden until the backend exposes the queue Max wait time (WS-16 / WS-35) -->
                 <div
                     v-if="progress !== undefined"
-                    class="incoming-interaction-preview__waiting-track"
+                    class="offer-card__waiting-track"
                 >
                     <span
                         v-for="segment in WAITING_SEGMENTS"
                         :key="segment"
-                        class="incoming-interaction-preview__waiting-segment"
+                        class="offer-card__waiting-segment"
                         :class="segment <= filledSegments
-                            ? `incoming-interaction-preview__waiting-segment--${level}`
+                            ? `offer-card__waiting-segment--${level}`
                             : undefined"
                     />
                 </div>
@@ -93,10 +93,10 @@
             <template v-if="queueSource">
                 <wt-divider />
                 <p
-                    class="incoming-interaction-preview__queue typo-caption"
+                    class="offer-card__queue typo-caption"
                     :title="queueSource.value"
                 >
-                    <span class="incoming-interaction-preview__queue-label">
+                    <span class="offer-card__queue-label">
                         {{ queueSource.label }}:
                     </span>
                     {{ queueSource.value }}
@@ -106,14 +106,14 @@
 
         <wt-divider />
 
-        <div class="incoming-interaction-preview__actions">
+        <div class="offer-card__actions">
             <!-- icon-only per the design, so the action needs an accessible name -->
             <wt-button
                 wide
                 :size="ComponentSize.SM"
                 color="success"
                 :icon="acceptIcon"
-                :aria-label="t('ui.notifications.incoming.accept')"
+                :aria-label="t('ui.notifications.offer.accept')"
                 @click="emit('accept')"
             />
             <wt-button
@@ -121,7 +121,7 @@
                 :size="ComponentSize.SM"
                 color="error"
                 :icon="declineIcon"
-                :aria-label="t('ui.notifications.incoming.decline')"
+                :aria-label="t('ui.notifications.offer.decline')"
                 @click="emit('decline')"
             />
         </div>
@@ -142,12 +142,8 @@ import {
 import { ChipColor, ComponentSize } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-
-import {
-	type IncomingInteractionPreview,
-	InteractionKind,
-} from '../../types/IncomingInteraction.types';
 import { useWaitingTime } from '../composables/useWaitingTime';
+import { OfferKind, type OfferPreview } from '../types/Offer.types';
 
 /** The design draws the queue-wait bar as four discrete segments, not a fill. */
 const WAITING_SEGMENTS = [
@@ -158,7 +154,7 @@ const WAITING_SEGMENTS = [
 ];
 
 const { preview, clickable = false } = defineProps<{
-	preview: IncomingInteractionPreview;
+	preview: OfferPreview;
 	clickable?: boolean;
 }>();
 
@@ -181,7 +177,7 @@ const filledSegments = computed(() =>
 		: Math.ceil((progress.value / 100) * WAITING_SEGMENTS.length),
 );
 
-const isChat = computed(() => preview.kind === InteractionKind.Chat);
+const isChat = computed(() => preview.kind === OfferKind.Chat);
 
 /** Chats name their gateway inside the identity block, beside the username. */
 const channelSource = computed(() =>
@@ -200,7 +196,7 @@ const onBodyClick = () => {
 </script>
 
 <style scoped>
-.incoming-interaction-preview {
+.offer-card {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
@@ -212,7 +208,7 @@ const onBodyClick = () => {
     box-shadow: var(--elevation-3, 0 0 11px rgba(0, 0, 0, 0.15));
 }
 
-.incoming-interaction-preview__body {
+.offer-card__body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
@@ -220,17 +216,17 @@ const onBodyClick = () => {
     width: 100%;
 }
 
-.incoming-interaction-preview__body--clickable {
+.offer-card__body--clickable {
     cursor: pointer;
 }
 
-.incoming-interaction-preview__kind {
+.offer-card__kind {
     display: flex;
     gap: var(--spacing-xs);
     align-items: center;
 }
 
-.incoming-interaction-preview__identity {
+.offer-card__identity {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2xs, 4px);
@@ -238,7 +234,7 @@ const onBodyClick = () => {
     width: 100%;
 }
 
-.incoming-interaction-preview__name-row {
+.offer-card__name-row {
     display: flex;
     gap: var(--spacing-xs);
     align-items: center;
@@ -246,32 +242,32 @@ const onBodyClick = () => {
     max-width: 100%;
 }
 
-.incoming-interaction-preview__name,
-.incoming-interaction-preview__identifier,
-.incoming-interaction-preview__channel,
-.incoming-interaction-preview__queue {
+.offer-card__name,
+.offer-card__identifier,
+.offer-card__channel,
+.offer-card__queue {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.incoming-interaction-preview__channel {
+.offer-card__channel {
     display: flex;
     gap: var(--spacing-2xs, 4px);
     align-items: center;
 }
 
-.incoming-interaction-preview__channel-label,
-.incoming-interaction-preview__queue-label {
+.offer-card__channel-label,
+.offer-card__queue-label {
     font-weight: 500;
 }
 
-.incoming-interaction-preview__queue {
+.offer-card__queue {
     width: 100%;
 }
 
 /* the client's last message, styled as an incoming bubble */
-.incoming-interaction-preview__message {
+.offer-card__message {
     display: -webkit-box;
     overflow: hidden;
     width: 100%;
@@ -282,52 +278,52 @@ const onBodyClick = () => {
     -webkit-line-clamp: 2;
 }
 
-.incoming-interaction-preview__waiting {
+.offer-card__waiting {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2xs, 4px);
     width: 100%;
 }
 
-.incoming-interaction-preview__waiting-row {
+.offer-card__waiting-row {
     display: flex;
     justify-content: space-between;
     padding: 0 var(--spacing-2xs, 4px);
 }
 
-.incoming-interaction-preview__waiting-track {
+.offer-card__waiting-track {
     display: flex;
     gap: 0;
     width: 100%;
     height: 2px;
 }
 
-.incoming-interaction-preview__waiting-segment {
+.offer-card__waiting-segment {
     flex: 1 0 0;
     min-width: 0;
     background-color: var(--secondary-color, #d1d5e0);
     transition: background-color 0.3s ease;
 }
 
-.incoming-interaction-preview__waiting-segment--low {
+.offer-card__waiting-segment--low {
     background-color: var(--success-color);
 }
 
-.incoming-interaction-preview__waiting-segment--medium {
+.offer-card__waiting-segment--medium {
     background-color: var(--warning-color);
 }
 
-.incoming-interaction-preview__waiting-segment--high {
+.offer-card__waiting-segment--high {
     background-color: var(--error-color);
 }
 
-.incoming-interaction-preview__actions {
+.offer-card__actions {
     display: flex;
     gap: var(--spacing-sm);
     width: 100%;
 }
 
-.incoming-interaction-preview__actions .wt-button {
+.offer-card__actions .wt-button {
     flex: 1 0 0;
 }
 </style>

@@ -4,8 +4,8 @@ import { computed, watch } from 'vue';
 import { type Call, DeviceNotAllowPermissionError } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import i18n from '../../../app/locale/i18n';
-import { useIncomingInteractionsStore } from '../../../ui/notifications/incoming/store/incomingInteractions';
-import { InteractionKind } from '../../../ui/notifications/types/IncomingInteraction.types';
+import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
+import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { toIncomingCallPreview } from '../scripts/toIncomingCallPreview';
@@ -21,7 +21,7 @@ import { toIncomingCallPreview } from '../scripts/toIncomingCallPreview';
  */
 export const useCallsStore = defineStore('calls', () => {
 	const { getClient, calls } = useWebSocketClient();
-	const incomingInteractions = useIncomingInteractionsStore();
+	const offersStore = useOffersStore();
 
 	const callList = computed<Call[]>(() => calls.value ?? []);
 
@@ -75,13 +75,13 @@ export const useCallsStore = defineStore('calls', () => {
 		watch(
 			incomingOffers,
 			(offers) => {
-				incomingInteractions.retainOnly(
-					InteractionKind.Call,
+				offersStore.retainOnly(
+					OfferKind.Call,
 					offers.map((call) => call.id),
 				);
 
 				for (const call of offers) {
-					incomingInteractions.notify({
+					offersStore.notify({
 						id: call.id,
 						// a getter, so the card tracks the live call instead of a snapshot
 						preview: () => toIncomingCallPreview(call),
@@ -101,7 +101,7 @@ export const useCallsStore = defineStore('calls', () => {
 		// the SDK needs a subscriber before it will populate its call store
 		client.subscribeCall(() => {}, null);
 
-		incomingInteractions.initialize();
+		offersStore.initialize();
 		subscribeToOffers();
 	}
 

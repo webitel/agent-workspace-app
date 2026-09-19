@@ -16,7 +16,7 @@ const tasks = ref<
 	}[]
 >([]);
 
-const incomingInteractions = {
+const offers = {
 	initialize: vi.fn(),
 	// biome-ignore lint/suspicious/noExplicitAny: test double for the store action
 	notify: vi.fn() as any,
@@ -24,12 +24,9 @@ const incomingInteractions = {
 	retainOnly: vi.fn(),
 };
 
-vi.mock(
-	'../../../../ui/notifications/incoming/store/incomingInteractions',
-	() => ({
-		useIncomingInteractionsStore: () => incomingInteractions,
-	}),
-);
+vi.mock('../../../../ui/notifications/modules/offers/store/offers', () => ({
+	useOffersStore: () => offers,
+}));
 
 vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
@@ -265,8 +262,8 @@ describe('chats store', () => {
 			];
 			await nextTick();
 
-			expect(incomingInteractions.notify).toHaveBeenCalledTimes(1);
-			expect(incomingInteractions.notify.mock.calls[0][0].id).toBe('1');
+			expect(offers.notify).toHaveBeenCalledTimes(1);
+			expect(offers.notify.mock.calls[0][0].id).toBe('1');
 		});
 
 		/**
@@ -285,10 +282,7 @@ describe('chats store', () => {
 			tasks.value[0].bridgedAt = 2;
 			await nextTick();
 
-			expect(incomingInteractions.retainOnly).toHaveBeenLastCalledWith(
-				'chat',
-				[],
-			);
+			expect(offers.retainOnly).toHaveBeenLastCalledWith('chat', []);
 		});
 
 		it('accepts the chat and opens it', async () => {
@@ -301,7 +295,7 @@ describe('chats store', () => {
 			];
 			await nextTick();
 
-			await incomingInteractions.notify.mock.calls[0][0].onAccept();
+			await offers.notify.mock.calls[0][0].onAccept();
 
 			expect(offer.accept).toHaveBeenCalledTimes(1);
 			expect(store.isOpen('thread-1')).toBe(true);
@@ -317,7 +311,7 @@ describe('chats store', () => {
 			];
 			await nextTick();
 
-			await incomingInteractions.notify.mock.calls[0][0].onDecline();
+			await offers.notify.mock.calls[0][0].onDecline();
 
 			expect(offer.decline).toHaveBeenCalledTimes(1);
 			expect(store.isOpen('thread-1')).toBe(false);
@@ -334,7 +328,7 @@ describe('chats store', () => {
 			];
 			await nextTick();
 
-			incomingInteractions.notify.mock.calls[0][0].onBodyClick();
+			offers.notify.mock.calls[0][0].onBodyClick();
 
 			expect(offer.accept).not.toHaveBeenCalled();
 			expect(store.isOpen('thread-1')).toBe(true);
@@ -349,9 +343,7 @@ describe('chats store', () => {
 			];
 			await nextTick();
 
-			expect(
-				incomingInteractions.notify.mock.calls[0][0].onBodyClick,
-			).toBeUndefined();
+			expect(offers.notify.mock.calls[0][0].onBodyClick).toBeUndefined();
 		});
 	});
 

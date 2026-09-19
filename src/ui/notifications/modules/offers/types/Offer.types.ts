@@ -7,22 +7,21 @@ import type { MaybeRefOrGetter } from 'vue';
  * component shared between WS-32 (call offer) and WS-19 (chat offer).
  */
 
-export const InteractionKind = {
+export const OfferKind = {
 	Call: 'call',
 	Chat: 'chat',
 } as const;
 
-export type InteractionKind =
-	(typeof InteractionKind)[keyof typeof InteractionKind];
+export type OfferKind = (typeof OfferKind)[keyof typeof OfferKind];
 
 /** A secondary line rendered as `${label}: ${value}` — `Queue:` / `Channel:`. */
-export interface InteractionSource {
+export interface OfferSource {
 	label: string;
 	value: string;
 }
 
-export interface IncomingInteractionPreview {
-	kind: InteractionKind;
+export interface OfferPreview {
+	kind: OfferKind;
 	/** Contact/member/schema name. Undefined renders as "Unknown contact" + N/A avatar. */
 	name?: string;
 	/**
@@ -37,7 +36,7 @@ export interface IncomingInteractionPreview {
 	/** Masked phone number (calls) or username (chats). */
 	identifier?: string;
 	/** Queue name (calls) or gateway name (chats). */
-	source?: InteractionSource;
+	source?: OfferSource;
 	/** Last customer message — chats only. */
 	body?: string;
 	/**
@@ -55,14 +54,14 @@ export interface IncomingInteractionPreview {
 	maxWaitSec?: number;
 }
 
-export interface IncomingInteraction {
+export interface Offer {
 	/** Call id / chat task id. Also the OS notification tag. */
 	id: string;
 	/**
 	 * Kept as a ref, never a snapshot: the preview tracks the live SDK entity so
 	 * the card updates in place. Callers must not spread it.
 	 */
-	preview: MaybeRefOrGetter<IncomingInteractionPreview>;
+	preview: MaybeRefOrGetter<OfferPreview>;
 	onAccept: () => void;
 	onDecline: () => void;
 	/** Chats open the conversation when the card body is clicked (AC_06.01.04). */

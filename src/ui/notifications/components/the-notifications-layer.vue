@@ -2,7 +2,7 @@
     <Teleport to="body">
         <div class="the-notifications-layer">
             <!-- most urgent first: an offer has a deadline, a toast does not -->
-            <the-incoming-interactions />
+            <the-offers />
             <wt-notifications-bar />
         </div>
     </Teleport>
@@ -14,7 +14,7 @@
 >
 import { WtNotificationsBar } from '@webitel/ui-sdk/components';
 
-import TheIncomingInteractions from '../incoming/components/the-incoming-interactions.vue';
+import TheOffers from '../modules/offers/components/the-offers.vue';
 </script>
 
 <style scoped>
