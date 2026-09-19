@@ -44,7 +44,7 @@ const buildPreview = (overrides: Partial<OfferPreview> = {}): OfferPreview => ({
 	...overrides,
 });
 
-const buildInteraction = (id = 'call-1') => ({
+const buildOffer = (id = 'call-1') => ({
 	id,
 	preview: buildPreview(),
 	onAccept: vi.fn(),
@@ -68,7 +68,7 @@ describe('useOffersStore', () => {
 	it('adds an offer and starts the ringtone', () => {
 		const store = useOffersStore();
 
-		store.notify(buildInteraction());
+		store.notify(buildOffer());
 
 		expect(store.offers).toHaveLength(1);
 		expect(store.hasOffers).toBe(true);
@@ -79,8 +79,8 @@ describe('useOffersStore', () => {
 	it('ignores a repeat offer for the same interaction', () => {
 		const store = useOffersStore();
 
-		store.notify(buildInteraction());
-		store.notify(buildInteraction());
+		store.notify(buildOffer());
+		store.notify(buildOffer());
 
 		expect(store.offers).toHaveLength(1);
 		expect(osNotifications.show).toHaveBeenCalledTimes(1);
@@ -89,8 +89,8 @@ describe('useOffersStore', () => {
 	it('stacks several offers but keeps a single ring', () => {
 		const store = useOffersStore();
 
-		store.notify(buildInteraction('call-1'));
-		store.notify(buildInteraction('call-2'));
+		store.notify(buildOffer('call-1'));
+		store.notify(buildOffer('call-2'));
 
 		expect(store.offers).toHaveLength(2);
 		// start() is idempotent in the ringtone itself; the point is one loop
@@ -100,8 +100,8 @@ describe('useOffersStore', () => {
 	it('keeps ringing while any offer remains, stops on the last', () => {
 		const store = useOffersStore();
 
-		store.notify(buildInteraction('call-1'));
-		store.notify(buildInteraction('call-2'));
+		store.notify(buildOffer('call-1'));
+		store.notify(buildOffer('call-2'));
 
 		store.dismiss('call-1');
 		expect(ringtone.stop).not.toHaveBeenCalled();
@@ -113,52 +113,123 @@ describe('useOffersStore', () => {
 	it('closes the OS notification when an offer goes away', () => {
 		const store = useOffersStore();
 
-		store.notify(buildInteraction('call-1'));
+		store.notify(buildOffer('call-1'));
 		store.dismiss('call-1');
 
 		expect(osNotifications.close).toHaveBeenCalledWith('call-1');
 	});
 
-	it('runs the right handler when one of several offers is accepted', () => {
+	it('runs the right handler when one of several offers is accepted', async () => {
 		const store = useOffersStore();
-		const first = buildInteraction('call-1');
-		const second = buildInteraction('call-2');
+		const first = buildOffer('call-1');
+		const second = buildOffer('call-2');
 
 		store.notify(first);
 		store.notify(second);
-		store.accept('call-2');
+		await store.accept('call-2');
 
 		expect(second.onAccept).toHaveBeenCalledTimes(1);
 		expect(first.onAccept).not.toHaveBeenCalled();
+	});
+
+	it('declines through the matching handler', async () => {
+		const store = useOffersStore();
+		const offer = buildOffer();
+
+		store.notify(offer);
+		await store.decline('call-1');
+
+		expect(offer.onDecline).toHaveBeenCalledTimes(1);
+	});
+
+	/**
+	 * Offers are derived: the producer's feed drops the interaction and
+	 * `retainOnly` removes the card. Dismissing here would hide the failure
+	 * path, where the call is still ringing.
+	 */
+	it('leaves the card to the producer instead of dismissing it', async () => {
+		const store = useOffersStore();
+
+		store.notify(buildOffer());
+		await store.accept('call-1');
+
 		expect(store.offers).toHaveLength(1);
-		expect(store.offers[0].id).toBe('call-1');
+		expect(ringtone.stop).not.toHaveBeenCalled();
+		expect(osNotifications.close).not.toHaveBeenCalled();
 	});
 
-	it('declines through the matching handler', () => {
+	it('marks the pressed action as pending until the handler settles', async () => {
 		const store = useOffersStore();
-		const interaction = buildInteraction();
+		let settle: () => void = () => {};
+		const offer = {
+			...buildOffer(),
+			onAccept: vi.fn(
+				() =>
+					new Promise<void>((resolve) => {
+						settle = resolve;
+					}),
+			),
+		};
 
-		store.notify(interaction);
-		store.decline('call-1');
+		store.notify(offer);
+		const accepted = store.accept('call-1');
 
-		expect(interaction.onDecline).toHaveBeenCalledTimes(1);
-		expect(store.offers).toHaveLength(0);
+		expect(store.pendingAction('call-1')).toBe('accept');
+
+		settle();
+		await accepted;
+
+		expect(store.pendingAction('call-1')).toBeUndefined();
 	});
 
-	it('cannot accept the same offer twice', () => {
+	it('cannot accept the same offer twice while the first is in flight', async () => {
 		const store = useOffersStore();
-		const interaction = buildInteraction();
+		let settle: () => void = () => {};
+		const offer = {
+			...buildOffer(),
+			onAccept: vi.fn(
+				() =>
+					new Promise<void>((resolve) => {
+						settle = resolve;
+					}),
+			),
+		};
 
-		store.notify(interaction);
-		store.accept('call-1');
-		store.accept('call-1');
+		store.notify(offer);
+		const accepted = store.accept('call-1');
+		await store.accept('call-1');
+		await store.decline('call-1');
 
-		expect(interaction.onAccept).toHaveBeenCalledTimes(1);
+		expect(offer.onAccept).toHaveBeenCalledTimes(1);
+		expect(offer.onDecline).not.toHaveBeenCalled();
+
+		settle();
+		await accepted;
+	});
+
+	it('keeps the offer and clears the marker when the handler rejects', async () => {
+		const consoleError = vi
+			.spyOn(console, 'error')
+			.mockImplementation(() => {});
+		const store = useOffersStore();
+		const offer = {
+			...buildOffer(),
+			onAccept: vi.fn(() => Promise.reject(new Error('mic denied'))),
+		};
+
+		store.notify(offer);
+		await store.accept('call-1');
+
+		expect(store.offers).toHaveLength(1);
+		expect(store.pendingAction('call-1')).toBeUndefined();
+		expect(consoleError).toHaveBeenCalled();
+
+		consoleError.mockRestore();
 	});
 
 	describe('per-channel sound', () => {
 		const buildChatInteraction = (id = 'chat-1') => ({
-			...buildInteraction(id),
+			...buildOffer(id),
 			preview: buildPreview({
 				kind: OfferKind.Chat,
 			}),
@@ -167,7 +238,7 @@ describe('useOffersStore', () => {
 		it('rings for a call offer and does not chirp', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 
 			expect(ringtone.start).toHaveBeenCalledTimes(1);
 			expect(chirp.play).not.toHaveBeenCalled();
@@ -186,7 +257,7 @@ describe('useOffersStore', () => {
 		it('stays silent for a chat that arrives during a ringing call', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 			store.notify(buildChatInteraction());
 
 			expect(chirp.play).not.toHaveBeenCalled();
@@ -195,7 +266,7 @@ describe('useOffersStore', () => {
 		it('chirps again once the ringing call is gone', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 			store.dismiss('call-1');
 			store.notify(buildChatInteraction());
 
@@ -205,7 +276,7 @@ describe('useOffersStore', () => {
 		it('keeps ringing while a call remains, even as chats come and go', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 			store.notify(buildChatInteraction());
 			store.dismiss('chat-1');
 
@@ -216,7 +287,7 @@ describe('useOffersStore', () => {
 		it('stops the ringtone when the last call goes, even with a chat left', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 			store.notify(buildChatInteraction());
 			store.dismiss('call-1');
 
@@ -244,8 +315,8 @@ describe('useOffersStore', () => {
 		it('dismisses offers that are no longer on the wire', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
-			store.notify(buildInteraction('call-2'));
+			store.notify(buildOffer('call-1'));
+			store.notify(buildOffer('call-2'));
 
 			store.retainOnly(OfferKind.Call, [
 				'call-2',
@@ -263,9 +334,9 @@ describe('useOffersStore', () => {
 		it("leaves another channel's offers alone", () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 			store.notify({
-				...buildInteraction('chat-1'),
+				...buildOffer('chat-1'),
 				preview: buildPreview({
 					kind: OfferKind.Chat,
 				}),
@@ -281,8 +352,8 @@ describe('useOffersStore', () => {
 		it('keeps everything when all offers are still live', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
-			store.notify(buildInteraction('call-2'));
+			store.notify(buildOffer('call-1'));
+			store.notify(buildOffer('call-2'));
 
 			store.retainOnly(OfferKind.Call, [
 				'call-1',
@@ -296,7 +367,7 @@ describe('useOffersStore', () => {
 		it('stops the ringtone once the last offer is withdrawn', () => {
 			const store = useOffersStore();
 
-			store.notify(buildInteraction('call-1'));
+			store.notify(buildOffer('call-1'));
 			store.retainOnly(OfferKind.Call, []);
 
 			expect(store.offers).toHaveLength(0);

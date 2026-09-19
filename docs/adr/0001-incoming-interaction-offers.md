@@ -61,6 +61,15 @@ SDK mutates its objects in place. A card therefore disappears on every exit —
 accepted, declined, abandoned, redistributed, answered on another device or tab,
 force-hung by a supervisor — without anyone enumerating terminal actions.
 
+**Accept and decline never remove the card.** They await the producer's handler
+and leave the list alone; the derived feed takes the card away once the
+interaction actually resolves. Dismissing on click would only hide latency on
+the happy path, and on the failure path it lies — a denied microphone returns
+from `answer()` without ever reaching the SDK, which used to leave the agent
+with an invisible, silent, still-ringing call. An in-flight marker per offer
+(`pendingAction`) disables both buttons instead, so the SDK is never asked
+twice.
+
 **Reconciliation is scoped by channel.** `retainOnly(kind, ids)` lives in the
 notifications store, so a producer can only withdraw its own offers. A
 call-feed update cannot dismiss a chat offer.

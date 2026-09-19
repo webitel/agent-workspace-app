@@ -8,6 +8,7 @@
             :key="offer.id"
             :preview="toValue(offer.preview)"
             :clickable="!!offer.onBodyClick"
+            :pending="store.pendingAction(offer.id)"
             @accept="store.accept(offer.id)"
             @decline="store.decline(offer.id)"
             @body-click="store.openBody(offer.id)"

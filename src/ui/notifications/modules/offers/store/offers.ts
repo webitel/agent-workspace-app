@@ -1,11 +1,11 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed, shallowRef, toValue } from 'vue';
+import { computed, ref, shallowRef, toValue } from 'vue';
 
 import i18n from '../../../../../app/locale/i18n';
 import { useOsNotifications } from '../../push/composables/useOsNotifications';
 import { useOfferChirp } from '../../sound/composables/useOfferChirp';
 import { useRingtone } from '../../sound/composables/useRingtone';
-import { type Offer, OfferKind } from '../types/Offer.types';
+import { type Offer, type OfferAction, OfferKind } from '../types/Offer.types';
 
 /**
  * Incoming call/chat offers.
@@ -32,6 +32,17 @@ export const useOffersStore = defineStore('offers', () => {
 	const offers = shallowRef<Offer[]>([]);
 
 	const hasOffers = computed(() => offers.value.length > 0);
+
+	/**
+	 * Which action is in flight per offer, so the card can disable both buttons
+	 * and show progress on the one that was pressed. A `Map` inside a `ref` is
+	 * reactive through Vue's collection handlers.
+	 */
+	const pendingActions = ref(new Map<string, OfferAction>());
+
+	function pendingAction(id: string): OfferAction | undefined {
+		return pendingActions.value.get(id);
+	}
 
 	function find(id: string): Offer | undefined {
 		return offers.value.find((offer) => offer.id === id);
@@ -127,21 +138,41 @@ export const useOffersStore = defineStore('offers', () => {
 	}
 
 	/**
-	 * Accept/decline dismiss optimistically so the card can't be clicked twice
-	 * while the SDK round-trips. The producer's own teardown is idempotent.
+	 * Run an offer's action and leave the card alone.
+	 *
+	 * Offers are derived, so a successful accept or decline removes the card on
+	 * its own: the interaction stops matching its producer's predicate and
+	 * `retainOnly` drops it. Dismissing here only hid that latency — and on the
+	 * failure path it lied. A denied microphone returns from `answer()` without
+	 * ever reaching the SDK, so the optimistic dismiss left the agent with an
+	 * invisible, silent, still-ringing call.
+	 *
+	 * The in-flight marker replaces the double-click guard the dismiss used to
+	 * provide: while an action runs the card disables both buttons, so the SDK
+	 * is never asked twice.
 	 */
-	function accept(id: string) {
+	async function runAction(id: string, action: OfferAction) {
 		const offer = find(id);
-		if (!offer) return;
-		dismiss(id);
-		offer.onAccept();
+		if (!offer || pendingActions.value.has(id)) return;
+
+		pendingActions.value.set(id, action);
+
+		try {
+			await (action === 'accept' ? offer.onAccept() : offer.onDecline());
+		} catch (err) {
+			// the offer is still live, so the card stays and the agent can retry
+			console.error(`[notifications] offer ${action} failed`, err);
+		} finally {
+			pendingActions.value.delete(id);
+		}
+	}
+
+	function accept(id: string) {
+		return runAction(id, 'accept');
 	}
 
 	function decline(id: string) {
-		const offer = find(id);
-		if (!offer) return;
-		dismiss(id);
-		offer.onDecline();
+		return runAction(id, 'decline');
 	}
 
 	function openBody(id: string) {
@@ -160,6 +191,7 @@ export const useOffersStore = defineStore('offers', () => {
 		notify,
 		dismiss,
 		retainOnly,
+		pendingAction,
 		accept,
 		decline,
 		openBody,
