@@ -67,10 +67,11 @@ export interface Offer {
 	preview: MaybeRefOrGetter<OfferPreview>;
 	/**
 	 * Awaited by the store, which keeps the card up until the producer settles
-	 * and leaves it in place when the producer rejects.
+	 * and leaves it in place when the producer rejects. Returning nothing is
+	 * fine; the return value is never read, only awaited.
 	 */
-	onAccept: () => void | Promise<unknown>;
-	onDecline: () => void | Promise<unknown>;
+	onAccept: () => unknown;
+	onDecline: () => unknown;
 	/** Chats open the conversation when the card body is clicked (AC_06.01.04). */
 	onBodyClick?: () => void;
 }

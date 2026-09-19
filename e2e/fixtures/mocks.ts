@@ -204,8 +204,12 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 				data,
 			});
 			const target = sockets[channel];
-			if (target) target.send(frame);
-			else (queued[channel] ??= []).push(frame);
+			if (target) {
+				target.send(frame);
+				return;
+			}
+			queued[channel] ??= [];
+			queued[channel].push(frame);
 		},
 	};
 }
