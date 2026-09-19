@@ -44,7 +44,7 @@ interaction.
 `ui/notifications` and hand them data. Nothing under `ui/notifications` imports
 `webitel-sdk` or `@webitel/chat-web-sdk`; nothing in a domain store renders.
 
-**The contract is channel-neutral.** `IncomingInteractionPreview` carries
+**The contract is channel-neutral.** `OfferPreview` carries
 `kind`, `name`, `identifier`, `source`, `body`, `waitingSince` and `maxWaitSec`.
 Calls fill `identifier` with a (possibly masked) number and `source` with the
 queue; chats fill them with a username and, once the backend supplies it, the

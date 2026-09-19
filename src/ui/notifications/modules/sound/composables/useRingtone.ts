@@ -1,6 +1,6 @@
 import ringingSound from '@webitel/ui-sdk/src/modules/Notifications/assets/audio/ringing.mp3';
 
-import { playSafely } from './playSafely';
+import { playSafely } from '../utils/playSafely';
 import { useSoundLock } from './useSoundLock';
 
 /**

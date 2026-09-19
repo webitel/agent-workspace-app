@@ -36,7 +36,7 @@ test.describe('incoming call notification', () => {
 
 		await page.goto('calls');
 
-		const card = page.locator('.incoming-interaction-preview');
+		const card = page.locator('.offer-card');
 		await expect(card).toHaveCount(0);
 
 		socket.send('call', callRingingFrame());
@@ -49,9 +49,7 @@ test.describe('incoming call notification', () => {
 		await expect(card).toContainText('Support');
 
 		// waiting time counts up from the call's start
-		await expect(
-			card.locator('.incoming-interaction-preview__waiting'),
-		).toBeVisible();
+		await expect(card.locator('.offer-card__waiting')).toBeVisible();
 
 		await card
 			.getByRole('button', {
@@ -103,7 +101,7 @@ test.describe('incoming call notification', () => {
 			}),
 		);
 
-		const card = page.locator('.incoming-interaction-preview');
+		const card = page.locator('.offer-card');
 		await expect(card).toBeVisible({
 			timeout: 30_000,
 		});
@@ -129,7 +127,7 @@ test.describe('incoming call notification', () => {
 			}),
 		);
 
-		const card = page.locator('.incoming-interaction-preview');
+		const card = page.locator('.offer-card');
 		await expect(card).toBeVisible({
 			timeout: 30_000,
 		});

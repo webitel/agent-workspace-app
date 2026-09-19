@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Call } from 'webitel-sdk';
 
-import { InteractionKind } from '../../../../ui/notifications/types/IncomingInteraction.types';
+import { OfferKind } from '../../../../ui/notifications/modules/offers/types/Offer.types';
 import { maskNumber, toIncomingCallPreview } from '../toIncomingCallPreview';
 
 // the shared i18n instance can't be constructed under the global vue-i18n mock
@@ -44,7 +44,7 @@ describe('maskNumber', () => {
 describe('toIncomingCallPreview', () => {
 	it('maps an identified contact', () => {
 		expect(toIncomingCallPreview(buildCall())).toEqual({
-			kind: InteractionKind.Call,
+			kind: OfferKind.Call,
 			name: 'John Smith',
 			identifier: '380671234678',
 			source: undefined,
@@ -96,7 +96,7 @@ describe('toIncomingCallPreview', () => {
 		);
 
 		expect(preview.source).toEqual({
-			label: 'ui.notifications.incoming.queue',
+			label: 'ui.notifications.offer.queue',
 			value: 'Support',
 		});
 	});

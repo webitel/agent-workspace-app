@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
 import { type Call, CallDirection } from 'webitel-sdk';
 
-import { useIncomingInteractionsStore } from '../../../../ui/notifications/incoming/store/incomingInteractions';
+import { useOffersStore } from '../../../../ui/notifications/modules/offers/store/offers';
 import { useCallsStore } from '../calls';
 
 const calls = ref<Call[]>([]);
@@ -78,7 +78,7 @@ describe('useCallsStore', () => {
 
 	it('raises an offer when a ringing call appears', async () => {
 		const store = useCallsStore();
-		const interactions = useIncomingInteractionsStore();
+		const interactions = useOffersStore();
 		store.initialize();
 
 		calls.value = [
@@ -86,13 +86,13 @@ describe('useCallsStore', () => {
 		];
 		await nextTick();
 
-		expect(interactions.interactions).toHaveLength(1);
-		expect(interactions.interactions[0].id).toBe('call-1');
+		expect(interactions.offers).toHaveLength(1);
+		expect(interactions.offers[0].id).toBe('call-1');
 	});
 
 	it('ignores calls that are not offers', async () => {
 		const store = useCallsStore();
-		const interactions = useIncomingInteractionsStore();
+		const interactions = useOffersStore();
 		store.initialize();
 
 		calls.value = [
@@ -102,7 +102,7 @@ describe('useCallsStore', () => {
 		];
 		await nextTick();
 
-		expect(interactions.interactions).toHaveLength(0);
+		expect(interactions.offers).toHaveLength(0);
 	});
 
 	/**
@@ -112,7 +112,7 @@ describe('useCallsStore', () => {
 	 */
 	it('withdraws the offer when the call stops being answerable', async () => {
 		const store = useCallsStore();
-		const interactions = useIncomingInteractionsStore();
+		const interactions = useOffersStore();
 		store.initialize();
 
 		const call = buildCall();
@@ -120,7 +120,7 @@ describe('useCallsStore', () => {
 			call,
 		];
 		await nextTick();
-		expect(interactions.interactions).toHaveLength(1);
+		expect(interactions.offers).toHaveLength(1);
 
 		// the SDK mutates the Call in place; go through the reactive proxy the way
 		// the real `callStore` (reactive()'d in webSocketClientManager) does
@@ -131,12 +131,12 @@ describe('useCallsStore', () => {
 		).allowAnswer = false;
 		await nextTick();
 
-		expect(interactions.interactions).toHaveLength(0);
+		expect(interactions.offers).toHaveLength(0);
 	});
 
 	it('withdraws the offer when the call disappears entirely', async () => {
 		const store = useCallsStore();
-		const interactions = useIncomingInteractionsStore();
+		const interactions = useOffersStore();
 		store.initialize();
 
 		calls.value = [
@@ -147,7 +147,7 @@ describe('useCallsStore', () => {
 		calls.value = [];
 		await nextTick();
 
-		expect(interactions.interactions).toHaveLength(0);
+		expect(interactions.offers).toHaveLength(0);
 	});
 
 	it('answers the call behind the accepted offer', async () => {
