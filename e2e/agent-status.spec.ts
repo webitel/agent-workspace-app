@@ -31,7 +31,8 @@ async function mockPauseCauses(page: Page, body: object = pauseCauses) {
 }
 
 async function openStatusDropdown(page: Page) {
-	const select = page.locator('.agent-status-select .wt-status-select');
+	// `.wt-status-select` lands on both the wrapper and the primevue root.
+	const select = page.locator('.agent-status-select .p-select');
 	await expect(select).toBeVisible({
 		timeout: 30_000,
 	});
@@ -77,9 +78,17 @@ test.describe('agent status select', () => {
 		await expect(popup).toBeVisible({
 			timeout: 30_000,
 		});
-		await popup.getByText('Dinner').click();
+		await popup
+			.getByRole('radio', {
+				name: 'Dinner',
+			})
+			.click();
 		await popup.locator('textarea').fill('back in 20');
-		await popup.getByRole('button').first().click();
+		await popup
+			.getByRole('button', {
+				name: 'Ok',
+			})
+			.click();
 
 		await expect
 			.poll(() => socket.sent('cc_agent_pause'), {
