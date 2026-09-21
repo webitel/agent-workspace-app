@@ -23,6 +23,31 @@ export default {
 				decline: 'Rad etish',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Oʻtkazib yuborilgan',
+				},
+				missed: {
+					title: 'Oʻtkazib yuborilgan qoʻngʻiroqlar',
+					columns: {
+						name: 'Ism',
+						phoneNumber: 'Telefon raqami',
+						dateTime: 'Sana va vaqt',
+						totalDuration: 'Umumiy davomiylik',
+						queue: 'Navbat',
+					},
+					search: {
+						tooltip: 'Qidiruv',
+						placeholder: 'Ism yoki telefon raqami boʻyicha qidirish',
+					},
+					actions: {
+						openContact: 'Kontaktni ochish',
+						call: 'Qoʻngʻiroq qilish',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

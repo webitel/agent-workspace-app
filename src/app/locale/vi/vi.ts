@@ -23,6 +23,31 @@ export default {
 				decline: 'Từ chối',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Nhỡ',
+				},
+				missed: {
+					title: 'Cuộc gọi nhỡ',
+					columns: {
+						name: 'Tên',
+						phoneNumber: 'Số điện thoại',
+						dateTime: 'Ngày & giờ',
+						totalDuration: 'Tổng thời lượng',
+						queue: 'Hàng đợi',
+					},
+					search: {
+						tooltip: 'Tìm kiếm',
+						placeholder: 'Tìm theo tên hoặc số điện thoại',
+					},
+					actions: {
+						openContact: 'Mở liên hệ',
+						call: 'Gọi',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

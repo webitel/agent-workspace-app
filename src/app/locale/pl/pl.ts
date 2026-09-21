@@ -23,6 +23,31 @@ export default {
 				decline: 'Odrzuć',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Nieodebrane',
+				},
+				missed: {
+					title: 'Nieodebrane połączenia',
+					columns: {
+						name: 'Imię',
+						phoneNumber: 'Numer telefonu',
+						dateTime: 'Data i godzina',
+						totalDuration: 'Całkowity czas trwania',
+						queue: 'Kolejka',
+					},
+					search: {
+						tooltip: 'Szukaj',
+						placeholder: 'Szukaj według imienia lub numeru telefonu',
+					},
+					actions: {
+						openContact: 'Otwórz kontakt',
+						call: 'Zadzwoń',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

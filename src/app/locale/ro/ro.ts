@@ -23,6 +23,31 @@ export default {
 				decline: 'Respinge',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Pierdute',
+				},
+				missed: {
+					title: 'Apeluri pierdute',
+					columns: {
+						name: 'Nume',
+						phoneNumber: 'Număr de telefon',
+						dateTime: 'Data și ora',
+						totalDuration: 'Durata totală',
+						queue: 'Coadă',
+					},
+					search: {
+						tooltip: 'Căutare',
+						placeholder: 'Căutare după nume sau număr de telefon',
+					},
+					actions: {
+						openContact: 'Deschide contactul',
+						call: 'Sună',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

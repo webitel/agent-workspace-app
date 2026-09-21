@@ -2,13 +2,28 @@
     <nav class="the-workspace-nav">
         <ul class="the-workspace-nav-list">
             <li>
-                <router-link to="/calls">
-                    <wt-button icon="call" color="success" />
+                <router-link
+                    v-slot="{ navigate }"
+                    custom
+                    to="/calls"
+                >
+                    <wt-button
+                        icon="call"
+                        color="success"
+                        @click="() => navigate()"
+                    />
                 </router-link>
             </li>
             <li>
-                <router-link to="/chats">
-                    <wt-button icon="chat" />
+                <router-link
+                    v-slot="{ navigate }"
+                    custom
+                    to="/chats"
+                >
+                    <wt-button
+                        icon="chat"
+                        @click="() => navigate()"
+                    />
                 </router-link>
             </li>
         </ul>

@@ -23,6 +23,31 @@ export default {
 				decline: 'Відхилити',
 			},
 		},
+		pages: {
+			calls: {
+				tabs: {
+					missed: 'Пропущені',
+				},
+				missed: {
+					title: 'Пропущені дзвінки',
+					columns: {
+						name: "Ім'я",
+						phoneNumber: 'Номер телефону',
+						dateTime: 'Дата та час',
+						totalDuration: 'Загальна тривалість',
+						queue: 'Черга',
+					},
+					search: {
+						tooltip: 'Пошук',
+						placeholder: "Пошук за ім'ям або номером телефону",
+					},
+					actions: {
+						openContact: 'Відкрити контакт',
+						call: 'Зателефонувати',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {
