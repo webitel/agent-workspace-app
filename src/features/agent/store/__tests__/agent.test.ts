@@ -95,12 +95,13 @@ describe('useAgentStore', () => {
 			);
 		});
 
-		it('does not subscribe when there is no agent session', async () => {
+		it('raises rather than leaving the status unsubscribed', async () => {
 			agent.value = undefined;
 			const store = useAgentStore();
 
-			await store.initializeAgent();
-
+			await expect(store.initializeAgent()).rejects.toThrow(
+				'agent session resolved without an agent',
+			);
 			expect(subscribeAgentsStatusMock).not.toHaveBeenCalled();
 		});
 	});

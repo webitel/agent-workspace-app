@@ -22,7 +22,14 @@ export const useAgentStore = defineStore('agent', () => {
 	 */
 	const initializeAgent = async () => {
 		await getAgentSession();
-		if (!agent.value) return;
+		/*
+		 * Loud on purpose: a session without an agent would skip the subscription
+		 * and leave the status silently frozen, which is the one failure mode
+		 * this subscription exists to prevent. Bootstrap catches and warns.
+		 */
+		if (!agent.value) {
+			throw new Error('agent session resolved without an agent');
+		}
 
 		await getClient().subscribeAgentsStatus(() => {}, {
 			agent_id: agent.value.agentId,

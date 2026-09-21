@@ -40,9 +40,3 @@ const isDisabled = computed(
 		socketState.value !== WebSocketConnectionState.Connected || !agentId.value,
 );
 </script>
-
-<style scoped>
-.agent-status-select {
-	width: 150px;
-}
-</style>
