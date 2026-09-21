@@ -28,12 +28,9 @@ vi.mock('@webitel/ui-sdk/modules/Appearance', () => ({
 		})),
 }));
 
-vi.mock(
-	'@webitel/ui-sdk/modules/AgentStatusSelect/components/wt-cc-agent-status-select.vue',
-	() => ({
-		default: stub('WtCcAgentStatusSelect'),
-	}),
-);
+vi.mock('@webitel/ui-sdk/modules/AgentStatusSelect', () => ({
+	WtCcAgentStatusSelect: stub('WtCcAgentStatusSelect'),
+}));
 
 vi.mock('../../../../app/locale/i18n', () => ({
 	default: {

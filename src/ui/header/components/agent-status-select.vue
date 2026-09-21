@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { useNow } from '@vueuse/core';
-import WtCcAgentStatusSelect from '@webitel/ui-sdk/modules/AgentStatusSelect/components/wt-cc-agent-status-select.vue';
+import { WtCcAgentStatusSelect } from '@webitel/ui-sdk/modules/AgentStatusSelect';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';

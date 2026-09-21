@@ -39,12 +39,9 @@ vi.mock('@vueuse/core', () => ({
 	useNow: () => ref(NOW),
 }));
 
-vi.mock(
-	'@webitel/ui-sdk/modules/AgentStatusSelect/components/wt-cc-agent-status-select.vue',
-	() => ({
-		default: WtCcAgentStatusSelect,
-	}),
-);
+vi.mock('@webitel/ui-sdk/modules/AgentStatusSelect', () => ({
+	WtCcAgentStatusSelect,
+}));
 
 import AgentStatusSelect from '../agent-status-select.vue';
 
