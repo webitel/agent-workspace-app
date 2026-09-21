@@ -1,20 +1,23 @@
 import chatOfferSound from '@webitel/ui-sdk/src/modules/Notifications/assets/audio/chat-new.wav';
 
 import { playSafely } from '../utils/playSafely';
-import { useSoundLock } from './useSoundLock';
+import { SoundLockKind, useSoundLock } from './useSoundLock';
 
 /**
  * One-shot cue for offers that are not time-critical enough to ring.
  *
- * Deliberately does not take the exclusive sound lock the ringtone holds. That
- * lock means "a loop owns the channel"; a one-shot that took it would silence a
- * second chat arriving a moment later, and releasing it afterwards would cut a
- * ringtone that happened to be running. The chirp only respects the main-tab
- * rule, so several tabs still don't chirp in chorus.
+ * Takes its own lock, not the ringtone's: a one-shot that held the ringtone's
+ * lock would cut a ring that happened to be running, and a ring would swallow
+ * every chirp behind it. The chirp's lock only has to outlive the sound itself,
+ * so it is never released — it expires, and that window is what keeps several
+ * tabs from chirping in chorus.
  *
  * Callers decide whether a chirp is appropriate — the store suppresses it while
  * a call is ringing, so a text chat never talks over a call with a deadline.
  */
+
+/** Long enough to cover one cue, short enough not to swallow the next offer. */
+const CHIRP_LOCK_MS = 1000;
 
 let audio: HTMLAudioElement | null = null;
 
@@ -24,10 +27,10 @@ function getAudio(): HTMLAudioElement {
 }
 
 export function useOfferChirp() {
-	const { isMainTab } = useSoundLock();
+	const { acquire } = useSoundLock(SoundLockKind.Chirp, CHIRP_LOCK_MS);
 
 	function play() {
-		if (!isMainTab()) return;
+		if (!acquire()) return; // another tab just chirped for this offer
 
 		const element = getAudio();
 		element.currentTime = 0;

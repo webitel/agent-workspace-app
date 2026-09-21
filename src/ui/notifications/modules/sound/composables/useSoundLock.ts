@@ -1,84 +1,89 @@
 /**
- * Cross-tab "only one tab makes noise" lock.
+ * Cross-tab "only one tab makes this noise" lock.
  *
  * Every open workspace tab runs its own `Client` and receives the same ringing
- * event, so without a lock N tabs start N looping ringtones and answering in one
- * tab silences only that one. Ported from ui-sdk's Vuex `NotificationsStoreModule`
- * (`currentTabId` + `wtIsPlaying`), with two fixes: the holder is released on
- * unload, and a stale holder expires instead of muting the app forever.
+ * event, so without a lock N tabs start N sounds and answering in one silences
+ * only that one. Each sound class takes its own lock: a short-lived stamp under
+ * a key of ours, carrying the holder's tab id and an expiry.
+ *
+ * There is deliberately no "main tab" slot any more. The previous design kept
+ * one under the bare `currentTabId` key, claimed by whichever tab arrived first
+ * and never expired, and two things broke it:
+ *
+ * - ui-sdk's Vuex `NotificationsStoreModule` writes that same key, and writes it
+ *   *unconditionally* on load. Every Webitel app shares this origin, so opening
+ *   the admin panel or the CRM handed the slot to a tab of another app and muted
+ *   this one for good.
+ * - A tab that died without running its unload handler left the slot pointing at
+ *   a dead id, with the same result.
+ *
+ * A lock that expires cannot do either, and a key of ours cannot be taken by
+ * another app. The legacy `currentTabId` / `wtIsPlaying` keys are left alone:
+ * they still belong to the apps that read them.
  */
 
-const TAB_ID_KEY = 'currentTabId';
-const PLAYING_KEY = 'wtIsPlaying';
+export const SoundLockKind = {
+	Ringtone: 'ringtone',
+	Chirp: 'chirp',
+} as const;
 
-/**
- * A crashed tab can't run its unload handler, so a lock older than this is
- * treated as abandoned. Generous compared to a ring (~30s) but short enough
- * that the next call is audible.
- */
-const STALE_LOCK_MS = 2 * 60 * 1000;
+export type SoundLockKind = (typeof SoundLockKind)[keyof typeof SoundLockKind];
+
+const KEY_PREFIX = 'wt/agent-workspace/sound-lock/';
 
 const tabId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-interface PlayingLock {
+interface SoundLock {
 	tabId: string;
-	at: number;
+	/** Epoch ms after which any tab may take over. */
+	until: number;
 }
 
-function readLock(): PlayingLock | null {
+function keyFor(kind: SoundLockKind): string {
+	return `${KEY_PREFIX}${kind}`;
+}
+
+/** An expired lock reads as no lock at all, so takeover needs no sweeping. */
+function read(kind: SoundLockKind): SoundLock | null {
 	try {
-		const raw = localStorage.getItem(PLAYING_KEY);
+		const raw = localStorage.getItem(keyFor(kind));
 		if (!raw) return null;
-		const lock = JSON.parse(raw) as PlayingLock;
-		if (!lock?.tabId || typeof lock.at !== 'number') return null;
+		const lock = JSON.parse(raw) as SoundLock;
+		if (!lock?.tabId || typeof lock.until !== 'number') return null;
+		if (Date.now() >= lock.until) return null;
 		return lock;
 	} catch {
 		return null;
 	}
 }
 
-function isStale(lock: PlayingLock): boolean {
-	return Date.now() - lock.at > STALE_LOCK_MS;
-}
-
-/** Claim the "main" tab slot if nobody holds it (first tab wins, survives reload). */
-function claimTabSlotIfFree() {
+function clear(kind: SoundLockKind) {
+	const lock = read(kind);
+	// never clear a lock a live tab still owns
+	if (lock && lock.tabId !== tabId) return;
 	try {
-		if (!localStorage.getItem(TAB_ID_KEY)) {
-			localStorage.setItem(TAB_ID_KEY, tabId);
-		}
+		localStorage.removeItem(keyFor(kind));
 	} catch {
-		// private mode / blocked storage — fall through, acquire() degrades to "always allowed"
+		// nothing to do
 	}
 }
 
-export function useSoundLock() {
-	claimTabSlotIfFree();
-
-	function isMainTab(): boolean {
-		try {
-			const owner = localStorage.getItem(TAB_ID_KEY);
-			// no owner recorded (storage blocked) -> don't mute this tab
-			return !owner || owner === tabId;
-		} catch {
-			return true;
-		}
-	}
-
-	/** True when this tab may start a sound. Claims the lock as a side effect. */
+export function useSoundLock(kind: SoundLockKind, ttlMs: number) {
+	/**
+	 * True when this tab may start the sound, claiming or renewing the lock as a
+	 * side effect. A tab that already holds it renews rather than being refused —
+	 * callers that must not restart their own sound check `isHeldByThisTab`.
+	 */
 	function acquire(): boolean {
-		if (!isMainTab()) return false;
-
-		const lock = readLock();
-		// someone (possibly this tab) is already ringing — don't stack a second loop
-		if (lock && !isStale(lock)) return false;
+		const lock = read(kind);
+		if (lock && lock.tabId !== tabId) return false;
 
 		try {
 			localStorage.setItem(
-				PLAYING_KEY,
+				keyFor(kind),
 				JSON.stringify({
 					tabId,
-					at: Date.now(),
+					until: Date.now() + ttlMs,
 				}),
 			);
 		} catch {
@@ -88,45 +93,28 @@ export function useSoundLock() {
 	}
 
 	function release() {
-		const lock = readLock();
-		// never clear another tab's lock
-		if (lock && lock.tabId !== tabId && !isStale(lock)) return;
-		try {
-			localStorage.removeItem(PLAYING_KEY);
-		} catch {
-			// nothing to do
-		}
+		clear(kind);
 	}
 
-	/** Whether this tab currently owns the lock. */
 	function isHeldByThisTab(): boolean {
-		const lock = readLock();
-		return !!lock && lock.tabId === tabId && !isStale(lock);
+		return read(kind)?.tabId === tabId;
 	}
 
 	return {
 		tabId,
-		isMainTab,
 		acquire,
 		release,
 		isHeldByThisTab,
 	};
 }
 
-/**
- * Module-level unload cleanup: releases this tab's lock and frees the main-tab
- * slot so a surviving tab can take over. Registered once per document.
- */
+/** Frees this tab's locks so a surviving tab can take over without waiting. */
+export function releaseSoundLocks() {
+	for (const kind of Object.values(SoundLockKind)) {
+		clear(kind);
+	}
+}
+
 if (typeof window !== 'undefined') {
-	window.addEventListener('beforeunload', () => {
-		const { release } = useSoundLock();
-		release();
-		try {
-			if (localStorage.getItem(TAB_ID_KEY) === tabId) {
-				localStorage.removeItem(TAB_ID_KEY);
-			}
-		} catch {
-			// nothing to do
-		}
-	});
+	window.addEventListener('beforeunload', releaseSoundLocks);
 }
