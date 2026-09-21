@@ -5,14 +5,14 @@
 		@close="emit('close')"
 	>
 		<template #header>
-				{{	t('objects.flow.name', 2) }}
+			{{	t('objects.flow.name', 2) }}
 		</template>
 
 		<template #main>
 			<section class="flows wt-scrollbar">
 				<wt-loader v-if="isLoading" />
 				<ul v-else-if="flowsList.length">
-					<div
+					<template
 						v-for="(flow, index) in flowsList"
 						:key="flow.id"
 					>
@@ -23,10 +23,9 @@
 							</span>
 							<run-flow-button
 								:id="flow.id"
-								size="sm"
 							/>
 						</li>
-					</div>
+					</template>
 				</ul>
 				<wt-empty
 					v-else

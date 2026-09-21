@@ -2,7 +2,7 @@
 	<wt-button
 		color="success"
 		:loading="isLoading"
-		:size="size ? size : 'md'"
+		size="sm"
 		@click="runFlow"
 	>
 			{{ t('ui.reusable.run') }}
@@ -16,7 +16,6 @@ import FlowsAPI from '../api/FlowsAPI';
 
 const props = defineProps<{
 	id: number;
-	size?: string;
 }>();
 
 const { t } = useI18n();
