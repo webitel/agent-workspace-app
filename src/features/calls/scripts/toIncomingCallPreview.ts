@@ -2,9 +2,9 @@ import type { Call } from 'webitel-sdk';
 
 import i18n from '../../../app/locale/i18n';
 import {
-	type IncomingInteractionPreview,
-	InteractionKind,
-} from '../../../ui/notifications/types/IncomingInteraction.types';
+	OfferKind,
+	type OfferPreview,
+} from '../../../ui/notifications/modules/offers/types/Offer.types';
 
 /**
  * Maps an SDK `Call` onto the channel-neutral preview contract. Everything the
@@ -51,16 +51,16 @@ function resolveMaxWaitSec(call: Call): number | undefined {
 		: undefined;
 }
 
-export function toIncomingCallPreview(call: Call): IncomingInteractionPreview {
+export function toIncomingCallPreview(call: Call): OfferPreview {
 	const number = call.displayNumber;
 
 	return {
-		kind: InteractionKind.Call,
+		kind: OfferKind.Call,
 		name: resolveName(call),
 		identifier: call.hideNumber ? maskNumber(number) : number,
 		source: call.queue?.queue_name
 			? {
-					label: i18n.global.t('ui.notifications.incoming.queue'),
+					label: i18n.global.t('ui.notifications.offer.queue'),
 					value: call.queue.queue_name,
 				}
 			: undefined,

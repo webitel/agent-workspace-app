@@ -10,7 +10,7 @@ export default {
 			},
 		},
 		notifications: {
-			incoming: {
+			offer: {
 				title: {
 					call: 'Cuộc gọi đến',
 					chat: 'Trò chuyện đến',

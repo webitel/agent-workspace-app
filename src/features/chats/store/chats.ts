@@ -1,22 +1,45 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, getCurrentScope, ref, watch } from 'vue';
+import type { Task } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import { router } from '../../../app/router';
-import { useNotificationsStore } from '../../../ui/notifications/store/notifications';
+import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
+import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
+import { isChatTask } from '../scripts/isChatTask';
+import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
+import { toIncomingChatPreview } from '../scripts/toIncomingChatPreview';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
 // Singleton coordinator: owns the SDK task feed and window layout. Per-chat
 // history lives in dynamic chat-session stores; this store never holds it.
 export const useChatsStore = defineStore('chats', () => {
+	// captured during setup so the offer watcher belongs to the store and stops
+	// with `$dispose()`; created from an action it would outlive the store
+	const storeScope = getCurrentScope();
+
 	const { getClient, tasks } = useWebSocketClient();
 	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
-	const notifications = useNotificationsStore();
+	const offersStore = useOffersStore();
 
-	const chatTaskList = computed(() => {
-		return tasks.value?.filter(({ channel }) => channel === 'im');
-	});
+	const allChatTasks = computed<Task[]>(
+		() => (tasks.value ?? []).filter(isChatTask) as Task[],
+	);
+
+	/**
+	 * Offered chats are deliberately absent: the offer card is the only surface
+	 * for them (DES-727), and a row here would invite the agent to open a thread
+	 * they are not a member of yet. They join the list once accepted
+	 * (AC_06.01.02).
+	 */
+	const chatTaskList = computed(() =>
+		allChatTasks.value.filter((task) => !isIncomingChatOffer(task)),
+	);
+
+	const incomingOffers = computed(() =>
+		allChatTasks.value.filter(isIncomingChatOffer),
+	);
 
 	const openChats = ref<OpenChat[]>([]);
 	const mainChat = computed(() =>
@@ -63,43 +86,69 @@ export const useChatsStore = defineStore('chats', () => {
 		disposeChatSession(id);
 	}
 
-	// task.id -> notification id, so the offer notification can be dropped once
-	// the task resolves on its own (bridged / missed / closed).
-	const taskNotifications = new Map<number, string>();
+	/**
+	 * Accepting from the card also opens the chat: the accept button is the
+	 * "take it and go there" action, while clicking the card body navigates
+	 * without accepting (AC_06.01.04).
+	 */
+	async function acceptOffer(task: Task) {
+		await task.accept();
+		const threadId = task.thread?.id;
+		if (threadId) openChat(threadId);
+	}
+
+	function declineOffer(task: Task) {
+		// `decline()` and `close()` are the same request; the backend decides
+		// whether the chat ends or goes to the next agent (AC_06.01.03).
+		return task.decline();
+	}
+
+	/**
+	 * Offers are derived from the task feed rather than pushed, so a chat leaves
+	 * the card on every exit — accepted, declined, abandoned, redistributed —
+	 * without enumerating task actions. Diffing is by id because the SDK mutates
+	 * `Task` objects in place.
+	 */
+	function subscribeToOffers() {
+		const register = () =>
+			watch(
+				incomingOffers,
+				(offers) => {
+					offersStore.retainOnly(
+						OfferKind.Chat,
+						offers.map((task) => String(task.id)),
+					);
+
+					for (const task of offers) {
+						offersStore.notify({
+							// the task owns the offer's lifecycle; the thread id is only
+							// needed for navigation, and may not be there at all
+							id: String(task.id),
+							preview: () => toIncomingChatPreview(task),
+							onAccept: () => acceptOffer(task),
+							onDecline: () => declineOffer(task),
+							onBodyClick: task.thread?.id
+								? () => openChat(task.thread?.id as string)
+								: undefined,
+						});
+					}
+				},
+				{
+					deep: true,
+				},
+			);
+
+		if (storeScope) storeScope.run(register);
+		else register();
+	}
 
 	function initialize() {
 		const client = getClient();
-		client.subscribeTask((_action, task) => {
-			if (!task || task.channel !== 'im') return;
-			const offered = task.bridgedAt === 0 && task.closedAt === 0;
+		// the SDK needs a subscriber before it will populate the task feed
+		client.subscribeTask(() => {});
 
-			if (offered) {
-				if (taskNotifications.has(task.id)) return; // already showing
-				const notificationId = notifications.notify({
-					title: 'New chat',
-					text: task.thread?.subject || task.displayName || task.display,
-					actions: [
-						{
-							label: 'Accept',
-							color: 'success',
-							handler: () => task.accept(),
-						},
-						{
-							label: 'Reject',
-							color: 'error',
-							handler: () => task.decline(),
-						},
-					],
-				});
-				taskNotifications.set(task.id, notificationId);
-			} else {
-				const notificationId = taskNotifications.get(task.id);
-				if (notificationId) {
-					notifications.dismiss(notificationId);
-					taskNotifications.delete(task.id);
-				}
-			}
-		});
+		offersStore.initialize();
+		subscribeToOffers();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
@@ -111,6 +160,7 @@ export const useChatsStore = defineStore('chats', () => {
 	return {
 		// getters
 		chatTaskList,
+		incomingOffers,
 		openChats,
 		mainChat,
 		minimizedChats,

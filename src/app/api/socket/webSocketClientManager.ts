@@ -326,10 +326,3 @@ export async function getAgentSession() {
 	cli.agent = reactive(cli.agent) as typeof cli.agent;
 	return cli.agent;
 }
-
-// todo: rm me after app-header will be added
-(
-	window as unknown as {
-		getAgentSession: () => unknown;
-	}
-).getAgentSession = getAgentSession;
