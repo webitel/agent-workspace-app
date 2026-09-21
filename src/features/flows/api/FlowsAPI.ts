@@ -4,10 +4,10 @@ import applyTransform, {
 } from '@webitel/ui-sdk/src/api/transformers/index.js';
 import i18n from '../../../app/locale/i18n';
 
-const runFlowSchema = async ({ id: number }) => {
+const runFlowSchema = async ({ id }: { id: number }) => {
 	try {
 		const result = await AgentTriggersAPI.run({
-			id: number,
+			id,
 		});
 
 		return applyTransform(result, [
