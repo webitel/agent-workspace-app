@@ -18,9 +18,9 @@ and should not be carried over wholesale.
   rather than approximated.
 - [ADR-0002](docs/adr/0002-offer-sound-and-os-notifications.md) — ringtone vs
   chirp, the cross-tab sound lock, and the notification-only service worker.
-- [ADR-0003](docs/adr/0003-agent-status-over-the-websocket.md) — why status
-  changes go over the websocket session rather than through the SDK's REST
-  status component, and which SDK pieces are reused anyway.
+- [ADR-0003](docs/adr/0003-agent-status-transport.md) — agent status is written
+  over REST by the SDK's status select but read off the websocket session, and
+  why that read needs an explicit subscription to stay current.
 
 ## Language
 

@@ -5,6 +5,10 @@ import { expect, test } from './fixtures/test';
 /**
  * The mocked agent session starts `online` (see `agentSessionPayload`), so the
  * dropdown offers Pause and Offline.
+ *
+ * Status is written over REST by the SDK's status select and read back off the
+ * websocket session, so these specs assert the PATCH body — that is the
+ * contract this app depends on.
  */
 
 const pauseCauses = {
@@ -30,6 +34,22 @@ async function mockPauseCauses(page: Page, body: object = pauseCauses) {
 	});
 }
 
+/** Records every status PATCH the app makes, and answers each one. */
+async function captureStatusWrites(page: Page): Promise<unknown[]> {
+	const writes: unknown[] = [];
+
+	await page.route('**/call_center/agents/*/status', async (route) => {
+		writes.push(route.request().postDataJSON());
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: '{}',
+		});
+	});
+
+	return writes;
+}
+
 async function openStatusDropdown(page: Page) {
 	// `.wt-status-select` lands on both the wrapper and the primevue root.
 	const select = page.locator('.agent-status-select .p-select');
@@ -53,6 +73,10 @@ test.describe('agent status select', () => {
 		});
 	});
 
+	/*
+	 * Guards the read path: the status shown comes off the websocket session,
+	 * which only stays current because initializeAgent subscribes.
+	 */
 	test('follows a status the server pushes', async ({ page, socket }) => {
 		test.setTimeout(60_000);
 		await mockPauseCauses(page);
@@ -81,18 +105,12 @@ test.describe('agent status select', () => {
 		});
 	});
 
-	/*
-	 * The one assertion the unit tests cannot make: unit tests assert against a
-	 * mocked `pause()`, so they prove the store's intent, not the frame. This
-	 * proves what leaves the browser. It still does not prove the server reads
-	 * these field names — only a live round trip does that.
-	 */
-	test('sends the pause cause and comment on the wire', async ({
+	test('writes the pause cause and comment the agent gave', async ({
 		page,
-		socket,
 	}) => {
 		test.setTimeout(60_000);
 		await mockPauseCauses(page);
+		const writes = await captureStatusWrites(page);
 
 		await page.goto('calls');
 		await openStatusDropdown(page);
@@ -119,29 +137,27 @@ test.describe('agent status select', () => {
 			.click();
 
 		await expect
-			.poll(() => socket.sent('cc_agent_pause'), {
+			.poll(() => writes, {
 				timeout: 15_000,
 			})
 			.toEqual([
 				{
-					agent_id: 1,
-					payload: {
-						status_payload: 'Dinner',
-						status_comment: 'back in 20',
-					},
+					status: 'pause',
+					payload: 'Dinner',
+					status_comment: 'back in 20',
 				},
 			]);
 	});
 
 	test('pauses without asking when the agent has no causes', async ({
 		page,
-		socket,
 	}) => {
 		test.setTimeout(60_000);
 		await mockPauseCauses(page, {
 			items: [],
 			next: false,
 		});
+		const writes = await captureStatusWrites(page);
 
 		await page.goto('calls');
 		await openStatusDropdown(page);
@@ -152,23 +168,21 @@ test.describe('agent status select', () => {
 			.click();
 
 		await expect
-			.poll(() => socket.sent('cc_agent_pause'), {
+			.poll(() => writes, {
 				timeout: 15_000,
 			})
 			.toEqual([
 				{
-					agent_id: 1,
+					status: 'pause',
 				},
 			]);
 		await expect(page.locator('.wt-cc-pause-cause-popup')).toBeHidden();
 	});
 
-	test('takes the agent offline without asking anything', async ({
-		page,
-		socket,
-	}) => {
+	test('takes the agent offline without asking anything', async ({ page }) => {
 		test.setTimeout(60_000);
 		await mockPauseCauses(page);
+		const writes = await captureStatusWrites(page);
 
 		await page.goto('calls');
 		await openStatusDropdown(page);
@@ -179,12 +193,12 @@ test.describe('agent status select', () => {
 			.click();
 
 		await expect
-			.poll(() => socket.sent('cc_agent_offline'), {
+			.poll(() => writes, {
 				timeout: 15_000,
 			})
 			.toEqual([
 				{
-					agent_id: 1,
+					status: 'offline',
 				},
 			]);
 	});

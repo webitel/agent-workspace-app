@@ -2,11 +2,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-import { PauseNotAllowedError } from 'webitel-sdk';
 
-const onlineMock = vi.fn();
-const pauseMock = vi.fn();
-const offlineMock = vi.fn();
 const getAgentSessionMock = vi.fn();
 const subscribeAgentsStatusMock = vi.fn();
 
@@ -28,17 +24,11 @@ const agentSession = (over = {}) => ({
 	agentId: 42,
 	status: 'offline',
 	lastStatusChange: 1_700_000_000_000,
-	online: onlineMock,
-	pause: pauseMock,
-	offline: offlineMock,
 	...over,
 });
 
 describe('useAgentStore', () => {
 	beforeEach(() => {
-		onlineMock.mockReset();
-		pauseMock.mockReset();
-		offlineMock.mockReset();
 		getAgentSessionMock.mockReset();
 		subscribeAgentsStatusMock.mockReset();
 		agent.value = agentSession();
@@ -77,106 +67,6 @@ describe('useAgentStore', () => {
 		});
 	});
 
-	describe('setAgentWaitingStatus', () => {
-		it('goes online without an activity type when none is picked', async () => {
-			const store = useAgentStore();
-
-			await store.setAgentWaitingStatus();
-
-			expect(onlineMock).toHaveBeenCalledWith(undefined, undefined, undefined);
-		});
-
-		it('passes the picked activity type as the online skill', async () => {
-			const store = useAgentStore();
-			const activityType = {
-				id: '7',
-				name: 'Support',
-			};
-
-			await store.setAgentWaitingStatus(activityType);
-
-			expect(onlineMock).toHaveBeenCalledWith(
-				undefined,
-				undefined,
-				activityType,
-			);
-		});
-
-		it('flags the agent as removed when the server rejects the login', async () => {
-			onlineMock.mockRejectedValue({
-				id: 'app.agent.login.app_err',
-			});
-			const store = useAgentStore();
-
-			await store.setAgentWaitingStatus();
-
-			expect(store.isAgentRemoved).toBe(true);
-		});
-
-		it('rethrows errors that are not a removed agent', async () => {
-			onlineMock.mockRejectedValue({
-				id: 'app.agent.some_other_err',
-			});
-			const store = useAgentStore();
-
-			await expect(store.setAgentWaitingStatus()).rejects.toEqual({
-				id: 'app.agent.some_other_err',
-			});
-			expect(store.isAgentRemoved).toBe(false);
-		});
-	});
-
-	describe('setAgentPauseStatus', () => {
-		it('sends the cause and comment as the pause payload', async () => {
-			const store = useAgentStore();
-
-			await store.setAgentPauseStatus({
-				cause: 'Dinner',
-				comment: 'back in 20',
-			});
-
-			expect(pauseMock).toHaveBeenCalledWith({
-				status_payload: 'Dinner',
-				status_comment: 'back in 20',
-			});
-		});
-
-		it('pauses without a payload when no cause was picked', async () => {
-			const store = useAgentStore();
-
-			await store.setAgentPauseStatus();
-
-			expect(pauseMock).toHaveBeenCalledWith();
-		});
-
-		it('returns the error when the server does not allow pausing', async () => {
-			const notAllowed = new PauseNotAllowedError('limit reached');
-			pauseMock.mockResolvedValue(notAllowed);
-			const store = useAgentStore();
-
-			await expect(store.setAgentPauseStatus()).resolves.toBe(notAllowed);
-		});
-
-		it('resolves with nothing on a successful pause', async () => {
-			pauseMock.mockResolvedValue({
-				status: 'pause',
-			});
-			const store = useAgentStore();
-
-			await expect(store.setAgentPauseStatus()).resolves.toBeUndefined();
-		});
-	});
-
-	describe('setAgentOfflineStatus', () => {
-		it('takes the agent offline', async () => {
-			const store = useAgentStore();
-
-			await store.setAgentOfflineStatus();
-
-			expect(offlineMock).toHaveBeenCalled();
-		});
-	});
-
 	describe('initializeAgent', () => {
 		it('opens the agent session', async () => {
 			const store = useAgentStore();
@@ -187,9 +77,10 @@ describe('useAgentStore', () => {
 		});
 
 		/*
-		 * Without cc_agent_subscribe_status the server pushes no agent_status
-		 * frames at all, so the session's status stays frozen at whatever it held
-		 * when the session opened — including after this app's own writes.
+		 * Status is written over REST but read off the websocket session, and
+		 * without cc_agent_subscribe_status the server pushes no agent_status
+		 * frames — so the status would stay frozen at whatever the session opened
+		 * with, including after this app's own writes.
 		 */
 		it('subscribes to this agent status changes', async () => {
 			const store = useAgentStore();

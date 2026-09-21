@@ -28,20 +28,12 @@ vi.mock('@webitel/ui-sdk/modules/Appearance', () => ({
 		})),
 }));
 
-vi.mock('@webitel/ui-sdk/modules/AgentStatusSelect', () => ({
-	PauseCauseAPI: {
-		getList: vi.fn(),
-	},
-	useActivityTypesOptions: () => ({
-		activityTypes: {
-			value: [],
-		},
-		loadActivityTypes: vi.fn(),
+vi.mock(
+	'@webitel/ui-sdk/modules/AgentStatusSelect/components/wt-cc-agent-status-select.vue',
+	() => ({
+		default: stub('WtCcAgentStatusSelect'),
 	}),
-	WtCcActivityTypePopup: stub('WtCcActivityTypePopup'),
-	WtCcPauseCausePopup: stub('WtCcPauseCausePopup'),
-	WtCcStatusSelectErrorPopup: stub('WtCcStatusSelectErrorPopup'),
-}));
+);
 
 vi.mock('../../../../app/locale/i18n', () => ({
 	default: {
