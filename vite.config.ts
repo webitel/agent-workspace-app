@@ -37,6 +37,7 @@ export default ({ mode }) => {
 			// force pre-bundling so the default-export interop works.
 			include: [
 				'clipboard-copy',
+				'deep-copy',
 				'deep-equal',
 				'deepmerge',
 			],
