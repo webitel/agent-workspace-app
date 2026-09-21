@@ -7,7 +7,8 @@
 			@search="emit('search', $event)"
 		/>
 
-		<slot />
+
+    <slot> </slot>
 
 <!--		<wt-table-column-select-->
 <!--			v-if="actions.includes('columnSelect')"-->
@@ -36,8 +37,7 @@ import {
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
-
-export type WsTableActionPanelAction = 'refresh' | 'columnSelect' | 'filter';
+import type { WsTableActionPanelAction } from './enums/WsTableActionPanelAction.enum';
 
 const props = withDefaults(
 	defineProps<{
