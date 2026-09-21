@@ -53,6 +53,34 @@ test.describe('agent status select', () => {
 		});
 	});
 
+	test('follows a status the server pushes', async ({ page, socket }) => {
+		test.setTimeout(60_000);
+		await mockPauseCauses(page);
+
+		await page.goto('calls');
+
+		const indicator = page.locator(
+			'.agent-status-select .wt-indicator__indicator',
+		);
+		// the mocked session starts online
+		await expect(indicator).toHaveClass(/wt-indicator__indicator--success/, {
+			timeout: 30_000,
+		});
+
+		socket.send('agent_status', {
+			user_id: 1,
+			agent_id: 1,
+			timestamp: Date.now(),
+			status: 'pause',
+			status_comment: '',
+			channels: [],
+		});
+
+		await expect(indicator).toHaveClass(/wt-indicator__indicator--primary/, {
+			timeout: 15_000,
+		});
+	});
+
 	/*
 	 * The one assertion the unit tests cannot make: unit tests assert against a
 	 * mocked `pause()`, so they prove the store's intent, not the frame. This

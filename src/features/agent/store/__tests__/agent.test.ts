@@ -8,6 +8,7 @@ const onlineMock = vi.fn();
 const pauseMock = vi.fn();
 const offlineMock = vi.fn();
 const getAgentSessionMock = vi.fn();
+const subscribeAgentsStatusMock = vi.fn();
 
 const agent = ref();
 
@@ -15,6 +16,9 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
 		agent,
 		getAgentSession: getAgentSessionMock,
+		getClient: () => ({
+			subscribeAgentsStatus: subscribeAgentsStatusMock,
+		}),
 	}),
 }));
 
@@ -36,6 +40,7 @@ describe('useAgentStore', () => {
 		pauseMock.mockReset();
 		offlineMock.mockReset();
 		getAgentSessionMock.mockReset();
+		subscribeAgentsStatusMock.mockReset();
 		agent.value = agentSession();
 		setActivePinia(
 			createTestingPinia({
@@ -179,6 +184,33 @@ describe('useAgentStore', () => {
 			await store.initializeAgent();
 
 			expect(getAgentSessionMock).toHaveBeenCalled();
+		});
+
+		/*
+		 * Without cc_agent_subscribe_status the server pushes no agent_status
+		 * frames at all, so the session's status stays frozen at whatever it held
+		 * when the session opened — including after this app's own writes.
+		 */
+		it('subscribes to this agent status changes', async () => {
+			const store = useAgentStore();
+
+			await store.initializeAgent();
+
+			expect(subscribeAgentsStatusMock).toHaveBeenCalledWith(
+				expect.any(Function),
+				{
+					agent_id: 42,
+				},
+			);
+		});
+
+		it('does not subscribe when there is no agent session', async () => {
+			agent.value = undefined;
+			const store = useAgentStore();
+
+			await store.initializeAgent();
+
+			expect(subscribeAgentsStatusMock).not.toHaveBeenCalled();
 		});
 	});
 });

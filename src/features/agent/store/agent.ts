@@ -24,7 +24,7 @@ const isAgentRemovedError = (err: unknown): boolean =>
 	).id === AGENT_REMOVED_ERROR;
 
 export const useAgentStore = defineStore('agent', () => {
-	const { agent, getAgentSession } = useWebSocketClient();
+	const { agent, getAgentSession, getClient } = useWebSocketClient();
 
 	const isAgentRemoved = ref(false);
 
@@ -32,8 +32,23 @@ export const useAgentStore = defineStore('agent', () => {
 	const status = computed(() => agent.value?.status);
 	const lastStatusChange = computed(() => agent.value?.lastStatusChange);
 
+	/*
+	 * The session reply carries the status once; keeping it current needs
+	 * `cc_agent_subscribe_status`. Without it the server pushes no agent_status
+	 * frames, so the SDK never calls `Agent.setStatus` and the status stays
+	 * frozen — even after this app's own writes, which the server acks without
+	 * echoing anything back.
+	 *
+	 * The handler is empty on purpose: the SDK updates the reactive Agent from
+	 * the frame before fanning it out, and that is what the UI reads.
+	 */
 	const initializeAgent = async () => {
 		await getAgentSession();
+		if (!agent.value) return;
+
+		await getClient().subscribeAgentsStatus(() => {}, {
+			agent_id: agent.value.agentId,
+		});
 	};
 
 	const setAgentWaitingStatus = async (activityType?: ActivityType) => {
