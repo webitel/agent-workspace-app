@@ -1,16 +1,7 @@
 <template>
 	<ws-page-wrapper :tabs="tabs">
 		<template #actions-panel>
-			<ws-table-action-panel
-				:search="!!currentTab?.search"
-				:search-value="searchValue"
-				:headers="shownHeaders"
-				:actions="currentTab?.actions ?? []"
-				@update:search-value="searchValue = $event"
-				@search="handleSearch"
-				@refresh="refresh"
-				@update:headers="updateShownHeaders"
-			/>
+			<component :is="currentTab?.actionPanel" :store="currentTab?.store" />
 		</template>
 		<template #main>
 			<component :is="currentTab?.component" :store="currentTab?.store" />
@@ -19,100 +10,42 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import type { Component } from 'vue';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
-import type { WsTableActionPanelAction } from '../../components/enums/WsTableActionPanelAction.enum';
 import WsPageWrapper from '../../components/ws-page-wrapper.vue';
-import WsTableActionPanel from '../../components/ws-table-action-panel.vue';
-import { ContactsPageTabName } from './enums/ContactsPageTabName.enum';
-import ContactsTab from './modules/contacts/contacts-tab.vue';
+import type { PageTab } from '../../types/PageTab.types';
+import { ContactsPageTab } from './enums/ContactsPageTab.enum';
+import ContactsActionPanel from './modules/contacts/contacts-action-panel.vue';
+import ContactsTable from './modules/contacts/contacts-table.vue';
 import { useContactsDataListStore } from './modules/contacts/store/contacts';
-import UsersTab from './modules/users/users-tab.vue';
-
-interface ContactsPageTab {
-	text: string;
-	value: string;
-	pathName: ContactsPageTabName;
-	component: Component;
-	store?: ReturnType<typeof useContactsDataListStore>;
-	actions: WsTableActionPanelAction[];
-	search?: boolean;
-}
+import UsersTable from './modules/users/users-table.vue';
 
 const { t } = useI18n();
 const route = useRoute();
 
-// стор створюється один раз тут — і для action-панелі (нижче), і щоб
-// явно віддати його в contacts-tab.vue через проп `store`
 const contactsDataListStore = useContactsDataListStore();
 
-const tabs = computed<ContactsPageTab[]>(() => [
-	{
-		text: t('objects.contact', 2),
-		value: 'contacts',
-		pathName: ContactsPageTabName.Contacts,
-		component: ContactsTab,
-		store: contactsDataListStore,
-		actions: [],
-		search: true,
-	},
-	{
-		text: t('objects.user', 2),
-		value: 'users',
-		pathName: ContactsPageTabName.Users,
-		component: UsersTab,
-		actions: [],
-		search: true,
-	},
-]);
+const tabs = computed<PageTab<ReturnType<typeof useContactsDataListStore>>[]>(
+	() => [
+		{
+			text: t('objects.contact', 2),
+			value: 'contacts',
+			pathName: ContactsPageTab.Contacts,
+			component: ContactsTable,
+			actionPanel: ContactsActionPanel,
+			store: contactsDataListStore,
+		},
+		{
+			text: t('objects.user', 2),
+			value: 'users',
+			pathName: ContactsPageTab.Users,
+			component: UsersTable,
+		},
+	],
+);
 
 const currentTab = computed(() =>
 	tabs.value.find((tab) => tab.pathName === route.name),
 );
-
-const { shownHeaders } = storeToRefs(contactsDataListStore);
-const {
-	hasFilter,
-	addFilter,
-	updateFilter,
-	deleteFilter,
-	updateShownHeaders,
-	loadDataList,
-} = contactsDataListStore;
-
-const isContactsTab = computed(
-	() => currentTab.value?.pathName === ContactsPageTabName.Contacts,
-);
-
-const searchValue = ref('');
-
-const handleSearch = (value: string) => {
-	if (!isContactsTab.value) return;
-
-	if (!value) {
-		if (hasFilter('search'))
-			deleteFilter({
-				name: 'search',
-			});
-		return;
-	}
-
-	hasFilter('search')
-		? updateFilter({
-				name: 'search',
-				value,
-			})
-		: addFilter({
-				name: 'search',
-				value,
-			});
-};
-
-const refresh = () => {
-	if (!isContactsTab.value) return;
-	loadDataList();
-};
 </script>

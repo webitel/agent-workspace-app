@@ -9,13 +9,12 @@
 
 
     <slot> </slot>
-
+<!-- TODO: remove commented code below when WtTableActions and WtTableColumnSelect are implemented in the future-->
 <!--		<wt-table-column-select-->
 <!--			v-if="actions.includes('columnSelect')"-->
 <!--			:headers="headers"-->
 <!--			@change="emit('update:headers', $event)"-->
 <!--		/>-->
-
 <!--		<wt-table-actions-->
 <!--			v-if="tableActionsIcons.length"-->
 <!--			:icons="tableActionsIcons"-->
@@ -67,19 +66,6 @@ const emit = defineEmits<{
 		headers: DatalistTableHeader[],
 	];
 }>();
-
-// icon-emit pairs fo actions
-// WtTableColumnSelect is self-contained, so don`t need that
-// const actionIconMap = {
-// 	refresh: 'refresh',
-// 	filter: 'settings',
-// };
-
-// const tableActionsIcons = computed(() =>
-//   props.actions
-// );
-
-// function onTableActionsInput(value) {}
 
 const sidebarStore = useWorkspaceSidebarStore();
 const { isOpen } = storeToRefs(sidebarStore);

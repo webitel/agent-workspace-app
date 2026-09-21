@@ -1,5 +1,4 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
-// import { SortSymbols } from "@webitel/ui-sdk/scripts";
 
 export const headers: DatalistTableHeader[] = [
 	{
@@ -20,16 +19,10 @@ export const headers: DatalistTableHeader[] = [
 		value: 'phones',
 		locale: [
 			'vocabulary.phones',
-			1,
+			2,
 		],
 		show: true,
 		field: 'phones',
-	},
-	{
-		value: 'about',
-		locale: 'vocabulary.description',
-		show: true,
-		field: 'about',
 		sort: null,
 	},
 ];
