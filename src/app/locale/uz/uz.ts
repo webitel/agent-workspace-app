@@ -10,7 +10,7 @@ export default {
 			},
 		},
 		notifications: {
-			incoming: {
+			offer: {
 				title: {
 					call: 'Kiruvchi qoʻngʻiroq',
 					chat: 'Kiruvchi chat',

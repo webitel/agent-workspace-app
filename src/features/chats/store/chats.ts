@@ -3,8 +3,8 @@ import { computed, getCurrentScope, ref, watch } from 'vue';
 import type { Task } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import { router } from '../../../app/router';
-import { useIncomingInteractionsStore } from '../../../ui/notifications/incoming/store/incomingInteractions';
-import { InteractionKind } from '../../../ui/notifications/types/IncomingInteraction.types';
+import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
+import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
@@ -21,7 +21,7 @@ export const useChatsStore = defineStore('chats', () => {
 
 	const { getClient, tasks } = useWebSocketClient();
 	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
-	const incomingInteractions = useIncomingInteractionsStore();
+	const offersStore = useOffersStore();
 
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
@@ -114,13 +114,13 @@ export const useChatsStore = defineStore('chats', () => {
 			watch(
 				incomingOffers,
 				(offers) => {
-					incomingInteractions.retainOnly(
-						InteractionKind.Chat,
+					offersStore.retainOnly(
+						OfferKind.Chat,
 						offers.map((task) => String(task.id)),
 					);
 
 					for (const task of offers) {
-						incomingInteractions.notify({
+						offersStore.notify({
 							// the task owns the offer's lifecycle; the thread id is only
 							// needed for navigation, and may not be there at all
 							id: String(task.id),
@@ -147,7 +147,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// the SDK needs a subscriber before it will populate the task feed
 		client.subscribeTask(() => {});
 
-		incomingInteractions.initialize();
+		offersStore.initialize();
 		subscribeToOffers();
 
 		connectChatsSocket();

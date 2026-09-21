@@ -10,7 +10,7 @@ export default {
 			},
 		},
 		notifications: {
-			incoming: {
+			offer: {
 				title: {
 					call: 'Incoming call request',
 					chat: 'Incoming chat request',

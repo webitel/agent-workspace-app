@@ -10,11 +10,21 @@
 			{{ t('ui.header.sip') }}
 		</wt-chip>
 		<user-dnd-switcher />
+		<agent-status-select />
+		<wt-call-media-metric
+			:quality="level"
+			show-tooltip
+		/>
 	</wt-app-header>
 </template>
 
 <script setup lang="ts">
-import { WtAppHeader, WtChip, WtLogo } from '@webitel/ui-sdk/components';
+import {
+	WtAppHeader,
+	WtCallMediaMetric,
+	WtChip,
+	WtLogo,
+} from '@webitel/ui-sdk/components';
 import { WtDarkModeSwitcher } from '@webitel/ui-sdk/modules/Appearance';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
@@ -22,6 +32,8 @@ import { useI18n } from 'vue-i18n';
 import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
 import OpenFlowsButton from '../../../features/flows/components/open-flows-button.vue';
 import { useGlobalHandlersStore } from '../../../features/global-handlers/store/globalHandlers';
+import { useConnectionQualityStore } from '../modules/connectionQuality/store/connectionQuality';
+import AgentStatusSelect from './agent-status-select.vue';
 import UserDndSwitcher from './user-dnd-switcher.vue';
 
 const { t } = useI18n();
@@ -34,6 +46,9 @@ const { setTheme } = appearanceStore;
 
 const globalHandlersStore = useGlobalHandlersStore();
 const { isPhoneReg } = storeToRefs(globalHandlersStore);
+
+const connectionQualityStore = useConnectionQualityStore();
+const { level } = storeToRefs(connectionQualityStore);
 </script>
 
 <style scoped>

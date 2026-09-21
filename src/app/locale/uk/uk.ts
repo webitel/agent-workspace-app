@@ -10,7 +10,7 @@ export default {
 			},
 		},
 		notifications: {
-			incoming: {
+			offer: {
 				title: {
 					call: 'Вхідний дзвінок',
 					chat: 'Вхідний чат',
