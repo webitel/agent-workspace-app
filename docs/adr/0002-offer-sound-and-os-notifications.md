@@ -34,11 +34,10 @@ along with two defects worth not taking.
 for a text chat is wrong on its own terms, and an agent handling several chats
 could not tell what was demanding attention.
 
-**Only the loop takes the exclusive cross-tab lock.** The lock means "a loop
-owns the sound channel while it runs". A one-shot that took it would silence a
-second chat arriving a moment later, and releasing it afterwards would cut a
-running ringtone. The chirp respects only the main-tab rule, so tabs do not
-chirp in chorus.
+**Each sound class takes its own cross-tab lock.** The ring holds its lock while
+it runs; the chirp takes a separate one for about a second and lets it expire.
+Sharing one lock would have the chirp cut a running ringtone on release, and the
+ringtone swallow every chirp behind it.
 
 **A chat arriving during a ringing call is silent.** The call has a deadline and
 the chat does not; two overlapping sounds tell the agent less than one clear
@@ -48,10 +47,24 @@ one. The card and the OS notification still carry the offer.
 chat offer holds the ring open after the call resolved, and dismissing a chat
 silences a call that is still ringing.
 
-**The lock fails open, not closed.** It is released on `beforeunload`, it
-expires when stale, and every storage access is wrapped — in a private window or
-with site data blocked it degrades to "always allowed". A crashed tab must not
-mute the app permanently, which is the failure mode of the ui-sdk original.
+**The lock fails open, not closed.** Every lock carries an expiry, so an
+expired lock reads as no lock at all; it is also released on `beforeunload`, and
+every storage access is wrapped — in a private window or with site data blocked
+it degrades to "always allowed". Silence must never be the resting state.
+
+**There is no "main tab" slot, and the keys are ours.** The first design kept
+one under the bare `currentTabId` key, claimed by whichever tab arrived first
+and never expiring — the ui-sdk original's shape. Both halves were wrong. Every
+Webitel app shares this origin, and ui-sdk's Vuex module writes `currentTabId`
+*unconditionally* on load, so opening the admin panel or the CRM handed the slot
+to another app's tab and muted this one for good; a tab that died without
+running its unload handler did the same. Locks now live under
+`wt/agent-workspace/sound-lock/<kind>`, which no other app writes, and the
+legacy keys are left alone because they still belong to the apps that read them.
+
+The cost is that this app and a legacy one no longer dedupe against each other:
+with both open during migration, both make noise. That is the right way round —
+a duplicated ring is recoverable, a permanently silent workspace is not.
 
 **The service worker is notification-only.** A hand-written `public/sw.js`, no
 `vite-plugin-pwa`, no workbox, no precaching. The only capability needed is

@@ -1,13 +1,20 @@
 import ringingSound from '@webitel/ui-sdk/src/modules/Notifications/assets/audio/ringing.mp3';
 
 import { playSafely } from '../utils/playSafely';
-import { useSoundLock } from './useSoundLock';
+import { SoundLockKind, useSoundLock } from './useSoundLock';
 
 /**
  * The looping ringtone for offers with a deadline (calls). One looping element for the whole app: several
  * simultaneous offers share a single ring (a second loop would just phase
  * against the first), and the cross-tab lock keeps other tabs quiet.
  */
+
+/**
+ * Generous next to a ring (~30s), short enough that a tab which died mid-ring
+ * does not keep the others quiet. A ring outliving it would let a second tab
+ * start its own loop, which is the same bound the old playing lock had.
+ */
+const RING_LOCK_MS = 2 * 60 * 1000;
 
 let audio: HTMLAudioElement | null = null;
 let primed = false;
@@ -65,7 +72,10 @@ function primeOnFirstGesture() {
 }
 
 export function useRingtone() {
-	const { acquire, release, isHeldByThisTab } = useSoundLock();
+	const { acquire, release, isHeldByThisTab } = useSoundLock(
+		SoundLockKind.Ringtone,
+		RING_LOCK_MS,
+	);
 
 	primeOnFirstGesture();
 

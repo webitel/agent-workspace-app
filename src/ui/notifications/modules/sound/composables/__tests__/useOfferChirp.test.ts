@@ -49,10 +49,16 @@ describe('useOfferChirp', () => {
 		expect(media.play).toHaveBeenCalledTimes(2);
 	});
 
-	/** Several tabs each receive the event; only the main one makes a sound. */
-	it('stays silent in a tab that does not own the main slot', async () => {
+	/** Several tabs each receive the event; only the first to claim makes a sound. */
+	it('stays silent while another tab holds the chirp lock', async () => {
 		const media = stubMediaElement();
-		localStorage.setItem('currentTabId', 'another-tab');
+		localStorage.setItem(
+			'wt/agent-workspace/sound-lock/chirp',
+			JSON.stringify({
+				tabId: 'another-tab',
+				until: Date.now() + 60_000,
+			}),
+		);
 
 		const chirp = await loadChirp();
 		chirp.play();
@@ -61,18 +67,32 @@ describe('useOfferChirp', () => {
 	});
 
 	/**
-	 * The lock means "a loop owns the sound channel". A one-shot that took it
-	 * would silence the next chat and, on release, cut a running ringtone.
+	 * A one-shot that took the ringtone's lock would cut a ring that happened to
+	 * be running, and a ring would swallow every chirp behind it.
 	 */
-	it('does not take the exclusive sound lock', async () => {
+	it('does not take the ringtone lock', async () => {
 		stubMediaElement();
 		vi.resetModules();
 		const { useOfferChirp } = await import('../useOfferChirp');
-		const { useSoundLock } = await import('../useSoundLock');
+		const { SoundLockKind, useSoundLock } = await import('../useSoundLock');
 
 		useOfferChirp().play();
 
-		expect(useSoundLock().acquire()).toBe(true);
+		expect(useSoundLock(SoundLockKind.Ringtone, 60_000).acquire()).toBe(true);
+	});
+
+	/**
+	 * A sibling Webitel app on this origin writes `currentTabId` on every load.
+	 * Sharing that key is what muted this app for good.
+	 */
+	it('chirps even when another app owns the legacy tab slot', async () => {
+		const media = stubMediaElement();
+		localStorage.setItem('currentTabId', '0.8222423407829396');
+
+		const chirp = await loadChirp();
+		chirp.play();
+
+		expect(media.play).toHaveBeenCalledTimes(1);
 	});
 
 	it('swallows a rejected play instead of leaving it unhandled', async () => {
