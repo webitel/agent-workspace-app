@@ -1,7 +1,7 @@
 <template>
-	<div class="flows-schemas-button" @click="open">
+	<div class="flows-button" @click="open">
 		<wt-divider variant="vertical" />
-		<wt-icon class="flows-schemas-button__icon" icon="flows" size="sm" />
+		<wt-icon class="flows-button__icon" icon="flows" size="sm" />
 		<wt-divider variant="vertical" />
 	</div>
 	<flows-modal
@@ -27,13 +27,13 @@ const close = () => {
 </script>
 
 <style scoped>
-.flows-schemas-button {
+.flows-button {
 	display: flex;
 	gap: var(--spacing-2xs);
 	cursor: pointer;
 }
 
-.flows-schemas-button__icon {
+.flows-button__icon {
 	margin: var(--spacing-2xs);
 }
 </style>
