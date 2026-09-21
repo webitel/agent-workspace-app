@@ -5,7 +5,7 @@
 		@close="emit('close')"
 	>
 		<template #header>
-			{{	t('objects.flow.name', 2) }}
+			{{ t('objects.flow.name', 2) }}
 		</template>
 
 		<template #main>
