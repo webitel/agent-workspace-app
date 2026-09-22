@@ -1,179 +1,56 @@
+<!-- the-workspace-nav.vue -->
 <template>
-    <nav class="the-workspace-nav">
-        <ul class="the-workspace-nav-list">
-            <li>
-                <router-link
-                    v-slot="{ navigate, isExactActive }"
-                    to="/"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-home-page" 
-                        variant="text"
-                        :class="{ active: isExactActive  }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>
-            <li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/calls"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-calls"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>
-            <li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/chats"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-chats"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>
-            <!--<li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-mentions"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>-->
-            <!--<li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-email"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>-->
-            <li class="the-workspace-nav-list__tasks">
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/tasks"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-tasks"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>
-
-            <!--<li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/chats"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-knowledge-base"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>-->
-            <li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/contacts"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-contacts"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>
-            <li>
-                <router-link
-                    v-slot="{ navigate, isActive }"
-                    to="/history"
-                    custom
-                >
-                    <wt-button
-                        icon="ws-navigation-history"
-                        variant="text"
-                        :class="{ active: isActive }"
-                         @click="() => navigate()"
-                    />
-                </router-link>
-            </li>
-            <li>
-                <wt-button 
-                    icon="ws-navigation-calls"
-                    variant="text"
-                />
-            </li>
-        </ul>
-    </nav>
+  <nav class="the-workspace-nav">
+    <ul class="the-workspace-nav-list">
+      <workspace-nav-item
+        v-for="(item, index) in navItemsWithBadges"
+        :key="item.kind === 'link' ? item.to : `button-${index}`"
+        :item="item"
+      />
+    </ul>
+  </nav>
 </template>
 
 <script setup lang="ts">
-import { WtButton } from '@webitel/ui-sdk/components';
+import { computed, ref } from 'vue';
+import { navItems } from '../config/navItems.config';
+import type { NavBadgeConfig } from '../types/NavItem.types';
+import WorkspaceNavItem from './workspace-nav-item.vue';
+
+// TODO: додати лічильники з реальних сторів
+const newCallsCount = ref(0);
+const newChatsCount = ref(0);
+
+function resolveBadge(to?: string): NavBadgeConfig | undefined {
+	if (to === '/calls') {
+		return {
+			variant: 'danger',
+			count: newCallsCount.value,
+		};
+	}
+	if (to === '/chats') {
+		return {
+			variant: 'success',
+			count: newChatsCount.value,
+		};
+	}
+	return undefined;
+}
+
+const navItemsWithBadges = computed(() =>
+	navItems.map((item) => ({
+		...item,
+		badge: item.kind === 'link' ? resolveBadge(item.to) : undefined,
+	})),
+);
 </script>
 
 <style scoped>
 .the-workspace-nav-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    background: var(--brand-gradient-45);
-    height: 100%;
-    padding: var(--spacing-xs);
-}
-
-.the-workspace-nav-list__tasks {
-    margin-bottom: auto;
-}
-
-.p-button :deep(span) {
-    fill: var(--wt-ws-sidebar-menu-colors-button-text-color);
-}
-
-
-.p-button.active {
-    background: var(--wt-ws-sidebar-menu-colors-button-filled-background);
-}
-
-.p-button.active :deep(span) {
-    fill: var(--wt-ws-sidebar-menu-colors-button-filled-color);
-}
-
-.p-button:hover {
-    background: var(--wt-ws-sidebar-menu-colors-button-text-hover-background);
-}
-
-.p-button:hover :deep(span){
-    fill: var(--wt-ws-sidebar-menu-colors-button-text-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  height: 100%;
+  padding: var(--spacing-xs);
 }
 </style>
