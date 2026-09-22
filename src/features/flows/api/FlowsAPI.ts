@@ -14,7 +14,7 @@ const runFlowSchema = async ({ id }: { id: number }) => {
 			notify(({ callback }) =>
 				callback({
 					type: 'success',
-					text: i18n.global.t('infoSec.flows.runFlowSuccess'),
+					text: i18n.global.t('ui.notifications.flows.runFlowSuccess'),
 				}),
 			),
 		]);
@@ -23,7 +23,7 @@ const runFlowSchema = async ({ id }: { id: number }) => {
 			notify(({ callback }) =>
 				callback({
 					type: 'error',
-					text: i18n.global.t('infoSec.flows.runFlowError'),
+					text: i18n.global.t('ui.notifications.flows.runFlowError'),
 				}),
 			),
 		]);

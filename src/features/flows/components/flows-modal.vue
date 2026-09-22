@@ -17,8 +17,8 @@
 						:key="flow.id"
 					>
 						<wt-divider v-if="index !== 0" />
-						<li class="flows__item">
-							<span class="flows__item__name typo-body-2">
+						<li class="flow-item">
+							<span class="flow-item__name typo-body-2">
 								{{ flow.name }}
 							</span>
 							<run-flow-button
@@ -57,12 +57,12 @@ import FlowsAPI from '../api/FlowsAPI';
 import type { Flow } from '../types/Flow.types';
 import RunFlowButton from './run-flow-button.vue';
 
-const emit = defineEmits([
-	'close',
-]);
-
 const props = defineProps<{
 	isOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+	close: [];
 }>();
 
 const { t } = useI18n();
@@ -103,7 +103,7 @@ watch(
 
 <style scoped>
 	:deep(.wt-popup__popup) {
-		height: 100%;
+		height: 600px;
 	}
 
 	.wt-loader {
@@ -113,7 +113,11 @@ watch(
 		transform: translate(-50%, -50%);
 	}
 
-	.flows__item {
+	.flows {
+		height: 100%;
+	}
+
+	.flow-item {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -121,16 +125,13 @@ watch(
 		gap: var(--spacing-xs);
 	}
 
-	.flows__item__name {
+	.flow-item__name {
 		flex: 1;
 		overflow-wrap: break-word;
 		word-break: break-all;
 	}
 
 	.wt-empty {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
+		height: 100%;
 	}
 </style>

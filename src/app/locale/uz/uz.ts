@@ -22,6 +22,10 @@ export default {
 				accept: 'Qabul qilish',
 				decline: 'Rad etish',
 			},
+			flows: {
+				runFlowSuccess: 'Sxema muvaffaqiyatli ishga tushirildi',
+				runFlowError: 'Sxemani ishga tushirib boʻlmadi',
+			},
 		},
 		reusable: {
 			cancel: 'Bekor qilish',

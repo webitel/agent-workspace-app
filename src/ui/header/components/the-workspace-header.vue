@@ -5,7 +5,7 @@
 			:logo-href="startPageHref"
 		/>
 		<wt-dark-mode-switcher @changed-mode="setTheme" />
-		<open-flows-button />
+		<open-flows-action />
 		<wt-chip :color="isPhoneReg ? 'success' : 'primary'">
 			{{ t('ui.header.sip') }}
 		</wt-chip>
@@ -30,7 +30,7 @@ import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
-import OpenFlowsButton from '../../../features/flows/components/open-flows-button.vue';
+import OpenFlowsAction from '../../../features/flows/components/open-flows-action.vue';
 import { useGlobalHandlersStore } from '../../../features/global-handlers/store/globalHandlers';
 import { useConnectionQualityStore } from '../modules/connectionQuality/store/connectionQuality';
 import AgentStatusSelect from './agent-status-select.vue';

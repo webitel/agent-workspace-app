@@ -22,6 +22,10 @@ export default {
 				accept: 'Accept',
 				decline: 'Decline',
 			},
+			flows: {
+				runFlowSuccess: 'Schema launched successfully',
+				runFlowError: 'Failed to run the schema',
+			},
 		},
 		reusable: {
 			cancel: 'Cancel',

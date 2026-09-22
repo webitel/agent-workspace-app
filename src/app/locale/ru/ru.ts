@@ -22,6 +22,10 @@ export default {
 				accept: 'Принять',
 				decline: 'Отклонить',
 			},
+			flows: {
+				runFlowSuccess: 'Схема успешно запущена',
+				runFlowError: 'Не удалось запустить схему',
+			},
 		},
 		reusable: {
 			cancel: 'Отменить',
