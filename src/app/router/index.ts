@@ -8,6 +8,9 @@ import {
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
+import TheContactsWorkspace from '../../ui/pages/modules/contacts/components/the-contacts-workspace.vue';
+import TheHistoryWorkspace from '../../ui/pages/modules/history/components/the-history-workspace.vue';
+import TheTasksWorkspace from '../../ui/pages/modules/tasks/components/the-tasks-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -35,6 +38,21 @@ const routes: RouteRecordRaw[] = [
 						component: TheChatWindow,
 					},
 				],
+			},
+			{
+				path: '/tasks',
+				name: 'tasks',
+				component: TheTasksWorkspace,
+			},
+			{
+				path: '/contacts',
+				name: 'contacts',
+				component: TheContactsWorkspace,
+			},
+			{
+				path: '/history',
+				name: 'history',
+				component: TheHistoryWorkspace,
 			},
 		],
 	},
