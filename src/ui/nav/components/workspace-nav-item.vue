@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import { WtButton } from '@webitel/ui-sdk/components';
 import type { NavItemConfig } from '../types/NavItem.types';
 
 defineProps<{
