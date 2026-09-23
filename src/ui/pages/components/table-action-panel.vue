@@ -19,7 +19,6 @@
 
 <script lang="ts" setup>
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
-import { WtIconBtn, WtSearchBar } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';

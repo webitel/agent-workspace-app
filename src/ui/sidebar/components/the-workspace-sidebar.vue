@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { WtIconBtn } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { useWorkspaceSidebarStore } from '../store/workspace-sidebar';
 

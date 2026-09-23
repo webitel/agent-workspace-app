@@ -1,4 +1,4 @@
-import { fillIconsRepository } from '@webitel/ui-sdk/icons';
+import { fillIconsRepository } from '@webitel/ui-sdk';
 import wsSidebarClose from './ws-sidebar-close.svg?raw';
 import wsSidebarOpen from './ws-sidebar-open.svg?raw';
 

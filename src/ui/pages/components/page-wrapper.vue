@@ -64,8 +64,9 @@ const changeTab = ({ pathName }: WsPageTab) => {
   flex-direction: column;
   box-sizing: border-box;
   max-width: 100%;
-  min-height: 100%;
+  height: 100%;
   padding: var(--spacing-sm);
+  gap: var(--spacing-xs);
 }
 
 .page-wrapper__header,
