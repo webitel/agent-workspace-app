@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-show="dataList.length"
-		class="contacts-table table-page"
+		class="contacts-table table-wrapper"
 	>
 		<wt-table
 			:data="dataList"
