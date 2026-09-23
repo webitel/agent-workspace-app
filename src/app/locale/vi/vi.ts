@@ -22,6 +22,14 @@ export default {
 				accept: 'Chấp nhận',
 				decline: 'Từ chối',
 			},
+			flows: {
+				runFlowSuccess: 'Khởi chạy sơ đồ thành công',
+				runFlowError: 'Không thể khởi chạy sơ đồ',
+			},
+		},
+		reusable: {
+			cancel: 'Hủy',
+			run: 'Chạy',
 		},
 	},
 	error: {

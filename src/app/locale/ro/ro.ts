@@ -22,6 +22,13 @@ export default {
 				accept: 'Acceptă',
 				decline: 'Respinge',
 			},
+			flows: {
+				runFlowSuccess: 'Schema a fost lansată cu succes',
+				runFlowError: 'Eroare la rularea schemei',
+			},
+		},
+		reusable: {
+			run: 'Rulează',
 		},
 	},
 	error: {

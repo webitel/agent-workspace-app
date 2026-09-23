@@ -1,0 +1,39 @@
+import { AgentTriggersAPI } from '@webitel/api-services/api';
+import { applyTransform, notify } from '@webitel/api-services/api/transformers';
+import i18n from '../../../app/locale/i18n';
+
+const runFlowSchema = async ({ id }: { id: number }) => {
+	try {
+		const result = await AgentTriggersAPI.run({
+			id,
+		});
+
+		return applyTransform(result, [
+			notify(({ callback }) =>
+				callback({
+					type: 'success',
+					text: i18n.global.t('ui.notifications.flows.runFlowSuccess'),
+				}),
+			),
+		]);
+	} catch (err) {
+		throw applyTransform(err, [
+			notify(({ callback }) =>
+				callback({
+					type: 'error',
+					text: i18n.global.t('ui.notifications.flows.runFlowError'),
+				}),
+			),
+		]);
+	}
+};
+
+const getFlowsLookup = (params: Record<string, unknown>) =>
+	AgentTriggersAPI.getLookup(params);
+
+const FlowsAPI = {
+	run: runFlowSchema,
+	getLookup: getFlowsLookup,
+};
+
+export default FlowsAPI;
