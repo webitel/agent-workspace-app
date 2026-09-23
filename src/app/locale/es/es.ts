@@ -28,7 +28,6 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Cancelar',
 			run: 'Ejecutar',
 		},
 	},

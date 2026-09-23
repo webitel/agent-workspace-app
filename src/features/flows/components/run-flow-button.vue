@@ -5,7 +5,7 @@
 		size="sm"
 		@click="runFlow"
 	>
-			{{ t('ui.reusable.run') }}
+		{{ t('ui.reusable.run') }}
 	</wt-button>
 </template>
 

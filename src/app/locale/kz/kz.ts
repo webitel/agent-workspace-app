@@ -28,7 +28,6 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Бас тарту',
 			run: 'Іске қосу',
 		},
 	},

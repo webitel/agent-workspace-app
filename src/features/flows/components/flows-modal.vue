@@ -2,6 +2,7 @@
 	<wt-popup
 		v-if="isOpen"
 		size="md"
+		height="600px"
 		@close="emit('close')"
 	>
 		<template #header>
@@ -40,7 +41,7 @@
 				color="secondary"
 				@click="emit('close')"
 			>
-				{{ t('ui.reusable.cancel') }}
+				{{ t('reusable.cancel') }}
 			</wt-button>
 		</template>
 	</wt-popup>
@@ -48,6 +49,7 @@
 
 <script setup lang="ts">
 import { WtEmpty } from '@webitel/ui-sdk/components';
+import { useMinDurationLoader } from '@webitel/ui-sdk/composables';
 import emptySearchDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-dark.svg';
 import emptySearchLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-light.svg';
 import { computed, ref, watch } from 'vue';
@@ -68,8 +70,9 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const appearanceStore = useAppearanceStore();
 
+const { isLoading, runWithMinDuration } = useMinDurationLoader();
+
 const flowsList = ref<Flow[]>([]);
-const isLoading = ref(false);
 
 const darkMode = computed(() => appearanceStore.darkMode);
 
@@ -77,20 +80,17 @@ const emptySearchImage = computed(() =>
 	darkMode.value ? emptySearchDark : emptySearchLight,
 );
 
-const loadFlows = async () => {
-	isLoading.value = true;
-	try {
-		const { items } = await FlowsAPI.getLookup({
-			enabled: true,
-		});
-		flowsList.value = items;
-	} catch (err) {
-		flowsList.value = [];
-	} finally {
-		setTimeout(() => {
-			isLoading.value = false;
-		}, 500);
-	}
+const loadFlows = () => {
+	runWithMinDuration(async () => {
+		try {
+			const { items } = await FlowsAPI.getLookup({
+				enabled: true,
+			});
+			flowsList.value = items;
+		} catch (err) {
+			flowsList.value = [];
+		}
+	});
 };
 
 watch(
@@ -102,10 +102,6 @@ watch(
 </script>
 
 <style scoped>
-	:deep(.wt-popup__popup) {
-		height: 600px;
-	}
-
 	.wt-loader {
 		position: absolute;
 		top: 50%;

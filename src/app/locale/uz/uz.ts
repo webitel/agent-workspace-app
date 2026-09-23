@@ -28,7 +28,6 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Bekor qilish',
 			run: 'Ishga tushirish',
 		},
 	},

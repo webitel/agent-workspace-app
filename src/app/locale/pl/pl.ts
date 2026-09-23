@@ -28,7 +28,6 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Anuluj',
 			run: 'Uruchom',
 		},
 	},
