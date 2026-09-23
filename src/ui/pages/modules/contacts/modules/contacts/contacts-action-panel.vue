@@ -1,6 +1,6 @@
 <template>
-	<ws-table-action-panel
-		search
+	<table-action-panel
+		is-search
 		:search-value="searchValue"
 		:headers="shownHeaders"
 		@update:search-value="handleSearch"
@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import WsTableActionPanel from '../../../../components/ws-table-action-panel.vue';
+import TableActionPanel from '../../../../components/table-action-panel.vue';
 import type { useContactsDataListStore } from './store/contacts';
 
 const props = defineProps<{

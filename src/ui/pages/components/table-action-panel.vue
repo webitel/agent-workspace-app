@@ -1,24 +1,16 @@
 <template>
-	<div class="ws-table-action-panel">
+	<div class="table-action-panel">
 		<wt-search-bar
-			v-if="search"
+			v-if="isSearch"
 			:value="searchValue"
 			@input="emit('update:searchValue', $event)"
 			@search="emit('search', $event)"
 		/>
 
-
-    <slot> </slot>
+    <slot></slot>
 <!-- TODO: remove commented code below when WtTableActions and WtTableColumnSelect are implemented in the future-->
-<!--		<wt-table-column-select-->
-<!--			v-if="actions.includes('columnSelect')"-->
-<!--			:headers="headers"-->
-<!--			@change="emit('update:headers', $event)"-->
-<!--		/>-->
-<!--		<wt-table-actions-->
-<!--			v-if="tableActionsIcons.length"-->
-<!--			:icons="tableActionsIcons"-->
-<!--			@input="onTableActionsInput"-->
+<!--		<wt-action-bar-->
+<!--			mode="table"-->
 <!--		/>-->
 
 		<wt-icon-btn :icon="sidebarIcon" @click="toggleSidebar" />
@@ -27,27 +19,21 @@
 
 <script lang="ts" setup>
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
-import {
-	WtIconBtn,
-	WtSearchBar,
-	// WtTableActions,
-	// WtTableColumnSelect,
-} from '@webitel/ui-sdk/components';
+import { WtIconBtn, WtSearchBar } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
-import type { WsTableActionPanelAction } from './enums/WsTableActionPanelAction.enum';
+import type { TableActionPanelAction } from '../enums/TableActionPanelAction.enum';
 
 const props = withDefaults(
 	defineProps<{
-		search?: boolean;
+		isSearch?: boolean;
 		searchValue?: string;
 		headers?: DatalistTableHeader[];
-		actions?: WsTableActionPanelAction[];
+		actions?: TableActionPanelAction[];
 	}>(),
 	{
-		search: false,
-		searchValue: '',
+		isSearch: false,
 		headers: () => [],
 		actions: () => [],
 	},
@@ -77,7 +63,7 @@ const sidebarIcon = computed(() =>
 </script>
 
 <style scoped>
-.ws-table-action-panel {
+.table-action-panel {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-sm);

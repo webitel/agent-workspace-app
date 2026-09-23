@@ -34,7 +34,7 @@
 		"@webitel/api-services": "~26.8",
 		"@webitel/chat-web-sdk": "^0.0.19",
 		"@webitel/ui-chats": "~26.8",
-		"@webitel/ui-datalist": "^26.8.2",
+		"@webitel/ui-datalist": "~26.8",
 		"@webitel/styleguide": "~26.8",
 		"@webitel/ui-sdk": "~26.8",
 		"axios": "^1.17.0",

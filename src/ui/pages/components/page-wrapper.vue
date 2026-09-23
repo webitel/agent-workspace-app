@@ -1,6 +1,6 @@
 <template>
-  <section class="ws-page-wrapper">
-    <div v-if="!hideHeader" class="ws-page-wrapper__header">
+  <section class="page-wrapper">
+    <div class="page-wrapper__header">
       <slot name="header"></slot>
       <wt-tabs
         v-if="tabs.length"
@@ -10,13 +10,13 @@
       />
       <div
         v-if="actionsPanel"
-        class="ws-page-wrapper__actions-panel"
+        class="page-wrapper__actions-panel"
       >
         <slot name="actions-panel"></slot>
       </div>
     </div>
 
-    <div class="ws-page-wrapper__main">
+    <div class="page-wrapper__main">
       <slot name="main" > </slot>
     </div>
   </section>
@@ -34,12 +34,10 @@ export interface WsPageTab {
 
 const props = withDefaults(
 	defineProps<{
-		hideHeader?: boolean;
 		actionsPanel?: boolean;
 		tabs?: WsPageTab[];
 	}>(),
 	{
-		hideHeader: false,
 		actionsPanel: true,
 		tabs: () => [],
 	},
@@ -61,7 +59,7 @@ const changeTab = ({ pathName }: WsPageTab) => {
 </script>
 
 <style scoped>
-.ws-page-wrapper {
+.page-wrapper {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -70,23 +68,23 @@ const changeTab = ({ pathName }: WsPageTab) => {
   padding: var(--spacing-sm);
 }
 
-.ws-page-wrapper__header,
-.ws-page-wrapper__actions-panel,
-.ws-page-wrapper__main {
+.page-wrapper__header,
+.page-wrapper__actions-panel,
+.page-wrapper__main {
   box-sizing: border-box;
 }
 
-.ws-page-wrapper__header,
-.ws-page-wrapper__actions-panel {
+.page-wrapper__header,
+.page-wrapper__actions-panel {
   display: flex;
   align-items: center;
 }
 
-.ws-page-wrapper__header {
+.page-wrapper__header {
   justify-content: space-between;
 }
 
-.ws-page-wrapper__main {
+.page-wrapper__main {
   display: flex;
   flex: 1;
   width: 100%;

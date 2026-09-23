@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export const useWorkspaceSidebarStore = defineStore('workspaceSidebar', () => {
+export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 	const isOpen = ref(false);
 
 	function open() {
