@@ -12,6 +12,7 @@
 							:class="{ active: item.exact ? isExactActive : isActive }"
 							@click="() => navigate()"
 					/>
+					<!--TODO: після змін у компоненті wt-badge або wt-badge-new перевірити відображення-->
 					<wt-badge-new
 						v-if="item.badge && item.badge?.count > 0"
 						:severity="item.badge?.variant"

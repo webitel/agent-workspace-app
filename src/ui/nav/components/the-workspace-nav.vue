@@ -47,10 +47,11 @@ const navItemsWithBadges = computed(() =>
 
 <style scoped>
 .the-workspace-nav-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  height: 100%;
-  padding: var(--spacing-xs);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-xs);
+	height: 100%;
+	padding: var(--spacing-xs);
+	background: var(--wt-ws-sidebar-menu-colors-background);
 }
 </style>
