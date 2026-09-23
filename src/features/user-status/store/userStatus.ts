@@ -1,32 +1,32 @@
+import { UserPresenceStatus } from '@webitel/ui-sdk/enums';
+import { parseUserPresence } from '@webitel/ui-sdk/scripts';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import { getUserStatus, setUserStatus } from '../api/UsersStatusAPI';
-import { UserStatus } from '../enums/UserStatus';
-import { parseUserStatus } from '../scripts/parseUserStatus';
 
 export const useUserStatusStore = defineStore('user-status', () => {
 	const { getClient } = useWebSocketClient();
 
 	const initialized = ref(false);
-	const userStatus = ref<Record<UserStatus, boolean> | null>(null);
-	const isDnd = computed(() => !!userStatus.value?.[UserStatus.Dnd]);
+	const userStatus = ref<Record<UserPresenceStatus, boolean> | null>(null);
+	const isDnd = computed(() => !!userStatus.value?.[UserPresenceStatus.Dnd]);
 
 	async function subscribeUserStatus() {
 		const client = getClient();
 
 		await client.subscribeUsersStatus((value) => {
-			userStatus.value = parseUserStatus(value.status);
+			userStatus.value = parseUserPresence(value.status);
 		});
 	}
 
 	async function getCurrentUserStatus() {
 		const status = await getUserStatus();
-		userStatus.value = parseUserStatus(status);
+		userStatus.value = parseUserPresence(status);
 	}
 
 	async function toggleUserDnd() {
-		const status = isDnd.value ? '' : UserStatus.Dnd;
+		const status = isDnd.value ? '' : UserPresenceStatus.Dnd;
 		await setUserStatus(status);
 	}
 

@@ -1,7 +1,11 @@
 <template>
 	<page-wrapper :tabs="tabs">
 		<template #actions-panel>
-			<component :is="currentTab?.actionPanel" :store="currentTab?.store" />
+			<contacts-page-action-panel
+				v-if="currentTab?.store"
+				:key="currentTab.value"
+				:store="currentTab.store"
+			/>
 		</template>
 		<template #main>
 			<component :is="currentTab?.component" :store="currentTab?.store" />
@@ -15,8 +19,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import PageWrapper from '../../components/page-wrapper.vue';
 import type { PageTab } from '../../types/PageTab.types';
+import ContactsPageActionPanel from './contacts-page-action-panel.vue';
 import { ContactsPageTab } from './enums/ContactsPageTab.enum';
-import ContactsActionPanel from './modules/contacts/contacts-action-panel.vue';
 import ContactsTable from './modules/contacts/contacts-table.vue';
 import { useContactsDataListStore } from './modules/contacts/store/contacts';
 import UsersTable from './modules/users/users-table.vue';
@@ -31,7 +35,6 @@ const tabs = computed<PageTab<ReturnType<typeof useContactsDataListStore>>[]>(
 			value: ContactsPageTab.Contacts,
 			pathName: ContactsPageTab.Contacts,
 			component: ContactsTable,
-			actionPanel: ContactsActionPanel,
 			store: useContactsDataListStore(),
 		},
 		{

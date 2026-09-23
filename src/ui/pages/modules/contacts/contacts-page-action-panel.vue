@@ -12,11 +12,14 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import TableActionPanel from '../../../../components/table-action-panel.vue';
-import type { useContactsDataListStore } from './store/contacts';
+import TableActionPanel from '../../components/table-action-panel.vue';
+import type { useContactsDataListStore } from './modules/contacts/store/contacts';
+import type { useUsersDataListStore } from './modules/users/store/users';
 
 const props = defineProps<{
-	store: ReturnType<typeof useContactsDataListStore>;
+	store:
+		| ReturnType<typeof useContactsDataListStore>
+		| ReturnType<typeof useUsersDataListStore>;
 }>();
 
 const { shownHeaders } = storeToRefs(props.store);
