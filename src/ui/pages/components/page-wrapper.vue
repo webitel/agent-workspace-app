@@ -89,6 +89,5 @@ const changeTab = ({ pathName }: WsPageTab) => {
   display: flex;
   flex: 1;
   width: 100%;
-  min-height: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-show="dataList.length"
-		class="contacts-table table-section"
+		class="contacts-table table-page"
 	>
 		<wt-table
 			:data="dataList"
@@ -82,6 +82,10 @@ initialize().finally(() => {
 </script>
 
 <style scoped>
+.contacts-table {
+	width: 100%;
+}
+
 .contacts-table__username {
 	display: flex;
 	align-items: center;
