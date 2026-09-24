@@ -1,5 +1,5 @@
 <template>
-	<section class="the-chat-conversation">
+	<section class="the-chat-thread">
 		<h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
 		<chat-container
 			:messages="chatMessages"
@@ -73,7 +73,7 @@ async function handleAttachFiles(
 </script>
 
 <style scoped>
-.the-chat-conversation {
+.the-chat-thread {
 	flex: 1;
 	display: flex;
 	flex-direction: column;

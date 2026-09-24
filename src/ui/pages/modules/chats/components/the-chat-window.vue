@@ -1,6 +1,6 @@
 <template>
 	<section class="the-chat-window">
-		<the-chat-conversation class="the-chat-window__panel" />
+		<the-chat-thread class="the-chat-window__panel" />
 	</section>
 </template>
 
@@ -8,9 +8,9 @@
 	setup
 	lang="ts"
 >
-// The window frames the open chat; the conversation itself lives in its own
-// component so other panels (the processing form) can sit beside it.
-import TheChatConversation from './the-chat-conversation.vue';
+// The window frames the open chat; its thread (history, paging, sending) lives
+// in its own component so other panels (the processing form) can sit beside it.
+import TheChatThread from './the-chat-thread.vue';
 </script>
 
 <style scoped>
