@@ -53,6 +53,7 @@ import { useProcessingStore } from '../store/processing';
 import ProcessingFormDatetimepicker from './fields/processing-form-datetimepicker.vue';
 import ProcessingFormInputText from './fields/processing-form-input-text.vue';
 import ProcessingFormSelect from './fields/processing-form-select.vue';
+import ProcessingFormText from './fields/processing-form-text.vue';
 import ProcessingWrapper from './processing-wrapper.vue';
 
 const props = defineProps<{
@@ -65,6 +66,7 @@ const fieldComponents: Record<string, Component> = {
 	[ProcessingFieldComponent.Select]: ProcessingFormSelect,
 	[ProcessingFieldComponent.InputText]: ProcessingFormInputText,
 	[ProcessingFieldComponent.Datetimepicker]: ProcessingFormDatetimepicker,
+	[ProcessingFieldComponent.Text]: ProcessingFormText,
 };
 
 // Resolved per task so the same instance rebinds when the window switches chats.
