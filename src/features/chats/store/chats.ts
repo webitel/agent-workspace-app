@@ -41,6 +41,9 @@ export const useChatsStore = defineStore('chats', () => {
 		allChatTasks.value.filter(isIncomingChatOffer),
 	);
 
+	// TODO: замінити на реальний підрахунок нових чатів
+	const newChatsCount = computed(() => 5);
+
 	const openChats = ref<OpenChat[]>([]);
 	const mainChat = computed(() =>
 		openChats.value.find((chat) => chat.mode === 'main'),
@@ -161,6 +164,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// getters
 		chatTaskList,
 		incomingOffers,
+		newChatsCount,
 		openChats,
 		mainChat,
 		minimizedChats,
