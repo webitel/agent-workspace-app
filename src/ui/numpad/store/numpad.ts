@@ -3,8 +3,16 @@ import { ref } from 'vue';
 
 export const useNumpadStore = defineStore('numpad', () => {
 	const isOpen = ref(false);
+	const prefilledNumber = ref('');
 
-	function open() {
+	/**
+	 * @author Oleksandr Palonnyi
+	 * "Back to dialpad" after No answer reopens the numpad with the number that
+	 * was dialled (US_16.01 AC_16.01.05), so the agent can correct it.
+	 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+	 */
+	function open(numberToPrefill = '') {
+		prefilledNumber.value = numberToPrefill;
 		isOpen.value = true;
 	}
 
@@ -13,11 +21,16 @@ export const useNumpadStore = defineStore('numpad', () => {
 	}
 
 	function toggle() {
-		isOpen.value = !isOpen.value;
+		if (isOpen.value) {
+			close();
+		} else {
+			open();
+		}
 	}
 
 	return {
 		isOpen,
+		prefilledNumber,
 
 		open,
 		close,

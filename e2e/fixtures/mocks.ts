@@ -235,3 +235,67 @@ export function callRingingFrame({
 		},
 	};
 }
+
+/**
+ * @author Oleksandr Palonnyi
+ * An outbound `ringing` frame for a manual call: no queue, and the callee in
+ * `to`, which is where the SDK reads an outbound call's display name and number.
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+export function outboundCallRingingFrame({
+	id = 'e2e-outbound-1',
+	name = 'Emily Johnson',
+	number = '+12023417842',
+}: {
+	id?: string;
+	name?: string;
+	number?: string;
+} = {}) {
+	return {
+		call: {
+			id,
+			app_id: 'e2e',
+			cc_app_id: '',
+			event: 'ringing',
+			timestamp: Date.now(),
+			data: {
+				direction: 'outbound',
+				destination: number,
+				from: {
+					name: 'Agent',
+					number: '100',
+					type: 'user',
+				},
+				to: {
+					name,
+					number,
+					type: 'dest',
+				},
+				params: {},
+				payload: {},
+			},
+		},
+	};
+}
+
+export function callHangupFrame({
+	id = 'e2e-outbound-1',
+	cause = 'NO_ANSWER',
+}: {
+	id?: string;
+	cause?: string;
+} = {}) {
+	return {
+		call: {
+			id,
+			app_id: 'e2e',
+			cc_app_id: '',
+			event: 'hangup',
+			timestamp: Date.now(),
+			data: {
+				cause,
+				sip: 480,
+			},
+		},
+	};
+}

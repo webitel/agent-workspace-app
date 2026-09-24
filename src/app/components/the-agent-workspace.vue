@@ -6,7 +6,7 @@
             <section class="workspace-content-wrapper">
                 <router-view class="workspace-content" />
                 <the-workspace-sidebar />
-                <the-numpad-panel />
+                <the-dialer-panel />
                 <the-task-dock-panel />
             </section>
         </div>
@@ -22,7 +22,7 @@ import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
 import TheNotificationsLayer from '../../ui/notifications/components/the-notifications-layer.vue';
 import { useSocketNotifications } from '../../ui/notifications/composables/useSocketNotifications';
-import TheNumpadPanel from '../../ui/numpad/components/the-numpad-panel.vue';
+import TheDialerPanel from '../../ui/dialer/components/the-dialer-panel.vue';
 import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
 import TheTaskDockPanel from '../../ui/task-dock/components/the-task-dock-panel.vue';
 

@@ -3,8 +3,6 @@
 		<wt-input-text
 			v-model="number"
 			class="the-numpad__input"
-			:placeholder="t('ui.numpad.placeholder')"
-			size="lg"
 			@keyup.enter="onCall"
 		/>
 
@@ -15,7 +13,7 @@
 				class="the-numpad__key"
 				color="secondary"
 				variant="outlined"
-				size="lg"
+				size="sm"
 				@click="appendDigit(key)"
 			>
 				{{ key }}
@@ -25,7 +23,7 @@
 		<wt-button
 			class="the-numpad__call"
 			color="success"
-			size="lg"
+			size="sm"
 			wide
 			:disabled="!canCall"
 			@click="onCall"
@@ -42,6 +40,15 @@
 import { WtButton, WtInputText } from '@webitel/ui-sdk/components';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+const props = withDefaults(
+	defineProps<{
+		initialNumber?: string;
+	}>(),
+	{
+		initialNumber: '',
+	},
+);
 
 const emit = defineEmits<{
 	call: [
@@ -67,7 +74,7 @@ const keys = [
 
 const { t } = useI18n();
 
-const number = ref('');
+const number = ref(props.initialNumber);
 
 const canCall = computed(() => number.value.trim().length > 0);
 
@@ -85,18 +92,28 @@ function onCall() {
 .the-numpad {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
-    width: 240px;
+    gap: var(--spacing-xs);
+    width: 280px;
     padding: var(--spacing-sm);
+}
+
+/* wt-input-text has no alignment prop; the dialled number is centred as in cc-workspaces. */
+.the-numpad__input :deep(.wt-input-text__input) {
+    text-align: center;
 }
 
 .the-numpad__keys {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2xs);
 }
 
 .the-numpad__key {
     justify-content: center;
+}
+
+/* "+" sits alone in the last row and is centred under "0" in the design. */
+.the-numpad__key:last-child {
+    grid-column: 2;
 }
 </style>
