@@ -32,7 +32,7 @@ describe('useNavBadges', () => {
 		const { badgesByRoute } = useNavBadges();
 
 		expect(badgesByRoute.value['/calls']).toEqual({
-			variant: 'danger',
+			variant: 'error',
 			count: 3,
 		});
 		expect(badgesByRoute.value['/chats']).toEqual({
