@@ -5,6 +5,7 @@ import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSo
 import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
+import { disposeProcessing } from '../../processing/store/processing';
 import { useChatsSocket } from '../composables/useChatsSocket';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
@@ -150,6 +151,26 @@ export const useChatsStore = defineStore('chats', () => {
 		else register();
 	}
 
+	/**
+	 * Each chat attempt's processing store lives exactly as long as its task:
+	 * disposed once the task leaves the feed (the SDK drops it at wrap time),
+	 * never by the window, which may be showing another chat by then.
+	 */
+	function subscribeToProcessingDisposal() {
+		const register = () =>
+			watch(
+				() => allChatTasks.value.map((task) => task.id),
+				(ids, previousIds = []) => {
+					for (const id of previousIds) {
+						if (!ids.includes(id)) disposeProcessing(id);
+					}
+				},
+			);
+
+		if (storeScope) storeScope.run(register);
+		else register();
+	}
+
 	function initialize() {
 		const client = getClient();
 		// the SDK needs a subscriber before it will populate the task feed
@@ -157,6 +178,7 @@ export const useChatsStore = defineStore('chats', () => {
 
 		offersStore.initialize();
 		subscribeToOffers();
+		subscribeToProcessingDisposal();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
