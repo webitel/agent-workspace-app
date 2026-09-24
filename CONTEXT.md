@@ -21,6 +21,9 @@ and should not be carried over wholesale.
 - [ADR-0003](docs/adr/0003-agent-status-transport.md) — agent status is written
   over REST by the SDK's status select but read off the websocket session, and
   why that read needs an explicit subscription to stay current.
+- [ADR-0004](docs/adr/0004-processing-form-state.md) — processing form values
+  live on the SDK task, and a per-attempt store holds only the UI state around
+  them.
 
 ## Language
 
@@ -33,6 +36,20 @@ behind REST `/presence` and backs the header's DnD switcher.
 
 The two are unrelated and both are reachable from the header, one control beside
 the other. An agent can be Online and DnD at once.
+
+**Processing form** — a backend-driven form attached to a task attempt (a chat,
+and later a call). It can arrive at any point — on bridge, mid-interaction, on
+transfer — not only after the interaction ends. Submitting one of its actions
+either brings the next form or releases the task.
+
+**Post-processing** — the timed phase after an interaction ends, in which the
+agent finishes the processing form before the task is released. It has a
+deadline the agent may renew a limited number of times.
+
+A processing form can exist without post-processing (it arrived mid-chat), and
+post-processing without a form falls back to plain reporting. The chat window's
+tab is labelled "Post-processing" by design, but it hosts the processing form
+whenever one exists.
 
 ## Conventions
 
