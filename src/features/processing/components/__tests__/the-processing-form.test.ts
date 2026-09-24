@@ -7,6 +7,7 @@ import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import ProcessingFormDatetimepicker from '../fields/processing-form-datetimepicker.vue';
 import ProcessingFormInputText from '../fields/processing-form-input-text.vue';
 import ProcessingFormSelect from '../fields/processing-form-select.vue';
+import ProcessingFormText from '../fields/processing-form-text.vue';
 import TheProcessingForm from '../the-processing-form.vue';
 
 const globalStubs = {
@@ -14,6 +15,10 @@ const globalStubs = {
 	'wt-multi-select': true,
 	'wt-input-text': true,
 	'wt-datepicker': true,
+	'wt-icon': true,
+	'wt-hint': true,
+	'wt-copy-action': true,
+	'wt-icon-btn': true,
 	'wt-button': {
 		props: [
 			'disabled',
@@ -96,6 +101,14 @@ describe('the-processing-form', () => {
 						component: 'wt-datetimepicker',
 					},
 				},
+				{
+					id: 'd',
+					value: '',
+					view: {
+						component: 'form-text',
+						initialValue: 'Read this first',
+					},
+				},
 			],
 		});
 
@@ -104,6 +117,7 @@ describe('the-processing-form', () => {
 		expect(wrapper.findComponent(ProcessingFormDatetimepicker).exists()).toBe(
 			true,
 		);
+		expect(wrapper.findComponent(ProcessingFormText).exists()).toBe(true);
 	});
 
 	it('renders a placeholder for an unsupported field type', () => {
