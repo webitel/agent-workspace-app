@@ -1,30 +1,46 @@
 import { defineStore } from 'pinia';
+import { computed } from 'vue';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 
 export const useAgentStore = defineStore('agent', () => {
-	const { agent, getAgentSession } = useWebSocketClient();
+	const { agent, getAgentSession, getClient } = useWebSocketClient();
 
+	const agentId = computed(() => agent.value?.agentId);
+	const status = computed(() => agent.value?.status);
+	const lastStatusChange = computed(() => agent.value?.lastStatusChange);
+
+	/*
+	 * Status is written over REST, by the SDK's status select, but read here off
+	 * the websocket session — the server confirms every change with an
+	 * agent_status frame. That frame only arrives for subscribers: without
+	 * cc_agent_subscribe_status the status stays frozen at whatever the session
+	 * opened with, including after this app's own writes.
+	 *
+	 * The handler is empty on purpose. The SDK updates the reactive Agent from
+	 * the frame before fanning it out, and that object is what the UI reads.
+	 */
 	const initializeAgent = async () => {
 		await getAgentSession();
-	};
+		/*
+		 * Loud on purpose: a session without an agent would skip the subscription
+		 * and leave the status silently frozen, which is the one failure mode
+		 * this subscription exists to prevent. Bootstrap catches and warns.
+		 */
+		if (!agent.value) {
+			throw new Error('agent session resolved without an agent');
+		}
 
-	const setAgentWaitingStatus = async () => {
-		await agent.value?.online();
-	};
-
-	const setAgentPauseStatus = async (note = '') => {
-		await agent.value?.pause(note);
-	};
-
-	const setAgentOfflineStatus = async () => {
-		await agent.value?.offline();
+		await getClient().subscribeAgentsStatus(() => {}, {
+			agent_id: agent.value.agentId,
+		});
 	};
 
 	return {
+		agentId,
+		status,
+		lastStatusChange,
+
 		initializeAgent,
-		setAgentWaitingStatus,
-		setAgentPauseStatus,
-		setAgentOfflineStatus,
 	};
 });
