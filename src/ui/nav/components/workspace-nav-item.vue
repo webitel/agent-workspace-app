@@ -7,25 +7,22 @@
 					custom
 			>
 					<wt-button
-							:icon="item.icon"
-							variant="text"
-							:class="{ active: item.exact ? isExactActive : isActive }"
-							@click="() => navigate()"
+						variant="text"
+						class="workspace-nav-item__button"
+						:icon="item.icon"
+						:class="{ active: item.exact ? isExactActive : isActive }"
+						:badge="item.badge?.count ? String(item.badge.count) : undefined"
+						:badge-severity="item.badge?.variant"
+						badge-absolute-position
+						@click="() => navigate()"
 					/>
-					<!--TODO: після змін у компоненті wt-badge або wt-badge-new перевірити відображення-->
-					<wt-badge-new
-						v-if="item.badge && item.badge?.count > 0"
-						:severity="item.badge?.variant"
-						size="xs"
-					>
-						{{ item.badge?.count }}
-					</wt-badge-new>
 			</router-link>
 
 			<wt-button
 					v-else
-					:icon="item.icon"
 					variant="text"
+					class="workspace-nav-item__button"
+					:icon="item.icon"
 			/>
 	</li>
 </template>
@@ -47,33 +44,17 @@ li {
 	margin-bottom: auto;
 }
 
-.wt-button :deep(span) {
-	position: relative;
+.workspace-nav-item__button {
+	--icon-color: var(--wt-ws-sidebar-menu-colors-button-text-color);
 }
 
-.wt-button :deep(span) {
-	fill: var(--wt-ws-sidebar-menu-colors-button-text-color);
-}
-
-.wt-button.active {
+.workspace-nav-item__button.active {
+	--icon-color: var(--wt-ws-sidebar-menu-colors-button-filled-color);
 	background: var(--wt-ws-sidebar-menu-colors-button-filled-background);
 }
 
-.wt-button.active :deep(span) {
-	fill: var(--wt-ws-sidebar-menu-colors-button-filled-color);
-}
-
-.wt-button:hover {
-  background: var(--wt-ws-sidebar-menu-colors-button-text-hover-background);
-}
-
-.wt-button:hover :deep(span) {
-	fill: var(--wt-ws-sidebar-menu-colors-button-text-color);
-}
-
-.wt-badge {
-	position: absolute;
-	top: 0;
-	right: 0;
+.workspace-nav-item__button:hover {
+	--icon-color: var(--wt-ws-sidebar-menu-colors-button-text-color);
+	background: var(--wt-ws-sidebar-menu-colors-button-text-hover-background);
 }
 </style>

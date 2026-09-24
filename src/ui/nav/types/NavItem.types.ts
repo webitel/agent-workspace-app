@@ -1,4 +1,4 @@
-export type NavBadgeVariant = 'danger' | 'success';
+export type NavBadgeVariant = 'error' | 'success';
 
 export interface NavBadgeConfig {
 	variant: NavBadgeVariant;

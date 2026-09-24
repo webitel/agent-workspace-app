@@ -29,6 +29,9 @@ export const useCallsStore = defineStore('calls', () => {
 		callList.value.filter(isIncomingCallOffer),
 	);
 
+	// TODO: замінити на реальний підрахунок нових/пропущених дзвінків
+	const newCallsCount = computed(() => 3);
+
 	function getCallById(callId: string): Call | undefined {
 		return callList.value.find((call) => call.id === callId);
 	}
@@ -108,6 +111,7 @@ export const useCallsStore = defineStore('calls', () => {
 	return {
 		callList,
 		incomingOffers,
+		newCallsCount,
 
 		initialize,
 		answer,

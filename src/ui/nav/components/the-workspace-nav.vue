@@ -12,35 +12,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+import { useNavBadges } from '../composables/useNavBadges';
 import { navItems } from '../config/navItems.config';
-import type { NavBadgeConfig } from '../types/NavItem.types';
 import WorkspaceNavItem from './workspace-nav-item.vue';
 
-// TODO: додати лічильники з реальних сторів
-const newCallsCount = ref(0);
-const newChatsCount = ref(0);
-
-function resolveBadge(to?: string): NavBadgeConfig | undefined {
-	if (to === '/calls') {
-		return {
-			variant: 'danger',
-			count: newCallsCount.value,
-		};
-	}
-	if (to === '/chats') {
-		return {
-			variant: 'success',
-			count: newChatsCount.value,
-		};
-	}
-	return undefined;
-}
+const { badgesByRoute } = useNavBadges();
 
 const navItemsWithBadges = computed(() =>
 	navItems.map((item) => ({
 		...item,
-		badge: item.kind === 'link' ? resolveBadge(item.to) : undefined,
+		badge: item.kind === 'link' ? badgesByRoute.value[item.to] : undefined,
 	})),
 );
 </script>
