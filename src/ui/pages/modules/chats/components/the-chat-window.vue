@@ -27,7 +27,7 @@ import { useRoute } from 'vue-router';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
 import { useProcessingStore } from '../../../../../features/processing/store/processing';
-import TheChatConversation from './the-chat-conversation.vue';
+import TheChatThread from './the-chat-thread.vue';
 
 type ChatWindowTab = 'chat' | 'processing';
 
@@ -78,7 +78,7 @@ const currentTab = computed(() =>
 				},
 			}
 		: {
-				is: TheChatConversation,
+				is: TheChatThread,
 				props: {},
 			},
 );
