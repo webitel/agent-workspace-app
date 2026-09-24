@@ -39,6 +39,13 @@ export interface ProcessingFormMetadata {
 	[key: string]: unknown;
 }
 
+// `task._processing.processing_prolongation`, absent from the SDK's
+// `Processing` type: how many renewals the queue still allows, and for how long.
+export interface ProcessingProlongation {
+	remaining_prolongations?: number;
+	prolongation_sec?: number;
+}
+
 export interface ProcessingFormData {
 	title?: string;
 	body: FormBodyElement[];

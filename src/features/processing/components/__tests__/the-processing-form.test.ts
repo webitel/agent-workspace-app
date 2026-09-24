@@ -1,5 +1,7 @@
+import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
+import { reactive } from 'vue';
 
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import ProcessingFormDatetimepicker from '../fields/processing-form-datetimepicker.vue';
@@ -13,30 +15,47 @@ const globalStubs = {
 	'wt-input-text': true,
 	'wt-datepicker': true,
 	'wt-button': {
+		props: [
+			'disabled',
+			'loading',
+		],
 		template:
-			'<button class="wt-button-stub" @click="$emit(\'click\')"><slot /></button>',
+			'<button class="wt-button-stub" :disabled="disabled" :data-loading="loading" @click="$emit(\'click\')"><slot /></button>',
 	},
 };
 
-function makeTask(form: ProcessingFormData) {
-	const task = {
+let nextId = 1;
+
+type FormAction = () => Promise<object>;
+
+function makeTask(
+	form: ProcessingFormData,
+	formAction = vi.fn<FormAction>(() => Promise.resolve({})),
+) {
+	return reactive({
+		id: nextId++,
 		hasForm: true,
 		form,
-		formAction: vi.fn(() => Promise.resolve({})),
-	} as Record<string, unknown>;
-	Object.defineProperty(task, 'attempt', {
-		get: () => task,
+		formAction,
 	});
-	return task;
 }
 
-function mountForm(form: ProcessingFormData) {
-	const task = makeTask(form);
+function mountForm(
+	form: ProcessingFormData,
+	formAction?: ReturnType<typeof vi.fn<FormAction>>,
+) {
+	const task = makeTask(form, formAction);
 	const wrapper = mount(TheProcessingForm, {
 		props: {
 			task: task as never,
 		},
 		global: {
+			plugins: [
+				createTestingPinia({
+					stubActions: false,
+					createSpy: vi.fn,
+				}),
+			],
 			stubs: globalStubs,
 		},
 	});
@@ -167,5 +186,40 @@ describe('the-processing-form', () => {
 		expect(task.formAction).toHaveBeenCalledWith('ok', {
 			note: 'done',
 		});
+	});
+
+	it('locks every action and spins the clicked one while submitting', async () => {
+		const { wrapper } = mountForm(
+			{
+				title: '',
+				metadata: {
+					isInited: true,
+				},
+				actions: [
+					{
+						id: 'ok',
+						view: {
+							text: 'OK',
+						},
+					},
+					{
+						id: 'cancel',
+						view: {
+							text: 'Cancel',
+						},
+					},
+				],
+				body: [],
+			},
+			vi.fn<FormAction>(() => new Promise(() => {})),
+		);
+
+		await wrapper.findAll('.wt-button-stub')[0].trigger('click');
+
+		const [ok, cancel] = wrapper.findAll('.wt-button-stub');
+		expect(ok.attributes('disabled')).toBeDefined();
+		expect(cancel.attributes('disabled')).toBeDefined();
+		expect(ok.attributes('data-loading')).toBe('true');
+		expect(cancel.attributes('data-loading')).toBe('false');
 	});
 });
