@@ -12,7 +12,7 @@ export function formattingFormBeforeSend(
 		(form, { id, value, view }) => {
 			let normalized: unknown = value;
 
-			if (view.component === 'form-text') return form;
+			if (view.component === ProcessingFieldComponent.Text) return form;
 
 			if (view.component === ProcessingFieldComponent.Select) {
 				if (Array.isArray(value)) {

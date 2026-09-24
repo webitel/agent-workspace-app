@@ -3,6 +3,7 @@ export const ProcessingFieldComponent = {
 	Select: 'wt-select',
 	InputText: 'wt-input',
 	Datetimepicker: 'wt-datetimepicker',
+	Text: 'form-text',
 } as const;
 
 export type ProcessingFieldComponent =
