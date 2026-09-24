@@ -38,10 +38,10 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
-vi.mock('../the-chat-conversation.vue', () => ({
+vi.mock('../the-chat-thread.vue', () => ({
 	default: {
-		name: 'TheChatConversation',
-		template: '<div class="conversation-stub" />',
+		name: 'TheChatThread',
+		template: '<div class="thread-stub" />',
 	},
 }));
 
@@ -119,7 +119,7 @@ describe('the-chat-window', () => {
 		expect(tabValues(wrapper)).toEqual([
 			'chat',
 		]);
-		expect(wrapper.find('.conversation-stub').exists()).toBe(true);
+		expect(wrapper.find('.thread-stub').exists()).toBe(true);
 	});
 
 	it('adds the post-processing tab when a form arrives mid-chat, without switching to it', async () => {

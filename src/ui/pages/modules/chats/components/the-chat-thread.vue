@@ -1,6 +1,6 @@
 <template>
-	<section class="the-chat-conversation">
-		<header class="the-chat-conversation__header">
+	<section class="the-chat-thread">
+		<header class="the-chat-thread__header">
 			<h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
 			<post-processing-chip
 				v-if="task"
@@ -86,7 +86,7 @@ async function handleAttachFiles(
 </script>
 
 <style scoped>
-.the-chat-conversation {
+.the-chat-thread {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
@@ -94,7 +94,7 @@ async function handleAttachFiles(
 	min-height: 0;
 }
 
-.the-chat-conversation__header {
+.the-chat-thread__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
