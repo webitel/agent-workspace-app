@@ -1,5 +1,5 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
-import { SortSymbols } from '@webitel/ui-sdk/scripts/sortQueryAdapters.js';
+import { SortSymbols } from '@webitel/ui-sdk/scripts/sortQueryAdapters';
 
 export const headers: DatalistTableHeader[] = [
 	{
