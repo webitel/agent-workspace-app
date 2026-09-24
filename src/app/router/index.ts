@@ -10,6 +10,8 @@ import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import TheContactsPage from '../../ui/pages/modules/contacts/the-contacts-page.vue';
+import TheHistoryWorkspace from '../../ui/pages/modules/history/components/the-history-workspace.vue';
+import TheTasksWorkspace from '../../ui/pages/modules/tasks/components/the-tasks-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
 // Contacts tabs render entirely inside TheContactsPage (no <router-view>),
@@ -45,6 +47,11 @@ const routes: RouteRecordRaw[] = [
 				],
 			},
 			{
+				path: '/tasks',
+				name: 'tasks',
+				component: TheTasksWorkspace,
+			},
+			{
 				path: '/contacts',
 				component: TheContactsPage,
 				children: [
@@ -59,6 +66,11 @@ const routes: RouteRecordRaw[] = [
 						component: NoopRouteComponent,
 					},
 				],
+			},
+			{
+				path: '/history',
+				name: 'history',
+				component: TheHistoryWorkspace,
 			},
 		],
 	},
