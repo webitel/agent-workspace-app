@@ -79,7 +79,9 @@ const currentTab = computed(() =>
 			}
 		: {
 				is: TheChatConversation,
-				props: {},
+				props: {
+					task: task.value,
+				},
 			},
 );
 
