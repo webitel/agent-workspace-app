@@ -31,10 +31,11 @@ every channel. Submitting sends `formAction(action.id, form.fields)`. There is
 no copy of the values anywhere else.
 
 **Everything else lives in a store per task attempt, keyed by `task.id`.** It is
-created and disposed by the owning coordinator (the chats store for chats) when
-the task enters and leaves the SDK feed — the SDK drops it at `wrap_time` —
-never by components. It holds `isSubmitting`, the last error, and the
-post-processing countdown with `renew()`.
+created on first use by whoever renders the attempt, and disposed only by the
+owning coordinator (the chats store for chats) once the task leaves the SDK
+feed — the SDK drops it at `wrap_time` — never by components, which may be
+showing another chat by then. It holds the action being submitted, the last
+error, and what the post-processing countdown needs, with `renew()`.
 
 ## Alternatives considered
 
