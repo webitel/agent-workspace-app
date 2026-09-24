@@ -36,10 +36,6 @@ defineProps<{
 </script>
 
 <style scoped>
-li {
-	position: relative;
-}
-
 .the-workspace-nav-list__tasks {
 	margin-bottom: auto;
 }

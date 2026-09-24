@@ -41,6 +41,7 @@ export const useChatsStore = defineStore('chats', () => {
 		allChatTasks.value.filter(isIncomingChatOffer),
 	);
 
+	// TODO: замінити на реальний підрахунок нових чатів
 	const newChatsCount = computed(() => 5);
 
 	const openChats = ref<OpenChat[]>([]);
