@@ -140,6 +140,14 @@ function replyFor(action?: string): object {
  */
 export interface MockedSocket {
 	send(event: string, data: unknown, channel?: MockedSocketChannel): void;
+	/** Every request the app sent over a socket, oldest first. */
+	requests: MockedSocketRequest[];
+}
+
+export interface MockedSocketRequest {
+	channel: MockedSocketChannel;
+	action?: string;
+	data?: unknown;
 }
 
 export type MockedSocketChannel = 'main' | 'chat';
@@ -154,6 +162,7 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 	 * dropped without a trace.
 	 */
 	const sockets: Partial<Record<MockedSocketChannel, RoutedSocket>> = {};
+	const requests: MockedSocketRequest[] = [];
 	// frames a spec pushed before the app finished connecting
 	const queued: Partial<Record<MockedSocketChannel, string[]>> = {};
 
@@ -169,6 +178,7 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 			let message: {
 				seq?: number;
 				action?: string;
+				data?: unknown;
 			};
 			try {
 				message = JSON.parse(raw);
@@ -176,6 +186,11 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 				return;
 			}
 			if (!message.seq) return;
+			requests.push({
+				channel,
+				action: message.action,
+				data: message.data,
+			});
 			ws.send(
 				JSON.stringify({
 					seq_reply: message.seq,
@@ -198,6 +213,7 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 	});
 
 	return {
+		requests,
 		send(event, data, channel = 'main') {
 			const frame = JSON.stringify({
 				event,
@@ -278,6 +294,92 @@ export function callHangupFrame({ id = 'e2e-call-1' }: { id?: string } = {}) {
 			data: {
 				cause: 'NORMAL_CLEARING',
 				sip: 200,
+			},
+		},
+	};
+}
+
+/**
+ * Stubs chat-web-sdk's REST reads for one thread — the window loads the thread
+ * and its first history page when a chat is opened.
+ */
+export async function mockChatThread(
+	page: Page,
+	{
+		id,
+		subject,
+	}: {
+		id: string;
+		subject: string;
+	},
+) {
+	await page.route(`**/api/v1/threads/${id}`, async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				id,
+				subject,
+			}),
+		});
+	});
+	await page.route(`**/api/v1/${id}/messages**`, async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				items: [],
+			}),
+		});
+	});
+}
+
+/**
+ * A `channel` frame for a chat task — what `Agent.onChannelEvent` consumes. The
+ * status picks the lifecycle step: `distribute` creates the task, `bridged`
+ * marks it taken, `form` delivers a processing form, `processing` starts
+ * post-processing, `wrap_time` drops the task.
+ */
+export function chatTaskFrame(
+	status: string,
+	{
+		attemptId = 101,
+		...extra
+	}: {
+		attemptId?: number;
+		[key: string]: unknown;
+	} = {},
+) {
+	return {
+		status,
+		attempt_id: attemptId,
+		timestamp: Date.now(),
+		...extra,
+	};
+}
+
+/** The `distribute` payload of an `im` task bound to a chat thread. */
+export function chatDistribute({
+	threadId = 'e2e-thread-1',
+	subject = 'Jane Doe',
+}: {
+	threadId?: string;
+	subject?: string;
+} = {}) {
+	return {
+		app_id: 'e2e',
+		channel: 'im',
+		queue_id: 1,
+		queue_name: 'Chat support',
+		member_name: subject,
+		has_form: false,
+		has_reporting: false,
+		communication: {
+			destination: '@jane',
+			thread: {
+				id: threadId,
+				subject,
+				last_msg: 'Hi, I need help',
 			},
 		},
 	};
