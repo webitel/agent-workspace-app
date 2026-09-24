@@ -23,28 +23,32 @@ import ContactsPageActionPanel from './contacts-page-action-panel.vue';
 import { ContactsPageTab } from './enums/ContactsPageTab.enum';
 import ContactsTable from './modules/contacts/contacts-table.vue';
 import { useContactsDataListStore } from './modules/contacts/store/contacts';
+import { useUsersDataListStore } from './modules/users/store/users';
 import UsersTable from './modules/users/users-table.vue';
+
+type ContactsPageStore =
+	| ReturnType<typeof useContactsDataListStore>
+	| ReturnType<typeof useUsersDataListStore>;
 
 const { t } = useI18n();
 const route = useRoute();
 
-const tabs = computed<PageTab<ReturnType<typeof useContactsDataListStore>>[]>(
-	() => [
-		{
-			text: t('objects.contact', 2),
-			value: ContactsPageTab.Contacts,
-			pathName: ContactsPageTab.Contacts,
-			component: ContactsTable,
-			store: useContactsDataListStore(),
-		},
-		{
-			text: t('objects.user', 2),
-			value: ContactsPageTab.Users,
-			pathName: ContactsPageTab.Users,
-			component: UsersTable,
-		},
-	],
-);
+const tabs = computed<PageTab<ContactsPageStore>[]>(() => [
+	{
+		text: t('objects.contact', 2),
+		value: ContactsPageTab.Contacts,
+		pathName: ContactsPageTab.Contacts,
+		component: ContactsTable,
+		store: useContactsDataListStore(),
+	},
+	{
+		text: t('objects.user', 2),
+		value: ContactsPageTab.Users,
+		pathName: ContactsPageTab.Users,
+		component: UsersTable,
+		store: useUsersDataListStore(),
+	},
+]);
 
 const currentTab = computed(() =>
 	tabs.value.find((tab) => tab.pathName === route.name),

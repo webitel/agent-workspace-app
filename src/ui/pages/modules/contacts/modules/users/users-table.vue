@@ -44,13 +44,11 @@
 <script setup lang="ts">
 import type { ApiUser } from '@webitel/api-services/gen/models';
 import { WtTable } from '@webitel/ui-sdk/components';
-import {
-	AbstractUserStatusColorMappings,
-	IconColor,
-} from '@webitel/ui-sdk/enums';
-import { getUserStatusByPriority } from '@webitel/ui-sdk/scripts';
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { UserStatusColorMappings } from '../../../../../../features/user-status/enums/UserStatusColorMappings';
+import { getUserStatusByPriority } from '../../../../../../features/user-status/scripts/getUserStatusByPriority';
 import TableCellInfo from '../../../../../components/table-cell-info.vue';
 import UsernameTableCell from '../../../../../components/username-table-cell.vue';
 import type { useUsersDataListStore } from './store/users';
@@ -84,7 +82,7 @@ function getStatus(item: ApiUser) {
 	});
 
 	return {
-		color: AbstractUserStatusColorMappings[status],
+		color: UserStatusColorMappings[status],
 		text: status.toUpperCase(),
 	};
 }
