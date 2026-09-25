@@ -9,3 +9,5 @@ interface ImportMetaEnv {
 interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }
+
+declare module '@webitel/styleguide/agent-workspace-app';

@@ -4,6 +4,7 @@ import './app/assets/icons/sprite';
 import { setConfig as setApiServicesConfig } from '@webitel/api-services';
 import { setConfig as setChatsServicesConfig } from '@webitel/ui-chats';
 import { eventBus } from '@webitel/ui-sdk/scripts';
+import '@webitel/styleguide/agent-workspace-app';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
