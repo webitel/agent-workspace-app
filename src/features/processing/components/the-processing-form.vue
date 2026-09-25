@@ -60,6 +60,7 @@ import ProcessingFormIFrame from './fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from './fields/processing-form-input-text.vue';
 import ProcessingFormSelect from './fields/processing-form-select.vue';
 import ProcessingFormSelectFromObject from './fields/processing-form-select-from-object.vue';
+import ProcessingFormSelectService from './fields/processing-form-select-service.vue';
 import ProcessingFormText from './fields/processing-form-text.vue';
 import ProcessingWrapper from './processing-wrapper.vue';
 
@@ -79,6 +80,7 @@ const fieldComponents: Record<string, Component> = {
 	[ProcessingFieldComponent.IFrame]: ProcessingFormIFrame,
 	[ProcessingFieldComponent.File]: ProcessingFormFile,
 	[ProcessingFieldComponent.Table]: ProcessingFormTable,
+	[ProcessingFieldComponent.SelectService]: ProcessingFormSelectService,
 };
 
 // What a field needs from outside its schema: file uploads go against the
