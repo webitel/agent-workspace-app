@@ -23,6 +23,9 @@ export default {
 				decline: 'Decline',
 			},
 		},
+		numpad: {
+			call: 'Call',
+		},
 	},
 	error: {
 		websocket: {

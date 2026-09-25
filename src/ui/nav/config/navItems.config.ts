@@ -1,3 +1,4 @@
+import { useNumpadStore } from '../../numpad/store/numpad';
 import type { NavItemConfig } from '../types/NavItem.types';
 
 export const navItems: NavItemConfig[] = [
@@ -39,5 +40,6 @@ export const navItems: NavItemConfig[] = [
 	{
 		kind: 'button',
 		icon: 'ws-navigation-calls',
+		onClick: () => useNumpadStore().toggle(),
 	},
 ];
