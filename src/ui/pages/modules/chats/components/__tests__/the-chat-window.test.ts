@@ -58,6 +58,19 @@ vi.mock(
 	}),
 );
 
+vi.mock(
+	'../../../../../../features/processing/components/post-processing-chip.vue',
+	() => ({
+		default: {
+			name: 'PostProcessingChip',
+			props: [
+				'task',
+			],
+			template: '<div class="chip-stub" />',
+		},
+	}),
+);
+
 import TheChatWindow from '../the-chat-window.vue';
 
 let nextId = 1;
@@ -156,6 +169,8 @@ describe('the-chat-window', () => {
 		await nextTick();
 
 		expect(showsForm(wrapper)).toBe(true);
+		// the countdown lives beside the panels, so the form tab still shows it
+		expect(wrapper.find('.chip-stub').exists()).toBe(true);
 	});
 
 	it('opens a chat already in post-processing on its form', async () => {
