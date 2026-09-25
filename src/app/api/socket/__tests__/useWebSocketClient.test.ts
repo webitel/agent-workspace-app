@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from 'vitest';
 import { effectScope } from 'vue';
 import { mockEmit as emitMock } from '../../../../../test/setup';
 import { WebSocketConnectionState } from '../enums/WebSocketConnectionState.enum';
@@ -86,6 +94,17 @@ async function loadModule() {
 }
 
 describe('useWebSocketClient', () => {
+	/**
+	 * The first import compiles the manager and the ui-sdk barrel it pulls in,
+	 * which under coverage or a loaded runner outlasts the 5s test timeout. Pay
+	 * that once here: a test that timed out on it left its connect() running,
+	 * and the FakeClient it built landed in the next test's `instances`.
+	 * resetModules() keeps vite's transform cache, so re-imports stay cheap.
+	 */
+	beforeAll(async () => {
+		await import('../composables/useWebSocketClient');
+	}, 60_000);
+
 	beforeEach(() => {
 		localStorage.clear();
 	});
