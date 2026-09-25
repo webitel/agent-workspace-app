@@ -42,6 +42,41 @@ describe('initFormValues', () => {
 		});
 	});
 
+	it('seeds a case status with the option its id names, or nothing', () => {
+		const options = [
+			{
+				id: 3,
+				name: 'Resolved',
+				final: true,
+			},
+		];
+		const form = makeForm([
+			{
+				id: 'status',
+				value: '',
+				view: {
+					component: 'form-select-case-status',
+					initialValue: '3',
+					options: options as never,
+				},
+			},
+			{
+				id: 'unknownStatus',
+				value: '',
+				view: {
+					component: 'form-select-case-status',
+					initialValue: '99',
+					options: options as never,
+				},
+			},
+		]);
+
+		initFormValues(form);
+
+		expect(form.body[0].value).toEqual(options[0]);
+		expect(form.body[1].value).toBeUndefined();
+	});
+
 	it('resolves a "now" datetimepicker initialValue to a numeric timestamp', () => {
 		const form = makeForm([
 			{
