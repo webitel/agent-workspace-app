@@ -30,6 +30,33 @@ describe('formattingFormBeforeSend', () => {
 		});
 	});
 
+	it('sends a service as its id whether seeded or picked', () => {
+		expect(
+			formattingFormBeforeSend([
+				{
+					id: 'seeded',
+					value: {
+						id: 100,
+						name: 'Card refund',
+					},
+					view: {
+						component: 'form-select-service',
+					},
+				},
+				{
+					id: 'picked',
+					value: 10,
+					view: {
+						component: 'form-select-service',
+					},
+				},
+			]),
+		).toEqual({
+			seeded: 100,
+			picked: 10,
+		});
+	});
+
 	it('passes a record picked from an object through untouched', () => {
 		const city = {
 			id: 7,

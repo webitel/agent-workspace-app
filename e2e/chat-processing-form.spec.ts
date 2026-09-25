@@ -361,6 +361,78 @@ test.describe('chat processing form', () => {
 			});
 	});
 
+	test('shows where a seeded service sits and submits its id', async ({
+		page,
+		socket,
+	}) => {
+		await page.route('**/api/cases/catalogs**', async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					items: [
+						{
+							id: 1,
+							name: 'Billing',
+							service: [
+								{
+									id: 10,
+									name: 'Refunds',
+									service: [
+										{
+											id: 100,
+											name: 'Card refund',
+										},
+									],
+								},
+							],
+						},
+					],
+				}),
+			});
+		});
+
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'service',
+					value: '',
+					view: {
+						component: 'form-select-service',
+						initialValue: JSON.stringify({
+							id: 100,
+							name: 'Card refund',
+						}),
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		const form = page.locator('.processing-wrapper');
+		await expect(form).toContainText('Billing / Refunds / Card refund');
+
+		await form
+			.getByRole('button', {
+				name: 'Complete',
+			})
+			.click();
+
+		await expect
+			.poll(
+				() =>
+					(
+						socket.requests.find((item) => item.action === 'cc_form_action')
+							?.data as {
+							fields?: Record<string, unknown>;
+						}
+					)?.fields?.service,
+			)
+			.toBe(100);
+	});
+
 	test('switches to the form when the chat ends and counts the deadline down', async ({
 		page,
 		socket,
