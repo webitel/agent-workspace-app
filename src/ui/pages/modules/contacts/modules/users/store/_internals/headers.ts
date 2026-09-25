@@ -10,20 +10,26 @@ export const headers: DatalistTableHeader[] = [
 		sort: SortSymbols.NONE,
 	},
 	{
-		value: 'groups',
-		locale: 'reusable.group',
+		value: 'presence',
+		locale: 'reusable.status',
 		show: true,
-		field: 'groups',
-		width: '170px',
+		field: 'presence',
 	},
+	// TODO: uncomment when UsersAPI starts returning team (now the backend rejects the "team" field)
+	// {
+	// 	value: 'team',
+	// 	locale: 'objects.team',
+	// 	show: true,
+	// 	field: 'team',
+	// 	sort: SortSymbols.NONE,
+	// },
 	{
-		value: 'phones',
+		value: 'extension',
 		locale: [
 			'vocabulary.phones',
-			2,
+			1,
 		],
 		show: true,
-		field: 'phones',
-		sort: SortSymbols.NONE,
+		field: 'extension',
 	},
 ];

@@ -14,14 +14,7 @@
 			@sort="(column, order) => updateSort(column, order)"
 		>
 			<template #name="{ item }">
-				<div class="contacts-table__username">
-					<wt-avatar
-						size="xs"
-						:username="item.name?.commonName"
-					/>
-
-					{{ item.name?.commonName }}
-				</div>
+				<username-table-cell :name="item.name?.commonName" />
 			</template>
 
 			<template #groups="{ item }">
@@ -53,6 +46,7 @@ import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import TableCellInfo from '../../../../../components/table-cell-info.vue';
+import UsernameTableCell from '../../../../../components/username-table-cell.vue';
 import type { useContactsDataListStore } from './store/contacts';
 
 const props = defineProps<{
@@ -84,11 +78,5 @@ initialize().finally(() => {
 <style scoped>
 .contacts-table {
 	width: 100%;
-}
-
-.contacts-table__username {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-xs);
 }
 </style>
