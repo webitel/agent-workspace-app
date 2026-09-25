@@ -23,6 +23,7 @@
 					variant="text"
 					class="workspace-nav-item__button"
 					:icon="item.icon"
+					@click="item.onClick"
 			/>
 	</li>
 </template>

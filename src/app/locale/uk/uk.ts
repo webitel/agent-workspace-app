@@ -23,6 +23,10 @@ export default {
 				decline: 'Відхилити',
 			},
 		},
+		numpad: {
+			placeholder: 'Введіть номер телефону',
+			call: 'Подзвонити',
+		},
 	},
 	error: {
 		websocket: {
