@@ -7,6 +7,7 @@ export const ProcessingFieldComponent = {
 	CaseStatus: 'form-select-case-status',
 	SelectFromObject: 'form-select-from-object',
 	IFrame: 'form-i-frame',
+	File: 'form-file',
 } as const;
 
 export type ProcessingFieldComponent =

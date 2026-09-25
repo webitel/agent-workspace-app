@@ -118,13 +118,13 @@ async function openActiveChat(page: Page, socket: MockedSocket) {
 	await expect(page.locator('.the-chat-thread h1')).toHaveText(THREAD.subject);
 }
 
-function sendForm(socket: MockedSocket) {
+function sendForm(socket: MockedSocket, form: object = processingForm) {
 	socket.send(
 		'channel',
 		chatTaskFrame('form', {
 			attemptId: ATTEMPT_ID,
 			// a fresh copy per send: the app writes field values onto the form
-			form: structuredClone(processingForm),
+			form: structuredClone(form),
 		}),
 	);
 }
@@ -190,6 +190,86 @@ test.describe('chat processing form', () => {
 					},
 				},
 			});
+	});
+
+	test('uploads an attachment against the attempt and submits it with the form', async ({
+		page,
+		socket,
+	}) => {
+		const storedFile = {
+			id: 555,
+			name: 'receipt.txt',
+			mime: 'text/plain',
+			size: 12,
+		};
+		const uploads: string[] = [];
+		await page.route('**/storage/file/*/upload**', async (route) => {
+			uploads.push(route.request().url());
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify([
+					storedFile,
+				]),
+			});
+		});
+
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'attachments',
+					value: '',
+					view: {
+						component: 'form-file',
+						label: 'Attachments',
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		const form = page.locator('.processing-wrapper');
+		await form.locator('input[type="file"]').setInputFiles({
+			name: 'receipt.txt',
+			mimeType: 'text/plain',
+			buffer: Buffer.from('paid in full'),
+		});
+
+		// the stored file replaces the upload line once it settles
+		await expect(
+			form.locator('a', {
+				hasText: 'receipt.txt',
+			}),
+		).toBeVisible();
+		expect(uploads[0]).toContain(`/storage/file/${ATTEMPT_ID}/upload`);
+
+		await form
+			.getByRole('button', {
+				name: 'Complete',
+			})
+			.click();
+
+		// the SDK serialises object values, so the file list arrives as JSON
+		await expect
+			.poll(() => {
+				const request = socket.requests.find(
+					(item) => item.action === 'cc_form_action',
+				);
+				const fields = (
+					request?.data as {
+						fields?: Record<string, string>;
+					}
+				)?.fields;
+				return fields?.attachments ? JSON.parse(fields.attachments) : undefined;
+			})
+			.toEqual([
+				expect.objectContaining({
+					id: 555,
+					name: 'receipt.txt',
+				}),
+			]);
 	});
 
 	test('switches to the form when the chat ends and counts the deadline down', async ({

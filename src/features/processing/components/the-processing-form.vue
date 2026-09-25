@@ -17,7 +17,7 @@
 					v-if="fieldComponents[element.view.component]"
 					:model-value="element.value"
 					:label-props="{ hint: element.view.hint }"
-					v-bind="element.view"
+					v-bind="{ ...element.view, ...contextProps(element) }"
 					@update:model-value="processing.change(element, $event)"
 				/>
 				<p
@@ -50,8 +50,10 @@ import type { Task } from 'webitel-sdk';
 
 import { ProcessingFieldComponent } from '../enums/ProcessingFieldComponent.enum';
 import { useProcessingStore } from '../store/processing';
+import type { FormBodyElement } from '../types/ProcessingForm.types';
 import ProcessingFormCaseStatusSelect from './fields/processing-form-case-status-select.vue';
 import ProcessingFormDatetimepicker from './fields/processing-form-datetimepicker.vue';
+import ProcessingFormFile from './fields/processing-form-file.vue';
 import ProcessingFormIFrame from './fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from './fields/processing-form-input-text.vue';
 import ProcessingFormSelect from './fields/processing-form-select.vue';
@@ -73,7 +75,18 @@ const fieldComponents: Record<string, Component> = {
 	[ProcessingFieldComponent.CaseStatus]: ProcessingFormCaseStatusSelect,
 	[ProcessingFieldComponent.SelectFromObject]: ProcessingFormSelectFromObject,
 	[ProcessingFieldComponent.IFrame]: ProcessingFormIFrame,
+	[ProcessingFieldComponent.File]: ProcessingFormFile,
 };
+
+// What a field needs from the task rather than its schema: file uploads go
+// against the attempt.
+function contextProps(element: FormBodyElement) {
+	return element.view.component === ProcessingFieldComponent.File
+		? {
+				attemptId: props.task.id,
+			}
+		: {};
+}
 
 // Resolved per task so the same instance rebinds when the window switches chats.
 const processing = computed(() => useProcessingStore(props.task));
