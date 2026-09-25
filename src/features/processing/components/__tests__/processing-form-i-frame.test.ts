@@ -26,6 +26,22 @@ describe('processing-form-i-frame', () => {
 		expect(frame.attributes('style')).toContain('height: 240px');
 	});
 
+	it('refuses anything but an http(s) URL', () => {
+		for (const initialValue of [
+			'javascript:alert(document.cookie)',
+			'data:text/html,<script>alert(1)</script>',
+			'not a url',
+		]) {
+			expect(
+				mountFrame({
+					initialValue,
+				})
+					.find('iframe')
+					.attributes('src'),
+			).toBe('about:blank');
+		}
+	});
+
 	it('shows a label only when the form gives one', () => {
 		expect(
 			mountFrame({
