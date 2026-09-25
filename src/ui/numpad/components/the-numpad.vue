@@ -86,13 +86,6 @@ function focusNumberInput() {
 	numberInput.value?.focus();
 }
 
-/**
- * @author Oleksandr Palonnyi
- * Clicking a key moves focus to that button, so a following Enter would press
- * the key again instead of calling, and keyboard typing would stop. Focus goes
- * back to the input after every key, as in cc-workspaces.
- * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
- */
 function appendDigit(digit: string) {
 	number.value += digit;
 	focusNumberInput();

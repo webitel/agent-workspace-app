@@ -3,7 +3,10 @@
 		v-if="numpadStore.isOpen"
 		class="the-numpad-panel"
 	>
-		<the-numpad @call="onCall" />
+		<the-numpad
+			:initial-number="numpadStore.prefilledNumber"
+			@call="onCall"
+		/>
 	</div>
 </template>
 
@@ -16,7 +19,7 @@ import TheNumpad from './the-numpad.vue';
 
 const numpadStore = useNumpadStore();
 
-function onCall(_destination: string) {
+function onCall() {
 	numpadStore.close();
 }
 </script>

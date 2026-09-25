@@ -49,6 +49,16 @@ describe('the-numpad-panel', () => {
 		).toBe(true);
 	});
 
+	it('prefills the number the numpad store was opened with', async () => {
+		const wrapper = mountPanel();
+		const numpadStore = useNumpadStore();
+
+		numpadStore.open('0671234567');
+		await wrapper.vm.$nextTick();
+
+		expect(wrapper.find('input').element.value).toBe('0671234567');
+	});
+
 	it('closes the panel once a call is placed', async () => {
 		const wrapper = mountPanel();
 		const numpadStore = useNumpadStore();

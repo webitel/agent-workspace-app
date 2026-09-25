@@ -24,7 +24,6 @@ export default {
 			},
 		},
 		numpad: {
-			placeholder: 'Enter phone number',
 			call: 'Call',
 		},
 	},

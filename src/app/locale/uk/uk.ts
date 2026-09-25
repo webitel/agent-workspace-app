@@ -24,7 +24,6 @@ export default {
 			},
 		},
 		numpad: {
-			placeholder: 'Введіть номер телефону',
 			call: 'Подзвонити',
 		},
 	},
