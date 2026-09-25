@@ -45,6 +45,44 @@ export interface FormFileUpload {
 	failed: boolean;
 }
 
+// `form-table`: a table of records from the schema or a system endpoint, with
+// optional per-row action buttons.
+export type FormTableRow = Record<string, unknown>;
+
+export interface FormTableColumn {
+	/** dot / bracket path into the record, e.g. `contact.emails[0].number` */
+	field: string;
+	name: string;
+	width?: number;
+	/** ProcessingTableColumnType: text, number, bool, datetime, link */
+	type: string;
+}
+
+export interface FormTableConfig {
+	displayColumns: FormTableColumn[];
+	source?: FormTableRow[];
+	isSystemSource?: boolean;
+	systemSource?: {
+		path: string;
+	};
+	defaultCollapsed?: boolean;
+	headerTitle?: string;
+}
+
+export interface FormTableAction {
+	/** column the button sits in */
+	field: string;
+	action: string;
+	buttonName: string;
+	color?: string;
+}
+
+export interface FormTableActionPayload {
+	componentId: string;
+	action: string;
+	row: FormTableRow;
+}
+
 export interface FormFieldView {
 	// raw component name from the backend, e.g. 'wt-select', 'wt-input'
 	component: string;
