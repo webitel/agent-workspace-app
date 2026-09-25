@@ -50,6 +50,7 @@
 		"@playwright/test": "^1.55.1",
 		"@types/node": "^25.9.2",
 		"@vitejs/plugin-vue": "^6.x",
+		"@vitest/coverage-v8": "^4.1.11",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.8.1",
 		"clipboard-copy": "^4.0.1",
