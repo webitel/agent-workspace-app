@@ -51,6 +51,18 @@ post-processing without a form falls back to plain reporting. The chat window's
 tab is labelled "Post-processing" by design, but it hosts the processing form
 whenever one exists.
 
+**Thread** — a chat as the chat backend models it: its members, its message
+history, what gets sent to it. It is addressed by its thread id, which is also
+the chat route's param.
+
+**Task** — the call-center side of the same chat: the distribution attempt that
+offered it to this agent, carries its processing form and ends in
+post-processing. One thread can see several tasks over its life (a transfer is a
+new attempt).
+
+_Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
+chat model, which this app does not use.
+
 ## Conventions
 
 ### Test file naming

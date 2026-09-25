@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useChatSessionStore } from '../../../../../../features/chats/store/chat-session';
-import TheChatWindow from '../the-chat-window.vue';
+import TheChatThread from '../the-chat-thread.vue';
 
 vi.mock('vue-router', () => ({
 	useRoute: () => ({
@@ -16,7 +16,7 @@ vi.mock('vue-router', () => ({
 // Mock the ui-chats /ui entry: importing the real ChatContainer pulls the
 // styleguide/ui-sdk asset tree (svg?raw) that vitest refuses to transform.
 // A lightweight stub that captures props and re-emits the wired events is
-// enough to exercise the window's binding logic. The /adapters entry is
+// enough to exercise the thread's binding logic. The /adapters entry is
 // type-only and stays real, so message mapping is exercised for real.
 vi.mock('@webitel/ui-chats/ui', () => ({
 	ChatAction: {
@@ -40,8 +40,8 @@ vi.mock('@webitel/ui-chats/ui', () => ({
 	},
 }));
 
-const mountWindow = () =>
-	mount(TheChatWindow, {
+const mountThread = () =>
+	mount(TheChatThread, {
 		global: {
 			plugins: [
 				createTestingPinia({
@@ -51,18 +51,18 @@ const mountWindow = () =>
 		},
 	});
 
-const container = (wrapper: ReturnType<typeof mountWindow>) =>
+const container = (wrapper: ReturnType<typeof mountThread>) =>
 	wrapper.findComponent({
 		name: 'ChatContainer',
 	});
 
-describe('the-chat-window', () => {
+describe('the-chat-thread', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
 	it('maps store messages into the container and mirrors paging state', async () => {
-		const wrapper = mountWindow();
+		const wrapper = mountThread();
 		const store = useChatSessionStore('chat-1');
 		store.messages = [
 			{
@@ -85,7 +85,7 @@ describe('the-chat-window', () => {
 	});
 
 	it('routes the load-next-messages event to store.loadMore', async () => {
-		const wrapper = mountWindow();
+		const wrapper = mountThread();
 		const store = useChatSessionStore('chat-1');
 
 		await container(wrapper).vm.$emit('load-next-messages');
@@ -94,7 +94,7 @@ describe('the-chat-window', () => {
 	});
 
 	it('sends text and resolves onSuccess on a successful send', async () => {
-		const wrapper = mountWindow();
+		const wrapper = mountThread();
 		const store = useChatSessionStore('chat-1');
 		const onSuccess = vi.fn();
 		const onComplete = vi.fn();
@@ -111,7 +111,7 @@ describe('the-chat-window', () => {
 	});
 
 	it('reports onError when a send rejects', async () => {
-		const wrapper = mountWindow();
+		const wrapper = mountThread();
 		const store = useChatSessionStore('chat-1');
 		const failure = new Error('boom');
 		vi.mocked(store.sendText).mockRejectedValueOnce(failure);
@@ -132,7 +132,7 @@ describe('the-chat-window', () => {
 	});
 
 	it('routes the attach-files event to store.sendFiles', async () => {
-		const wrapper = mountWindow();
+		const wrapper = mountThread();
 		const store = useChatSessionStore('chat-1');
 		const files = [
 			{
