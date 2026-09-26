@@ -100,30 +100,18 @@ import ProcessingFormFileLine from './processing-form-file-line.vue';
 // before it turns into a stored file line (or waits to be dismissed).
 const SETTLE_MS = 1600;
 
-const props = withDefaults(
-	defineProps<{
-		modelValue?: unknown;
-		/** the task attempt files are uploaded against */
-		attemptId?: number | string;
-		/** set by case forms: upload against the case instead of the attempt */
-		channel?: string;
-		entityId?: string;
-		label?: string;
-		hint?: string;
-		readonly?: boolean;
-		collapsible?: boolean;
-	}>(),
-	{
-		modelValue: () => [],
-		attemptId: undefined,
-		channel: '',
-		entityId: '',
-		label: '',
-		hint: '',
-		readonly: false,
-		collapsible: false,
-	},
-);
+const props = defineProps<{
+	modelValue?: unknown;
+	/** the task attempt files are uploaded against */
+	attemptId?: number | string;
+	/** set by case forms: upload against the case instead of the attempt */
+	channel?: string;
+	entityId?: string;
+	label?: string;
+	hint?: string;
+	readonly?: boolean;
+	collapsible?: boolean;
+}>();
 
 const emit = defineEmits<{
 	'update:modelValue': [
@@ -202,7 +190,7 @@ async function uploadFile(file: File) {
 		const client = getClient();
 		const stored = props.channel
 			? await client.storeFile(
-					props.entityId,
+					props.entityId ?? '',
 					[
 						file,
 					],

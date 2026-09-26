@@ -64,21 +64,14 @@ import type {
 	FormStoredFile,
 } from '../../types/ProcessingForm.types';
 
-const props = withDefaults(
-	defineProps<{
-		file: FormStoredFile;
-		/** set while the file is still being uploaded */
-		upload?: FormFileUpload;
-		/** download link, once the file is stored */
-		href?: string;
-		readonly?: boolean;
-	}>(),
-	{
-		upload: undefined,
-		href: '',
-		readonly: false,
-	},
-);
+const props = defineProps<{
+	file: FormStoredFile;
+	/** set while the file is still being uploaded */
+	upload?: FormFileUpload;
+	/** download link, once the file is stored */
+	href?: string;
+	readonly?: boolean;
+}>();
 
 const emit = defineEmits<{
 	delete: [];
