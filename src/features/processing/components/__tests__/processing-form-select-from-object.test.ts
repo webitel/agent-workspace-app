@@ -1,15 +1,17 @@
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const getObjectLookupMock = vi.fn((..._args: unknown[]) =>
+const getLookupMock = vi.fn((..._args: unknown[]) =>
 	Promise.resolve({
 		items: [],
 		next: false,
 	}),
 );
 
-vi.mock('../../api/objectLookup', () => ({
-	getObjectLookup: (...args: unknown[]) => getObjectLookupMock(...args),
+vi.mock('@webitel/api-services/api', () => ({
+	SysTypesAPI: {
+		getLookup: (...args: unknown[]) => getLookupMock(...args),
+	},
 }));
 
 import ProcessingFormSelectFromObject from '../fields/processing-form-select-from-object.vue';
@@ -57,7 +59,7 @@ const mountSelect = (props: Record<string, unknown> = {}) =>
 
 describe('processing-form-select-from-object', () => {
 	beforeEach(() => {
-		getObjectLookupMock.mockClear();
+		getLookupMock.mockClear();
 	});
 
 	it('labels itself after the object unless the form gives a label', () => {
@@ -92,7 +94,7 @@ describe('processing-form-select-from-object', () => {
 			page: 1,
 		});
 
-		expect(getObjectLookupMock).toHaveBeenCalledWith({
+		expect(getLookupMock).toHaveBeenCalledWith({
 			search: 'kyi',
 			page: 1,
 			path: '/dictionary/cities',
