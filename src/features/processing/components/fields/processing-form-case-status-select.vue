@@ -36,7 +36,6 @@ const props = withDefaults(
 		options?: CaseStatusOption[];
 	}>(),
 	{
-		modelValue: null,
 		options: () => [],
 	},
 );

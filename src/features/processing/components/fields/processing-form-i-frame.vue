@@ -28,9 +28,6 @@ const props = withDefaults(
 		height?: string;
 	}>(),
 	{
-		initialValue: '',
-		label: '',
-		hint: '',
 		height: '100px',
 	},
 );
@@ -38,6 +35,7 @@ const props = withDefaults(
 // The URL comes from the form schema. Only http(s) is embedded: a `javascript:`
 // or `data:` src would run script in the workspace's own origin.
 const safeSrc = computed(() => {
+	if (!props.initialValue) return 'about:blank';
 	try {
 		const url = new URL(props.initialValue);
 		return url.protocol === 'https:' || url.protocol === 'http:'
