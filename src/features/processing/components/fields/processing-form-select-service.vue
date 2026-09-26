@@ -57,20 +57,14 @@ import { computed, onMounted, ref } from 'vue';
 import type { ServiceCatalogNode } from '../../types/ProcessingForm.types';
 
 // Seeded as a service record, picked as its id (what wt-tree emits).
-const props = withDefaults(
-	defineProps<{
-		modelValue?: unknown;
-		/** reuses the table view settings: `headerTitle`, `defaultCollapsed` */
-		table?: {
-			headerTitle?: string;
-			defaultCollapsed?: boolean;
-		};
-	}>(),
-	{
-		modelValue: null,
-		table: undefined,
-	},
-);
+const props = defineProps<{
+	modelValue?: unknown;
+	/** reuses the table view settings: `headerTitle`, `defaultCollapsed` */
+	table?: {
+		headerTitle?: string;
+		defaultCollapsed?: boolean;
+	};
+}>();
 
 const emit = defineEmits<{
 	'update:modelValue': [
