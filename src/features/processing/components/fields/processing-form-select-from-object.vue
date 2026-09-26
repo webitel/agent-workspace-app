@@ -19,9 +19,9 @@
 </template>
 
 <script setup lang="ts">
+import { SysTypesAPI } from '@webitel/api-services/api';
 import { computed } from 'vue';
 
-import { getObjectLookup } from '../../api/objectLookup';
 import type { FormObjectSource } from '../../types/ProcessingForm.types';
 
 // Picks records of the object the form schema points at; the selected record
@@ -42,7 +42,7 @@ const emit = defineEmits<{
 const selectLabel = computed(() => props.label || props.object.source?.name);
 
 function searchObjects(params: Record<string, unknown>) {
-	return getObjectLookup({
+	return SysTypesAPI.getLookup({
 		...params,
 		path: props.object.source?.path ?? '',
 		filters: props.object.filters ?? [],
