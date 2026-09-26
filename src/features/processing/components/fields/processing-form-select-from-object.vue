@@ -26,19 +26,12 @@ import type { FormObjectSource } from '../../types/ProcessingForm.types';
 
 // Picks records of the object the form schema points at; the selected record
 // (or records) is the value, and goes to the backend as-is.
-const props = withDefaults(
-	defineProps<{
-		modelValue?: unknown;
-		object: FormObjectSource;
-		multiple?: boolean;
-		label?: string;
-	}>(),
-	{
-		modelValue: undefined,
-		multiple: false,
-		label: '',
-	},
-);
+const props = defineProps<{
+	modelValue?: unknown;
+	object: FormObjectSource;
+	multiple?: boolean;
+	label?: string;
+}>();
 
 const emit = defineEmits<{
 	'update:modelValue': [
