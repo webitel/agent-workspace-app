@@ -52,12 +52,7 @@ const props = withDefaults(
 		enableCopying?: boolean;
 	}>(),
 	{
-		initialValue: '',
-		label: '',
-		hint: '',
 		color: 'info',
-		collapsible: false,
-		enableCopying: false,
 	},
 );
 
