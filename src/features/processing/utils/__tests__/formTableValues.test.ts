@@ -74,4 +74,40 @@ describe('form table values', () => {
 			'Home',
 		]);
 	});
+
+	it('keeps false and 0, directly and when fanning out', () => {
+		expect(readColumnValue(false, [])).toBe(false);
+		expect(
+			readColumnValue(
+				{
+					active: false,
+				},
+				[
+					'active',
+				],
+			),
+		).toBe(false);
+		expect(
+			readColumnValue(
+				[
+					{
+						count: 0,
+					},
+					{
+						count: 2,
+					},
+					{
+						count: null,
+					},
+					{},
+				],
+				[
+					'count',
+				],
+			),
+		).toEqual([
+			0,
+			2,
+		]);
+	});
 });

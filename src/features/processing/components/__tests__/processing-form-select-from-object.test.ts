@@ -75,6 +75,16 @@ describe('processing-form-select-from-object', () => {
 		).toBe('City');
 	});
 
+	it('survives a schema without an object', () => {
+		const wrapper = mount(ProcessingFormSelectFromObject, {
+			global: {
+				stubs,
+			},
+		});
+
+		expect(wrapper.find('.single').exists()).toBe(true);
+	});
+
 	it('uses the multi select when multiple', () => {
 		const wrapper = mountSelect({
 			multiple: true,

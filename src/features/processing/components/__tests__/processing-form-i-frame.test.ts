@@ -30,7 +30,8 @@ describe('processing-form-i-frame', () => {
 		for (const initialValue of [
 			'javascript:alert(document.cookie)',
 			'data:text/html,<script>alert(1)</script>',
-			'not a url',
+			// unparseable even as a relative reference
+			'http://[not-a-host',
 		]) {
 			expect(
 				mountFrame({
@@ -40,6 +41,16 @@ describe('processing-form-i-frame', () => {
 					.attributes('src'),
 			).toBe('about:blank');
 		}
+	});
+
+	it('resolves a relative path against the page, like a plain src would', () => {
+		const src = mountFrame({
+			initialValue: '/crm/cases/7',
+		})
+			.find('iframe')
+			.attributes('src');
+
+		expect(src).toBe(new URL('/crm/cases/7', document.baseURI).href);
 	});
 
 	it('shows a label only when the form gives one', () => {
