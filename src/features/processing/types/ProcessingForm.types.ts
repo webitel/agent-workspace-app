@@ -7,6 +7,25 @@ export interface FormSelectOption {
 	[key: string]: unknown;
 }
 
+// A case status condition, as `form-select-case-status` lists them.
+export interface CaseStatusOption {
+	id: number;
+	name: string;
+	initial?: boolean;
+	final?: boolean;
+}
+
+// Where `form-select-from-object` reads its records from.
+export interface FormObjectSource {
+	source?: {
+		name?: string;
+		path?: string;
+	};
+	displayColumn?: string;
+	filters?: string[];
+	fields?: string[];
+}
+
 export interface FormFieldView {
 	// raw component name from the backend, e.g. 'wt-select', 'wt-input'
 	component: string;

@@ -4,7 +4,8 @@ import { toNaiveUtcTimestamp } from './naiveUtcTimestamp';
 
 // The backend expects form values as an object keyed by field id, not the body
 // array. Display-only fields are dropped; select values are unwrapped to their
-// primitive `value`; datetimepicker values are converted to naive UTC.
+// primitive `value`, case statuses to their `id`; datetimepicker values are
+// converted to naive UTC.
 export function formattingFormBeforeSend(
 	formBody: FormBodyElement[],
 ): Record<string, unknown> {
@@ -32,6 +33,20 @@ export function formattingFormBeforeSend(
 						}
 					).value;
 				}
+			}
+
+			// Seeded as the option object, picked as its id: always send the id.
+			// (cc-workspaces sent the whole object when left untouched.)
+			if (
+				view.component === ProcessingFieldComponent.CaseStatus &&
+				value &&
+				typeof value === 'object'
+			) {
+				normalized = (
+					value as {
+						id: unknown;
+					}
+				).id;
 			}
 
 			if (view.component === ProcessingFieldComponent.Datetimepicker) {
