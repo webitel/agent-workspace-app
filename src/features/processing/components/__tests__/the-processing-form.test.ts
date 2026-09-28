@@ -1,9 +1,10 @@
 import { createTestingPinia } from '@pinia/testing';
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
+import ProcessingFormTable from '../fields/form-table/processing-form-table.vue';
 import ProcessingFormCaseStatusSelect from '../fields/processing-form-case-status-select.vue';
 import ProcessingFormDatetimepicker from '../fields/processing-form-datetimepicker.vue';
 import ProcessingFormFile from '../fields/processing-form-file.vue';
@@ -35,6 +36,9 @@ const globalStubs = {
 	'wt-label': true,
 	'wt-load-bar': true,
 	'wt-confirm-dialog': true,
+	'wt-expansion-panel': true,
+	'wt-table': true,
+	'wt-intersection-observer': true,
 	'wt-button': {
 		props: [
 			'disabled',
@@ -58,6 +62,7 @@ function makeTask(
 		hasForm: true,
 		form,
 		formAction,
+		componentAction: vi.fn(() => Promise.resolve({})),
 	});
 }
 
@@ -195,6 +200,46 @@ describe('the-processing-form', () => {
 		);
 	});
 
+	it('knows a table by its element id and sends its row actions to the task', async () => {
+		const { wrapper, task } = mountForm({
+			title: '',
+			metadata: {
+				isInited: true,
+			},
+			actions: [],
+			body: [
+				{
+					id: 'orders',
+					value: '',
+					view: {
+						component: 'form-table',
+						table: {
+							displayColumns: [],
+							source: [],
+						},
+					},
+				},
+			],
+		});
+		const table = wrapper.findComponent(ProcessingFormTable);
+		expect(table.props('componentId')).toBe('orders');
+
+		table.vm.$emit('table-action', {
+			componentId: 'orders',
+			action: 'pick',
+			row: {
+				id: 7,
+			},
+		});
+		await flushPromises();
+
+		expect(task.componentAction).toHaveBeenCalledWith('orders', 'pick', {
+			pick: {
+				id: 7,
+			},
+		});
+	});
+
 	it('renders a placeholder for an unsupported field type', () => {
 		const { wrapper } = mountForm({
 			title: '',
@@ -207,7 +252,7 @@ describe('the-processing-form', () => {
 					id: 'x',
 					value: '',
 					view: {
-						component: 'form-table',
+						component: 'form-select-service',
 					},
 				},
 			],

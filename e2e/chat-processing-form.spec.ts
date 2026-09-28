@@ -272,6 +272,95 @@ test.describe('chat processing form', () => {
 			]);
 	});
 
+	test('runs a table row action against its component', async ({
+		page,
+		socket,
+	}) => {
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'orders',
+					value: '',
+					view: {
+						component: 'form-table',
+						table: {
+							headerTitle: 'Recent orders',
+							displayColumns: [
+								{
+									field: 'number',
+									name: 'Order',
+									type: 'text',
+								},
+								{
+									field: 'status',
+									name: 'Status',
+									type: 'text',
+								},
+							],
+							source: [
+								{
+									id: 42,
+									number: 'A-42',
+									status: 'shipped',
+								},
+							],
+						},
+						actions: [
+							{
+								field: 'status',
+								action: 'reopen',
+								buttonName: 'Reopen',
+							},
+						],
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		const form = page.locator('.processing-wrapper');
+		await expect(form).toContainText('Recent orders');
+		await expect(form).toContainText('A-42');
+
+		await form
+			.getByRole('button', {
+				name: 'Reopen',
+			})
+			.click();
+
+		// the SDK serialises the row, keyed by the action, into `vars`
+		await expect
+			.poll(() => {
+				const request = socket.requests.find(
+					(item) => item.action === 'cc_component_action',
+				);
+				if (!request) return undefined;
+				const data = request.data as {
+					componentId: string;
+					action: string;
+					formId: string;
+					vars: Record<string, string>;
+				};
+				return {
+					componentId: data.componentId,
+					action: data.action,
+					formId: data.formId,
+					row: JSON.parse(data.vars.reopen),
+				};
+			})
+			.toEqual({
+				componentId: 'orders',
+				action: 'reopen',
+				formId: 'e2e-form',
+				row: expect.objectContaining({
+					id: 42,
+					number: 'A-42',
+				}),
+			});
+	});
+
 	test('switches to the form when the chat ends and counts the deadline down', async ({
 		page,
 		socket,
