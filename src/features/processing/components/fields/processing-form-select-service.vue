@@ -83,7 +83,7 @@ const isLoading = ref(false);
 
 const selectedId = computed(() =>
 	props.modelValue && typeof props.modelValue === 'object'
-		? (props.modelValue as ServiceCatalogNode).id
+		? ((props.modelValue as ServiceCatalogNode).id ?? null)
 		: (props.modelValue ?? null),
 );
 

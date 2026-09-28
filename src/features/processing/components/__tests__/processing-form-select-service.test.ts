@@ -131,6 +131,24 @@ describe('processing-form-select-service', () => {
 		).toBe(100);
 	});
 
+	it('treats a seeded record without an id as nothing selected', async () => {
+		const wrapper = mountSelect({
+			modelValue: {
+				name: 'Card refund',
+			},
+		});
+		await flushPromises();
+
+		expect(wrapper.find('.title').text()).toBe('Select a service');
+		expect(
+			wrapper
+				.findComponent({
+					name: 'Tree',
+				})
+				.props('modelValue'),
+		).toBeNull();
+	});
+
 	it('re-emits the picked service id', async () => {
 		const wrapper = mountSelect();
 		await flushPromises();
