@@ -28,6 +28,9 @@ export default {
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'The call could not be placed. Please try again.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Microphone access is denied. Cannot perform action.',

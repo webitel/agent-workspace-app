@@ -14,13 +14,16 @@
 	setup
 	lang="ts"
 >
+import { useOutboundCallStore } from '../../../features/calls/store/outboundCall';
 import { useNumpadStore } from '../store/numpad';
 import TheNumpad from './the-numpad.vue';
 
 const numpadStore = useNumpadStore();
+const outboundCallStore = useOutboundCallStore();
 
-function onCall() {
-	numpadStore.close();
+function onCall(destination: string) {
+	outboundCallStore.start(destination);
+	// numpadStore.close();
 }
 </script>
 
