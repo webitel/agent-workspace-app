@@ -33,11 +33,12 @@ const props = withDefaults(
 );
 
 // The URL comes from the form schema. Only http(s) is embedded: a `javascript:`
-// or `data:` src would run script in the workspace's own origin.
+// or `data:` src would run script in the workspace's own origin. Relative paths
+// resolve the way the browser would resolve them in `src`.
 const safeSrc = computed(() => {
 	if (!props.initialValue) return 'about:blank';
 	try {
-		const url = new URL(props.initialValue);
+		const url = new URL(props.initialValue, document.baseURI);
 		return url.protocol === 'https:' || url.protocol === 'http:'
 			? url.href
 			: 'about:blank';

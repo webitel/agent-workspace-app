@@ -28,7 +28,8 @@ import type { FormObjectSource } from '../../types/ProcessingForm.types';
 // (or records) is the value, and goes to the backend as-is.
 const props = defineProps<{
 	modelValue?: unknown;
-	object: FormObjectSource;
+	/** the schema should always carry it; a malformed one must not crash the form */
+	object?: FormObjectSource;
 	multiple?: boolean;
 	label?: string;
 }>();
@@ -39,16 +40,16 @@ const emit = defineEmits<{
 	];
 }>();
 
-const selectLabel = computed(() => props.label || props.object.source?.name);
+const selectLabel = computed(() => props.label || props.object?.source?.name);
 
 function searchObjects(params: Record<string, unknown>) {
 	return SysTypesAPI.getLookup({
 		...params,
-		path: props.object.source?.path ?? '',
-		filters: props.object.filters ?? [],
-		fields: props.object.fields ?? [],
+		path: props.object?.source?.path ?? '',
+		filters: props.object?.filters ?? [],
+		fields: props.object?.fields ?? [],
 		primary: 'id',
-		display: props.object.displayColumn ?? 'name',
+		display: props.object?.displayColumn ?? 'name',
 	});
 }
 </script>
