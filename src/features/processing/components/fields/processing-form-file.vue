@@ -255,7 +255,7 @@ async function downloadAll() {
 		link.href = URL.createObjectURL(archive);
 		link.download = `${props.label || 'files'}.zip`;
 		link.click();
-		URL.revokeObjectURL(link.href);
+		setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 	} finally {
 		isDownloading.value = false;
 	}
