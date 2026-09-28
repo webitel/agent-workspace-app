@@ -42,20 +42,21 @@ import { WtButton, WtInputText } from '@webitel/ui-sdk/components';
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const props = withDefaults(
-	defineProps<{
-		initialNumber?: string;
-	}>(),
-	{
-		initialNumber: '',
-	},
-);
+interface Props {
+	initialNumber?: string;
+}
 
-const emit = defineEmits<{
+interface Emits {
 	call: [
 		destination: string,
 	];
-}>();
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	initialNumber: '',
+});
+
+const emit = defineEmits<Emits>();
 
 const keys = [
 	'1',
