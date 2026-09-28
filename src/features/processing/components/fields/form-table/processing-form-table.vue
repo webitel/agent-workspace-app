@@ -60,6 +60,11 @@
 </template>
 
 <script setup lang="ts">
+import {
+	applyTransform,
+	camelToSnake,
+	snakeToCamel,
+} from '@webitel/api-services/api/transformers';
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { computed, onMounted, ref } from 'vue';
 
@@ -108,18 +113,16 @@ defineOptions({
 	inheritAttrs: false,
 });
 
-const snakeToCamelCase = (step: string) =>
-	step.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase());
-const camelToSnakeCase = (step: string) =>
-	step.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`);
-
-// Rows are camelCased (the API transformer, or the same for inline sources),
-// so the column paths are too.
+// Rows are camelCased by api-services' snakeToCamel — the rows API applies it,
+// and so does this for an inline source — so the column paths go through the
+// same transformer, or a key it leaves alone (`phone_2`) would never match.
 const columns = computed(() =>
 	(props.table.displayColumns ?? []).map((column) => ({
 		...column,
 		slot: toSlotKey(column.field),
-		steps: toPathSteps(column.field).map(snakeToCamelCase),
+		steps: applyTransform(toPathSteps(column.field), [
+			snakeToCamel(),
+		]) as string[],
 	})),
 );
 
@@ -140,13 +143,19 @@ const rowActions = computed(() =>
 );
 
 // what a system source is asked for: the schema's fields plus each column's root
-const requestFields = computed(() =>
-	[
-		...new Set([
-			...props.fields,
-			...columns.value.map((column) => column.steps[0]),
-		]),
-	].map(camelToSnakeCase),
+const requestFields = computed(
+	() =>
+		applyTransform(
+			[
+				...new Set([
+					...props.fields,
+					...columns.value.map((column) => column.steps[0]),
+				]),
+			],
+			[
+				camelToSnake(),
+			],
+		) as string[],
 );
 
 const rows = ref<FormTableRow[]>([]);
@@ -166,19 +175,6 @@ function toRows(records: FormTableRow[]): FormTableRow[] {
 		}
 		return row;
 	});
-}
-
-function camelizeKeys(value: unknown): unknown {
-	if (Array.isArray(value)) return value.map(camelizeKeys);
-	if (value && typeof value === 'object') {
-		return Object.fromEntries(
-			Object.entries(value).map(([key, item]) => [
-				snakeToCamelCase(key),
-				camelizeKeys(item),
-			]),
-		);
-	}
-	return value;
 }
 
 async function fetchPage() {
@@ -201,7 +197,9 @@ async function fetchPage() {
 async function loadFirstPage() {
 	if (!props.table.isSystemSource) {
 		rows.value = toRows(
-			(camelizeKeys(props.table.source ?? []) as FormTableRow[]) ?? [],
+			applyTransform(props.table.source ?? [], [
+				snakeToCamel(),
+			]) as FormTableRow[],
 		);
 		return;
 	}
