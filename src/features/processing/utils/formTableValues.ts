@@ -27,21 +27,28 @@ function readSteps(value: unknown, steps: string[]): unknown {
 	);
 }
 
+// Nothing to show; 0 and false are values.
+const isMissing = (value: unknown) =>
+	value === undefined || value === null || value === '';
+
 /**
  * Reads the value a column shows. A direct path wins; failing that, arrays
  * along the way fan out, so `permissions.name` over
- * `[{ name: 'A' }, { name: 'B' }]` yields `['A', 'B']`. 0 is a value.
+ * `[{ name: 'A' }, { name: 'B' }]` yields `['A', 'B']`. 0 and false are values
+ * — cc-workspaces dropped both, so a false text cell showed `-` and fanned-out
+ * lists lost their zeros.
  */
 export function readColumnValue(value: unknown, steps: string[]): unknown {
-	if (value === 0) return 0;
-	if (!value) return undefined;
+	if (isMissing(value)) return undefined;
 	if (!steps.length) return value;
 
 	const direct = readSteps(value, steps);
-	if (direct) return direct;
+	if (!isMissing(direct)) return direct;
 
 	if (Array.isArray(value)) {
-		return value.map((item) => readColumnValue(item, steps)).filter(Boolean);
+		return value
+			.map((item) => readColumnValue(item, steps))
+			.filter((item) => !isMissing(item));
 	}
 	if (typeof value === 'object') {
 		const [first, ...rest] = steps;
