@@ -51,6 +51,26 @@ const processingForm = {
 				label: 'Resolution note',
 			},
 		},
+		{
+			id: 'status',
+			value: '',
+			view: {
+				component: 'form-select-case-status',
+				initialValue: '3',
+				options: [
+					{
+						id: 1,
+						name: 'New',
+						initial: true,
+					},
+					{
+						id: 3,
+						name: 'Resolved',
+						final: true,
+					},
+				],
+			},
+		},
 	],
 };
 
@@ -147,6 +167,7 @@ test.describe('chat processing form', () => {
 		await tab(page, 'Post-processing').click();
 
 		const form = page.locator('.processing-wrapper');
+		await expect(form).toContainText('Resolved');
 		await form.locator('input').first().fill('Order #42 confirmed');
 		await form
 			.getByRole('button', {
@@ -164,6 +185,8 @@ test.describe('chat processing form', () => {
 					action: 'complete',
 					fields: {
 						note: 'Order #42 confirmed',
+						// seeded from initialValue as the option, sent as its id
+						status: 3,
 					},
 				},
 			});

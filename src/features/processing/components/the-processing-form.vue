@@ -50,9 +50,12 @@ import type { Task } from 'webitel-sdk';
 
 import { ProcessingFieldComponent } from '../enums/ProcessingFieldComponent.enum';
 import { useProcessingStore } from '../store/processing';
+import ProcessingFormCaseStatusSelect from './fields/processing-form-case-status-select.vue';
 import ProcessingFormDatetimepicker from './fields/processing-form-datetimepicker.vue';
+import ProcessingFormIFrame from './fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from './fields/processing-form-input-text.vue';
 import ProcessingFormSelect from './fields/processing-form-select.vue';
+import ProcessingFormSelectFromObject from './fields/processing-form-select-from-object.vue';
 import ProcessingFormText from './fields/processing-form-text.vue';
 import ProcessingWrapper from './processing-wrapper.vue';
 
@@ -67,6 +70,9 @@ const fieldComponents: Record<string, Component> = {
 	[ProcessingFieldComponent.InputText]: ProcessingFormInputText,
 	[ProcessingFieldComponent.Datetimepicker]: ProcessingFormDatetimepicker,
 	[ProcessingFieldComponent.Text]: ProcessingFormText,
+	[ProcessingFieldComponent.CaseStatus]: ProcessingFormCaseStatusSelect,
+	[ProcessingFieldComponent.SelectFromObject]: ProcessingFormSelectFromObject,
+	[ProcessingFieldComponent.IFrame]: ProcessingFormIFrame,
 };
 
 // Resolved per task so the same instance rebinds when the window switches chats.

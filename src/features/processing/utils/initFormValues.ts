@@ -2,6 +2,7 @@ import { isEmpty } from '@webitel/ui-sdk/scripts';
 
 import { ProcessingFieldComponent } from '../enums/ProcessingFieldComponent.enum';
 import type {
+	CaseStatusOption,
 	FormBodyElement,
 	FormSelectOption,
 	ProcessingFormData,
@@ -17,6 +18,16 @@ function getSelectInitialValue(
 	return (
 		options.find((option) => option.value === initialValue) ?? initialValue
 	);
+}
+
+// A case status initialValue is the status id; seed the matching option, or
+// leave the field empty when it names no known status.
+// https://webitel.atlassian.net/browse/WTEL-9188
+function getCaseStatusInitialValue(
+	initialValue: unknown,
+	options: CaseStatusOption[] = [],
+): CaseStatusOption | undefined {
+	return options.find((option) => option.id === Number(initialValue));
 }
 
 function getDatetimepickerInitialValue(
@@ -52,6 +63,13 @@ function resolveInitialValue(element: FormBodyElement): unknown {
 		return getSelectInitialValue(
 			element.view.initialValue,
 			element.view.options,
+		);
+	}
+
+	if (element.view.component === ProcessingFieldComponent.CaseStatus) {
+		return getCaseStatusInitialValue(
+			element.view.initialValue,
+			element.view.options as unknown as CaseStatusOption[],
 		);
 	}
 

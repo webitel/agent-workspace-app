@@ -4,9 +4,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
+import ProcessingFormCaseStatusSelect from '../fields/processing-form-case-status-select.vue';
 import ProcessingFormDatetimepicker from '../fields/processing-form-datetimepicker.vue';
+import ProcessingFormIFrame from '../fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from '../fields/processing-form-input-text.vue';
 import ProcessingFormSelect from '../fields/processing-form-select.vue';
+import ProcessingFormSelectFromObject from '../fields/processing-form-select-from-object.vue';
 import ProcessingFormText from '../fields/processing-form-text.vue';
 import TheProcessingForm from '../the-processing-form.vue';
 
@@ -19,6 +22,8 @@ const globalStubs = {
 	'wt-hint': true,
 	'wt-copy-action': true,
 	'wt-icon-btn': true,
+	'wt-indicator': true,
+	'wt-label': true,
 	'wt-button': {
 		props: [
 			'disabled',
@@ -109,6 +114,34 @@ describe('the-processing-form', () => {
 						initialValue: 'Read this first',
 					},
 				},
+				{
+					id: 'e',
+					value: '',
+					view: {
+						component: 'form-select-case-status',
+						options: [],
+					},
+				},
+				{
+					id: 'f',
+					value: '',
+					view: {
+						component: 'form-select-from-object',
+						object: {
+							source: {
+								path: '/objects',
+							},
+						},
+					},
+				},
+				{
+					id: 'g',
+					value: '',
+					view: {
+						component: 'form-i-frame',
+						initialValue: 'https://example.com',
+					},
+				},
 			],
 		});
 
@@ -118,6 +151,13 @@ describe('the-processing-form', () => {
 			true,
 		);
 		expect(wrapper.findComponent(ProcessingFormText).exists()).toBe(true);
+		expect(wrapper.findComponent(ProcessingFormCaseStatusSelect).exists()).toBe(
+			true,
+		);
+		expect(wrapper.findComponent(ProcessingFormSelectFromObject).exists()).toBe(
+			true,
+		);
+		expect(wrapper.findComponent(ProcessingFormIFrame).exists()).toBe(true);
 	});
 
 	it('renders a placeholder for an unsupported field type', () => {
