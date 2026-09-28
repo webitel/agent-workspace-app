@@ -4,6 +4,11 @@ export const ProcessingFieldComponent = {
 	InputText: 'wt-input',
 	Datetimepicker: 'wt-datetimepicker',
 	Text: 'form-text',
+	CaseStatus: 'form-select-case-status',
+	SelectFromObject: 'form-select-from-object',
+	IFrame: 'form-i-frame',
+	File: 'form-file',
+	Table: 'form-table',
 } as const;
 
 export type ProcessingFieldComponent =
