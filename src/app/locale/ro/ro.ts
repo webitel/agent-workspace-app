@@ -23,6 +23,9 @@ export default {
 				decline: 'Respinge',
 			},
 		},
+		numpad: {
+			call: 'Apelează',
+		},
 	},
 	error: {
 		websocket: {

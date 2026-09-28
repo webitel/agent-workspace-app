@@ -25,11 +25,20 @@ function onCall() {
 </script>
 
 <style scoped>
+/**
+ * @author Oleksandr Palonnyi
+ * The task dock is laid over the page with pointer-events: none so the page stays clickable
+ * around it; the numpad re-enables them to receive input.
+ * The left offset is an interim value that clears the nav: the nav has no width token yet
+ * to position against
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
 .the-numpad-panel {
-	position: absolute;
-	bottom: var(--spacing-sm);
-	left: var(--spacing-sm);
+	position: fixed;
+	bottom: var(--spacing-xl);
+	left: var(--spacing-xl);
 	z-index: 101;
+	pointer-events: auto;
 	border-radius: var(--p-border-radius-lg);
 	background-color: var(--content-wrapper-color);
 	box-shadow: var(--elevation-10);

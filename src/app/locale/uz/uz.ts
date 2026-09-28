@@ -23,6 +23,9 @@ export default {
 				decline: 'Rad etish',
 			},
 		},
+		numpad: {
+			call: 'Qoʻngʻiroq qilish',
+		},
 	},
 	error: {
 		websocket: {

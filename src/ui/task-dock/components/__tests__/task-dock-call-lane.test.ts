@@ -1,7 +1,10 @@
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
+import WebitelUI from '@webitel/ui-sdk';
+import { eventBus } from '@webitel/ui-sdk/scripts';
 import { describe, expect, it } from 'vitest';
 
+import { useNumpadStore } from '../../../numpad/store/numpad';
 import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
 
@@ -12,6 +15,12 @@ function mountCallLane() {
 				createTestingPinia({
 					stubActions: false,
 				}),
+				[
+					WebitelUI,
+					{
+						eventBus,
+					},
+				],
 			],
 		},
 	});
@@ -40,5 +49,17 @@ describe('task-dock-call-lane', () => {
 
 		await secondCall.trigger('click');
 		expect(store.expandedCallId).toBeNull();
+	});
+
+	it('shows the numpad only once the numpad store is opened', async () => {
+		const wrapper = mountCallLane();
+		const numpadStore = useNumpadStore();
+
+		expect(wrapper.find('.the-numpad-panel').exists()).toBe(false);
+
+		numpadStore.open();
+		await wrapper.vm.$nextTick();
+
+		expect(wrapper.find('.the-numpad-panel').exists()).toBe(true);
 	});
 });

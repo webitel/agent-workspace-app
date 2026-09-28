@@ -23,6 +23,9 @@ export default {
 				decline: 'Từ chối',
 			},
 		},
+		numpad: {
+			call: 'Gọi',
+		},
 	},
 	error: {
 		websocket: {

@@ -23,6 +23,9 @@ export default {
 				decline: 'Бас тарту',
 			},
 		},
+		numpad: {
+			call: 'Қоңырау шалу',
+		},
 	},
 	error: {
 		websocket: {

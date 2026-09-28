@@ -23,6 +23,9 @@ export default {
 				decline: 'Rechazar',
 			},
 		},
+		numpad: {
+			call: 'Llamar',
+		},
 	},
 	error: {
 		websocket: {
