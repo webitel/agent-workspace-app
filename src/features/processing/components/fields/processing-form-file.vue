@@ -100,6 +100,8 @@ import ProcessingFormFileLine from './processing-form-file-line.vue';
 // before it turns into a stored file line (or waits to be dismissed).
 const SETTLE_MS = 1600;
 
+const REVOKE_DELAY_MS = 40_000;
+
 const props = defineProps<{
 	modelValue?: unknown;
 	/** the task attempt files are uploaded against */
@@ -255,7 +257,10 @@ async function downloadAll() {
 		link.href = URL.createObjectURL(archive);
 		link.download = `${props.label || 'files'}.zip`;
 		link.click();
-		URL.revokeObjectURL(link.href);
+		// Revoking right after click() can cancel the download in Firefox and
+		// Safari; FileSaver waits 40s for the same reason.
+		const href = link.href;
+		setTimeout(() => URL.revokeObjectURL(href), REVOKE_DELAY_MS);
 	} finally {
 		isDownloading.value = false;
 	}
