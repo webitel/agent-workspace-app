@@ -105,6 +105,48 @@ describe('processing-form-table', () => {
 		expect(getFormTableRowsMock).not.toHaveBeenCalled();
 	});
 
+	it('reads system rows by the same case conversion the rows API applied', async () => {
+		// what getFormTableRows returns after api-services' snakeToCamel: it
+		// joins letter_letter only, so `phone_2` keeps its underscore
+		getFormTableRowsMock.mockResolvedValue({
+			items: [
+				{
+					commonName: 'Jane',
+					phone_2: '+380',
+				},
+			],
+			next: false,
+		});
+		const wrapper = mountTable({
+			table: {
+				displayColumns: [
+					{
+						field: 'common_name',
+						name: 'Name',
+						type: 'text',
+					},
+					{
+						field: 'phone_2',
+						name: 'Phone',
+						type: 'text',
+					},
+				],
+				isSystemSource: true,
+				systemSource: {
+					path: '/contacts',
+				},
+			},
+		});
+		await flushPromises();
+
+		expect(wrapper.find('.common_name').text()).toBe('Jane');
+		expect(wrapper.find('.phone_2').text()).toBe('+380');
+		expect(getFormTableRowsMock.mock.calls[0][0].fields).toEqual([
+			'common_name',
+			'phone_2',
+		]);
+	});
+
 	it('pages a system source with the schema filters and the columns it needs', async () => {
 		getFormTableRowsMock
 			.mockResolvedValueOnce({
