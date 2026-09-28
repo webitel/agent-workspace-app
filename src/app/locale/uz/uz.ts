@@ -23,8 +23,14 @@ export default {
 				decline: 'Rad etish',
 			},
 		},
+		numpad: {
+			call: 'Qoʻngʻiroq qilish',
+		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Qoʻngʻiroq qilib boʻlmadi. Qaytadan urinib koʻring.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Mikrofonga ruxsat yoʻq. Amalni bajarib boʻlmaydi.',

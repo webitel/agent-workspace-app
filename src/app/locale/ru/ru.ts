@@ -23,8 +23,14 @@ export default {
 				decline: 'Отклонить',
 			},
 		},
+		numpad: {
+			call: 'Позвонить',
+		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Не удалось совершить звонок. Попробуйте ещё раз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Нет доступа к микрофону. Невозможно выполнить действие.',

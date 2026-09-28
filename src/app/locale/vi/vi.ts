@@ -23,8 +23,14 @@ export default {
 				decline: 'Từ chối',
 			},
 		},
+		numpad: {
+			call: 'Gọi',
+		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Không thể thực hiện cuộc gọi. Vui lòng thử lại.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Quyền truy cập micrô bị từ chối. Không thể thực hiện hành động.',
