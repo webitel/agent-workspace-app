@@ -6,12 +6,21 @@ import { reactive } from 'vue';
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import ProcessingFormCaseStatusSelect from '../fields/processing-form-case-status-select.vue';
 import ProcessingFormDatetimepicker from '../fields/processing-form-datetimepicker.vue';
+import ProcessingFormFile from '../fields/processing-form-file.vue';
 import ProcessingFormIFrame from '../fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from '../fields/processing-form-input-text.vue';
 import ProcessingFormSelect from '../fields/processing-form-select.vue';
 import ProcessingFormSelectFromObject from '../fields/processing-form-select-from-object.vue';
 import ProcessingFormText from '../fields/processing-form-text.vue';
 import TheProcessingForm from '../the-processing-form.vue';
+
+vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
+	useWebSocketClient: () => ({
+		getClient: () => ({
+			fileUrlDownload: (id: number) => `https://files/${id}`,
+		}),
+	}),
+}));
 
 const globalStubs = {
 	'wt-single-select': true,
@@ -24,6 +33,8 @@ const globalStubs = {
 	'wt-icon-btn': true,
 	'wt-indicator': true,
 	'wt-label': true,
+	'wt-load-bar': true,
+	'wt-confirm-dialog': true,
 	'wt-button': {
 		props: [
 			'disabled',
@@ -158,6 +169,30 @@ describe('the-processing-form', () => {
 			true,
 		);
 		expect(wrapper.findComponent(ProcessingFormIFrame).exists()).toBe(true);
+	});
+
+	it('hands the file field the attempt it uploads against', () => {
+		const { wrapper, task } = mountForm({
+			title: '',
+			metadata: {
+				isInited: true,
+			},
+			actions: [],
+			body: [
+				{
+					id: 'attachments',
+					value: '',
+					view: {
+						component: 'form-file',
+						label: 'Attachments',
+					},
+				},
+			],
+		});
+
+		expect(wrapper.findComponent(ProcessingFormFile).props('attemptId')).toBe(
+			task.id,
+		);
 	});
 
 	it('renders a placeholder for an unsupported field type', () => {

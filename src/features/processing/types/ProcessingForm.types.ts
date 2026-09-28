@@ -26,6 +26,25 @@ export interface FormObjectSource {
 	fields?: string[];
 }
 
+// A file stored for a `form-file` field — what storeFile returns.
+export interface FormStoredFile {
+	id: number | string;
+	name: string;
+	mime?: string;
+	size?: number;
+	[key: string]: unknown;
+}
+
+// A `form-file` upload still in flight (or just settled).
+export interface FormFileUpload {
+	key: string;
+	file: FormStoredFile;
+	loaded: number;
+	total: number;
+	done: boolean;
+	failed: boolean;
+}
+
 export interface FormFieldView {
 	// raw component name from the backend, e.g. 'wt-select', 'wt-input'
 	component: string;
