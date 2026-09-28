@@ -1,152 +1,207 @@
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, reactive } from 'vue';
 
-import { useChatSessionStore } from '../../../../../../features/chats/store/chat-session';
-import TheChatWindow from '../the-chat-window.vue';
+const route = reactive({
+	params: {
+		threadId: 'thread-1',
+	},
+});
 
 vi.mock('vue-router', () => ({
-	useRoute: () => ({
-		params: {
-			threadId: 'chat-1',
-		},
+	useRoute: () => route,
+}));
+
+type FakeTask = ReturnType<typeof makeTask>;
+const tasksByThread = reactive<Record<string, FakeTask>>({});
+
+// The real chats store pulls the socket client, router and offers in; the
+// window only needs the thread -> task lookup.
+vi.mock('../../../../../../features/chats/store/chats', () => ({
+	useChatsStore: () => ({
+		getTaskByThreadId: (id: string) => tasksByThread[id],
 	}),
 }));
 
-// Mock the ui-chats /ui entry: importing the real ChatContainer pulls the
-// styleguide/ui-sdk asset tree (svg?raw) that vitest refuses to transform.
-// A lightweight stub that captures props and re-emits the wired events is
-// enough to exercise the window's binding logic. The /adapters entry is
-// type-only and stays real, so message mapping is exercised for real.
-vi.mock('@webitel/ui-chats/ui', () => ({
-	ChatAction: {
-		SendMessage: 'sendMessage',
-		AttachFiles: 'attachFiles',
-	},
-	ChatContainer: {
-		name: 'ChatContainer',
+vi.mock('@webitel/ui-sdk/components', () => ({
+	WtTabs: {
+		name: 'WtTabs',
 		props: [
-			'messages',
-			'chatActions',
-			'canLoadNextMessages',
-			'isNextMessagesLoading',
+			'current',
+			'tabs',
 		],
 		emits: [
-			'load-next-messages',
-			'action:sendMessage',
-			'action:attachFiles',
+			'change',
 		],
-		template: '<div class="chat-container-stub" />',
+		template: '<nav class="wt-tabs-stub" />',
 	},
 }));
+
+vi.mock('../the-chat-thread.vue', () => ({
+	default: {
+		name: 'TheChatThread',
+		template: '<div class="thread-stub" />',
+	},
+}));
+
+vi.mock(
+	'../../../../../../features/processing/components/the-processing-form.vue',
+	() => ({
+		default: {
+			name: 'TheProcessingForm',
+			props: [
+				'task',
+			],
+			template: '<div class="processing-form-stub" />',
+		},
+	}),
+);
+
+vi.mock(
+	'../../../../../../features/processing/components/post-processing-chip.vue',
+	() => ({
+		default: {
+			name: 'PostProcessingChip',
+			props: [
+				'task',
+			],
+			template: '<div class="chip-stub" />',
+		},
+	}),
+);
+
+import TheChatWindow from '../the-chat-window.vue';
+
+let nextId = 1;
+
+function makeTask({ withForm = false, state = 'bridged' } = {}) {
+	return reactive({
+		id: nextId++,
+		hasForm: withForm,
+		state,
+		form: withForm
+			? {
+					metadata: {
+						isInited: true,
+					},
+					actions: [],
+					body: [],
+				}
+			: null,
+	});
+}
 
 const mountWindow = () =>
 	mount(TheChatWindow, {
 		global: {
 			plugins: [
 				createTestingPinia({
+					stubActions: false,
 					createSpy: vi.fn,
 				}),
 			],
 		},
 	});
 
-const container = (wrapper: ReturnType<typeof mountWindow>) =>
-	wrapper.findComponent({
-		name: 'ChatContainer',
-	});
+const tabValues = (wrapper: ReturnType<typeof mountWindow>) =>
+	(
+		wrapper
+			.findComponent({
+				name: 'WtTabs',
+			})
+			.props('tabs') as {
+			value: string;
+		}[]
+	).map((tab) => tab.value);
+
+const showsForm = (wrapper: ReturnType<typeof mountWindow>) =>
+	wrapper.find('.processing-form-stub').exists();
 
 describe('the-chat-window', () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		route.params.threadId = 'thread-1';
+		for (const key of Object.keys(tasksByThread)) delete tasksByThread[key];
 	});
 
-	it('maps store messages into the container and mirrors paging state', async () => {
-		const wrapper = mountWindow();
-		const store = useChatSessionStore('chat-1');
-		store.messages = [
-			{
-				id: 'm1',
-				body: 'hello',
-			},
-		] as never;
-		store.olderCursor = 'cursor-1';
-		store.isLoading = true;
-		await wrapper.vm.$nextTick();
+	it('always shows the tab strip, with only the chat tab while there is no form', () => {
+		tasksByThread['thread-1'] = makeTask();
 
-		expect(container(wrapper).props('messages')).toEqual([
-			expect.objectContaining({
-				id: 'm1',
-				text: 'hello',
-			}),
+		const wrapper = mountWindow();
+
+		expect(tabValues(wrapper)).toEqual([
+			'chat',
 		]);
-		expect(container(wrapper).props('canLoadNextMessages')).toBe(true);
-		expect(container(wrapper).props('isNextMessagesLoading')).toBe(true);
+		expect(wrapper.find('.thread-stub').exists()).toBe(true);
 	});
 
-	it('routes the load-next-messages event to store.loadMore', async () => {
+	it('adds the post-processing tab when a form arrives mid-chat, without switching to it', async () => {
+		const task = makeTask();
+		tasksByThread['thread-1'] = task;
 		const wrapper = mountWindow();
-		const store = useChatSessionStore('chat-1');
 
-		await container(wrapper).vm.$emit('load-next-messages');
-
-		expect(store.loadMore).toHaveBeenCalledOnce();
-	});
-
-	it('sends text and resolves onSuccess on a successful send', async () => {
-		const wrapper = mountWindow();
-		const store = useChatSessionStore('chat-1');
-		const onSuccess = vi.fn();
-		const onComplete = vi.fn();
-
-		await container(wrapper).vm.$emit('action:sendMessage', 'hi', {
-			onSuccess,
-			onComplete,
-		});
-		await wrapper.vm.$nextTick();
-
-		expect(store.sendText).toHaveBeenCalledWith('hi');
-		expect(onSuccess).toHaveBeenCalledOnce();
-		expect(onComplete).toHaveBeenCalledOnce();
-	});
-
-	it('reports onError when a send rejects', async () => {
-		const wrapper = mountWindow();
-		const store = useChatSessionStore('chat-1');
-		const failure = new Error('boom');
-		vi.mocked(store.sendText).mockRejectedValueOnce(failure);
-		const onSuccess = vi.fn();
-		const onError = vi.fn();
-		const onComplete = vi.fn();
-
-		await container(wrapper).vm.$emit('action:sendMessage', 'hi', {
-			onSuccess,
-			onError,
-			onComplete,
-		});
-		await wrapper.vm.$nextTick();
-
-		expect(onSuccess).not.toHaveBeenCalled();
-		expect(onError).toHaveBeenCalledWith(failure);
-		expect(onComplete).toHaveBeenCalledOnce();
-	});
-
-	it('routes the attach-files event to store.sendFiles', async () => {
-		const wrapper = mountWindow();
-		const store = useChatSessionStore('chat-1');
-		const files = [
-			{
-				name: 'a.png',
+		task.hasForm = true;
+		task.form = {
+			metadata: {
+				isInited: true,
 			},
-		] as never;
-		const onSuccess = vi.fn();
+			actions: [],
+			body: [],
+		};
+		await nextTick();
 
-		await container(wrapper).vm.$emit('action:attachFiles', files, {
-			onSuccess,
+		expect(tabValues(wrapper)).toEqual([
+			'chat',
+			'processing',
+		]);
+		expect(showsForm(wrapper)).toBe(false);
+	});
+
+	it('switches to the form when the chat ends with one waiting', async () => {
+		const task = makeTask({
+			withForm: true,
 		});
-		await wrapper.vm.$nextTick();
+		tasksByThread['thread-1'] = task;
+		const wrapper = mountWindow();
+		expect(showsForm(wrapper)).toBe(false);
 
-		expect(store.sendFiles).toHaveBeenCalledWith(files);
-		expect(onSuccess).toHaveBeenCalledOnce();
+		task.state = 'processing';
+		await nextTick();
+
+		expect(showsForm(wrapper)).toBe(true);
+		// the countdown lives beside the panels, so the form tab still shows it
+		expect(wrapper.find('.chip-stub').exists()).toBe(true);
+	});
+
+	it('opens a chat already in post-processing on its form', async () => {
+		tasksByThread['thread-1'] = makeTask();
+		tasksByThread['thread-2'] = makeTask({
+			withForm: true,
+			state: 'processing',
+		});
+		const wrapper = mountWindow();
+
+		route.params.threadId = 'thread-2';
+		await nextTick();
+
+		expect(showsForm(wrapper)).toBe(true);
+	});
+
+	it('falls back to the chat tab once the form is gone', async () => {
+		const task = makeTask({
+			withForm: true,
+			state: 'processing',
+		});
+		tasksByThread['thread-1'] = task;
+		const wrapper = mountWindow();
+		expect(showsForm(wrapper)).toBe(true);
+
+		task.form = null;
+		await nextTick();
+
+		expect(showsForm(wrapper)).toBe(false);
+		expect(tabValues(wrapper)).toEqual([
+			'chat',
+		]);
 	});
 });

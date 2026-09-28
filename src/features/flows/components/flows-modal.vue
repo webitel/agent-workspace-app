@@ -2,7 +2,7 @@
 	<wt-popup
 		v-if="isOpen"
 		size="md"
-		height="600px"
+		height="lg"
 		@close="emit('close')"
 	>
 		<template #header>

@@ -46,6 +46,22 @@ would need `E2E_ACCESS_TOKEN` as a repo secret and would fail whenever the test
 instance is down or mid-deploy. Run it locally before touching bootstrap, auth
 or the API layer.
 
+## Driving tasks from the socket
+
+`mockAppWebSocket` answers every request and records it in `socket.requests`, so
+a spec can assert what the app sent (e.g. `cc_form_action`). Server-initiated
+frames go out through `socket.send(event, data, channel)`:
+
+- calls — `call` frames (`callRingingFrame`, `callHangupFrame`);
+- chat tasks — `channel` frames (`chatTaskFrame(status, …)` with
+  `chatDistribute()` for `distribute`), stepping a task through `distribute`,
+  `bridged`, `form`, `processing` and `wrap_time`. `mockChatThread` stubs the
+  thread and history reads the chat window makes when opened.
+
+The SDK ignores `channel` frames until the agent session exists, and frames sent
+before the socket connects are flushed right after `hello` — too early. Wait for
+the header's status select (`combobox "Online"`) before pushing task frames.
+
 ## Known gap
 
 `GET /api/user-status` does not exist on `test.webitel.me` yet, and app

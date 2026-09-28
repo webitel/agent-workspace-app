@@ -1,89 +1,141 @@
 <template>
-    <section class="the-chat-window">
-        <h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
-        <chat-container
-            :messages="chatMessages"
-            :chat-actions="chatActions"
-            :can-load-next-messages="hasMore"
-            :is-next-messages-loading="isLoading"
-            @load-next-messages="chatSession.loadMore"
-            @action:sendMessage="handleSendMessage"
-            @action:attachFiles="handleAttachFiles"
-        />
-    </section>
+	<section class="the-chat-window">
+		<wt-tabs
+			class="the-chat-window__tabs"
+			:current="{ value: activeTab }"
+			:tabs="tabs"
+			@change="activeTab = $event.value"
+		/>
+
+		<!-- outside the panels: post-processing switches to the form tab, and the
+		     deadline has to stay in view there (DES-711) -->
+		<post-processing-chip
+			v-if="task"
+			class="the-chat-window__chip"
+			:task="task"
+		/>
+
+		<keep-alive>
+			<component
+				:is="currentTab.is"
+				v-bind="currentTab.props"
+				class="the-chat-window__panel"
+			/>
+		</keep-alive>
+	</section>
 </template>
 
 <script
-    setup
-    lang="ts"
+	setup
+	lang="ts"
 >
-import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
-import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
-import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
-import { computed } from 'vue';
+import { WtTabs } from '@webitel/ui-sdk/components';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useChatsStore } from '../../../../../features/chats/store/chats';
+import PostProcessingChip from '../../../../../features/processing/components/post-processing-chip.vue';
+import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
+import { useProcessingStore } from '../../../../../features/processing/store/processing';
+import TheChatThread from './the-chat-thread.vue';
 
-import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
+type ChatWindowTab = 'chat' | 'processing';
 
 const route = useRoute();
+const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
 
-// Resolve reactively so the window rebinds when threadId changes; a destructured
-// storeToRefs would stay pinned to the first chat's store.
-const chatSession = computed(() => useChatSessionStore(threadId.value));
-const thread = computed(() => chatSession.value.thread);
-const messages = computed(() => chatSession.value.messages);
-const hasMore = computed(() => chatSession.value.hasMore);
-const isLoading = computed(() => chatSession.value.isLoading);
+// The SDK task backing the open chat carries the processing form.
+const task = computed(() => chatsStore.getTaskByThreadId(threadId.value));
+const processing = computed(() =>
+	task.value ? useProcessingStore(task.value) : null,
+);
+const hasForm = computed(() => Boolean(processing.value?.hasForm));
+const isPostProcessing = computed(() =>
+	Boolean(processing.value?.isPostProcessing),
+);
 
-const chatMessages = computed(() => mapMessagesToChatMessages(messages.value));
+// Post-processing is where an unfinished form belongs; otherwise the chat.
+const defaultTab = (): ChatWindowTab =>
+	hasForm.value && isPostProcessing.value ? 'processing' : 'chat';
 
-const chatActions = [
-	ChatAction.SendMessage,
-	ChatAction.AttachFiles,
-];
+const activeTab = ref<ChatWindowTab>(defaultTab());
 
-async function handleSendMessage(
-	text: string,
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendText(text);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
+// The strip stays put; only the Post-processing tab comes and goes with the
+// form, and a form arriving mid-chat does not pull the agent away from it.
+const tabs = computed(() => [
+	{
+		value: 'chat',
+		text: 'Chat',
+	},
+	...(hasForm.value
+		? [
+				{
+					value: 'processing',
+					text: 'Post-processing',
+				},
+			]
+		: []),
+]);
 
-async function handleAttachFiles(
-	files: File[],
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendFiles(files);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
+// keep-alive preserves each panel (chat scroll, form input) across switches.
+const currentTab = computed(() =>
+	activeTab.value === 'processing' && task.value
+		? {
+				is: TheProcessingForm,
+				props: {
+					task: task.value,
+				},
+			}
+		: {
+				is: TheChatThread,
+				props: {},
+			},
+);
+
+// Opening a chat lands on its form when it is already in post-processing.
+watch(threadId, () => {
+	activeTab.value = defaultTab();
+});
+
+// The chat ending with a form waiting — or a form landing once it has ended —
+// is the cue to fill it in.
+watch(
+	() => hasForm.value && isPostProcessing.value,
+	(value) => {
+		if (value) activeTab.value = 'processing';
+	},
+);
+
+// Nothing left to show on the tab once the form is gone.
+watch(hasForm, (value) => {
+	if (!value && activeTab.value === 'processing') activeTab.value = 'chat';
+});
 </script>
 
 <style scoped>
 .the-chat-window {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
 }
 
-.the-chat-container {
-    flex: 1;
-    min-height: 0;
+.the-chat-window__tabs {
+	flex: 0 0 auto;
+	padding-bottom: var(--spacing-xs);
+}
+
+.the-chat-window__chip {
+	align-self: flex-end;
+	padding-bottom: var(--spacing-xs);
+}
+
+.the-chat-window__panel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 </style>
