@@ -22,6 +22,13 @@ export default {
 				accept: 'Aceptar',
 				decline: 'Rechazar',
 			},
+			flows: {
+				runFlowSuccess: 'Esquema lanzado con éxito',
+				runFlowError: 'Error al ejecutar el esquema',
+			},
+		},
+		reusable: {
+			run: 'Ejecutar',
 		},
 	},
 	error: {

@@ -22,6 +22,13 @@ export default {
 				accept: 'Қабылдау',
 				decline: 'Бас тарту',
 			},
+			flows: {
+				runFlowSuccess: 'Схема сәтті іске қосылды',
+				runFlowError: 'Схеманы іске қосу сәтсіз аяқталды',
+			},
+		},
+		reusable: {
+			run: 'Іске қосу',
 		},
 	},
 	error: {
