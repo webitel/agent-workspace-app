@@ -23,6 +23,7 @@ const outboundCallStore = useOutboundCallStore();
 
 function onCall(destination: string) {
 	outboundCallStore.start(destination);
+	// todo remove after merge PR
 	// numpadStore.close();
 }
 </script>
