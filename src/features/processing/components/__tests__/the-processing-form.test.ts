@@ -12,6 +12,7 @@ import ProcessingFormIFrame from '../fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from '../fields/processing-form-input-text.vue';
 import ProcessingFormSelect from '../fields/processing-form-select.vue';
 import ProcessingFormSelectFromObject from '../fields/processing-form-select-from-object.vue';
+import ProcessingFormSelectService from '../fields/processing-form-select-service.vue';
 import ProcessingFormText from '../fields/processing-form-text.vue';
 import TheProcessingForm from '../the-processing-form.vue';
 
@@ -21,6 +22,15 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 			fileUrlDownload: (id: number) => `https://files/${id}`,
 		}),
 	}),
+}));
+
+vi.mock('@webitel/api-services/api', () => ({
+	ServiceCatalogsAPI: {
+		getList: () =>
+			Promise.resolve({
+				items: [],
+			}),
+	},
 }));
 
 const globalStubs = {
@@ -39,6 +49,9 @@ const globalStubs = {
 	'wt-expansion-panel': true,
 	'wt-table': true,
 	'wt-intersection-observer': true,
+	'wt-search-bar': true,
+	'wt-loader': true,
+	'wt-tree': true,
 	'wt-button': {
 		props: [
 			'disabled',
@@ -158,6 +171,13 @@ describe('the-processing-form', () => {
 						initialValue: 'https://example.com',
 					},
 				},
+				{
+					id: 'h',
+					value: '',
+					view: {
+						component: 'form-select-service',
+					},
+				},
 			],
 		});
 
@@ -174,6 +194,9 @@ describe('the-processing-form', () => {
 			true,
 		);
 		expect(wrapper.findComponent(ProcessingFormIFrame).exists()).toBe(true);
+		expect(wrapper.findComponent(ProcessingFormSelectService).exists()).toBe(
+			true,
+		);
 	});
 
 	it('hands the file field the attempt it uploads against', () => {
@@ -252,7 +275,7 @@ describe('the-processing-form', () => {
 					id: 'x',
 					value: '',
 					view: {
-						component: 'form-select-service',
+						component: 'rich-text-editor',
 					},
 				},
 			],
