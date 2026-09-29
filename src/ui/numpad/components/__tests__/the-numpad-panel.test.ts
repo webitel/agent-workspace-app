@@ -9,16 +9,16 @@ import TheNumpadPanel from '../the-numpad-panel.vue';
 
 /**
  * @author Oleksandr Palonnyi
- * The calls store is replaced by its public surface: dialling is
+ * The outbound call store is replaced by its public surface: dialling is
  * covered by its own suite, here only the hand-off from the numpad matters
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */
-const callsStore = {
-	call: vi.fn(async (_destination: string) => true),
+const outboundCallStore = {
+	start: vi.fn(async (_destination: string) => undefined),
 };
 
-vi.mock('../../../../features/calls/store/calls', () => ({
-	useCallsStore: () => callsStore,
+vi.mock('../../../../features/calls/store/outboundCall', () => ({
+	useOutboundCallStore: () => outboundCallStore,
 }));
 
 function mountPanel() {
@@ -92,7 +92,7 @@ describe('the-numpad-panel', () => {
 
 		await placeCallFromNumpad(wrapper, '0671234567');
 
-		expect(callsStore.call).toHaveBeenCalledWith('0671234567');
+		expect(outboundCallStore.start).toHaveBeenCalledWith('0671234567');
 	});
 
 	it('closes the panel once a call is placed', async () => {
