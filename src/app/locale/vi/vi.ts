@@ -34,9 +34,6 @@ export default {
 		numpad: {
 			call: 'Gọi',
 		},
-		numpad: {
-			call: 'Gọi',
-		},
 	},
 	error: {
 		calls: {

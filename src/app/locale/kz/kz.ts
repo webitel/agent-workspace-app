@@ -33,9 +33,6 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
-		numpad: {
-			call: 'Қоңырау шалу',
-		},
 	},
 	error: {
 		calls: {

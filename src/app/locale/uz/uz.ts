@@ -33,9 +33,6 @@ export default {
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
 		},
-		numpad: {
-			call: 'Qoʻngʻiroq qilish',
-		},
 	},
 	error: {
 		calls: {

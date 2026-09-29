@@ -33,9 +33,6 @@ export default {
 		numpad: {
 			call: 'Позвонить',
 		},
-		numpad: {
-			call: 'Позвонить',
-		},
 	},
 	error: {
 		calls: {

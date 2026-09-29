@@ -33,9 +33,6 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
-		numpad: {
-			call: 'Apelează',
-		},
 	},
 	error: {
 		calls: {
