@@ -22,7 +22,6 @@
 		</div>
 
 		<wt-button
-			class="the-numpad__call"
 			color="success"
 			size="sm"
 			wide

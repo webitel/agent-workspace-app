@@ -5,6 +5,7 @@ import { JobState, type Task } from 'webitel-sdk';
 
 import type {
 	FormBodyElement,
+	FormTableActionPayload,
 	ProcessingFormAction,
 	ProcessingFormData,
 	ProcessingProlongation,
@@ -103,6 +104,22 @@ function createStoreDefinition(task: Task) {
 			}
 		}
 
+		// A form-table row button: the backend runs the component's action with
+		// the row as its variable (WTEL-6707).
+		async function tableAction({
+			componentId,
+			action,
+			row,
+		}: FormTableActionPayload) {
+			try {
+				await task.componentAction(componentId, action, {
+					[action]: row,
+				} as never);
+			} catch (err) {
+				notifyError(err);
+			}
+		}
+
 		// Falls back to the base processing time when the queue sets no
 		// prolongation length (the SDK treats a falsy value that way).
 		async function renew() {
@@ -128,6 +145,7 @@ function createStoreDefinition(task: Task) {
 			initialize,
 			change,
 			submit,
+			tableAction,
 			renew,
 		};
 	});

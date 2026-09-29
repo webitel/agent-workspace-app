@@ -23,6 +23,7 @@ function makeTask(form: ProcessingFormData | null, overrides = {}) {
 		_processing: null,
 		formAction: vi.fn(() => Promise.resolve({})),
 		renew: vi.fn(() => Promise.resolve({})),
+		componentAction: vi.fn(() => Promise.resolve({})),
 		...overrides,
 	});
 }
@@ -288,6 +289,40 @@ describe('processing store', () => {
 
 		expect(withProlongation.renew).toHaveBeenCalledWith(30);
 		expect(withoutProlongation.renew).toHaveBeenCalledWith(undefined);
+	});
+
+	it('runs a table row action with the row as its variable', async () => {
+		const task = makeTask(inputForm());
+		const row = {
+			id: 7,
+		};
+
+		await store(task).tableAction({
+			componentId: 'orders',
+			action: 'pick',
+			row,
+		});
+
+		expect(task.componentAction).toHaveBeenCalledWith('orders', 'pick', {
+			pick: row,
+		});
+	});
+
+	it('toasts when a table row action fails', async () => {
+		const task = makeTask(inputForm(), {
+			componentAction: vi.fn(() => Promise.reject(new Error('denied'))),
+		});
+
+		await store(task).tableAction({
+			componentId: 'orders',
+			action: 'pick',
+			row: {},
+		});
+
+		expect(emitMock).toHaveBeenCalledWith('notification', {
+			type: 'error',
+			text: 'denied',
+		});
 	});
 
 	it('keeps one store per attempt and drops it on dispose', () => {

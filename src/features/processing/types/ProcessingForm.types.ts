@@ -7,6 +7,92 @@ export interface FormSelectOption {
 	[key: string]: unknown;
 }
 
+// A case status condition, as `form-select-case-status` lists them.
+export interface CaseStatusOption {
+	id: number;
+	name: string;
+	initial?: boolean;
+	final?: boolean;
+}
+
+// Where `form-select-from-object` reads its records from.
+export interface FormObjectSource {
+	source?: {
+		name?: string;
+		path?: string;
+	};
+	displayColumn?: string;
+	filters?: string[];
+	fields?: string[];
+}
+
+// A file stored for a `form-file` field — what storeFile returns.
+export interface FormStoredFile {
+	id: number | string;
+	name: string;
+	mime?: string;
+	size?: number;
+	[key: string]: unknown;
+}
+
+// A `form-file` upload still in flight (or just settled).
+export interface FormFileUpload {
+	key: string;
+	file: FormStoredFile;
+	loaded: number;
+	total: number;
+	done: boolean;
+	failed: boolean;
+}
+
+// `form-table`: a table of records from the schema or a system endpoint, with
+// optional per-row action buttons.
+export type FormTableRow = Record<string, unknown>;
+
+export interface FormTableColumn {
+	/** dot / bracket path into the record, e.g. `contact.emails[0].number` */
+	field: string;
+	name: string;
+	width?: number;
+	/** ProcessingTableColumnType: text, number, bool, datetime, link */
+	type: string;
+}
+
+export interface FormTableConfig {
+	displayColumns: FormTableColumn[];
+	source?: FormTableRow[];
+	isSystemSource?: boolean;
+	systemSource?: {
+		path: string;
+	};
+	defaultCollapsed?: boolean;
+	headerTitle?: string;
+}
+
+export interface FormTableAction {
+	/** column the button sits in */
+	field: string;
+	action: string;
+	buttonName: string;
+	color?: string;
+}
+
+export interface FormTableActionPayload {
+	componentId: string;
+	action: string;
+	row: FormTableRow;
+}
+
+// A service catalog or service, as `form-select-service`'s tree shows them;
+// services nest under `service`.
+export interface ServiceCatalogNode {
+	id: number | string;
+	name: string;
+	description?: string;
+	service?: ServiceCatalogNode[];
+	[key: string]: unknown;
+}
+
 export interface FormFieldView {
 	// raw component name from the backend, e.g. 'wt-select', 'wt-input'
 	component: string;

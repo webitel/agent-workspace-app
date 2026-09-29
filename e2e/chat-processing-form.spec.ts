@@ -51,6 +51,26 @@ const processingForm = {
 				label: 'Resolution note',
 			},
 		},
+		{
+			id: 'status',
+			value: '',
+			view: {
+				component: 'form-select-case-status',
+				initialValue: '3',
+				options: [
+					{
+						id: 1,
+						name: 'New',
+						initial: true,
+					},
+					{
+						id: 3,
+						name: 'Resolved',
+						final: true,
+					},
+				],
+			},
+		},
 	],
 };
 
@@ -98,13 +118,13 @@ async function openActiveChat(page: Page, socket: MockedSocket) {
 	await expect(page.locator('.the-chat-thread h1')).toHaveText(THREAD.subject);
 }
 
-function sendForm(socket: MockedSocket) {
+function sendForm(socket: MockedSocket, form: object = processingForm) {
 	socket.send(
 		'channel',
 		chatTaskFrame('form', {
 			attemptId: ATTEMPT_ID,
 			// a fresh copy per send: the app writes field values onto the form
-			form: structuredClone(processingForm),
+			form: structuredClone(form),
 		}),
 	);
 }
@@ -147,6 +167,7 @@ test.describe('chat processing form', () => {
 		await tab(page, 'Post-processing').click();
 
 		const form = page.locator('.processing-wrapper');
+		await expect(form).toContainText('Resolved');
 		await form.locator('input').first().fill('Order #42 confirmed');
 		await form
 			.getByRole('button', {
@@ -164,9 +185,300 @@ test.describe('chat processing form', () => {
 					action: 'complete',
 					fields: {
 						note: 'Order #42 confirmed',
+						// seeded from initialValue as the option, sent as its id
+						status: 3,
 					},
 				},
 			});
+	});
+
+	test('uploads an attachment against the attempt and submits it with the form', async ({
+		page,
+		socket,
+	}) => {
+		const storedFile = {
+			id: 555,
+			name: 'receipt.txt',
+			mime: 'text/plain',
+			size: 12,
+		};
+		const uploads: string[] = [];
+		await page.route('**/storage/file/*/upload**', async (route) => {
+			uploads.push(route.request().url());
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify([
+					storedFile,
+				]),
+			});
+		});
+
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'attachments',
+					value: '',
+					view: {
+						component: 'form-file',
+						label: 'Attachments',
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		const form = page.locator('.processing-wrapper');
+		await form.locator('input[type="file"]').setInputFiles({
+			name: 'receipt.txt',
+			mimeType: 'text/plain',
+			buffer: Buffer.from('paid in full'),
+		});
+
+		// the stored file replaces the upload line once it settles
+		await expect(
+			form.locator('a', {
+				hasText: 'receipt.txt',
+			}),
+		).toBeVisible();
+		expect(uploads[0]).toContain(`/storage/file/${ATTEMPT_ID}/upload`);
+
+		await form
+			.getByRole('button', {
+				name: 'Complete',
+			})
+			.click();
+
+		// the SDK serialises object values, so the file list arrives as JSON
+		await expect
+			.poll(() => {
+				const request = socket.requests.find(
+					(item) => item.action === 'cc_form_action',
+				);
+				const fields = (
+					request?.data as {
+						fields?: Record<string, string>;
+					}
+				)?.fields;
+				return fields?.attachments ? JSON.parse(fields.attachments) : undefined;
+			})
+			.toEqual([
+				expect.objectContaining({
+					id: 555,
+					name: 'receipt.txt',
+				}),
+			]);
+	});
+
+	test('runs a table row action against its component', async ({
+		page,
+		socket,
+	}) => {
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'orders',
+					value: '',
+					view: {
+						component: 'form-table',
+						table: {
+							headerTitle: 'Recent orders',
+							displayColumns: [
+								{
+									field: 'number',
+									name: 'Order',
+									type: 'text',
+								},
+								{
+									field: 'status',
+									name: 'Status',
+									type: 'text',
+								},
+							],
+							source: [
+								{
+									id: 42,
+									number: 'A-42',
+									status: 'shipped',
+								},
+							],
+						},
+						actions: [
+							{
+								field: 'status',
+								action: 'reopen',
+								buttonName: 'Reopen',
+							},
+						],
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		const form = page.locator('.processing-wrapper');
+		await expect(form).toContainText('Recent orders');
+		await expect(form).toContainText('A-42');
+
+		await form
+			.getByRole('button', {
+				name: 'Reopen',
+			})
+			.click();
+
+		// the SDK serialises the row, keyed by the action, into `vars`
+		await expect
+			.poll(() => {
+				const request = socket.requests.find(
+					(item) => item.action === 'cc_component_action',
+				);
+				if (!request) return undefined;
+				const data = request.data as {
+					componentId: string;
+					action: string;
+					formId: string;
+					vars: Record<string, string>;
+				};
+				return {
+					componentId: data.componentId,
+					action: data.action,
+					formId: data.formId,
+					row: JSON.parse(data.vars.reopen),
+				};
+			})
+			.toEqual({
+				componentId: 'orders',
+				action: 'reopen',
+				formId: 'e2e-form',
+				row: expect.objectContaining({
+					id: 42,
+					number: 'A-42',
+				}),
+			});
+	});
+
+	test('shows where a seeded service sits and submits its id', async ({
+		page,
+		socket,
+	}) => {
+		await page.route('**/api/cases/catalogs**', async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					items: [
+						{
+							id: 1,
+							name: 'Billing',
+							service: [
+								{
+									id: 10,
+									name: 'Refunds',
+									service: [
+										{
+											id: 100,
+											name: 'Card refund',
+										},
+									],
+								},
+							],
+						},
+					],
+				}),
+			});
+		});
+
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'service',
+					value: '',
+					view: {
+						component: 'form-select-service',
+						initialValue: JSON.stringify({
+							id: 100,
+							name: 'Card refund',
+						}),
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		const form = page.locator('.processing-wrapper');
+		await expect(form).toContainText('Billing / Refunds / Card refund');
+
+		await form
+			.getByRole('button', {
+				name: 'Complete',
+			})
+			.click();
+
+		await expect
+			.poll(
+				() =>
+					(
+						socket.requests.find((item) => item.action === 'cc_form_action')
+							?.data as {
+							fields?: Record<string, unknown>;
+						}
+					)?.fields?.service,
+			)
+			.toBe(100);
+	});
+
+	test('submits what the agent writes in a rich text field as html', async ({
+		page,
+		socket,
+	}) => {
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'summary',
+					value: '',
+					view: {
+						component: 'rich-text-editor',
+						label: 'Summary',
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		// TinyMCE loads on demand and edits inside its own iframe
+		const body = page.frameLocator('.tox-edit-area iframe').locator('body');
+		await expect(body).toBeVisible({
+			timeout: 30_000,
+		});
+		await body.click();
+		await page.keyboard.type('Refund approved');
+
+		await page
+			.locator('.processing-wrapper')
+			.getByRole('button', {
+				name: 'Complete',
+			})
+			.click();
+
+		await expect
+			.poll(
+				() =>
+					(
+						socket.requests.find((item) => item.action === 'cc_form_action')
+							?.data as {
+							fields?: Record<string, unknown>;
+						}
+					)?.fields?.summary,
+			)
+			.toBe('<p>Refund approved</p>');
 	});
 
 	test('switches to the form when the chat ends and counts the deadline down', async ({

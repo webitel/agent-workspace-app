@@ -22,6 +22,16 @@ export default {
 				accept: 'Odbierz',
 				decline: 'Odrzuć',
 			},
+			flows: {
+				runFlowSuccess: 'Schemat uruchomiony pomyślnie',
+				runFlowError: 'Nie udało się uruchomić schematu',
+			},
+		},
+		reusable: {
+			run: 'Uruchom',
+		},
+		numpad: {
+			call: 'Zadzwoń',
 		},
 		numpad: {
 			call: 'Zadzwoń',

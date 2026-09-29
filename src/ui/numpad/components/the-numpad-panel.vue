@@ -28,10 +28,16 @@ function onCall(destination: string) {
 </script>
 
 <style scoped>
+/**
+ * @author Oleksandr Palonnyi
+ * The left offset is an interim value that clears the nav: the nav has no width token yet
+ * to position against
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
 .the-numpad-panel {
-	position: absolute;
-	bottom: var(--spacing-sm);
-	left: var(--spacing-sm);
+	position: fixed;
+	bottom: var(--spacing-xl);
+	left: var(--spacing-xl);
 	z-index: 101;
 	border-radius: var(--p-border-radius-lg);
 	background-color: var(--content-wrapper-color);
