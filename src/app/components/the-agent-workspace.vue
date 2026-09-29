@@ -56,6 +56,7 @@ subscribeToWebSocketEvents();
         bottom: 0;
         left: 0;
         z-index: 100;
+        pointer-events: none;
     }
 }
 

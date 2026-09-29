@@ -35,9 +35,6 @@ export default {
 		},
 	},
 	error: {
-		calls: {
-			outboundCallFailed: 'Apelul nu a putut fi efectuat. Încearcă din nou.',
-		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Accesul la microfon este refuzat. Acțiunea nu poate fi efectuată.',
