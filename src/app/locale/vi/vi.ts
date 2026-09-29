@@ -31,6 +31,23 @@ export default {
 			cancel: 'Hủy',
 			run: 'Chạy',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Cuộc gọi',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Bản ghi không khả dụng',
+						playAudio: 'Phát âm thanh',
+						playVideo: 'Phát video',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

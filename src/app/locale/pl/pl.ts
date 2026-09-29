@@ -30,6 +30,23 @@ export default {
 		reusable: {
 			run: 'Uruchom',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Połączenia',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Nagranie niedostępne',
+						playAudio: 'Odtwórz audio',
+						playVideo: 'Odtwórz wideo',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

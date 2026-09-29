@@ -30,6 +30,23 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Қоңыраулар',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Жазба қолжетімсіз',
+						playAudio: 'Аудионы ойнату',
+						playVideo: 'Бейнені ойнату',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

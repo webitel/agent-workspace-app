@@ -30,6 +30,23 @@ export default {
 		reusable: {
 			run: 'Rulează',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Apeluri',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Înregistrare indisponibilă',
+						playAudio: 'Redă audio',
+						playVideo: 'Redă video',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {
