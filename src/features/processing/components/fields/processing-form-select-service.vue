@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { ServiceCatalogsAPI } from '@webitel/api-services/api';
+import { findTreePath } from '@webitel/ui-sdk/utils';
 import { computed, onMounted, ref } from 'vue';
 
 import type { ServiceCatalogNode } from '../../types/ProcessingForm.types';
@@ -88,34 +89,23 @@ const selectedId = computed(() =>
 );
 
 // Catalog / service / sub-service names down to the selected one (WTEL-6955).
-function findPath(
-	nodes: ServiceCatalogNode[],
-	targetId: unknown,
-	path: string[] = [],
-): string[] | null {
-	for (const node of nodes) {
-		const nodePath = [
-			...path,
-			node.name,
-		];
-		if (node.id === targetId) return nodePath;
-		const found = findPath(node.service ?? [], targetId, nodePath);
-		if (found) return found;
-	}
-	return null;
-}
-
+// Searched per catalog: catalogs and services are separate entities, so a
+// service id is only ever matched against services.
 // Derived rather than watched: cc-workspaces only recomputed it on a new pick,
 // so a seeded service never showed its path.
 const selectedPath = computed(() => {
 	if (selectedId.value === null) return null;
 	for (const catalog of catalogs.value) {
-		const path = findPath(catalog.service ?? [], selectedId.value);
+		const path = findTreePath(
+			catalog.service,
+			(service) => service.id === selectedId.value,
+			'service',
+		);
 		if (path)
 			return [
-				catalog.name,
+				catalog,
 				...path,
-			];
+			].map(({ name }) => name);
 	}
 	return null;
 });
