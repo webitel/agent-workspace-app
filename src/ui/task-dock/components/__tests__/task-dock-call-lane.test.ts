@@ -55,11 +55,11 @@ describe('task-dock-call-lane', () => {
 		const wrapper = mountCallLane();
 		const numpadStore = useNumpadStore();
 
-		expect(wrapper.find('.the-numpad-panel').exists()).toBe(false);
+		expect(wrapper.find('.the-dialer-panel').exists()).toBe(false);
 
 		numpadStore.open();
 		await wrapper.vm.$nextTick();
 
-		expect(wrapper.find('.the-numpad-panel').exists()).toBe(true);
+		expect(wrapper.find('.the-dialer-panel').exists()).toBe(true);
 	});
 });

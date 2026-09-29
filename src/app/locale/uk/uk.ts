@@ -33,8 +33,20 @@ export default {
 		numpad: {
 			call: 'Зателефонувати',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Виклик',
+				noAnswer: 'Немає відповіді',
+				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
+				retryCall: 'Повторити дзвінок',
+				backToDialpad: 'Назад до набору номера',
+			},
+		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Не вдалося здійснити дзвінок. Спробуйте ще раз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Немає доступу до мікрофона. Неможливо виконати дію.',

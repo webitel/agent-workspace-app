@@ -33,8 +33,20 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Sună',
+				noAnswer: 'Niciun răspuns',
+				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
+				retryCall: 'Reîncearcă apelul',
+				backToDialpad: 'Înapoi la tastatură',
+			},
+		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Apelul nu a putut fi efectuat. Încearcă din nou.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Accesul la microfon este refuzat. Acțiunea nu poate fi efectuată.',

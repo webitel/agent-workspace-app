@@ -33,8 +33,20 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Қоңырау шалынуда',
+				noAnswer: 'Жауап жоқ',
+				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
+				retryCall: 'Қайта қоңырау шалу',
+				backToDialpad: 'Нөмір теруге оралу',
+			},
+		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Қоңырау шалу мүмкін болмады. Қайталап көріңіз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Микрофонға қол жеткізу мүмкін емес. Әрекетті орындау мүмкін емес.',
