@@ -7,6 +7,7 @@ import wsNavigationHomePage from './ws-navigation-home-page.svg?raw';
 import wsNavigationTasks from './ws-navigation-tasks.svg?raw';
 import wsSidebarClose from './ws-sidebar-close.svg?raw';
 import wsSidebarOpen from './ws-sidebar-open.svg?raw';
+import wtRingingBell from './wt-ringing-bell.svg?raw';
 
 const icons = {
 	'ws-sidebar-open': wsSidebarOpen,
@@ -17,6 +18,7 @@ const icons = {
 	'ws-navigation-tasks': wsNavigationTasks,
 	'ws-navigation-contacts': wsNavigationContacts,
 	'ws-navigation-history': wsNavigationHistory,
+	'wt-ringing-bell': wtRingingBell,
 };
 
 fillIconsRepository({

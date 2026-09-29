@@ -33,6 +33,15 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Қоңырау шалынуда',
+				noAnswer: 'Жауап жоқ',
+				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
+				retryCall: 'Қайта қоңырау шалу',
+				backToDialpad: 'Нөмір теруге оралу',
+			},
+		},
 	},
 	error: {
 		calls: {

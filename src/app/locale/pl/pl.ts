@@ -33,6 +33,15 @@ export default {
 		numpad: {
 			call: 'Zadzwoń',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Dzwonienie',
+				noAnswer: 'Brak odpowiedzi',
+				noAnswerDescription: 'Telefon odbiorcy nie odpowiedział na połączenie.',
+				retryCall: 'Ponów połączenie',
+				backToDialpad: 'Wróć do klawiatury',
+			},
+		},
 	},
 	error: {
 		calls: {

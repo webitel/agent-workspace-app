@@ -33,6 +33,16 @@ export default {
 		numpad: {
 			call: 'Llamar',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Sonando',
+				noAnswer: 'Sin respuesta',
+				noAnswerDescription:
+					'El teléfono del destinatario no respondió a la llamada.',
+				retryCall: 'Reintentar llamada',
+				backToDialpad: 'Volver al teclado',
+			},
+		},
 	},
 	error: {
 		calls: {

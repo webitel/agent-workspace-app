@@ -33,6 +33,15 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Sună',
+				noAnswer: 'Niciun răspuns',
+				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
+				retryCall: 'Reîncearcă apelul',
+				backToDialpad: 'Înapoi la tastatură',
+			},
+		},
 	},
 	error: {
 		calls: {

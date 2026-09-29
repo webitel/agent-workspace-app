@@ -33,6 +33,15 @@ export default {
 		numpad: {
 			call: 'Позвонить',
 		},
+		dialer: {
+			outboundCall: {
+				ringing: 'Вызов',
+				noAnswer: 'Нет ответа',
+				noAnswerDescription: 'Телефон абонента не ответил на вызов.',
+				retryCall: 'Повторить звонок',
+				backToDialpad: 'Назад к набору номера',
+			},
+		},
 	},
 	error: {
 		calls: {
