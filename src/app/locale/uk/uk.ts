@@ -31,7 +31,7 @@ export default {
 			run: 'Запустити',
 		},
 		numpad: {
-			call: 'Подзвонити',
+			call: 'Зателефонувати',
 		},
 	},
 	error: {
