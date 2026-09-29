@@ -35,6 +35,9 @@ export default {
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Қоңырау шалу мүмкін болмады. Қайталап көріңіз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Микрофонға қол жеткізу мүмкін емес. Әрекетті орындау мүмкін емес.',

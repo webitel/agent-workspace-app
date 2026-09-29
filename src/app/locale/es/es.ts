@@ -35,6 +35,9 @@ export default {
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'No se pudo realizar la llamada. Inténtalo de nuevo.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Acceso al micrófono denegado. No se puede realizar la acción.',

@@ -35,6 +35,10 @@ export default {
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed:
+				'Nie udało się nawiązać połączenia. Spróbuj ponownie.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Brak dostępu do mikrofonu. Nie można wykonać akcji.',
