@@ -1,12 +1,6 @@
 <template>
     <div class="task-dock-call-lane">
-        <task-dock-item-wrapper
-            label="Numpad"
-            :expanded="true"
-            :collapsible="false"
-        >
-            Numpad
-        </task-dock-item-wrapper>
+        <the-numpad-panel />
 
         <task-dock-item-wrapper
             v-for="call in calls"
@@ -24,6 +18,7 @@
     setup
     lang="ts"
 >
+import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
 import TaskDockItemWrapper from './task-dock-item-wrapper.vue';
 

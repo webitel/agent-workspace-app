@@ -30,6 +30,9 @@ export default {
 		reusable: {
 			run: 'Запустити',
 		},
+		numpad: {
+			call: 'Зателефонувати',
+		},
 		pages: {
 			history: {
 				tabs: {

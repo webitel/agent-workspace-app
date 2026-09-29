@@ -30,6 +30,9 @@ export default {
 		reusable: {
 			run: 'Run',
 		},
+		numpad: {
+			call: 'Call',
+		},
 		pages: {
 			history: {
 				tabs: {

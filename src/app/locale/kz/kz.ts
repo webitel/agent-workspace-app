@@ -30,6 +30,9 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 		},
+		numpad: {
+			call: 'Қоңырау шалу',
+		},
 		pages: {
 			history: {
 				tabs: {
