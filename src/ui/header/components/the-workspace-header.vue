@@ -1,19 +1,20 @@
 <template>
-    <wt-app-header>
-      <wt-logo
-        :dark-mode="darkMode"
-        :logo-href="startPageHref"
-      />
-      <wt-dark-mode-switcher @changed-mode="setTheme" />
-      <wt-chip :color="isPhoneReg ? 'success' : 'primary'">
-        {{ t('ui.header.sip') }}
-      </wt-chip>
-      <user-dnd-switcher />
-      <agent-status-select />
-      <wt-call-media-metric
-        :quality="level"
-        show-tooltip
-      />
+	<wt-app-header>
+		<wt-logo
+			:dark-mode="darkMode"
+			:logo-href="startPageHref"
+		/>
+		<wt-dark-mode-switcher @changed-mode="setTheme" />
+		<open-flows-action />
+		<wt-chip :color="isPhoneReg ? 'success' : 'primary'">
+			{{ t('ui.header.sip') }}
+		</wt-chip>
+		<user-dnd-switcher />
+		<agent-status-select />
+		<wt-call-media-metric
+			:quality="level"
+			show-tooltip
+		/>
       <wt-app-navigator
         :current-app="currentApp"
         :apps="apps"
@@ -25,7 +26,7 @@
         @settings="openSettings"
         @logout="logoutUser"
       />
-    </wt-app-header>
+	</wt-app-header>
 </template>
 
 <script setup lang="ts">
@@ -45,6 +46,7 @@ import { useI18n } from 'vue-i18n';
 import packageJson from '../../../../package.json' with { type: 'json' };
 import { getConfig } from '../../../features/appConfig/config';
 import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
+import OpenFlowsAction from '../../../features/flows/components/open-flows-action.vue';
 import { useGlobalHandlersStore } from '../../../features/global-handlers/store/globalHandlers';
 import { useUserinfoStore } from '../../../features/userinfo/stores/userinfoStore';
 import { useConnectionQualityStore } from '../modules/connectionQuality/store/connectionQuality';
@@ -136,6 +138,6 @@ onMounted(async () => {
 
 <style scoped>
 .wt-dark-mode-switcher {
-  margin-right: auto;
+	margin-right: auto;
 }
 </style>

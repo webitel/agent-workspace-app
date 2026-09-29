@@ -9,6 +9,8 @@ export const ProcessingFieldComponent = {
 	IFrame: 'form-i-frame',
 	File: 'form-file',
 	Table: 'form-table',
+	SelectService: 'form-select-service',
+	RichText: 'rich-text-editor',
 } as const;
 
 export type ProcessingFieldComponent =

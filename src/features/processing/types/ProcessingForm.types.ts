@@ -83,6 +83,16 @@ export interface FormTableActionPayload {
 	row: FormTableRow;
 }
 
+// A service catalog or service, as `form-select-service`'s tree shows them;
+// services nest under `service`.
+export interface ServiceCatalogNode {
+	id: number | string;
+	name: string;
+	description?: string;
+	service?: ServiceCatalogNode[];
+	[key: string]: unknown;
+}
+
 export interface FormFieldView {
 	// raw component name from the backend, e.g. 'wt-select', 'wt-input'
 	component: string;
