@@ -31,6 +31,9 @@ export default {
 			cancel: 'Hủy',
 			run: 'Chạy',
 		},
+		numpad: {
+			call: 'Gọi',
+		},
 	},
 	error: {
 		websocket: {

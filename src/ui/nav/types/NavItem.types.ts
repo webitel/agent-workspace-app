@@ -19,6 +19,7 @@ export interface NavLinkItem extends NavItemBase {
 
 export interface NavButtonItem extends NavItemBase {
 	kind: 'button';
+	onClick: () => void;
 }
 
 export type NavItemConfig = NavLinkItem | NavButtonItem;

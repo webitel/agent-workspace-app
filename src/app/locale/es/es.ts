@@ -30,6 +30,9 @@ export default {
 		reusable: {
 			run: 'Ejecutar',
 		},
+		numpad: {
+			call: 'Llamar',
+		},
 	},
 	error: {
 		websocket: {

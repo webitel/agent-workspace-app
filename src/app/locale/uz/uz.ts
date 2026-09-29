@@ -30,6 +30,9 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 		},
+		numpad: {
+			call: 'Qoʻngʻiroq qilish',
+		},
 	},
 	error: {
 		websocket: {

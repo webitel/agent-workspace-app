@@ -1,7 +1,10 @@
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
+import WebitelUI from '@webitel/ui-sdk';
+import { eventBus } from '@webitel/ui-sdk/scripts';
 import { describe, expect, it } from 'vitest';
 
+import { useNumpadStore } from '../../../numpad/store/numpad';
 import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
 
@@ -12,6 +15,12 @@ function mountCallLane() {
 				createTestingPinia({
 					stubActions: false,
 				}),
+				[
+					WebitelUI,
+					{
+						eventBus,
+					},
+				],
 			],
 		},
 	});
@@ -42,20 +51,15 @@ describe('task-dock-call-lane', () => {
 		expect(store.expandedCallId).toBeNull();
 	});
 
-	it('keeps numpad always expanded and non-interactive', async () => {
+	it('shows the numpad only once the numpad store is opened', async () => {
 		const wrapper = mountCallLane();
-		const store = useTaskDockStore();
-		const numpad = wrapper
-			.findAll('.task-dock-item-wrapper')
-			.find((item) => item.text().includes('Numpad'));
+		const numpadStore = useNumpadStore();
 
-		expect(numpad?.classes()).toContain('task-dock-item-wrapper--expanded');
-		expect(numpad?.classes()).not.toContain(
-			'task-dock-item-wrapper--collapsible',
-		);
+		expect(wrapper.find('.the-numpad-panel').exists()).toBe(false);
 
-		await numpad?.trigger('click');
+		numpadStore.open();
+		await wrapper.vm.$nextTick();
 
-		expect(store.expandedCallId).toBeNull();
+		expect(wrapper.find('.the-numpad-panel').exists()).toBe(true);
 	});
 });
