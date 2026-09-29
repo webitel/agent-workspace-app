@@ -10,6 +10,7 @@ export const ProcessingFieldComponent = {
 	File: 'form-file',
 	Table: 'form-table',
 	SelectService: 'form-select-service',
+	RichText: 'rich-text-editor',
 } as const;
 
 export type ProcessingFieldComponent =
