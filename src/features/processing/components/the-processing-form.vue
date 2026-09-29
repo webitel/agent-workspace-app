@@ -58,6 +58,7 @@ import ProcessingFormDatetimepicker from './fields/processing-form-datetimepicke
 import ProcessingFormFile from './fields/processing-form-file.vue';
 import ProcessingFormIFrame from './fields/processing-form-i-frame.vue';
 import ProcessingFormInputText from './fields/processing-form-input-text.vue';
+import ProcessingFormRichText from './fields/processing-form-rich-text.vue';
 import ProcessingFormSelect from './fields/processing-form-select.vue';
 import ProcessingFormSelectFromObject from './fields/processing-form-select-from-object.vue';
 import ProcessingFormSelectService from './fields/processing-form-select-service.vue';
@@ -81,6 +82,7 @@ const fieldComponents: Record<string, Component> = {
 	[ProcessingFieldComponent.File]: ProcessingFormFile,
 	[ProcessingFieldComponent.Table]: ProcessingFormTable,
 	[ProcessingFieldComponent.SelectService]: ProcessingFormSelectService,
+	[ProcessingFieldComponent.RichText]: ProcessingFormRichText,
 };
 
 // What a field needs from outside its schema: file uploads go against the

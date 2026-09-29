@@ -275,7 +275,7 @@ describe('the-processing-form', () => {
 					id: 'x',
 					value: '',
 					view: {
-						component: 'rich-text-editor',
+						component: 'form-not-a-real-field',
 					},
 				},
 			],

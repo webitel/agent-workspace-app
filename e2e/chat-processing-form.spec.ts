@@ -433,6 +433,54 @@ test.describe('chat processing form', () => {
 			.toBe(100);
 	});
 
+	test('submits what the agent writes in a rich text field as html', async ({
+		page,
+		socket,
+	}) => {
+		await openActiveChat(page, socket);
+		sendForm(socket, {
+			...processingForm,
+			body: [
+				{
+					id: 'summary',
+					value: '',
+					view: {
+						component: 'rich-text-editor',
+						label: 'Summary',
+					},
+				},
+			],
+		});
+		await tab(page, 'Post-processing').click();
+
+		// TinyMCE loads on demand and edits inside its own iframe
+		const body = page.frameLocator('.tox-edit-area iframe').locator('body');
+		await expect(body).toBeVisible({
+			timeout: 30_000,
+		});
+		await body.click();
+		await page.keyboard.type('Refund approved');
+
+		await page
+			.locator('.processing-wrapper')
+			.getByRole('button', {
+				name: 'Complete',
+			})
+			.click();
+
+		await expect
+			.poll(
+				() =>
+					(
+						socket.requests.find((item) => item.action === 'cc_form_action')
+							?.data as {
+							fields?: Record<string, unknown>;
+						}
+					)?.fields?.summary,
+			)
+			.toBe('<p>Refund approved</p>');
+	});
+
 	test('switches to the form when the chat ends and counts the deadline down', async ({
 		page,
 		socket,
