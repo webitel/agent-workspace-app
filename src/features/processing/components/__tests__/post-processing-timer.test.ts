@@ -14,9 +14,11 @@ vi.mock('vue-i18n', () => ({
 	}),
 }));
 
+import { PROCESSING_TOTAL_SEC_STUB } from '../../store/processing';
 import PostProcessingTimer from '../post-processing-timer.vue';
 
 const NOW = 1_000_000;
+const TOTAL_MS = PROCESSING_TOTAL_SEC_STUB * 1000;
 let nextId = 1;
 
 function makeTask(overrides = {}) {
@@ -25,8 +27,7 @@ function makeTask(overrides = {}) {
 		state: 'processing',
 		hasForm: false,
 		form: null,
-		processingSec: 100,
-		processingTimeoutAt: NOW + 100_000,
+		processingTimeoutAt: NOW + TOTAL_MS,
 		renewalSec: 10,
 		_processing: {
 			processing_prolongation: {
@@ -91,11 +92,13 @@ describe('post-processing-timer', () => {
 
 		expect(time().classes()).toContain('post-processing-timer__time--success');
 
-		vi.setSystemTime(NOW + 50_000);
+		// half of the phase gone: orange
+		vi.setSystemTime(NOW + TOTAL_MS / 2);
 		await vi.advanceTimersByTimeAsync(1_000);
 		expect(time().classes()).toContain('post-processing-timer__time--warning');
 
-		vi.setSystemTime(NOW + 80_000);
+		// five sixths gone: red
+		vi.setSystemTime(NOW + (TOTAL_MS * 5) / 6);
 		await vi.advanceTimersByTimeAsync(1_000);
 		expect(time().classes()).toContain('post-processing-timer__time--error');
 	});
@@ -110,7 +113,8 @@ describe('post-processing-timer', () => {
 			'ui.processing.postProcessing.extensionsLeft:2',
 		);
 
-		vi.setSystemTime(NOW + 95_000);
+		// inside the queue's 10s renewal window
+		vi.setSystemTime(NOW + TOTAL_MS - 5_000);
 		await vi.advanceTimersByTimeAsync(1_000);
 		expect(renew().attributes('disabled')).toBeUndefined();
 
