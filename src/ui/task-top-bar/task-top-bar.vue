@@ -1,23 +1,23 @@
 <template>
-	<header class="interaction-top-bar">
+	<header class="task-top-bar">
 		<slot name="leading" />
 		<wt-avatar
 			:username="name"
 			size="sm"
 		/>
-		<div class="interaction-top-bar__info">
-			<span class="interaction-top-bar__name typo-body-1-bold">
+		<div class="task-top-bar__info">
+			<span class="task-top-bar__name typo-body-1-bold">
 				{{ name || t('ui.notifications.offer.unknownContact') }}
 			</span>
 			<span
 				v-if="subtitle"
-				class="interaction-top-bar__subtitle typo-body-2"
+				class="task-top-bar__subtitle typo-body-2"
 			>
 				{{ subtitle }}
 			</span>
 		</div>
 
-		<div class="interaction-top-bar__trailing">
+		<div class="task-top-bar__trailing">
 			<slot name="status" />
 			<slot name="actions" />
 		</div>
@@ -28,8 +28,8 @@
 import { useI18n } from 'vue-i18n';
 
 /**
- * The header row of an interaction's window: who it is with, a status area
- * (a timer) and an actions area. Channel-neutral, like the offer card — chats
+ * The header row of a task's window, a call or a chat: who it is with, a
+ * status area (a timer) and an actions area. Channel-neutral, like the offer card — chats
  * and calls fill it from their own objects and bring their own timer and
  * actions through the slots, so nothing here knows about either SDK.
  */
@@ -44,31 +44,31 @@ const { t } = useI18n();
 </script>
 
 <style scoped>
-.interaction-top-bar {
+.task-top-bar {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
 	padding-bottom: var(--spacing-xs);
 }
 
-.interaction-top-bar__info {
+.task-top-bar__info {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 }
 
-.interaction-top-bar__name,
-.interaction-top-bar__subtitle {
+.task-top-bar__name,
+.task-top-bar__subtitle {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.interaction-top-bar__subtitle {
+.task-top-bar__subtitle {
 	color: var(--text-secondary-color);
 }
 
-.interaction-top-bar__trailing {
+.task-top-bar__trailing {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);

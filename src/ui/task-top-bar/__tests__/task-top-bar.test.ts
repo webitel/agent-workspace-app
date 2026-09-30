@@ -7,10 +7,10 @@ vi.mock('vue-i18n', () => ({
 	}),
 }));
 
-import InteractionTopBar from '../interaction-top-bar.vue';
+import TaskTopBar from '../task-top-bar.vue';
 
 const mountBar = (props = {}, slots: Record<string, string> = {}) =>
-	mount(InteractionTopBar, {
+	mount(TaskTopBar, {
 		props,
 		slots,
 		global: {
@@ -25,7 +25,7 @@ const mountBar = (props = {}, slots: Record<string, string> = {}) =>
 		},
 	});
 
-describe('interaction-top-bar', () => {
+describe('task-top-bar', () => {
 	it('shows the name and the subtitle beside the avatar', () => {
 		const wrapper = mountBar({
 			name: 'client_username',
@@ -48,7 +48,7 @@ describe('interaction-top-bar', () => {
 			mountBar({
 				name: 'Jane',
 			})
-				.find('.interaction-top-bar__subtitle')
+				.find('.task-top-bar__subtitle')
 				.exists(),
 		).toBe(false);
 	});

@@ -1,5 +1,5 @@
 <template>
-	<interaction-top-bar
+	<task-top-bar
 		class="chat-top-bar"
 		:name="header.name"
 		:subtitle="header.queueName"
@@ -28,7 +28,7 @@
 				:is-ending="isEnding"
 			/>
 		</template>
-	</interaction-top-bar>
+	</task-top-bar>
 </template>
 
 <script setup lang="ts">
@@ -36,7 +36,7 @@ import { eventBus } from '@webitel/ui-sdk/scripts';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
-import InteractionTopBar from '../../../../ui/interaction-top-bar/interaction-top-bar.vue';
+import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
 import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
 import { toChatHeader } from '../../scripts/toChatHeader';
