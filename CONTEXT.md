@@ -24,9 +24,8 @@ and should not be carried over wholesale.
 - [ADR-0004](docs/adr/0004-processing-form-state.md) — processing form values
   live on the SDK task, and a per-attempt store holds only the UI state around
   them.
-- [ADR-0005](docs/adr/0005-end-chat-leaves-the-thread.md) — ending a chat leaves
-  its thread rather than closing the task, and how the agent's own member is
-  found.
+- [ADR-0005](docs/adr/0005-end-chat-closes-the-task.md) — ending a chat closes
+  its task, and why leaving the thread was not used.
 
 ## Language
 
