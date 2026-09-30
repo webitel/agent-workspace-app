@@ -44,6 +44,7 @@ const VIRTUAL_FIELDS: Record<string, string[]> = {
  */
 const REQUIRED_FIELDS = [
 	'files',
+	'parent_id',
 ];
 
 const toApiFields = (fields: string[] = []) => [

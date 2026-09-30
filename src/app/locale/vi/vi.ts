@@ -48,6 +48,13 @@ export default {
 						playAudio: 'Phát âm thanh',
 						playVideo: 'Phát video',
 					},
+					actions: {
+						showCallInfo: 'Xem thông tin cuộc gọi',
+					},
+					callInfo: {
+						title: 'Thông tin cuộc gọi',
+						postprocessing: 'Xử lý sau cuộc gọi',
+					},
 				},
 			},
 		},

@@ -47,6 +47,13 @@ export default {
 						playAudio: 'Odtwórz audio',
 						playVideo: 'Odtwórz wideo',
 					},
+					actions: {
+						showCallInfo: 'Pokaż informacje o połączeniu',
+					},
+					callInfo: {
+						title: 'Informacje o połączeniu',
+						postprocessing: 'Przetwarzanie końcowe',
+					},
 				},
 			},
 		},

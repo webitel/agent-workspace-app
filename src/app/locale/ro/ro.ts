@@ -47,6 +47,13 @@ export default {
 						playAudio: 'Redă audio',
 						playVideo: 'Redă video',
 					},
+					actions: {
+						showCallInfo: 'Afișează informații despre apel',
+					},
+					callInfo: {
+						title: 'Informații despre apel',
+						postprocessing: 'Postprocesare',
+					},
 				},
 			},
 		},
