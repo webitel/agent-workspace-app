@@ -482,4 +482,36 @@ describe('chats store', () => {
 			expect(disposeChatSessionMock).toHaveBeenCalledWith('chat-1');
 		});
 	});
+	describe('ending a chat', () => {
+		it('closes the chat task', async () => {
+			const store = useChatsStore();
+			const task = {
+				close: vi.fn(() => Promise.resolve({})),
+			};
+
+			await store.endChat(task as never);
+
+			expect(task.close).toHaveBeenCalledOnce();
+		});
+
+		it('passes a failure on to the caller', async () => {
+			const store = useChatsStore();
+			const task = {
+				close: vi.fn(() => Promise.reject(new Error('offline'))),
+			};
+
+			await expect(store.endChat(task as never)).rejects.toThrow('offline');
+		});
+
+		it('does not touch the open window', async () => {
+			const store = useChatsStore();
+			store.openChat('chat-1');
+
+			await store.endChat({
+				close: vi.fn(() => Promise.resolve({})),
+			} as never);
+
+			expect(store.isOpen('chat-1')).toBe(true);
+		});
+	});
 });
