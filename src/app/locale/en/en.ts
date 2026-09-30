@@ -35,7 +35,6 @@ export default {
 		},
 		processing: {
 			postProcessing: {
-				title: 'Post-processing',
 				extend: 'Extend post-processing',
 				extensionsLeft: 'Extensions left: {count}',
 			},

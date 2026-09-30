@@ -35,7 +35,6 @@ export default {
 		},
 		processing: {
 			postProcessing: {
-				title: 'Постобробка',
 				extend: 'Продовжити постобробку',
 				extensionsLeft: 'Залишилось продовжень: {count}',
 			},

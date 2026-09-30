@@ -3,10 +3,9 @@
 		class="chat-top-bar"
 		:name="header.name"
 		:subtitle="header.queueName"
-		:subtitle-label="t('ui.notifications.offer.queue')"
 	>
 		<template #leading>
-			<wt-icon icon="ws-chat-clock" />
+			<wt-icon icon="history" />
 		</template>
 
 		<template #status>
@@ -18,11 +17,9 @@
 
 		<template #actions>
 			<!-- not in the MVP: Е6 owns the transfer flow, the button holds its place -->
-			<wt-button
+			<wt-icon-btn
 				:aria-label="t('ui.pages.chats.topBar.transfer')"
-				color="transfer"
 				icon="chat-transfer--filled"
-				size="sm"
 				disabled
 			/>
 			<chat-end-action

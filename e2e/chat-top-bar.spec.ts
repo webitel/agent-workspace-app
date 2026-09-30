@@ -98,11 +98,12 @@ test.describe('chat top bar', () => {
 	test('keeps transfer in place but disabled', async ({ page, socket }) => {
 		await openActiveChat(page, socket);
 
+		// wt-icon-btn disables through a class, not the `disabled` attribute
 		await expect(
 			page.getByRole('button', {
 				name: 'Transfer chat',
 			}),
-		).toBeDisabled();
+		).toHaveClass(/wt-icon-btn--disabled/);
 	});
 
 	test('ends the chat by closing its task, once confirmed', async ({
