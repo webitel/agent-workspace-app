@@ -33,6 +33,23 @@ export default {
 		numpad: {
 			call: 'Зателефонувати',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Дзвінки',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Запис недоступний',
+						playAudio: 'Відтворити аудіо',
+						playVideo: 'Відтворити відео',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

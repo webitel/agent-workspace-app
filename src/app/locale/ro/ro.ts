@@ -33,6 +33,23 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Apeluri',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Înregistrare indisponibilă',
+						playAudio: 'Redă audio',
+						playVideo: 'Redă video',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

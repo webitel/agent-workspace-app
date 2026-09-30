@@ -33,6 +33,23 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Қоңыраулар',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Жазба қолжетімсіз',
+						playAudio: 'Аудионы ойнату',
+						playVideo: 'Бейнені ойнату',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {

@@ -10,7 +10,8 @@ import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import TheContactsPage from '../../ui/pages/modules/contacts/the-contacts-page.vue';
-import TheHistoryWorkspace from '../../ui/pages/modules/history/components/the-history-workspace.vue';
+import { HistoryPageTab } from '../../ui/pages/modules/history/enums/HistoryPageTab.enum';
+import TheHistoryPage from '../../ui/pages/modules/history/the-history-page.vue';
 import TheTasksWorkspace from '../../ui/pages/modules/tasks/components/the-tasks-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
 
@@ -69,8 +70,14 @@ const routes: RouteRecordRaw[] = [
 			},
 			{
 				path: '/history',
-				name: 'history',
-				component: TheHistoryWorkspace,
+				component: TheHistoryPage,
+				children: [
+					{
+						path: '',
+						name: HistoryPageTab.Calls,
+						component: NoopRouteComponent,
+					},
+				],
 			},
 		],
 	},

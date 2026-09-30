@@ -33,6 +33,23 @@ export default {
 		numpad: {
 			call: 'Call',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Calls',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Recording unavailable',
+						playAudio: 'Audio Recording',
+						playVideo: 'Video Recording',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		websocket: {
