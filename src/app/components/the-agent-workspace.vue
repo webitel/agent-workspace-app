@@ -49,6 +49,7 @@ subscribeToWebSocketEvents();
     flex: 1;
     display: flex;
     gap: var(--spacing-sm);
+    min-width: 0;
 
     .the-task-dock-panel {
         position: absolute;
@@ -64,5 +65,6 @@ subscribeToWebSocketEvents();
     flex: 1;
     display: flex;
     background-color: var(--content-wrapper-color);
+    min-width: 0;
 }
 </style>
