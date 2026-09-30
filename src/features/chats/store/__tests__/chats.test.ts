@@ -49,22 +49,6 @@ vi.mock('../chat-session', () => ({
 	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
 }));
 
-const removeMemberMock = vi.fn();
-
-vi.mock('../../api/chatSdk', () => ({
-	threadsService: {
-		removeMember: (...args: unknown[]) => removeMemberMock(...args),
-	},
-}));
-
-const userinfo = {
-	userId: '42',
-};
-
-vi.mock('../../../userinfo/stores/userinfoStore', () => ({
-	useUserinfoStore: () => userinfo,
-}));
-
 const disposeProcessingMock = vi.fn();
 
 vi.mock('../../../processing/store/processing', () => ({
@@ -499,71 +483,33 @@ describe('chats store', () => {
 		});
 	});
 	describe('ending a chat', () => {
-		const taskWith = (members: unknown[]) =>
-			({
-				thread: {
-					id: 'chat-1',
-					members,
-				},
-			}) as never;
-
-		it('leaves the thread through the agent’s own membership', async () => {
+		it('closes the chat task', async () => {
 			const store = useChatsStore();
+			const task = {
+				close: vi.fn(() => Promise.resolve({})),
+			};
 
-			await store.endChat(
-				taskWith([
-					{
-						id: 'client-member',
-						contact: {
-							sub: 'telegram-77',
-						},
-					},
-					{
-						id: 'agent-member',
-						contact: {
-							sub: '42',
-						},
-					},
-				]),
-			);
+			await store.endChat(task as never);
 
-			expect(removeMemberMock).toHaveBeenCalledWith('chat-1', {
-				id: 'agent-member',
-			});
+			expect(task.close).toHaveBeenCalledOnce();
 		});
 
-		it('refuses when the agent’s membership cannot be found', async () => {
+		it('passes a failure on to the caller', async () => {
 			const store = useChatsStore();
+			const task = {
+				close: vi.fn(() => Promise.reject(new Error('offline'))),
+			};
 
-			await expect(
-				store.endChat(
-					taskWith([
-						{
-							id: 'client-member',
-							contact: {
-								sub: 'telegram-77',
-							},
-						},
-					]),
-				),
-			).rejects.toThrow('own thread membership not found');
-			expect(removeMemberMock).not.toHaveBeenCalled();
+			await expect(store.endChat(task as never)).rejects.toThrow('offline');
 		});
 
 		it('does not touch the open window', async () => {
 			const store = useChatsStore();
 			store.openChat('chat-1');
 
-			await store.endChat(
-				taskWith([
-					{
-						id: 'agent-member',
-						contact: {
-							sub: '42',
-						},
-					},
-				]),
-			);
+			await store.endChat({
+				close: vi.fn(() => Promise.resolve({})),
+			} as never);
 
 			expect(store.isOpen('chat-1')).toBe(true);
 		});
