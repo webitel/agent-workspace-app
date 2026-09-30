@@ -19,7 +19,7 @@
 				<div class="calls-history-info-popup__panel wt-scrollbar">
 					<wt-loader v-if="isLoading" />
 					<component
-						v-else="activeTabConfig?.component"
+						v-else-if="activeTabConfig?.component"
 						:is="activeTabConfig.component"
 						v-bind="activeTabConfig.props"
 					/>
