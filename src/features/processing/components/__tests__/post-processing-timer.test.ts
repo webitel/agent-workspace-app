@@ -14,11 +14,11 @@ vi.mock('vue-i18n', () => ({
 	}),
 }));
 
-import { PROCESSING_TOTAL_SEC_STUB } from '../../store/processing';
 import PostProcessingTimer from '../post-processing-timer.vue';
 
 const NOW = 1_000_000;
-const TOTAL_MS = PROCESSING_TOTAL_SEC_STUB * 1000;
+const TOTAL_SEC = 60;
+const TOTAL_MS = TOTAL_SEC * 1000;
 let nextId = 1;
 
 function makeTask(overrides = {}) {
@@ -27,6 +27,7 @@ function makeTask(overrides = {}) {
 		state: 'processing',
 		hasForm: false,
 		form: null,
+		totalProcessingSec: TOTAL_SEC,
 		processingTimeoutAt: NOW + TOTAL_MS,
 		renewalSec: 10,
 		_processing: {
@@ -101,6 +102,36 @@ describe('post-processing-timer', () => {
 		vi.setSystemTime(NOW + (TOTAL_MS * 5) / 6);
 		await vi.advanceTimersByTimeAsync(1_000);
 		expect(time().classes()).toContain('post-processing-timer__time--error');
+	});
+
+	it('stays green while the SDK reports no total', async () => {
+		const wrapper = mountTimer(
+			makeTask({
+				totalProcessingSec: null,
+				processingTimeoutAt: NOW + 5_000,
+			}),
+		);
+
+		expect(wrapper.find('.post-processing-timer__time').classes()).toContain(
+			'post-processing-timer__time--success',
+		);
+	});
+
+	it('measures against the grown total after a renewal', async () => {
+		const task = makeTask();
+		const wrapper = mountTimer(task);
+		const time = () => wrapper.find('.post-processing-timer__time');
+
+		vi.setSystemTime(NOW + (TOTAL_MS * 5) / 6);
+		await vi.advanceTimersByTimeAsync(1_000);
+		expect(time().classes()).toContain('post-processing-timer__time--error');
+
+		// a renewal: the SDK adds the seconds to both the deadline and the total,
+		// so 39s of 90s are left, not 39s of the original 60s
+		task.processingTimeoutAt = NOW + TOTAL_MS + 30_000;
+		task.totalProcessingSec = TOTAL_SEC + 30;
+		await vi.advanceTimersByTimeAsync(1_000);
+		expect(time().classes()).toContain('post-processing-timer__time--warning');
 	});
 
 	it('opens renewal only in the queue’s renewal window, with the extensions left in the tooltip', async () => {
