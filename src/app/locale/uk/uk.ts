@@ -33,7 +33,21 @@ export default {
 		numpad: {
 			call: 'Зателефонувати',
 		},
+		processing: {
+			postProcessing: {
+				extend: 'Продовжити постобробку',
+				extensionsLeft: 'Залишилось продовжень: {count}',
+			},
+		},
 		pages: {
+			chats: {
+				topBar: {
+					transfer: 'Перевести чат',
+					end: 'Завершити чат',
+					endConfirmTitle: 'Завершення чату',
+					endConfirmMessage: 'Завершити цей чат?',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Дзвінки',

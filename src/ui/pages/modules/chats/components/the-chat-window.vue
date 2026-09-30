@@ -1,18 +1,17 @@
 <template>
 	<section class="the-chat-window">
+		<!-- above the tabs: the deadline has to stay in view on every one of them
+		     (DES-711), the form tab included -->
+		<chat-top-bar
+			v-if="task"
+			:task="task"
+		/>
+
 		<wt-tabs
 			class="the-chat-window__tabs"
 			:current="{ value: activeTab }"
 			:tabs="tabs"
 			@change="activeTab = $event.value"
-		/>
-
-		<!-- outside the panels: post-processing switches to the form tab, and the
-		     deadline has to stay in view there (DES-711) -->
-		<post-processing-chip
-			v-if="task"
-			class="the-chat-window__chip"
-			:task="task"
 		/>
 
 		<keep-alive>
@@ -32,8 +31,8 @@
 import { WtTabs } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import ChatTopBar from '../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
-import PostProcessingChip from '../../../../../features/processing/components/post-processing-chip.vue';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
 import { useProcessingStore } from '../../../../../features/processing/store/processing';
 import TheChatThread from './the-chat-thread.vue';
@@ -124,11 +123,6 @@ watch(hasForm, (value) => {
 
 .the-chat-window__tabs {
 	flex: 0 0 auto;
-	padding-bottom: var(--spacing-xs);
-}
-
-.the-chat-window__chip {
-	align-self: flex-end;
 	padding-bottom: var(--spacing-xs);
 }
 
