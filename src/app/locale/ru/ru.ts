@@ -35,6 +35,9 @@ export default {
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Не удалось совершить звонок. Попробуйте ещё раз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Нет доступа к микрофону. Невозможно выполнить действие.',

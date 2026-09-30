@@ -2,10 +2,24 @@ import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import WebitelUI from '@webitel/ui-sdk';
 import { eventBus } from '@webitel/ui-sdk/scripts';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { useNumpadStore } from '../../store/numpad';
 import TheNumpadPanel from '../the-numpad-panel.vue';
+
+/**
+ * @author Oleksandr Palonnyi
+ * The outbound call store is replaced by its public surface: dialling is
+ * covered by its own suite, here only the hand-off from the numpad matters
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+const outboundCallStore = {
+	start: vi.fn(async (_destination: string) => undefined),
+};
+
+vi.mock('../../../../features/calls/store/outboundCall', () => ({
+	useOutboundCallStore: () => outboundCallStore,
+}));
 
 function mountPanel() {
 	return mount(TheNumpadPanel, {
@@ -23,6 +37,20 @@ function mountPanel() {
 			],
 		},
 	});
+}
+
+async function placeCallFromNumpad(
+	wrapper: ReturnType<typeof mountPanel>,
+	destination: string,
+) {
+	useNumpadStore().open();
+	await wrapper.vm.$nextTick();
+
+	await wrapper.find('input').setValue(destination);
+	await wrapper
+		.findAll('button')
+		.find((button) => button.text() === 'ui.numpad.call')
+		?.trigger('click');
 }
 
 describe('the-numpad-panel', () => {
@@ -59,19 +87,19 @@ describe('the-numpad-panel', () => {
 		expect(wrapper.find('input').element.value).toBe('0671234567');
 	});
 
+	it('dials the entered number when a call is placed', async () => {
+		const wrapper = mountPanel();
+
+		await placeCallFromNumpad(wrapper, '0671234567');
+
+		expect(outboundCallStore.start).toHaveBeenCalledWith('0671234567');
+	});
+
 	it('closes the panel once a call is placed', async () => {
 		const wrapper = mountPanel();
-		const numpadStore = useNumpadStore();
 
-		numpadStore.open();
-		await wrapper.vm.$nextTick();
+		await placeCallFromNumpad(wrapper, '123');
 
-		await wrapper.find('input').setValue('123');
-		await wrapper
-			.findAll('button')
-			.find((button) => button.text() === 'ui.numpad.call')
-			?.trigger('click');
-
-		expect(numpadStore.close).toHaveBeenCalled();
+		expect(useNumpadStore().close).toHaveBeenCalled();
 	});
 });
