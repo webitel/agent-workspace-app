@@ -46,6 +46,7 @@
 				<calls-history-row-actions
 					:item="item"
 					@play="play"
+					@show-info="openCallInfo"
 				/>
 			</template>
 		</wt-table>
@@ -70,16 +71,24 @@
 			@close="close"
 		/>
 	</teleport>
+
+	<calls-history-info-popup
+		v-if="callInfoItem"
+		:item="callInfoItem"
+		@close="closeCallInfo"
+	/>
 </template>
 
 <script setup lang="ts">
 import { useElementBounding, useWindowSize } from '@vueuse/core';
+import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { WtTable } from '@webitel/ui-sdk/components';
 import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
+import CallsHistoryInfoPopup from './calls-history-info-popup.vue';
 import CallsHistoryNameCell from './calls-history-name-cell.vue';
 import CallsHistoryPhoneCell from './calls-history-phone-cell.vue';
 import CallsHistoryRowActions from './calls-history-row-actions.vue';
@@ -95,6 +104,7 @@ const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 	usePlayCallRecording();
 
 const tableWrapper = ref<HTMLElement>();
+const callInfoItem = ref<EngineHistoryCall | null>(null);
 
 // audio player is rendered in <body> (outside the table DOM, so it can't trigger
 // table recalculation and extra page loads) and positioned over the table bottom
@@ -119,6 +129,14 @@ const formatCreatedAt = (createdAt?: string) =>
 
 const formatDuration = (duration?: number) =>
 	convertDuration(duration ?? 0).replaceAll(':', '.');
+
+const openCallInfo = (item: EngineHistoryCall) => {
+	callInfoItem.value = item;
+};
+
+const closeCallInfo = () => {
+	callInfoItem.value = null;
+};
 
 initialize().finally(() => {
 	isInitializing.value = false;

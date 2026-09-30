@@ -47,6 +47,13 @@ export default {
 						playAudio: 'Аудионы ойнату',
 						playVideo: 'Бейнені ойнату',
 					},
+					actions: {
+						showCallInfo: 'Қоңырау туралы ақпарат',
+					},
+					callInfo: {
+						title: 'Қоңырау туралы ақпарат',
+						postprocessing: 'Кейінгі өңдеу',
+					},
 				},
 			},
 		},

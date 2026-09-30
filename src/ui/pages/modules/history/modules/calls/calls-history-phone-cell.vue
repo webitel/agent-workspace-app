@@ -36,11 +36,11 @@ const phoneNumber = computed(() => {
 }
 
 .calls-history-phone-cell__button {
+	flex-shrink: 0;
 	--icon-color: var(--wt-ws-dialer-colors-connection-feedback-block-call-status-indicator-success-color);
 }
 
 .calls-history-phone-cell__button:hover {
-		background: var(--wt-ws-dialer-colors-connection-feedback-block-call-status-indicator-success-background);
-
+	background: var(--wt-ws-dialer-colors-connection-feedback-block-call-status-indicator-success-background);
 }
 </style>

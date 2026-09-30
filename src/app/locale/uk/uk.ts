@@ -47,6 +47,13 @@ export default {
 						playAudio: 'Відтворити аудіо',
 						playVideo: 'Відтворити відео',
 					},
+					actions: {
+						showCallInfo: 'Показати інформацію про дзвінок',
+					},
+					callInfo: {
+						title: 'Інформація про дзвінок',
+						postprocessing: 'Постобробка',
+					},
 				},
 			},
 		},

@@ -47,6 +47,13 @@ export default {
 						playAudio: 'Audioni ijro etish',
 						playVideo: 'Videoni ijro etish',
 					},
+					actions: {
+						showCallInfo: 'Qoʻngʻiroq haqida maʼlumot',
+					},
+					callInfo: {
+						title: 'Qoʻngʻiroq haqida maʼlumot',
+						postprocessing: 'Keyingi ishlov',
+					},
 				},
 			},
 		},

@@ -54,10 +54,7 @@ const callIcon = computed(() => {
 	gap: var(--spacing-xs);
 }
 
-.calls-history-name-cell p {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+.calls-history-name-cell .wt-avatar {
+	flex-shrink: 0;
 }
 </style>

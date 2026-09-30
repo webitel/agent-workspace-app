@@ -47,6 +47,13 @@ export default {
 						playAudio: 'Audio Recording',
 						playVideo: 'Video Recording',
 					},
+					actions: {
+						showCallInfo: 'Show call info',
+					},
+					callInfo: {
+						title: 'Call info',
+						postprocessing: 'Postprocessing',
+					},
 				},
 			},
 		},
