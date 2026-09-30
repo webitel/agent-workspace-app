@@ -15,6 +15,9 @@ import { initFormValues } from '../utils/initFormValues';
 
 type AttemptId = Task['id'];
 
+// Stands in for the total post-processing length until the backend sends it.
+export const PROCESSING_TOTAL_SEC_STUB = 60;
+
 const storeId = (attemptId: AttemptId) => `processing:${attemptId}`;
 
 // Same caching as chat-session: repeated useProcessingStore(task) calls reuse
@@ -54,6 +57,12 @@ function createStoreDefinition(task: Task) {
 		const isPostProcessing = computed(() => task.state === JobState.Processing);
 		const processingTimeoutAt = computed(() => task.processingTimeoutAt);
 		const renewalSec = computed(() => task.renewalSec);
+
+		// TODO: stub. The total post-processing length should be counted by the
+		// backend and sent with the phase. The SDK's `task.processingSec` cannot
+		// stand in for it: each `processing` event replaces that payload, so after
+		// a renewal it holds the renewal's length, not the phase's.
+		const processingTotalSec = computed(() => PROCESSING_TOTAL_SEC_STUB);
 		const prolongation = computed(
 			() =>
 				(
@@ -141,6 +150,7 @@ function createStoreDefinition(task: Task) {
 			isPostProcessing,
 			processingTimeoutAt,
 			renewalSec,
+			processingTotalSec,
 			remainingProlongations,
 			initialize,
 			change,

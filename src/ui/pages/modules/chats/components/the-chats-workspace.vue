@@ -1,7 +1,11 @@
 <template>
     <section class="the-chats-workspace">
-        <the-chat-previews-list />
-        <router-view />
+        <wt-layout :default-width="320" resizable>
+            <the-chat-previews-list />
+        </wt-layout>
+        <wt-layout>
+            <router-view />
+        </wt-layout>
     </section>
 </template>
 
@@ -9,6 +13,7 @@
     setup
     lang="ts"
 >
+import { WtLayout } from '@webitel/ui-sdk/components';
 import { watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -31,12 +36,11 @@ watchEffect(() => {
 <style scoped>
 .the-chats-workspace {
     display: flex;
-    height: 100%;
+    gap: var(--wt-page-body-gap);
     min-height: 0;
 }
 
 .the-chat-previews-list {
-    flex: 0 0 320px;
-    border-right: 1px solid var(--divider-border-color);
+    overflow-y: auto;
 }
 </style>

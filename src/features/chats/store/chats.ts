@@ -90,6 +90,15 @@ export const useChatsStore = defineStore('chats', () => {
 		target.mode = mode;
 	}
 
+	/**
+	 * Ends the chat for the agent by closing its task; the call center then
+	 * moves the task into post-processing, or releases it when the queue has
+	 * none (ADR-0005). This is not `closeChat`, which only drops the window.
+	 */
+	function endChat(task: Task) {
+		return task.close();
+	}
+
 	function closeChat(id: string) {
 		openChats.value = openChats.value.filter((chat) => chat.id !== id);
 		disposeChatSession(id);
@@ -201,6 +210,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// actions
 		openChat,
 		setMode,
+		endChat,
 		closeChat,
 		initialize,
 	};

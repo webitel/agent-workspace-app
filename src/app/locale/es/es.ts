@@ -33,6 +33,30 @@ export default {
 		numpad: {
 			call: 'Llamar',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Llamadas',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Grabación no disponible',
+						playAudio: 'Reproducir audio',
+						playVideo: 'Reproducir vídeo',
+					},
+					actions: {
+						showCallInfo: 'Mostrar información de la llamada',
+					},
+					callInfo: {
+						title: 'Información de la llamada',
+						postprocessing: 'Posprocesamiento',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

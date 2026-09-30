@@ -1,10 +1,11 @@
 <template>
-    <section class="the-calls-workspace">
+    <wt-layout class="the-calls-workspace">
         <h1>Calls Workspace</h1>
-    </section>
+    </wt-layout>
 </template>
 
 <script setup lang="ts">
+import { WtLayout } from '@webitel/ui-sdk/components';
 </script>
 
 <style scoped>

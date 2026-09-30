@@ -1,5 +1,5 @@
 <template>
-  <section class="page-wrapper">
+  <wt-layout class="page-wrapper">
     <div class="page-wrapper__header">
       <slot name="header"></slot>
       <wt-tabs
@@ -19,10 +19,11 @@
     <div class="page-wrapper__main">
       <slot name="main" > </slot>
     </div>
-  </section>
+  </wt-layout>
 </template>
 
 <script lang="ts" setup>
+import { WtLayout } from '@webitel/ui-sdk/components';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -60,11 +61,6 @@ const changeTab = ({ pathName }: WsPageTab) => {
 
 <style scoped>
 .page-wrapper {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  max-width: 100%;
-  height: 100%;
   padding: var(--spacing-sm);
   gap: var(--spacing-xs);
 }

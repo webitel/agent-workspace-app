@@ -33,6 +33,30 @@ export default {
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Qoʻngʻiroqlar',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Yozuv mavjud emas',
+						playAudio: 'Audioni ijro etish',
+						playVideo: 'Videoni ijro etish',
+					},
+					actions: {
+						showCallInfo: 'Qoʻngʻiroq haqida maʼlumot',
+					},
+					callInfo: {
+						title: 'Qoʻngʻiroq haqida maʼlumot',
+						postprocessing: 'Keyingi ishlov',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

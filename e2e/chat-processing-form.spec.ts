@@ -503,10 +503,10 @@ test.describe('chat processing form', () => {
 		await expect(tab(page, 'Post-processing')).toHaveClass(/wt-tab--highlight/);
 		await expect(page.locator('.processing-wrapper')).toBeVisible();
 
-		// visible beside the form, not only on the chat tab
-		const chip = page.locator('.post-processing-chip');
-		await expect(chip).toContainText('Post-processing');
-		await expect(chip).toContainText(/00:[0-5]\d/);
+		// the top bar sits above the tabs, so the countdown is on the form tab too
+		await expect(page.locator('.post-processing-timer')).toContainText(
+			/00:[0-5]\d/,
+		);
 	});
 
 	test('takes the tab away once the task is released', async ({

@@ -33,6 +33,45 @@ export default {
 		numpad: {
 			call: 'Call',
 		},
+		processing: {
+			postProcessing: {
+				title: 'Post-processing',
+				extend: 'Extend post-processing',
+				extensionsLeft: 'Extensions left: {count}',
+			},
+		},
+		pages: {
+			chats: {
+				topBar: {
+					transfer: 'Transfer chat',
+					end: 'End chat',
+					endConfirmTitle: 'End chat',
+					endConfirmMessage: 'End this chat?',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Calls',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Recording unavailable',
+						playAudio: 'Audio Recording',
+						playVideo: 'Video Recording',
+					},
+					actions: {
+						showCallInfo: 'Show call info',
+					},
+					callInfo: {
+						title: 'Call info',
+						postprocessing: 'Postprocessing',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

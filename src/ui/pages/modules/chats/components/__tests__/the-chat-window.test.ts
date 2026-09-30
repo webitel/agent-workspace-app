@@ -59,14 +59,14 @@ vi.mock(
 );
 
 vi.mock(
-	'../../../../../../features/processing/components/post-processing-chip.vue',
+	'../../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue',
 	() => ({
 		default: {
-			name: 'PostProcessingChip',
+			name: 'ChatTopBar',
 			props: [
 				'task',
 			],
-			template: '<div class="chip-stub" />',
+			template: '<div class="top-bar-stub" />',
 		},
 	}),
 );
@@ -169,8 +169,9 @@ describe('the-chat-window', () => {
 		await nextTick();
 
 		expect(showsForm(wrapper)).toBe(true);
-		// the countdown lives beside the panels, so the form tab still shows it
-		expect(wrapper.find('.chip-stub').exists()).toBe(true);
+		// the bar carries the countdown and sits above the panels, so the form tab
+		// still shows it
+		expect(wrapper.find('.top-bar-stub').exists()).toBe(true);
 	});
 
 	it('opens a chat already in post-processing on its form', async () => {

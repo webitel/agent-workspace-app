@@ -33,6 +33,30 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		pages: {
+			history: {
+				tabs: {
+					calls: 'Apeluri',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Înregistrare indisponibilă',
+						playAudio: 'Redă audio',
+						playVideo: 'Redă video',
+					},
+					actions: {
+						showCallInfo: 'Afișează informații despre apel',
+					},
+					callInfo: {
+						title: 'Informații despre apel',
+						postprocessing: 'Postprocesare',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {
