@@ -53,6 +53,7 @@ export default {
 					callInfo: {
 						title: 'Call info',
 						postprocessing: 'Postprocessing',
+						agentDescription: "Agent's comment",
 					},
 				},
 			},

@@ -53,6 +53,7 @@ export default {
 					callInfo: {
 						title: 'Информация о звонке',
 						postprocessing: 'Постобработка',
+						agentDescription: 'Комментарий оператора',
 					},
 				},
 			},

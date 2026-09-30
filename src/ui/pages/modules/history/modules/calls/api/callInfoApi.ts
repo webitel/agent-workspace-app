@@ -1,5 +1,5 @@
 import { CallHistoryAPI } from '@webitel/api-services/api';
-import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
+import type { CallInfo } from '../types/CallInfo.types';
 
 const CALL_INFO_FIELDS = [
 	'id',
@@ -18,7 +18,7 @@ const DO_NOT_CONVERT_KEYS = [
 
 export const getCallInfo = async (
 	id: string,
-): Promise<EngineHistoryCall | undefined> => {
+): Promise<CallInfo | undefined> => {
 	const { items = [] } = await CallHistoryAPI.getListPost({
 		data: {
 			id: [

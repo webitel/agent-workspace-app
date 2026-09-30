@@ -53,6 +53,7 @@ export default {
 					callInfo: {
 						title: 'Қоңырау туралы ақпарат',
 						postprocessing: 'Кейінгі өңдеу',
+						agentDescription: 'Оператордың пікірі',
 					},
 				},
 			},
