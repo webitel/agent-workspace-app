@@ -1,13 +1,17 @@
 import { createTestingPinia } from '@pinia/testing';
 import { getActivePinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, reactive } from 'vue';
+import { reactive } from 'vue';
 import type { Task } from 'webitel-sdk';
 
 import { mockEmit as emitMock } from '../../../../../test/setup';
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import { toNaiveUtcTimestamp } from '../../utils/naiveUtcTimestamp';
-import { disposeProcessing, useProcessingStore } from '../processing';
+import {
+	disposeProcessing,
+	PROCESSING_TOTAL_SEC_STUB,
+	useProcessingStore,
+} from '../processing';
 
 let nextId = 1;
 
@@ -20,7 +24,6 @@ function makeTask(form: ProcessingFormData | null, overrides = {}) {
 		form,
 		processingTimeoutAt: null,
 		renewalSec: null,
-		processingSec: null,
 		_processing: null,
 		formAction: vi.fn(() => Promise.resolve({})),
 		renew: vi.fn(() => Promise.resolve({})),
@@ -275,24 +278,10 @@ describe('processing store', () => {
 		expect(processing.remainingProlongations).toBe(2);
 	});
 
-	it('keeps the post-processing length it first saw across renewals', async () => {
-		const task = makeTask(inputForm(), {
-			state: 'processing',
-			processingSec: 60,
-		});
-		const processing = store(task);
+	it('uses the stub as the post-processing length until the backend sends one', () => {
+		const processing = store(makeTask(inputForm()));
 
-		expect(processing.processingTotalSec).toBe(60);
-
-		// a renewal's `processing` event replaces the payload with its own length
-		task.processingSec = 30;
-		await nextTick();
-
-		expect(processing.processingTotalSec).toBe(60);
-	});
-
-	it('has no post-processing length before the queue sends one', () => {
-		expect(store(makeTask(inputForm())).processingTotalSec).toBeNull();
+		expect(processing.processingTotalSec).toBe(PROCESSING_TOTAL_SEC_STUB);
 	});
 
 	it('renews by the queue prolongation, or lets the SDK default it', async () => {
