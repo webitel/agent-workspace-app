@@ -1,6 +1,6 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { defineStore, getActivePinia } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { JobState, type Task } from 'webitel-sdk';
 
 import type {
@@ -14,6 +14,9 @@ import { formattingFormBeforeSend } from '../utils/formattingFormBeforeSend';
 import { initFormValues } from '../utils/initFormValues';
 
 type AttemptId = Task['id'];
+
+// Stands in for the total post-processing length until the backend sends it.
+export const PROCESSING_TOTAL_SEC_STUB = 60;
 
 const storeId = (attemptId: AttemptId) => `processing:${attemptId}`;
 
@@ -55,21 +58,11 @@ function createStoreDefinition(task: Task) {
 		const processingTimeoutAt = computed(() => task.processingTimeoutAt);
 		const renewalSec = computed(() => task.renewalSec);
 
-		// The queue's post-processing length, captured once: each `processing`
-		// event replaces the SDK payload, so after a renewal `task.processingSec`
-		// no longer says how long the phase started out.
-		const processingTotalSec = ref<number | null>(null);
-		watch(
-			() => task.processingSec,
-			(sec) => {
-				if (sec && processingTotalSec.value === null) {
-					processingTotalSec.value = sec;
-				}
-			},
-			{
-				immediate: true,
-			},
-		);
+		// TODO: stub. The total post-processing length should be counted by the
+		// backend and sent with the phase. The SDK's `task.processingSec` cannot
+		// stand in for it: each `processing` event replaces that payload, so after
+		// a renewal it holds the renewal's length, not the phase's.
+		const processingTotalSec = computed(() => PROCESSING_TOTAL_SEC_STUB);
 		const prolongation = computed(
 			() =>
 				(
