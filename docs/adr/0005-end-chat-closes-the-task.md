@@ -19,8 +19,11 @@ already holds the chat's `Task` from `webitel-sdk`. Two things could plausibly
 end a chat:
 
 - `Task.close()` — `cc_agent_task_close`, the call-center request. `decline()`
-  sends the identical request, and this app already uses it on chats (declining
-  an offer).
+  sends the identical request. `cc-workspaces` only ever used these on jobs
+  (`channel: "task"`); its chats went through the `Conversation` object, whose
+  `leave()` and `decline()` send the chat requests `leave_chat` and
+  `decline_chat`. This app's `declineOffer` does call `task.decline()` on chats,
+  but that is not evidence the backend accepts it.
 - `thread.removeMember({ id })` (chat-web-sdk) with the agent's own member — the
   direct successor of `leave()`.
 
@@ -58,8 +61,9 @@ crosses into the chat SDK for an action the task already exposes.
 `Task.allowClose` is `channel === "task"`, and chats are `im`, so the SDK does
 not itself treat a chat task as closable this way. `close()` is not gated on it
 here. That the backend accepts `cc_agent_task_close` for a bridged chat attempt
-is unverified against a live instance; `decline()` sends the same request and
-works for offered chats. If it is refused, the request fails and the error is
+is unverified against a live instance, and the old app gives no precedent: it
+never sent `cc_agent_task_close` for a chat. Treat the live check as blocking.
+If it is refused, the request fails and the error is
 shown, and the leave-the-thread route above is the fallback.
 
 The window's `closeChat` is unrelated and unchanged: it drops a window, and must
