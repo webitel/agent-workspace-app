@@ -25,7 +25,6 @@
 			<chat-end-action
 				v-if="!isPostProcessing"
 				:callback="end"
-				:disabled="!selfMember"
 				:is-ending="isEnding"
 			/>
 		</template>
@@ -55,10 +54,6 @@ const header = computed(() => toChatHeader(props.task));
 const isPostProcessing = computed(
 	() => useProcessingStore(props.task).isPostProcessing,
 );
-
-// Without it the request cannot be made; the button says so by being disabled
-// instead of doing nothing (ADR-0005).
-const selfMember = computed(() => chatsStore.getSelfMember(props.task));
 
 const isEnding = ref(false);
 

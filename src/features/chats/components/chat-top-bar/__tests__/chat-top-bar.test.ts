@@ -6,17 +6,8 @@ import { nextTick, reactive } from 'vue';
 const NOW = 1_000_000;
 
 const endChatMock = vi.fn();
-let selfMember:
-	| {
-			id: string;
-	  }
-	| undefined = {
-	id: 'agent-member',
-};
-
 vi.mock('../../../store/chats', () => ({
 	useChatsStore: () => ({
-		getSelfMember: () => selfMember,
 		endChat: (...args: unknown[]) => endChatMock(...args),
 	}),
 }));
@@ -122,9 +113,6 @@ describe('chat-top-bar', () => {
 		vi.setSystemTime(NOW);
 		endChatMock.mockReset();
 		emitMock.mockClear();
-		selfMember = {
-			id: 'agent-member',
-		};
 	});
 
 	afterEach(() => {
@@ -152,14 +140,6 @@ describe('chat-top-bar', () => {
 		const transfer = wrapper.find('.icon-btn.chat-transfer--filled');
 		expect(transfer.exists()).toBe(true);
 		expect(transfer.attributes('disabled')).toBeDefined();
-	});
-
-	it('disables ending when the agent’s own membership is unknown', () => {
-		selfMember = undefined;
-
-		const wrapper = mountBar(makeTask());
-
-		expect(wrapper.find('.button').attributes('disabled')).toBeDefined();
 	});
 
 	it('ends the chat after confirmation', async () => {

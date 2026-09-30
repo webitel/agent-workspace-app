@@ -4,7 +4,6 @@
 			<template #activator>
 				<div>
 					<wt-button
-						:disabled="disabled"
 						:loading="isEnding"
 						:aria-label="t('ui.pages.chats.topBar.end')"
 						color="error"
@@ -52,7 +51,6 @@ import { useI18n } from 'vue-i18n';
 defineProps<{
 	// awaited by the confirmation, which shows its own progress meanwhile
 	callback: () => Promise<void>;
-	disabled: boolean;
 	// stays on after the request resolves: the backend flips the task's state
 	// only later, and the button must not fire a second request in between
 	isEnding: boolean;

@@ -5,13 +5,12 @@ import {
 	chatTaskFrame,
 	type MockedSocket,
 	mockChatThread,
-	session,
 } from './fixtures/mocks';
 import { expect, test } from './fixtures/test';
 
 /**
- * The active chat's top bar: what it shows, ending the chat by leaving its
- * thread (ADR-0005), and the swap to the post-processing timer once the task
+ * The active chat's top bar: what it shows, ending the chat by closing its
+ * task (ADR-0005), and the swap to the post-processing timer once the task
  * moves on.
  */
 
@@ -20,34 +19,9 @@ const THREAD = {
 	subject: 'Jane Doe',
 };
 const ATTEMPT_ID = 101;
-const AGENT_MEMBER_ID = 'e2e-agent-member';
-
-const members = [
-	{
-		id: 'e2e-client-member',
-		contact: {
-			sub: 'telegram-77',
-		},
-	},
-	{
-		id: AGENT_MEMBER_ID,
-		contact: {
-			// the logged-in user; see ADR-0005
-			sub: String(session.userId),
-		},
-	},
-];
 
 /** Puts a bridged chat task in the feed and opens its window. */
-async function openActiveChat(
-	page: Page,
-	socket: MockedSocket,
-	{
-		threadMembers = members,
-	}: {
-		threadMembers?: object[];
-	} = {},
-) {
+async function openActiveChat(page: Page, socket: MockedSocket) {
 	await mockChatThread(page, THREAD);
 	await page.goto('chats');
 
@@ -67,7 +41,6 @@ async function openActiveChat(
 			distribute: chatDistribute({
 				threadId: THREAD.id,
 				subject: THREAD.subject,
-				members: threadMembers,
 			}),
 		}),
 	);
@@ -133,54 +106,37 @@ test.describe('chat top bar', () => {
 		).toHaveClass(/wt-icon-btn--disabled/);
 	});
 
-	test('ends the chat by leaving its thread, once confirmed', async ({
+	test('ends the chat by closing its task, once confirmed', async ({
 		page,
 		socket,
 	}) => {
-		const removals: string[] = [];
-		await page.route(
-			`**/api/v1/threads/${THREAD.id}/members/*`,
-			async (route) => {
-				removals.push(`${route.request().method()} ${route.request().url()}`);
-				await route.fulfill({
-					status: 200,
-					contentType: 'application/json',
-					body: '{}',
-				});
-			},
-		);
+		const closeRequests = () =>
+			socket.requests.filter(
+				(request) => request.action === 'cc_agent_task_close',
+			);
 		await openActiveChat(page, socket);
 
 		await endButton(page).click();
 		// asking first: nothing is sent until the agent agrees
-		expect(removals).toHaveLength(0);
+		expect(closeRequests()).toHaveLength(0);
 		await dialog(page)
 			.getByRole('button', {
 				name: 'End chat',
 			})
 			.click();
 
-		await expect.poll(() => removals).toHaveLength(1);
-		expect(removals[0]).toMatch(
-			new RegExp(`^DELETE .*/members/${AGENT_MEMBER_ID}$`),
-		);
+		await expect.poll(() => closeRequests()).toHaveLength(1);
+		expect(closeRequests()[0]).toMatchObject({
+			data: {
+				attempt_id: ATTEMPT_ID,
+			},
+		});
 	});
 
 	test('does not end the chat when the confirmation is cancelled', async ({
 		page,
 		socket,
 	}) => {
-		const removals: string[] = [];
-		await page.route(
-			`**/api/v1/threads/${THREAD.id}/members/*`,
-			async (route) => {
-				removals.push(route.request().url());
-				await route.fulfill({
-					status: 200,
-					body: '{}',
-				});
-			},
-		);
 		await openActiveChat(page, socket);
 
 		await endButton(page).click();
@@ -191,20 +147,11 @@ test.describe('chat top bar', () => {
 			.click();
 
 		await expect(dialog(page)).toHaveCount(0);
-		expect(removals).toHaveLength(0);
-	});
-
-	test('disables ending when the agent is not a member of the thread', async ({
-		page,
-		socket,
-	}) => {
-		await openActiveChat(page, socket, {
-			threadMembers: [
-				members[0],
-			],
-		});
-
-		await expect(endButton(page)).toBeDisabled();
+		expect(
+			socket.requests.filter(
+				(request) => request.action === 'cc_agent_task_close',
+			),
+		).toHaveLength(0);
 	});
 
 	test('swaps ending for the countdown once post-processing starts', async ({

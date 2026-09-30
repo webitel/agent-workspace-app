@@ -362,12 +362,9 @@ export function chatTaskFrame(
 export function chatDistribute({
 	threadId = 'e2e-thread-1',
 	subject = 'Jane Doe',
-	members,
 }: {
 	threadId?: string;
 	subject?: string;
-	/** the thread's members as the socket sends them; none by default */
-	members?: object[];
 } = {}) {
 	return {
 		app_id: 'e2e',
@@ -383,7 +380,6 @@ export function chatDistribute({
 				id: threadId,
 				subject,
 				last_msg: 'Hi, I need help',
-				members,
 			},
 		},
 	};
