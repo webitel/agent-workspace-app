@@ -504,7 +504,7 @@ test.describe('chat processing form', () => {
 		await expect(page.locator('.processing-wrapper')).toBeVisible();
 
 		// the top bar sits above the tabs, so the countdown is on the form tab too
-		await expect(page.locator('.chat-top-bar-timer')).toContainText(
+		await expect(page.locator('.post-processing-timer')).toContainText(
 			/00:[0-5]\d/,
 		);
 	});

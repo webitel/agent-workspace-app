@@ -1,17 +1,17 @@
 <template>
-	<div class="chat-top-bar-timer">
+	<div class="post-processing-timer">
 		<span
-			:class="`chat-top-bar-timer__time--${tone}`"
-			class="chat-top-bar-timer__time typo-body-1-bold"
+			:class="`post-processing-timer__time--${tone}`"
+			class="post-processing-timer__time typo-body-1-bold"
 		>
 			{{ timeLeft }}
 		</span>
 		<wt-tooltip placement="bottom-end">
 			<template #activator>
-				<div class="chat-top-bar-timer__renew">
+				<div class="post-processing-timer__renew">
 					<wt-icon-btn
 						:disabled="!canRenew"
-						:aria-label="t('ui.pages.chats.topBar.extend')"
+						:aria-label="t('ui.processing.postProcessing.extend')"
 						icon="plus"
 						size="sm"
 						@click="processing.renew()"
@@ -19,7 +19,7 @@
 				</div>
 			</template>
 			{{
-				t('ui.pages.chats.topBar.extensionsLeft', {
+				t('ui.processing.postProcessing.extensionsLeft', {
 					count: processing.remainingProlongations,
 				})
 			}}
@@ -33,8 +33,8 @@ import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
-import { useProcessingStore } from '../../../processing/store/processing';
-import { getPostProcessingTone } from '../../../processing/utils/postProcessingTone';
+import { useProcessingStore } from '../store/processing';
+import { getPostProcessingTone } from '../utils/postProcessingTone';
 
 const props = defineProps<{
 	task: Task;
@@ -83,25 +83,25 @@ const canRenew = computed(() => {
 </script>
 
 <style scoped>
-.chat-top-bar-timer {
+.post-processing-timer {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--spacing-2xs);
 }
 
-.chat-top-bar-timer__time {
+.post-processing-timer__time {
 	font-variant-numeric: tabular-nums;
 }
 
-.chat-top-bar-timer__time--success {
+.post-processing-timer__time--success {
 	color: var(--success-color);
 }
 
-.chat-top-bar-timer__time--warning {
+.post-processing-timer__time--warning {
 	color: var(--warning-color);
 }
 
-.chat-top-bar-timer__time--error {
+.post-processing-timer__time--error {
 	color: var(--error-color);
 }
 </style>

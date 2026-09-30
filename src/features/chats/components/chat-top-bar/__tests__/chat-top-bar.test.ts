@@ -65,21 +65,6 @@ function makeTask(overrides = {}) {
 	});
 }
 
-const postProcessing = (overrides = {}) =>
-	makeTask({
-		state: 'processing',
-		processingSec: 100,
-		processingTimeoutAt: NOW + 100_000,
-		renewalSec: 10,
-		_processing: {
-			processing_prolongation: {
-				remaining_prolongations: 2,
-				prolongation_sec: 30,
-			},
-		},
-		...overrides,
-	});
-
 const stubs = {
 	'wt-icon': true,
 	'wt-avatar': {
@@ -158,7 +143,7 @@ describe('chat-top-bar', () => {
 		const wrapper = mountBar(makeTask());
 
 		expect(wrapper.find('.button').exists()).toBe(true);
-		expect(wrapper.find('.chat-top-bar-timer').exists()).toBe(false);
+		expect(wrapper.find('.post-processing-timer').exists()).toBe(false);
 	});
 
 	it('keeps transfer in place but disabled', () => {
@@ -214,39 +199,7 @@ describe('chat-top-bar', () => {
 		task.processingTimeoutAt = NOW + 59_000;
 		await nextTick();
 
-		expect(wrapper.find('.chat-top-bar-timer').text()).toContain('00:59');
+		expect(wrapper.find('.post-processing-timer').text()).toContain('00:59');
 		expect(wrapper.find('.button').exists()).toBe(false);
-	});
-
-	it('turns the countdown from green to orange to red as it runs down', async () => {
-		const task = postProcessing();
-		const wrapper = mountBar(task);
-		const time = () => wrapper.find('.chat-top-bar-timer__time');
-
-		expect(time().classes()).toContain('chat-top-bar-timer__time--success');
-
-		vi.setSystemTime(NOW + 50_000);
-		await vi.advanceTimersByTimeAsync(1_000);
-		expect(time().classes()).toContain('chat-top-bar-timer__time--warning');
-
-		vi.setSystemTime(NOW + 80_000);
-		await vi.advanceTimersByTimeAsync(1_000);
-		expect(time().classes()).toContain('chat-top-bar-timer__time--error');
-	});
-
-	it('opens renewal only in the queue’s renewal window, with the extensions left in the tooltip', async () => {
-		const task = postProcessing();
-		const wrapper = mountBar(task);
-		const renew = () => wrapper.find('.icon-btn.plus');
-
-		expect(renew().attributes('disabled')).toBeDefined();
-		expect(wrapper.text()).toContain('ui.pages.chats.topBar.extensionsLeft:2');
-
-		vi.setSystemTime(NOW + 95_000);
-		await vi.advanceTimersByTimeAsync(1_000);
-		expect(renew().attributes('disabled')).toBeUndefined();
-
-		await renew().trigger('click');
-		expect(task.renew).toHaveBeenCalledWith(30);
 	});
 });

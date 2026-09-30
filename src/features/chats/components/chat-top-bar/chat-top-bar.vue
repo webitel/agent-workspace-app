@@ -1,28 +1,21 @@
 <template>
-	<header class="chat-top-bar">
-		<wt-icon
-			class="chat-top-bar__clock"
-			icon="history"
-		/>
-		<wt-avatar
-			:username="header.name"
-			size="sm"
-		/>
-		<div class="chat-top-bar__info">
-			<span class="chat-top-bar__name typo-body-1-bold">{{ header.name }}</span>
-			<span
-				v-if="header.queueName"
-				class="chat-top-bar__queue typo-body-2"
-			>
-				{{ header.queueName }}
-			</span>
-		</div>
+	<interaction-top-bar
+		class="chat-top-bar"
+		:name="header.name"
+		:subtitle="header.queueName"
+	>
+		<template #leading>
+			<wt-icon icon="history" />
+		</template>
 
-		<div class="chat-top-bar__actions">
-			<chat-top-bar-timer
+		<template #status>
+			<post-processing-timer
 				v-if="isPostProcessing"
 				:task="task"
 			/>
+		</template>
+
+		<template #actions>
 			<!-- not in the MVP: Е6 owns the transfer flow, the button holds its place -->
 			<wt-icon-btn
 				:aria-label="t('ui.pages.chats.topBar.transfer')"
@@ -35,8 +28,8 @@
 				:disabled="!selfMember"
 				:is-ending="isEnding"
 			/>
-		</div>
-	</header>
+		</template>
+	</interaction-top-bar>
 </template>
 
 <script setup lang="ts">
@@ -44,12 +37,12 @@ import { eventBus } from '@webitel/ui-sdk/scripts';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
-
+import InteractionTopBar from '../../../../ui/interaction-top-bar/interaction-top-bar.vue';
+import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
 import { toChatHeader } from '../../scripts/toChatHeader';
 import { useChatsStore } from '../../store/chats';
 import ChatEndAction from './chat-end-action.vue';
-import ChatTopBarTimer from './chat-top-bar-timer.vue';
 
 const props = defineProps<{
 	task: Task;
@@ -91,36 +84,3 @@ async function end() {
 	}
 }
 </script>
-
-<style scoped>
-.chat-top-bar {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-xs);
-	padding-bottom: var(--spacing-xs);
-}
-
-.chat-top-bar__info {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-}
-
-.chat-top-bar__name,
-.chat-top-bar__queue {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.chat-top-bar__queue {
-	color: var(--text-secondary-color);
-}
-
-.chat-top-bar__actions {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-xs);
-	margin-left: auto;
-}
-</style>

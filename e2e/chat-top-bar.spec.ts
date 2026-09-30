@@ -216,10 +216,10 @@ test.describe('chat top bar', () => {
 
 		startPostProcessing(socket, 59);
 
-		const timer = page.locator('.chat-top-bar-timer');
+		const timer = page.locator('.post-processing-timer');
 		await expect(timer).toContainText(/00:[0-5]\d/);
 		await expect(page.locator('.chat-end-action')).toHaveCount(0);
-		await expect(timer.locator('.chat-top-bar-timer__time')).toHaveClass(
+		await expect(timer.locator('.post-processing-timer__time')).toHaveClass(
 			/--success/,
 		);
 	});
@@ -233,11 +233,11 @@ test.describe('chat top bar', () => {
 		// 6s of 60s left: under a third, and inside the 10s renewal window
 		startPostProcessing(socket, 6);
 
-		const time = page.locator('.chat-top-bar-timer__time');
+		const time = page.locator('.post-processing-timer__time');
 		await expect(time).toHaveClass(/--error/);
 
 		await page
-			.locator('.chat-top-bar-timer')
+			.locator('.post-processing-timer')
 			.getByRole('button', {
 				name: 'Extend post-processing',
 			})

@@ -33,12 +33,15 @@ export default {
 		numpad: {
 			call: 'Call',
 		},
+		processing: {
+			postProcessing: {
+				extend: 'Extend post-processing',
+				extensionsLeft: 'Extensions left: {count}',
+			},
+		},
 		pages: {
 			chats: {
 				topBar: {
-					postProcessing: 'Post-processing',
-					extend: 'Extend post-processing',
-					extensionsLeft: 'Extensions left: {count}',
 					transfer: 'Transfer chat',
 					end: 'End chat',
 					endConfirmTitle: 'End chat',

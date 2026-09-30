@@ -33,12 +33,15 @@ export default {
 		numpad: {
 			call: 'Зателефонувати',
 		},
+		processing: {
+			postProcessing: {
+				extend: 'Продовжити постобробку',
+				extensionsLeft: 'Залишилось продовжень: {count}',
+			},
+		},
 		pages: {
 			chats: {
 				topBar: {
-					postProcessing: 'Постобробка',
-					extend: 'Продовжити постобробку',
-					extensionsLeft: 'Залишилось продовжень: {count}',
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 					endConfirmTitle: 'Завершення чату',
