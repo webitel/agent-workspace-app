@@ -34,6 +34,17 @@ export default {
 			call: 'Зателефонувати',
 		},
 		pages: {
+			chats: {
+				topBar: {
+					postProcessing: 'Постобробка',
+					extend: 'Продовжити постобробку',
+					extensionsLeft: 'Залишилось продовжень: {count}',
+					transfer: 'Перевести чат',
+					end: 'Завершити чат',
+					endConfirmTitle: 'Завершення чату',
+					endConfirmMessage: 'Завершити цей чат?',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Дзвінки',

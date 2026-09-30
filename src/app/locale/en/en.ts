@@ -34,6 +34,17 @@ export default {
 			call: 'Call',
 		},
 		pages: {
+			chats: {
+				topBar: {
+					postProcessing: 'Post-processing',
+					extend: 'Extend post-processing',
+					extensionsLeft: 'Extensions left: {count}',
+					transfer: 'Transfer chat',
+					end: 'End chat',
+					endConfirmTitle: 'End chat',
+					endConfirmMessage: 'End this chat?',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Calls',
