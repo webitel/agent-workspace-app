@@ -22,7 +22,9 @@ const numpadStore = useNumpadStore();
 const callsStore = useCallsStore();
 
 function onCall(destination: string) {
-	callsStore.call(destination);
+	callsStore.call({
+		destination,
+	});
 	numpadStore.close();
 }
 </script>

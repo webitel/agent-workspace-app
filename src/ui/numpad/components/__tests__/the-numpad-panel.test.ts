@@ -14,7 +14,7 @@ import TheNumpadPanel from '../the-numpad-panel.vue';
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */
 const callsStore = {
-	call: vi.fn(async (_destination: string) => true),
+	call: vi.fn(async (_request: { destination: string }) => true),
 };
 
 vi.mock('../../../../features/calls/store/calls', () => ({
@@ -92,7 +92,9 @@ describe('the-numpad-panel', () => {
 
 		await placeCallFromNumpad(wrapper, '0671234567');
 
-		expect(callsStore.call).toHaveBeenCalledWith('0671234567');
+		expect(callsStore.call).toHaveBeenCalledWith({
+			destination: '0671234567',
+		});
 	});
 
 	it('closes the panel once a call is placed', async () => {
