@@ -47,7 +47,7 @@ function makeTask(overrides = {}) {
 		},
 		hasForm: false,
 		form: null,
-		processingSec: null,
+		totalProcessingSec: null,
 		processingTimeoutAt: null,
 		renewalSec: null,
 		_processing: null,
@@ -180,7 +180,7 @@ describe('chat-top-bar', () => {
 		const wrapper = mountBar(task);
 
 		task.state = 'processing';
-		task.processingSec = 100;
+		task.totalProcessingSec = 100;
 		task.processingTimeoutAt = NOW + 59_000;
 		await nextTick();
 
