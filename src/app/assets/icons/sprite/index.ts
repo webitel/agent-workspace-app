@@ -1,4 +1,5 @@
 import { fillIconsRepository } from '@webitel/ui-sdk';
+import wsChatClock from './ws-chat-clock.svg?raw';
 import wsInboundCall from './ws-inbound-call.svg?raw';
 import wsMissedCall from './ws-missed-call.svg?raw';
 import wsNavigationCalls from './ws-navigation-calls.svg?raw';
@@ -20,6 +21,7 @@ const icons = {
 	'ws-navigation-tasks': wsNavigationTasks,
 	'ws-navigation-contacts': wsNavigationContacts,
 	'ws-navigation-history': wsNavigationHistory,
+	'ws-chat-clock': wsChatClock,
 	'ws-inbound-call': wsInboundCall,
 	'ws-missed-call': wsMissedCall,
 	'ws-outbound-call': wsOutboundCall,

@@ -4,6 +4,7 @@
 		     (DES-711), the form tab included -->
 		<chat-top-bar
 			v-if="task"
+			class="the-chat-window__top-bar"
 			:task="task"
 		/>
 
@@ -119,6 +120,11 @@ watch(hasForm, (value) => {
 	height: 100%;
 	min-height: 0;
 	min-width: 0;
+}
+
+.the-chat-window__top-bar {
+	flex: 0 0 auto;
+	margin-bottom: var(--spacing-xs);
 }
 
 .the-chat-window__tabs {

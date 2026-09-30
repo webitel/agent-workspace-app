@@ -1,8 +1,11 @@
 <template>
 	<div class="post-processing-timer">
+		<span class="post-processing-timer__label typo-body-1-bold">
+			{{ t('ui.processing.postProcessing.title') }}
+		</span>
 		<span
 			:class="`post-processing-timer__time--${tone}`"
-			class="post-processing-timer__time typo-body-1-bold"
+			class="post-processing-timer__time typo-body-2-bold"
 		>
 			{{ timeLeft }}
 		</span>
@@ -86,7 +89,21 @@ const canRenew = computed(() => {
 .post-processing-timer {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--spacing-2xs);
+	gap: var(--wt-ws-wrap-up-timer-sizes-gap);
+	padding: var(--wt-ws-wrap-up-timer-sizes-padding-y)
+		var(--wt-ws-wrap-up-timer-sizes-padding-right)
+		var(--wt-ws-wrap-up-timer-sizes-padding-y)
+		var(--wt-ws-wrap-up-timer-sizes-padding-left);
+	border-radius: var(--wt-ws-wrap-up-timer-sizes-border-radius);
+	background: var(--wt-ws-wrap-up-timer-colors-background);
+}
+
+/* the design sets the label and the time 8px apart, the time and the renew
+   button 4px */
+.post-processing-timer__label {
+	margin-inline-end: var(--spacing-2xs);
+	color: var(--text-main-color);
+	white-space: nowrap;
 }
 
 .post-processing-timer__time {
@@ -94,7 +111,7 @@ const canRenew = computed(() => {
 }
 
 .post-processing-timer__time--success {
-	color: var(--success-color);
+	color: var(--text-success-color);
 }
 
 .post-processing-timer__time--warning {
@@ -102,6 +119,6 @@ const canRenew = computed(() => {
 }
 
 .post-processing-timer__time--error {
-	color: var(--error-color);
+	color: var(--text-error-color);
 }
 </style>

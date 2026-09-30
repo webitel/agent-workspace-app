@@ -7,9 +7,8 @@
 						:loading="isEnding"
 						:aria-label="t('ui.pages.chats.topBar.end')"
 						color="error"
-						variant="outlined"
 						icon="chat-end--filled"
-						rounded
+						size="sm"
 						@click="isConfirming = true"
 					/>
 				</div>

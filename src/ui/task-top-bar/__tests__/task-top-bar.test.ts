@@ -37,6 +37,24 @@ describe('task-top-bar', () => {
 		expect(wrapper.text()).toContain('Support');
 	});
 
+	it('names the subtitle when a label is given, and leaves it bare otherwise', () => {
+		const labelled = mountBar({
+			name: 'Jane',
+			subtitle: 'Support',
+			subtitleLabel: 'Queue',
+		});
+		const bare = mountBar({
+			name: 'Jane',
+			subtitle: '***678',
+		});
+
+		expect(labelled.find('.task-top-bar__subtitle-label').text()).toBe(
+			'Queue:',
+		);
+		expect(bare.find('.task-top-bar__subtitle-label').exists()).toBe(false);
+		expect(bare.text()).toContain('***678');
+	});
+
 	it('names an unknown contact rather than leaving the name blank', () => {
 		const wrapper = mountBar();
 
