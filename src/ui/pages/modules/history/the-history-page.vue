@@ -8,7 +8,7 @@
 			/>
 		</template>
 		<template #main>
-			<component :is="currentTab?.component" :store="currentTab?.store" />
+			<component :is="currentTab?.component" />
 		</template>
 	</page-wrapper>
 </template>

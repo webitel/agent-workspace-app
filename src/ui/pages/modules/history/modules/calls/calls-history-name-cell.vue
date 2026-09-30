@@ -27,16 +27,16 @@ const displayName = computed(() => {
 
 const callIcon = computed(() => {
 	if (props.item.direction === CallDirection.Outbound) {
-		if (!props.item.answeredAt) {
-			return {
-				color: 'error',
-				icon: 'ws-missed-call',
-			};
-		}
-
 		return {
 			color: 'info',
 			icon: 'ws-outbound-call',
+		};
+	}
+
+	if (!props.item.answeredAt) {
+		return {
+			color: 'error',
+			icon: 'ws-missed-call',
 		};
 	}
 

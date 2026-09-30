@@ -84,15 +84,12 @@ import CallsHistoryNameCell from './calls-history-name-cell.vue';
 import CallsHistoryPhoneCell from './calls-history-phone-cell.vue';
 import CallsHistoryRowActions from './calls-history-row-actions.vue';
 import { usePlayCallRecording } from './composables/usePlayCallRecording';
-import type { useCallsHistoryDataListStore } from './store/calls-history';
+import { useCallsHistoryDataListStore } from './store/calls-history';
 
-const props = defineProps<{
-	store: ReturnType<typeof useCallsHistoryDataListStore>;
-}>();
+const store = useCallsHistoryDataListStore();
 
-const { initialize, appendToDataList, columnResize, columnReorder } =
-	props.store;
-const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
+const { initialize, appendToDataList, columnResize, columnReorder } = store;
+const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
 const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 	usePlayCallRecording();
