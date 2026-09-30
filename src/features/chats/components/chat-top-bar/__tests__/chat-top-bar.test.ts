@@ -78,9 +78,10 @@ const stubs = {
 		props: [
 			'disabled',
 			'loading',
+			'icon',
 		],
 		template:
-			'<button class="button" :disabled="disabled" :data-loading="loading" />',
+			'<button class="button" :class="icon" :disabled="disabled" :data-loading="loading" />',
 	},
 	'wt-confirm-dialog': {
 		props: [
@@ -90,6 +91,9 @@ const stubs = {
 			'<div class="confirm"><button class="confirm-yes" @click="callback" /></div>',
 	},
 };
+
+const endButton = (wrapper: ReturnType<typeof mountBar>) =>
+	wrapper.find('.button.chat-end--filled');
 
 const mountBar = (task: ReturnType<typeof makeTask>) =>
 	mount(ChatTopBar, {
@@ -125,19 +129,20 @@ describe('chat-top-bar', () => {
 		expect(wrapper.find('.avatar').text()).toBe('client_username');
 		expect(wrapper.text()).toContain('client_username');
 		expect(wrapper.text()).toContain('Support');
+		expect(wrapper.text()).toContain('ui.notifications.offer.queue');
 	});
 
 	it('offers to end a live chat and no timer', () => {
 		const wrapper = mountBar(makeTask());
 
-		expect(wrapper.find('.button').exists()).toBe(true);
+		expect(endButton(wrapper).exists()).toBe(true);
 		expect(wrapper.find('.post-processing-timer').exists()).toBe(false);
 	});
 
 	it('keeps transfer in place but disabled', () => {
 		const wrapper = mountBar(makeTask());
 
-		const transfer = wrapper.find('.icon-btn.chat-transfer--filled');
+		const transfer = wrapper.find('.button.chat-transfer--filled');
 		expect(transfer.exists()).toBe(true);
 		expect(transfer.attributes('disabled')).toBeDefined();
 	});
@@ -148,7 +153,7 @@ describe('chat-top-bar', () => {
 		const wrapper = mountBar(task);
 
 		expect(wrapper.find('.confirm').exists()).toBe(false);
-		await wrapper.find('.button').trigger('click');
+		await endButton(wrapper).trigger('click');
 		await wrapper.find('.confirm-yes').trigger('click');
 		await flushPromises();
 
@@ -159,7 +164,7 @@ describe('chat-top-bar', () => {
 		endChatMock.mockRejectedValue(new Error('offline'));
 		const wrapper = mountBar(makeTask());
 
-		await wrapper.find('.button').trigger('click');
+		await endButton(wrapper).trigger('click');
 		await wrapper.find('.confirm-yes').trigger('click');
 		await flushPromises();
 
@@ -167,7 +172,7 @@ describe('chat-top-bar', () => {
 			type: 'error',
 			text: 'offline',
 		});
-		expect(wrapper.find('.button').attributes('data-loading')).not.toBe('true');
+		expect(endButton(wrapper).attributes('data-loading')).not.toBe('true');
 	});
 
 	it('swaps ending for the countdown once the chat is in post-processing', async () => {
@@ -180,6 +185,6 @@ describe('chat-top-bar', () => {
 		await nextTick();
 
 		expect(wrapper.find('.post-processing-timer').text()).toContain('00:59');
-		expect(wrapper.find('.button').exists()).toBe(false);
+		expect(endButton(wrapper).exists()).toBe(false);
 	});
 });
