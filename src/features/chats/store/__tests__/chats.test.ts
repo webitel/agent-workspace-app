@@ -49,6 +49,22 @@ vi.mock('../chat-session', () => ({
 	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
 }));
 
+const removeMemberMock = vi.fn();
+
+vi.mock('../../api/chatSdk', () => ({
+	threadsService: {
+		removeMember: (...args: unknown[]) => removeMemberMock(...args),
+	},
+}));
+
+const userinfo = {
+	userId: '42',
+};
+
+vi.mock('../../../userinfo/stores/userinfoStore', () => ({
+	useUserinfoStore: () => userinfo,
+}));
+
 const disposeProcessingMock = vi.fn();
 
 vi.mock('../../../processing/store/processing', () => ({
@@ -480,6 +496,76 @@ describe('chats store', () => {
 
 			expect(store.isOpen('chat-1')).toBe(false);
 			expect(disposeChatSessionMock).toHaveBeenCalledWith('chat-1');
+		});
+	});
+	describe('ending a chat', () => {
+		const taskWith = (members: unknown[]) =>
+			({
+				thread: {
+					id: 'chat-1',
+					members,
+				},
+			}) as never;
+
+		it('leaves the thread through the agent’s own membership', async () => {
+			const store = useChatsStore();
+
+			await store.endChat(
+				taskWith([
+					{
+						id: 'client-member',
+						contact: {
+							sub: 'telegram-77',
+						},
+					},
+					{
+						id: 'agent-member',
+						contact: {
+							sub: '42',
+						},
+					},
+				]),
+			);
+
+			expect(removeMemberMock).toHaveBeenCalledWith('chat-1', {
+				id: 'agent-member',
+			});
+		});
+
+		it('refuses when the agent’s membership cannot be found', async () => {
+			const store = useChatsStore();
+
+			await expect(
+				store.endChat(
+					taskWith([
+						{
+							id: 'client-member',
+							contact: {
+								sub: 'telegram-77',
+							},
+						},
+					]),
+				),
+			).rejects.toThrow('own thread membership not found');
+			expect(removeMemberMock).not.toHaveBeenCalled();
+		});
+
+		it('does not touch the open window', async () => {
+			const store = useChatsStore();
+			store.openChat('chat-1');
+
+			await store.endChat(
+				taskWith([
+					{
+						id: 'agent-member',
+						contact: {
+							sub: '42',
+						},
+					},
+				]),
+			);
+
+			expect(store.isOpen('chat-1')).toBe(true);
 		});
 	});
 });

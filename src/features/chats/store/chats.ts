@@ -6,7 +6,10 @@ import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { disposeProcessing } from '../../processing/store/processing';
+import { useUserinfoStore } from '../../userinfo/stores/userinfoStore';
+import { threadsService } from '../api/chatSdk';
 import { useChatsSocket } from '../composables/useChatsSocket';
+import { findSelfMember } from '../scripts/findSelfMember';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toIncomingChatPreview } from '../scripts/toIncomingChatPreview';
@@ -23,6 +26,7 @@ export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
 	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
 	const offersStore = useOffersStore();
+	const userinfoStore = useUserinfoStore();
 
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
@@ -88,6 +92,26 @@ export const useChatsStore = defineStore('chats', () => {
 			});
 		}
 		target.mode = mode;
+	}
+
+	// The agent's own membership of the task's thread; see ADR-0005.
+	const getSelfMember = (task: Task) =>
+		findSelfMember(task.thread?.members, userinfoStore.userId);
+
+	/**
+	 * Ends the chat for the agent by leaving its thread; the call center then
+	 * moves the task into post-processing, or releases it when the queue has
+	 * none (ADR-0005). This is not `closeChat`, which only drops the window.
+	 */
+	async function endChat(task: Task) {
+		const threadId = task.thread?.id;
+		const selfMember = getSelfMember(task);
+		if (!threadId || !selfMember?.id) {
+			throw new Error('cannot end the chat: own thread membership not found');
+		}
+		await threadsService.removeMember(threadId, {
+			id: selfMember.id,
+		});
 	}
 
 	function closeChat(id: string) {
@@ -191,6 +215,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// getters
 		chatTaskList,
 		getTaskByThreadId,
+		getSelfMember,
 		incomingOffers,
 		newChatsCount,
 		openChats,
@@ -201,6 +226,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// actions
 		openChat,
 		setMode,
+		endChat,
 		closeChat,
 		initialize,
 	};

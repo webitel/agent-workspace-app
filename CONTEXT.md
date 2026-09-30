@@ -24,6 +24,9 @@ and should not be carried over wholesale.
 - [ADR-0004](docs/adr/0004-processing-form-state.md) — processing form values
   live on the SDK task, and a per-attempt store holds only the UI state around
   them.
+- [ADR-0005](docs/adr/0005-end-chat-leaves-the-thread.md) — ending a chat leaves
+  its thread rather than closing the task, and how the agent's own member is
+  found.
 
 ## Language
 
@@ -59,6 +62,13 @@ the chat route's param.
 offered it to this agent, carries its processing form and ends in
 post-processing. One thread can see several tasks over its life (a transfer is a
 new attempt).
+
+**End chat** — the agent's request to the backend to finish the task. It is
+answered by post-processing starting, or by the task being released outright
+when the queue has no post-processing.
+
+**Close window** — dropping a chat from the workspace's open windows. Purely a
+view concern: the thread and task carry on. Never a substitute for **End chat**.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.
