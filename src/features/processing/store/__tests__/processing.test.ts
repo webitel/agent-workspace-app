@@ -7,7 +7,11 @@ import type { Task } from 'webitel-sdk';
 import { mockEmit as emitMock } from '../../../../../test/setup';
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import { toNaiveUtcTimestamp } from '../../utils/naiveUtcTimestamp';
-import { disposeProcessing, useProcessingStore } from '../processing';
+import {
+	disposeProcessing,
+	PROCESSING_TOTAL_SEC_STUB,
+	useProcessingStore,
+} from '../processing';
 
 let nextId = 1;
 
@@ -272,6 +276,12 @@ describe('processing store', () => {
 		expect(processing.processingTimeoutAt).toBe(1_000);
 		expect(processing.renewalSec).toBe(10);
 		expect(processing.remainingProlongations).toBe(2);
+	});
+
+	it('uses the stub as the post-processing length until the backend sends one', () => {
+		const processing = store(makeTask(inputForm()));
+
+		expect(processing.processingTotalSec).toBe(PROCESSING_TOTAL_SEC_STUB);
 	});
 
 	it('renews by the queue prolongation, or lets the SDK default it', async () => {
