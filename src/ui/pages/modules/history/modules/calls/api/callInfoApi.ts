@@ -19,7 +19,7 @@ const DO_NOT_CONVERT_KEYS = [
 export const getCallInfo = async (
 	id: string,
 ): Promise<EngineHistoryCall | undefined> => {
-	const { items } = await CallHistoryAPI.getListPost({
+	const { items = [] } = await CallHistoryAPI.getListPost({
 		data: {
 			id: [
 				id,
