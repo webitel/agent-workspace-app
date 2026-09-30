@@ -1,6 +1,6 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { defineStore, getActivePinia } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { JobState, type Task } from 'webitel-sdk';
 
 import type {
@@ -54,6 +54,22 @@ function createStoreDefinition(task: Task) {
 		const isPostProcessing = computed(() => task.state === JobState.Processing);
 		const processingTimeoutAt = computed(() => task.processingTimeoutAt);
 		const renewalSec = computed(() => task.renewalSec);
+
+		// The queue's post-processing length, captured once: each `processing`
+		// event replaces the SDK payload, so after a renewal `task.processingSec`
+		// no longer says how long the phase started out.
+		const processingTotalSec = ref<number | null>(null);
+		watch(
+			() => task.processingSec,
+			(sec) => {
+				if (sec && processingTotalSec.value === null) {
+					processingTotalSec.value = sec;
+				}
+			},
+			{
+				immediate: true,
+			},
+		);
 		const prolongation = computed(
 			() =>
 				(
@@ -141,6 +157,7 @@ function createStoreDefinition(task: Task) {
 			isPostProcessing,
 			processingTimeoutAt,
 			renewalSec,
+			processingTotalSec,
 			remainingProlongations,
 			initialize,
 			change,
