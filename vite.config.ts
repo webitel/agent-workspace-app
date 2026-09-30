@@ -62,6 +62,7 @@ export default ({ mode }) => {
 				'vue',
 				'vue-i18n',
 				'vue-router',
+				'pinia',
 			],
 			alias: {
 				lodash: 'lodash-es',
