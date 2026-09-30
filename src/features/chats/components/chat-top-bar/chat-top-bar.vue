@@ -6,7 +6,10 @@
 		:subtitle-label="t('ui.notifications.offer.queue')"
 	>
 		<template #leading>
-			<wt-icon icon="ws-chat-clock" />
+			<wt-icon
+				color="success"
+				icon="ws-chat-clock"
+			/>
 		</template>
 
 		<template #status>
