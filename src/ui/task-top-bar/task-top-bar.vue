@@ -7,7 +7,7 @@
 				size="sm"
 			/>
 			<div class="task-top-bar__info">
-				<span class="task-top-bar__name">
+				<span class="task-top-bar__name typo-body-2-bold">
 					{{ name || t('ui.notifications.offer.unknownContact') }}
 				</span>
 				<span
@@ -92,9 +92,6 @@ const { t } = useI18n();
 
 .task-top-bar__name {
 	overflow: hidden;
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 16px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -107,7 +104,6 @@ const { t } = useI18n();
 }
 
 .task-top-bar__subtitle-label {
-	font-style: italic;
 	white-space: nowrap;
 }
 
@@ -115,8 +111,6 @@ const { t } = useI18n();
 	flex: 1;
 	min-width: 0;
 	overflow: hidden;
-	font-style: italic;
-	font-weight: 300;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

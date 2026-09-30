@@ -5,7 +5,7 @@
 		</span>
 		<span
 			:class="`post-processing-timer__time--${tone}`"
-			class="post-processing-timer__time"
+			class="post-processing-timer__time typo-body-2-bold"
 		>
 			{{ timeLeft }}
 		</span>
@@ -107,9 +107,6 @@ const canRenew = computed(() => {
 }
 
 .post-processing-timer__time {
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 16px;
 	font-variant-numeric: tabular-nums;
 }
 
