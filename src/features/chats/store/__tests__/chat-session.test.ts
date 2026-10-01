@@ -14,6 +14,7 @@ vi.mock('../../api/chatSdk', () => ({
 }));
 
 import { disposeChatSession, useChatSessionStore } from '../chat-session';
+import { useChatVariablesStore } from '../chat-variables';
 
 // minimal SDK-shaped fakes
 const message = (id: string) =>
@@ -385,6 +386,20 @@ describe('chat-session store', () => {
 			disposeChatSession('chat-1');
 
 			expect(getActivePinia()?.state.value['chat:chat-1']).toBeUndefined();
+		});
+
+		it("disposes the chat's variables store with it", () => {
+			useChatSessionStore('chat-1');
+			useChatVariablesStore('chat-1');
+			expect(
+				getActivePinia()?.state.value['chat-variables:chat-1'],
+			).toBeDefined();
+
+			disposeChatSession('chat-1');
+
+			expect(
+				getActivePinia()?.state.value['chat-variables:chat-1'],
+			).toBeUndefined();
 		});
 
 		it('gives a fresh uninitialized store when a chat is reopened', async () => {
