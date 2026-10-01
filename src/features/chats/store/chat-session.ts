@@ -17,6 +17,8 @@ const PAGE_SIZE = 30;
 // One account request shared by every chat session. A failure resolves to
 // null — the thread shows no delivery ticks but still loads — and is not
 // cached, so the next chat opened tries again.
+// Logout navigates away (userinfo store: window.location.href = authUrl), so
+// the cached account never outlives the session it belongs to.
 let accountRequest: Promise<AccountModel | null> | null = null;
 const loadAccount = () => {
 	accountRequest ??= accountService.getAccount().catch(() => {
