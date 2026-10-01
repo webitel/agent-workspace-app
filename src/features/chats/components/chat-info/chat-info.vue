@@ -1,7 +1,7 @@
 <template>
 	<section class="chat-info">
 		<wt-message
-			v-if="chatSession.variablesError"
+			v-if="variablesStore.error"
 			class="chat-info__error"
 			color="error"
 		>
@@ -9,18 +9,18 @@
 				{{ t('ui.pages.chats.info.loadError') }}
 			</span>
 			<wt-button
-				:loading="chatSession.isVariablesLoading"
+				:loading="variablesStore.isLoading"
 				color="secondary"
 				size="sm"
 				variant="text"
-				@click="chatSession.refreshVariables()"
+				@click="variablesStore.refresh()"
 			>
 				{{ t('reusable.retry') }}
 			</wt-button>
 		</wt-message>
 
 		<!-- nothing to show yet: the task's variables would already be here -->
-		<wt-loader v-if="!chatSession.variablesLoaded && !rows.length" />
+		<wt-loader v-if="!variablesStore.isLoaded && !rows.length" />
 
 		<wt-table
 			v-else-if="rows.length"
@@ -60,7 +60,7 @@
 
 		<!-- a failed first request has its own message above; no "empty" on top -->
 		<wt-empty
-			v-else-if="!chatSession.variablesError"
+			v-else-if="!variablesStore.error"
 			:text="t('ui.pages.chats.info.empty')"
 			size="sm"
 		/>
@@ -84,7 +84,7 @@ import type { Task } from 'webitel-sdk';
 
 import { type InfoSort, sortInfoRows } from '../../scripts/sortInfoRows';
 import { toInfoRows } from '../../scripts/toInfoRows';
-import { useChatSessionStore } from '../../store/chat-session';
+import { useChatVariablesStore } from '../../store/chat-variables';
 
 const props = defineProps<{
 	/** the chat's call-center task; absent once the task has left the feed */
@@ -95,12 +95,12 @@ const props = defineProps<{
 const { t } = useI18n();
 
 // Resolved reactively: the chat window reuses this instance across chats.
-const chatSession = computed(() => useChatSessionStore(props.threadId));
+const variablesStore = computed(() => useChatVariablesStore(props.threadId));
 
 const rows = computed(() =>
 	toInfoRows({
 		taskVariables: props.task?.variables,
-		threadVariables: chatSession.value.variables,
+		threadVariables: variablesStore.value.variables,
 	}),
 );
 
@@ -155,7 +155,7 @@ function handleSort(
 // The window keeps this panel alive between tab switches, so a mount hook would
 // run once; the thread's variables can change meanwhile, so re-read on every
 // return to the tab.
-onActivated(() => chatSession.value.refreshVariables());
+onActivated(() => variablesStore.value.refresh());
 </script>
 
 <style scoped>
