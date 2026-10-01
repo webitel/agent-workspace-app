@@ -36,9 +36,11 @@ its task-first order in both directions.
 **Thread variables are re-read every time the tab is returned to.** With no event
 to subscribe to, the only way the table is current when the agent looks at it is
 to ask then. The window keeps panels alive across tab switches, so this runs on
-activation, not on mount. State lives in the chat's session store (variables, a
-loading flag, an error), and only the newest request may write, because tab
-switches can outpace the server.
+activation, not on mount. State lives in a per-chat variables store of its own
+(variables, a loading flag, an error) rather than in the message-history session
+store: it has its own read, its own change schedule and its own failure modes.
+The session store owns its lifecycle, so disposing a session disposes it too.
+Only the newest request may write, because tab switches can outpace the server.
 
 **A failed read keeps what was shown.** The error is raised above the table with
 a retry; the rows stay.
