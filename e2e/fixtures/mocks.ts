@@ -335,7 +335,8 @@ export async function mockChatThread(
 }
 
 /**
- * Stubs chat-web-sdk's variables read for one thread. Returns a handle so a
+ * Stubs chat-web-sdk's variables read for one thread, answering in the shape
+ * the backend does (see `unwrapEnvelope` in toInfoRows). Returns a handle so a
  * test can change what the next read sees — the tab re-reads on every visit —
  * or make it fail.
  */
@@ -368,8 +369,12 @@ export async function mockThreadVariables(
 				variables: Object.fromEntries(
 					Object.entries(variables).map(([key, value]) => [
 						key,
+						// the real API wraps what was stored in a { value } envelope of its
+						// own, inside the entry's `value`
 						{
-							value,
+							value: {
+								value,
+							},
 						},
 					]),
 				),
