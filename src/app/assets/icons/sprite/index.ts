@@ -9,6 +9,7 @@ import wsNavigationHistory from './ws-navigation-history.svg?raw';
 import wsNavigationHomePage from './ws-navigation-home-page.svg?raw';
 import wsNavigationTasks from './ws-navigation-tasks.svg?raw';
 import wsOutboundCall from './ws-outbound-call.svg?raw';
+import wsPlayVideo from './ws-play-video.svg?raw';
 import wsSidebarClose from './ws-sidebar-close.svg?raw';
 import wsSidebarOpen from './ws-sidebar-open.svg?raw';
 
@@ -25,6 +26,7 @@ const icons = {
 	'ws-inbound-call': wsInboundCall,
 	'ws-missed-call': wsMissedCall,
 	'ws-outbound-call': wsOutboundCall,
+	'ws-play-video': wsPlayVideo,
 };
 
 fillIconsRepository({

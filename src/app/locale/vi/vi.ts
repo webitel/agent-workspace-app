@@ -49,7 +49,7 @@ export default {
 						playVideo: 'Phát video',
 					},
 					actions: {
-						showCallInfo: 'Xem thông tin cuộc gọi',
+						showCallInfo: 'Xem thông tin',
 					},
 					callInfo: {
 						title: 'Thông tin cuộc gọi',

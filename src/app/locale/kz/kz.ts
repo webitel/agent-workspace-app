@@ -48,7 +48,7 @@ export default {
 						playVideo: 'Бейнені ойнату',
 					},
 					actions: {
-						showCallInfo: 'Қоңырау туралы ақпарат',
+						showCallInfo: 'Ақпаратты көрсету',
 					},
 					callInfo: {
 						title: 'Қоңырау туралы ақпарат',

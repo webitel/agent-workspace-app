@@ -42,13 +42,13 @@
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { useMinDurationLoader } from '@webitel/ui-sdk/composables';
 import { ComponentSize } from '@webitel/ui-sdk/enums';
-
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCallInfo } from './api/callInfoApi';
 import CallsHistoryInfoPostprocessing from './calls-history-info-postprocessing.vue';
 import CallsHistoryInfoVariables from './calls-history-info-variables.vue';
 import { CallInfoTab } from './enums/CallInfoTab.enum';
+import { getMainCallId } from './scripts/getMainCallId';
 import type { CallInfo } from './types/CallInfo.types';
 
 const props = defineProps<{
@@ -93,10 +93,8 @@ const activeTabConfig = computed(() =>
 	tabs.value.find(({ value }) => value === activeTab.value),
 );
 
-const mainCallId = computed(() => props.item.parentId || props.item.id);
-
 const loadCallInfo = () => {
-	const id = mainCallId.value;
+	const id = getMainCallId(props.item);
 	if (!id) return;
 
 	runWithMinDuration(async () => {

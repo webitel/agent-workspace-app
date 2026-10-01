@@ -48,7 +48,7 @@ export default {
 						playVideo: 'Воспроизвести видео',
 					},
 					actions: {
-						showCallInfo: 'Показать информацию о звонке',
+						showCallInfo: 'Показать информацию',
 					},
 					callInfo: {
 						title: 'Информация о звонке',
