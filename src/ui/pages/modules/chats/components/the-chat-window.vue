@@ -15,7 +15,7 @@
 			@change="handleTabChange"
 		>
 			<!-- WtTabs has no disabled state; its buttons stay clickable, so the
-			     handler ignores these and the style below greys them out -->
+			     handler ignores these and the span below greys the label out -->
 			<template
 				v-for="tab in disabledTabs"
 				:key="tab.value"
@@ -192,10 +192,6 @@ watch(hasForm, (value) => {
 .the-chat-window__tabs {
 	flex: 0 0 auto;
 	padding-bottom: var(--spacing-xs);
-}
-
-.the-chat-window__tabs :deep(.wt-tab:has(.the-chat-window__tab--disabled)) {
-	pointer-events: none;
 }
 
 .the-chat-window__tab--disabled {
