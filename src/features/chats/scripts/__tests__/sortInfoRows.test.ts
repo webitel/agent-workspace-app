@@ -1,3 +1,4 @@
+import { SortSymbols } from '@webitel/ui-sdk/scripts';
 import { describe, expect, it } from 'vitest';
 import { sortInfoRows } from '../sortInfoRows';
 import type { InfoRow } from '../toInfoRows';
@@ -37,7 +38,7 @@ describe('sortInfoRows', () => {
 		expect(
 			keys({
 				field: 'key',
-				order: 'asc',
+				order: SortSymbols.ASC,
 			}),
 		).toEqual([
 			'a',
@@ -47,7 +48,7 @@ describe('sortInfoRows', () => {
 		expect(
 			keys({
 				field: 'key',
-				order: 'desc',
+				order: SortSymbols.DESC,
 			}),
 		).toEqual([
 			'c',
@@ -57,7 +58,7 @@ describe('sortInfoRows', () => {
 		expect(
 			keys({
 				field: 'value',
-				order: 'asc',
+				order: SortSymbols.ASC,
 			}),
 		).toEqual([
 			'b',
@@ -75,7 +76,7 @@ describe('sortInfoRows', () => {
 
 		const sorted = sortInfoRows(rows, {
 			field: 'key',
-			order: 'asc',
+			order: SortSymbols.ASC,
 		});
 
 		expect(sorted.map((item) => item.key)).toEqual([
@@ -92,9 +93,9 @@ describe('sortInfoRows', () => {
 		];
 
 		for (const order of [
-			'asc',
-			'desc',
-		] as const) {
+			SortSymbols.ASC,
+			SortSymbols.DESC,
+		]) {
 			const sorted = sortInfoRows(rows, {
 				field: 'key',
 				order,
