@@ -33,7 +33,9 @@
 			@sort="handleSort"
 		>
 			<template #key="{ item }">
-				<span class="chat-info__cell">{{ item.key }}</span>
+				<span class="chat-info__cell chat-info__cell--key typo-body-1-bold">
+					{{ item.key }}
+				</span>
 			</template>
 			<template #value="{ item }">
 				<span class="chat-info__cell">{{ item.value }}</span>
