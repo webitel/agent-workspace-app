@@ -15,3 +15,9 @@ export interface CallInfoForm extends EngineHistoryCallCallForm {
 export interface CallInfo extends Omit<EngineHistoryCall, 'forms'> {
 	forms: CallInfoForm[];
 }
+
+export interface TranscriptPhrase {
+	id: number;
+	time: string;
+	phrase: string;
+}

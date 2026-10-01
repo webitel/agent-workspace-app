@@ -11,8 +11,6 @@ const CALL_INFO_FIELDS = [
 	'variables',
 	'forms',
 	'agent_description',
-	'files',
-	'files_job',
 	'transcripts',
 ];
 
