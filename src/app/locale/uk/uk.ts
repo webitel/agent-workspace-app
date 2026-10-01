@@ -45,8 +45,6 @@ export default {
 				topBar: {
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
-					endConfirmTitle: 'Завершення чату',
-					endConfirmMessage: 'Завершити цей чат?',
 				},
 			},
 			history: {
