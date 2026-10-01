@@ -38,8 +38,8 @@ function onCall(destination: string) {
  */
 .the-numpad-panel {
 	position: fixed;
-	bottom: var(--spacing-xl);
-	left: var(--spacing-xl);
+	bottom: 0;
+  left: var(--wt-ws-dialer-sizes-root-offset-left);
 	z-index: 101;
 	border-radius: var(--p-border-radius-lg);
 	background-color: var(--content-wrapper-color);
