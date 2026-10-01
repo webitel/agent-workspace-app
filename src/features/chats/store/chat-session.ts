@@ -1,14 +1,30 @@
-import { MessageAttachmentType } from '@webitel/chat-web-sdk';
+import {
+	type AccountModel,
+	MessageAttachmentType,
+} from '@webitel/chat-web-sdk';
 import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
-import { threadsService } from '../api/chatSdk';
+import { accountService, threadsService } from '../api/chatSdk';
+import { findSelfMemberId } from '../scripts/findSelfMemberId';
 import type { IMessage, IThread } from '../types/ChatSession.types';
 import { disposeChatVariables } from './chat-variables';
 
 const storeId = (chatId: string) => `chat:${chatId}`;
 
 const PAGE_SIZE = 30;
+
+// One account request shared by every chat session. A failure resolves to
+// null — the thread shows no delivery ticks but still loads — and is not
+// cached, so the next chat opened tries again.
+let accountRequest: Promise<AccountModel | null> | null = null;
+const loadAccount = () => {
+	accountRequest ??= accountService.getAccount().catch(() => {
+		accountRequest = null;
+		return null;
+	});
+	return accountRequest;
+};
 
 // Cache of store definitions so repeated useChatSessionStore(id) calls (e.g.
 // coordinator + component) reuse one defineStore wrapper, not a fresh one each time.
@@ -22,6 +38,11 @@ function createStoreDefinition(chatId: string) {
 		// shallowRef: SDK class instances carry methods — keep them out of deep proxies, reassign to update
 		const thread = shallowRef<IThread | null>(null);
 		const messages = shallowRef<IMessage[]>([]);
+		const account = shallowRef<AccountModel | null>(null);
+		// the operator's own member in this thread, for delivery ticks
+		const selfMemberId = computed(() =>
+			findSelfMemberId(thread.value, account.value),
+		);
 		const isLoading = ref(false);
 		const error = ref<unknown>(null);
 		// keyset cursor to OLDER messages (response nextCursor.id)
@@ -34,6 +55,9 @@ function createStoreDefinition(chatId: string) {
 			if (initialized.value || isLoading.value) return;
 			isLoading.value = true;
 			error.value = null;
+			void loadAccount().then((value) => {
+				account.value = value;
+			});
 			try {
 				const fetchedThread = await threadsService.fetchThread(chatId);
 				const page = await fetchedThread.fetchMessageHistory({
@@ -135,6 +159,7 @@ function createStoreDefinition(chatId: string) {
 			error,
 			olderCursor,
 			hasMore,
+			selfMemberId,
 			initialized,
 			load,
 			loadMore,
