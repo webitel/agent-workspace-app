@@ -32,22 +32,6 @@
 			data-key="id"
 			@sort="handleSort"
 		>
-			<!-- Figma draws the arrow on both headers from the start, muted until
-			     that column is the sorted one; WtTable only draws it once sorted -->
-			<template
-				v-for="field in ['key', 'value']"
-				:key="field"
-				#[`header-${field}`]="{ header }"
-			>
-				<div class="wt-table__th__content typo-body-1-bold">
-					<span class="wt-table__th__title">{{ header.text }}</span>
-					<wt-icon
-						:class="{ 'chat-info__sort-arrow--idle': !header.sort }"
-						:icon="header.sort === SortSymbols.DESC ? 'sort-arrow-down' : 'sort-arrow-up'"
-						size="sm"
-					/>
-				</div>
-			</template>
 			<template #key="{ item }">
 				<span class="chat-info__cell chat-info__cell--key typo-body-1-bold">
 					{{ item.key }}
@@ -71,7 +55,6 @@
 import {
 	WtButton,
 	WtEmpty,
-	WtIcon,
 	WtLoader,
 	WtMessage,
 	WtTable,
@@ -171,10 +154,6 @@ onActivated(() => variablesStore.value.refresh());
 
 .chat-info__cell {
 	overflow-wrap: anywhere;
-}
-
-.chat-info__sort-arrow--idle {
-	color: var(--text-disabled-color);
 }
 
 .chat-info :deep(.p-datatable-thead > tr > th:first-child) {
