@@ -93,17 +93,6 @@ const header = (page: Page, name: string) =>
 		hasText: name,
 	});
 
-/** The colour a CSS variable currently paints with, as the browser computes it. */
-const resolveColorToken = (page: Page, token: string) =>
-	page.evaluate((name) => {
-		const probe = document.createElement('div');
-		probe.style.color = `var(${name})`;
-		document.body.appendChild(probe);
-		const { color } = getComputedStyle(probe);
-		probe.remove();
-		return color;
-	}, token);
-
 test.describe('chat info tab', () => {
 	test.beforeEach(() => {
 		test.setTimeout(60_000);
@@ -322,7 +311,7 @@ test.describe('chat info tab', () => {
 		});
 	}
 
-	test('draws a sort arrow on both headers, muted until its column is sorted', async ({
+	test('draws the sort arrow on the sorted column only', async ({
 		page,
 		socket,
 	}) => {
@@ -332,15 +321,20 @@ test.describe('chat info tab', () => {
 			},
 		});
 		await openInfo(page);
-		const idleArrows = page.locator(
-			'.chat-info thead th .chat-info__sort-arrow--idle',
-		);
+		const arrowIn = (name: string) =>
+			header(page, name).locator('.wt-table__th__sort-arrow');
 
-		await expect(idleArrows).toHaveCount(2);
+		await expect(arrowIn('Key')).toHaveCount(0);
+		await expect(arrowIn('Value')).toHaveCount(0);
 
 		await header(page, 'Key').click();
+		await expect(arrowIn('Key')).toHaveCount(1);
+		await expect(arrowIn('Value')).toHaveCount(0);
 
-		await expect(idleArrows).toHaveCount(1);
+		// sorting by the other column moves the arrow rather than adding a second
+		await header(page, 'Value').click();
+		await expect(arrowIn('Value')).toHaveCount(1);
+		await expect(arrowIn('Key')).toHaveCount(0);
 	});
 
 	for (const theme of [
@@ -387,12 +381,6 @@ test.describe('chat info tab', () => {
 				.evaluate((element) => getComputedStyle(element).color);
 			await expect(keyCell).toHaveCSS('color', cellColor);
 			await expect(valueCell).toHaveCSS('color', cellColor);
-			await expect(
-				page.locator('.chat-info .chat-info__sort-arrow--idle').first(),
-			).toHaveCSS(
-				'color',
-				await resolveColorToken(page, '--text-disabled-color'),
-			);
 		});
 	}
 
