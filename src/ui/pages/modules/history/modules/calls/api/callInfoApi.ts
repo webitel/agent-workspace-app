@@ -1,4 +1,9 @@
 import { CallHistoryAPI } from '@webitel/api-services/api';
+import { applyTransform } from '@webitel/api-services/api/transformers';
+import type {
+	EngineHistoryCall,
+	EngineHistoryCallCallForm,
+} from '@webitel/api-services/gen/models';
 import type { CallInfo } from '../types/CallInfo.types';
 
 const CALL_INFO_FIELDS = [
@@ -21,6 +26,14 @@ const FILE_FIELDS = [
 	'filesOutcome',
 ];
 
+type RawCallInfoForm = EngineHistoryCallCallForm & {
+	form_fields?: Record<string, string>;
+};
+
+type RawCallInfo = Omit<EngineHistoryCall, 'forms'> & {
+	forms?: RawCallInfoForm[];
+};
+
 const formatFieldValue = (key: string, value: string) => {
 	if (!FILE_FIELDS.includes(key)) return value;
 	try {
@@ -39,6 +52,16 @@ const toFormFields = (formFields: Record<string, string> = {}) => {
 		value: formatFieldValue(key, value),
 	}));
 };
+
+const formsTransformer = ({ forms = [], ...call }: RawCallInfo): CallInfo => ({
+	...call,
+	forms: forms
+		.map(({ form_fields, ...form }) => ({
+			...form,
+			fields: toFormFields(form_fields),
+		}))
+		.filter(({ fields }) => fields.length),
+});
 
 export const getCallInfo = async (
 	id: string,
@@ -60,13 +83,7 @@ export const getCallInfo = async (
 	const [call] = items;
 	if (!call) return;
 
-	return {
-		...call,
-		forms: (call.forms ?? [])
-			.map(({ form_fields, ...form }) => ({
-				...form,
-				fields: toFormFields(form_fields),
-			}))
-			.filter(({ fields }) => fields.length),
-	};
+	return applyTransform<CallInfo>(call, [
+		formsTransformer,
+	]);
 };
