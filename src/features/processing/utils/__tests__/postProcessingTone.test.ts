@@ -35,7 +35,7 @@ describe('getPostProcessingTone', () => {
 		expect(getPostProcessingTone(percent, 100)).toBe(tone);
 	});
 
-	it('turns green again once a renewal lifts the time left past the total', () => {
+	it('clamps time left beyond the total to green', () => {
 		expect(getPostProcessingTone(150, 100)).toBe(PostProcessingTone.Success);
 	});
 

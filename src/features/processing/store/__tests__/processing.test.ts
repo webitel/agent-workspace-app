@@ -7,11 +7,7 @@ import type { Task } from 'webitel-sdk';
 import { mockEmit as emitMock } from '../../../../../test/setup';
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import { toNaiveUtcTimestamp } from '../../utils/naiveUtcTimestamp';
-import {
-	disposeProcessing,
-	PROCESSING_TOTAL_SEC_STUB,
-	useProcessingStore,
-} from '../processing';
+import { disposeProcessing, useProcessingStore } from '../processing';
 
 let nextId = 1;
 
@@ -24,6 +20,7 @@ function makeTask(form: ProcessingFormData | null, overrides = {}) {
 		form,
 		processingTimeoutAt: null,
 		renewalSec: null,
+		totalProcessingSec: null,
 		_processing: null,
 		formAction: vi.fn(() => Promise.resolve({})),
 		renew: vi.fn(() => Promise.resolve({})),
@@ -278,10 +275,20 @@ describe('processing store', () => {
 		expect(processing.remainingProlongations).toBe(2);
 	});
 
-	it('uses the stub as the post-processing length until the backend sends one', () => {
-		const processing = store(makeTask(inputForm()));
+	it('reports the SDK’s total post-processing length, renewals included', () => {
+		const task = makeTask(inputForm(), {
+			totalProcessingSec: 90,
+		});
 
-		expect(processing.processingTotalSec).toBe(PROCESSING_TOTAL_SEC_STUB);
+		expect(store(task).processingTotalSec).toBe(90);
+
+		task.totalProcessingSec = 120;
+
+		expect(store(task).processingTotalSec).toBe(120);
+	});
+
+	it('has no total before post-processing starts', () => {
+		expect(store(makeTask(inputForm())).processingTotalSec).toBeNull();
 	});
 
 	it('renews by the queue prolongation, or lets the SDK default it', async () => {
