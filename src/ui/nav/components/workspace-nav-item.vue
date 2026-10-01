@@ -10,6 +10,7 @@
 						variant="text"
 						class="workspace-nav-item__button"
 						:icon="item.icon"
+            :size="ComponentSize.SM"
 						:class="{ active: item.exact ? isExactActive : isActive }"
 						:badge="item.badge?.count ? String(item.badge.count) : undefined"
 						:badge-severity="item.badge?.variant"
@@ -23,6 +24,7 @@
 					variant="text"
 					class="workspace-nav-item__button"
 					:icon="item.icon"
+          :size="ComponentSize.SM"
 					@click="item.onClick"
 			/>
 	</li>
@@ -30,6 +32,7 @@
 
 <script setup lang="ts">
 import type { NavItemConfig } from '../types/NavItem.types';
+import { ComponentSize } from '@webitel/ui-sdk/enums';
 
 defineProps<{
 	item: NavItemConfig;

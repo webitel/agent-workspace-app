@@ -23,7 +23,7 @@
 		"typecheck:ci": "npm run typecheck",
 		"libs:ln": "npm link @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk && npm run libs:ls",
 		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
-		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
+		"libs:up": "npm update @webitel/api-services @webitel/styleguide @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
 		"test:e2e:live": "playwright test --project=live",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:ci": "playwright test --project=mocked",

@@ -4,16 +4,18 @@
             <template #header>
                 <the-workspace-header />
             </template>
-            <the-workspace-nav />
+            <template #left-sidebar>
+              <the-workspace-nav />
+            </template>
             <section class="workspace-content-wrapper">
                 <div class="workspace-content-row">
                     <router-view class="workspace-content" />
                     <the-workspace-sidebar />
                 </div>
-                <the-task-dock-panel />
             </section>
         </wt-page>
         <the-notifications-layer />
+        <the-task-dock-panel />
     </main>
 </template>
 
@@ -57,6 +59,21 @@ subscribeToWebSocketEvents();
     min-height: 0;
 }
 
+/* groups the layouts; the nav rail stays out of it */
+.workspace-content-wrapper {
+    flex: 1;
+    display: flex;
+    gap: var(--wt-page-body-gap);
+    min-width: 0;
+}
+
+.the-task-dock-panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: var(--wt-ws-dialer-sizes-root-offset-left);
+  z-index: 100;
+}
 /* routed page root: either a wt-layout or a group of them */
 .workspace-content {
     flex: 1 1 0;
