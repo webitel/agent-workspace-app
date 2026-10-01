@@ -16,7 +16,7 @@ import { useOutboundCallStore } from '../outboundCall';
 const callsStore = reactive({
 	callList: [] as Call[],
 	isOutboundCallRequestPending: false,
-	call: vi.fn(async (_destination: string) => true),
+	call: vi.fn(async (_request: { destination: string }) => true),
 	hangup: vi.fn(async (_callId: string) => undefined),
 	toggleMute: vi.fn(async (_callId: string) => undefined),
 });
@@ -80,7 +80,9 @@ describe('useOutboundCallStore', () => {
 
 		await store.start('100');
 
-		expect(callsStore.call).toHaveBeenCalledWith('100');
+		expect(callsStore.call).toHaveBeenCalledWith({
+			destination: '100',
+		});
 		expect(store.status).toBe(OutboundCallStatus.Dialing);
 	});
 
@@ -193,7 +195,9 @@ describe('useOutboundCallStore', () => {
 
 		await store.retry();
 
-		expect(callsStore.call).toHaveBeenLastCalledWith('100');
+		expect(callsStore.call).toHaveBeenLastCalledWith({
+			destination: '100',
+		});
 		expect(store.status).toBe(OutboundCallStatus.Dialing);
 	});
 

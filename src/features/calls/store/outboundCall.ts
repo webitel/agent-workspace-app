@@ -65,7 +65,9 @@ export const useOutboundCallStore = defineStore('outboundCall', () => {
 		};
 		pendingDial = currentDial;
 
-		const isPlaced = await callsStore.call(rawDestination);
+		const isPlaced = await callsStore.call({
+			destination: rawDestination,
+		});
 		if (!isPlaced && pendingDial === currentDial) dismiss();
 	}
 
