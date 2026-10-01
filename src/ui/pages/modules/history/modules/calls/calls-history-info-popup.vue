@@ -46,6 +46,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCallInfo } from './api/callInfoApi';
 import CallsHistoryInfoPostprocessing from './calls-history-info-postprocessing.vue';
+import CallsHistoryInfoTranscription from './calls-history-info-transcription.vue';
 import CallsHistoryInfoVariables from './calls-history-info-variables.vue';
 import { CallInfoTab } from './enums/CallInfoTab.enum';
 import { getMainCallId } from './scripts/getMainCallId';
@@ -86,6 +87,10 @@ const tabs = computed(() => [
 	{
 		value: CallInfoTab.Transcription,
 		text: t('objects.transcription'),
+		component: CallsHistoryInfoTranscription,
+		props: {
+			transcripts: callInfo.value?.transcripts,
+		},
 	},
 ]);
 
