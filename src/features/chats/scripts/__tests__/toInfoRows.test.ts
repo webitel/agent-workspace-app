@@ -58,7 +58,7 @@ describe('toInfoRows', () => {
 	});
 
 	describe('value formatting', () => {
-		const valueOf = (value: unknown) =>
+		const cellFor = (value: unknown) =>
 			toInfoRows({
 				taskVariables: {
 					key: value,
@@ -66,23 +66,23 @@ describe('toInfoRows', () => {
 			})[0].value;
 
 		it('stringifies numbers and booleans', () => {
-			expect(valueOf(42)).toBe('42');
-			expect(valueOf(false)).toBe('false');
+			expect(cellFor(42)).toBe('42');
+			expect(cellFor(false)).toBe('false');
 		});
 
 		it('renders null and undefined as an empty cell', () => {
-			expect(valueOf(null)).toBe('');
-			expect(valueOf(undefined)).toBe('');
+			expect(cellFor(null)).toBe('');
+			expect(cellFor(undefined)).toBe('');
 		});
 
 		it('renders objects and arrays as compact JSON', () => {
 			expect(
-				valueOf({
+				cellFor({
 					tier: 'gold',
 				}),
 			).toBe('{"tier":"gold"}');
 			expect(
-				valueOf([
+				cellFor([
 					1,
 					2,
 				]),
