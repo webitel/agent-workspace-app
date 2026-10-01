@@ -1,4 +1,8 @@
 import { CallHistoryAPI } from '@webitel/api-services/api';
+import {
+	applyTransform,
+	starToSearch,
+} from '@webitel/api-services/api/transformers';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { normalizeDatetimeRange } from '@webitel/api-services/scripts';
 import type { ApiModule } from '@webitel/ui-sdk/api/types/ApiModule';
@@ -66,15 +70,17 @@ const toApiFields = (fields: string[] = []) => [
  * CallHistoryAPI.getList does not convert keys, so wire params go in snake_case.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
-	const { createdAt, sort, fields, ownerId, parentId, ...rest } = params;
+	const { createdAt, sort, fields, ownerId, parentId, search, ...rest } =
+		params;
 
 	const createdAtRange = normalizeDatetimeRange(
 		createdAt as Parameters<typeof normalizeDatetimeRange>[0],
 	);
 	const defaultCreatedAtRange = getDefaultCreatedAtRange();
 
-	return CallHistoryAPI.getList({
+	const wireParams = {
 		...rest,
+		q: search as string | undefined,
 		fields: toApiFields(fields as string[] | undefined),
 		sort: sort || DEFAULT_SORT,
 		'created_at.from': createdAtRange?.from ?? defaultCreatedAtRange.from,
@@ -83,7 +89,13 @@ const getList = async (params: Record<string, unknown> = {}) => {
 			ownerId,
 		],
 		options: {},
-	});
+	};
+
+	return CallHistoryAPI.getList(
+		applyTransform<typeof wireParams>(wireParams, [
+			starToSearch('q'),
+		]),
+	);
 };
 
 export const callsHistoryApiModule = {
