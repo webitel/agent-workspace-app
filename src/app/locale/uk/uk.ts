@@ -42,6 +42,18 @@ export default {
 		},
 		pages: {
 			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Інфо',
+					postProcessing: 'Постобробка',
+					interaction: 'Взаємодія',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Змінних немає',
+					loadError: 'Не вдалося завантажити змінні чату',
+				},
 				topBar: {
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',

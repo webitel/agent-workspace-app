@@ -34,6 +34,20 @@ export default {
 			call: 'Позвонить',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Инфо',
+					postProcessing: 'Постобработка',
+					interaction: 'Взаимодействие',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Переменных нет',
+					loadError: 'Не удалось загрузить переменные чата',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Звонки',

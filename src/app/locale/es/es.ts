@@ -34,6 +34,20 @@ export default {
 			call: 'Llamar',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Información',
+					postProcessing: 'Posprocesamiento',
+					interaction: 'Interacción',
+					contact: 'Contacto',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Sin variables',
+					loadError: 'No se pudieron cargar las variables del chat',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Llamadas',

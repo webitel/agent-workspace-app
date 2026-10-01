@@ -42,6 +42,18 @@ export default {
 		},
 		pages: {
 			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Info',
+					postProcessing: 'Post-processing',
+					interaction: 'Interaction',
+					contact: 'Contact',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'No variables',
+					loadError: "Couldn't load the chat's variables",
+				},
 				topBar: {
 					transfer: 'Transfer chat',
 					end: 'End chat',
