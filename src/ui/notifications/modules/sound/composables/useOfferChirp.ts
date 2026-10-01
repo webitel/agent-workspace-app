@@ -1,6 +1,6 @@
 import chatOfferSound from '@webitel/ui-sdk/src/modules/Notifications/assets/audio/chat-new.wav';
 
-import { playSafely } from '../utils/playSafely';
+import { playSafely } from '../../../../sound/utils/playSafely';
 import { SoundLockKind, useSoundLock } from './useSoundLock';
 
 /**

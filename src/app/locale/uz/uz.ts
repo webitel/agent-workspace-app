@@ -60,6 +60,9 @@ export default {
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Qoʻngʻiroq qilib boʻlmadi. Qaytadan urinib koʻring.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Mikrofonga ruxsat yoʻq. Amalni bajarib boʻlmaydi.',
