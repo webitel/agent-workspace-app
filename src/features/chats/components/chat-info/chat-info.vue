@@ -43,7 +43,7 @@
 					<span class="wt-table__th__title">{{ header.text }}</span>
 					<wt-icon
 						:class="{ 'chat-info__sort-arrow--idle': !header.sort }"
-						:icon="header.sort === 'desc' ? 'sort-arrow-down' : 'sort-arrow-up'"
+						:icon="header.sort === SortSymbols.DESC ? 'sort-arrow-down' : 'sort-arrow-up'"
 						size="sm"
 					/>
 				</div>
