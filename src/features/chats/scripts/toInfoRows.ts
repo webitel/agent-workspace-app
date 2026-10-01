@@ -19,6 +19,26 @@ function formatValue(value: unknown): string {
 }
 
 /**
+ * The thread wraps what was stored in a `{ "value": … }` envelope of its own, so
+ * a variable set to `hello` reads back as `{ "value": "hello" }`. Peel exactly
+ * that: an object whose only key is `value`. Anything with more in it is the
+ * variable's own structure and stays whole.
+ */
+function unwrapEnvelope(value: unknown): unknown {
+	if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+		return value;
+	}
+	const keys = Object.keys(value);
+	return keys.length === 1 && keys[0] === 'value'
+		? (
+				value as {
+					value: unknown;
+				}
+			).value
+		: value;
+}
+
+/**
  * Builds the Info tab's Key/Value rows from the two places a chat keeps
  * variables: the call-center task and the chat thread. Task rows come first.
  * A key present in both sources yields two rows, deliberately — neither source
@@ -40,7 +60,7 @@ export function toInfoRows({
 		([key, entry]) => ({
 			id: `thread:${key}`,
 			key,
-			value: formatValue(entry.value),
+			value: formatValue(unwrapEnvelope(entry.value)),
 		}),
 	);
 
