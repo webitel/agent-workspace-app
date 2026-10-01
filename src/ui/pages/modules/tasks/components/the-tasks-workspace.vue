@@ -1,10 +1,11 @@
 <template>
-	<section class="the-tasks-workspace">
+	<wt-layout class="the-tasks-workspace">
 		<h1>Tasks Workspace</h1>
-	</section>
+	</wt-layout>
 </template>
 
 <script setup lang="ts">
+import { WtLayout } from '@webitel/ui-sdk/components';
 </script>
 
 <style scoped>

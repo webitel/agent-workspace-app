@@ -335,6 +335,66 @@ export async function mockChatThread(
 }
 
 /**
+ * Stubs chat-web-sdk's variables read for one thread, answering in the shape
+ * the backend does (see `unwrapEnvelope` in toInfoRows). Returns a handle so a
+ * test can change what the next read sees — the tab re-reads on every visit —
+ * or make it fail.
+ */
+export async function mockThreadVariables(
+	page: Page,
+	id: string,
+	initial: Record<string, unknown> = {},
+) {
+	let variables = initial;
+	let failWith: number | null = null;
+	const requests: string[] = [];
+
+	await page.route(`**/api/v1/threads/${id}/variables`, async (route) => {
+		requests.push(route.request().url());
+		if (failWith !== null) {
+			await route.fulfill({
+				status: failWith,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					message: 'e2e failure',
+				}),
+			});
+			return;
+		}
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				thread_id: id,
+				variables: Object.fromEntries(
+					Object.entries(variables).map(([key, value]) => [
+						key,
+						// the real API wraps what was stored in a { value } envelope of its
+						// own, inside the entry's `value`
+						{
+							value: {
+								value,
+							},
+						},
+					]),
+				),
+			}),
+		});
+	});
+
+	return {
+		requests,
+		set(next: Record<string, unknown>) {
+			variables = next;
+			failWith = null;
+		},
+		fail(status: number) {
+			failWith = status;
+		},
+	};
+}
+
+/**
  * A `channel` frame for a chat task — what `Agent.onChannelEvent` consumes. The
  * status picks the lifecycle step: `distribute` creates the task, `bridged`
  * marks it taken, `form` delivers a processing form, `processing` starts
@@ -362,9 +422,12 @@ export function chatTaskFrame(
 export function chatDistribute({
 	threadId = 'e2e-thread-1',
 	subject = 'Jane Doe',
+	variables = {},
 }: {
 	threadId?: string;
 	subject?: string;
+	/** the task's own variables, as the queue attached them */
+	variables?: Record<string, string>;
 } = {}) {
 	return {
 		app_id: 'e2e',
@@ -374,6 +437,7 @@ export function chatDistribute({
 		member_name: subject,
 		has_form: false,
 		has_reporting: false,
+		variables,
 		communication: {
 			destination: '@jane',
 			thread: {

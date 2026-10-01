@@ -14,15 +14,17 @@
 	setup
 	lang="ts"
 >
-import { useOutboundCallStore } from '../../../features/calls/store/outboundCall';
+import { useCallsStore } from '../../../features/calls/store/calls';
 import { useNumpadStore } from '../store/numpad';
 import TheNumpad from './the-numpad.vue';
 
 const numpadStore = useNumpadStore();
-const outboundCallStore = useOutboundCallStore();
+const callsStore = useCallsStore();
 
 function onCall(destination: string) {
-	outboundCallStore.start(destination);
+	callsStore.call({
+		destination,
+	});
 	numpadStore.close();
 }
 </script>
@@ -36,8 +38,8 @@ function onCall(destination: string) {
  */
 .the-numpad-panel {
 	position: fixed;
-	bottom: var(--spacing-xl);
-	left: var(--spacing-xl);
+	bottom: 0;
+  left: var(--wt-ws-dialer-sizes-root-offset-left);
 	z-index: 101;
 	border-radius: var(--p-border-radius-lg);
 	background-color: var(--content-wrapper-color);

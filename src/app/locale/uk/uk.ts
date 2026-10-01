@@ -33,6 +33,56 @@ export default {
 		numpad: {
 			call: 'Зателефонувати',
 		},
+		processing: {
+			postProcessing: {
+				title: 'Постобробка',
+				extend: 'Продовжити постобробку',
+				extensionsLeft: 'Залишилось продовжень: {count}',
+			},
+		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Інфо',
+					postProcessing: 'Постобробка',
+					interaction: 'Взаємодія',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Змінних немає',
+					loadError: 'Не вдалося завантажити змінні чату',
+				},
+				topBar: {
+					transfer: 'Перевести чат',
+					end: 'Завершити чат',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Дзвінки',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Запис недоступний',
+						playAudio: 'Відтворити аудіо',
+						playVideo: 'Відтворити відео',
+					},
+					actions: {
+						showCallInfo: 'Показати інформацію',
+					},
+					callInfo: {
+						title: 'Інформація про дзвінок',
+						postprocessing: 'Постобробка',
+						agentDescription: 'Коментар оператора',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

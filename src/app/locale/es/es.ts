@@ -33,6 +33,45 @@ export default {
 		numpad: {
 			call: 'Llamar',
 		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Información',
+					postProcessing: 'Posprocesamiento',
+					interaction: 'Interacción',
+					contact: 'Contacto',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Sin variables',
+					loadError: 'No se pudieron cargar las variables del chat',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Llamadas',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Grabación no disponible',
+						playAudio: 'Reproducir audio',
+						playVideo: 'Reproducir vídeo',
+					},
+					actions: {
+						showCallInfo: 'Mostrar información',
+					},
+					callInfo: {
+						title: 'Información de la llamada',
+						postprocessing: 'Posprocesamiento',
+						agentDescription: 'Comentario del agente',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

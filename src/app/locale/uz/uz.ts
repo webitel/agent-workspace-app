@@ -33,6 +33,45 @@ export default {
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
 		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: "Ma'lumot",
+					postProcessing: 'Keyingi ishlov',
+					interaction: "O'zaro aloqa",
+					contact: 'Kontakt',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: "O'zgaruvchilar yo'q",
+					loadError: "Chat o'zgaruvchilarini yuklab bo'lmadi",
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Qoʻngʻiroqlar',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Yozuv mavjud emas',
+						playAudio: 'Audioni ijro etish',
+						playVideo: 'Videoni ijro etish',
+					},
+					actions: {
+						showCallInfo: 'Maʼlumotni koʻrsatish',
+					},
+					callInfo: {
+						title: 'Qoʻngʻiroq haqida maʼlumot',
+						postprocessing: 'Keyingi ishlov',
+						agentDescription: 'Operator izohi',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

@@ -34,6 +34,45 @@ export default {
 		numpad: {
 			call: 'Gọi',
 		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Trò chuyện',
+					info: 'Thông tin',
+					postProcessing: 'Xử lý sau',
+					interaction: 'Tương tác',
+					contact: 'Liên hệ',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Không có biến',
+					loadError: 'Không thể tải các biến của cuộc trò chuyện',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Cuộc gọi',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Bản ghi không khả dụng',
+						playAudio: 'Phát âm thanh',
+						playVideo: 'Phát video',
+					},
+					actions: {
+						showCallInfo: 'Xem thông tin',
+					},
+					callInfo: {
+						title: 'Thông tin cuộc gọi',
+						postprocessing: 'Xử lý sau cuộc gọi',
+						agentDescription: 'Nhận xét của nhân viên',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

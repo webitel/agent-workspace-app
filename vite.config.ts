@@ -40,6 +40,9 @@ export default ({ mode }) => {
 				'deep-copy',
 				'deep-equal',
 				'deepmerge',
+				// only ever loaded lazily, which the dependency scan doesn't follow: found
+				// at runtime instead, it re-optimizes and reloads the page mid-boot
+				'jszip',
 			],
 		},
 		server: {
@@ -59,6 +62,7 @@ export default ({ mode }) => {
 				'vue',
 				'vue-i18n',
 				'vue-router',
+				'pinia',
 			],
 			alias: {
 				lodash: 'lodash-es',

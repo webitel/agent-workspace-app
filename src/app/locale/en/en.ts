@@ -33,6 +33,56 @@ export default {
 		numpad: {
 			call: 'Call',
 		},
+		processing: {
+			postProcessing: {
+				title: 'Post-processing',
+				extend: 'Extend post-processing',
+				extensionsLeft: 'Extensions left: {count}',
+			},
+		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Info',
+					postProcessing: 'Post-processing',
+					interaction: 'Interaction',
+					contact: 'Contact',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'No variables',
+					loadError: "Couldn't load the chat's variables",
+				},
+				topBar: {
+					transfer: 'Transfer chat',
+					end: 'End chat',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Calls',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Recording unavailable',
+						playAudio: 'Audio Recording',
+						playVideo: 'Video Recording',
+					},
+					actions: {
+						showCallInfo: 'Show info',
+					},
+					callInfo: {
+						title: 'Call info',
+						postprocessing: 'Postprocessing',
+						agentDescription: "Agent's comment",
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

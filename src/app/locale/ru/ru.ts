@@ -33,6 +33,45 @@ export default {
 		numpad: {
 			call: 'Позвонить',
 		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Инфо',
+					postProcessing: 'Постобработка',
+					interaction: 'Взаимодействие',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Переменных нет',
+					loadError: 'Не удалось загрузить переменные чата',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Звонки',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Запись недоступна',
+						playAudio: 'Воспроизвести аудио',
+						playVideo: 'Воспроизвести видео',
+					},
+					actions: {
+						showCallInfo: 'Показать информацию',
+					},
+					callInfo: {
+						title: 'Информация о звонке',
+						postprocessing: 'Постобработка',
+						agentDescription: 'Комментарий оператора',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

@@ -33,6 +33,45 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Informații',
+					postProcessing: 'Post-procesare',
+					interaction: 'Interacțiune',
+					contact: 'Contact',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Nu există variabile',
+					loadError: 'Nu s-au putut încărca variabilele chatului',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Apeluri',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Înregistrare indisponibilă',
+						playAudio: 'Redă audio',
+						playVideo: 'Redă video',
+					},
+					actions: {
+						showCallInfo: 'Afișează informații',
+					},
+					callInfo: {
+						title: 'Informații despre apel',
+						postprocessing: 'Postprocesare',
+						agentDescription: 'Comentariul agentului',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

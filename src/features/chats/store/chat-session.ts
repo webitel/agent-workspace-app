@@ -4,6 +4,7 @@ import { computed, ref, shallowRef } from 'vue';
 
 import { threadsService } from '../api/chatSdk';
 import type { IMessage, IThread } from '../types/ChatSession.types';
+import { disposeChatVariables } from './chat-variables';
 
 const storeId = (chatId: string) => `chat:${chatId}`;
 
@@ -163,6 +164,7 @@ export function useChatSessionStore(chatId: string) {
 export function disposeChatSession(chatId: string) {
 	const id = storeId(chatId);
 	useChatSessionStore(chatId).$dispose();
+	disposeChatVariables(chatId);
 	const pinia = getActivePinia();
 	if (pinia) delete pinia.state.value[id];
 	storeDefinitions.delete(id);

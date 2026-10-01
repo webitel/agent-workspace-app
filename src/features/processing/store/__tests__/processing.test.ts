@@ -20,6 +20,7 @@ function makeTask(form: ProcessingFormData | null, overrides = {}) {
 		form,
 		processingTimeoutAt: null,
 		renewalSec: null,
+		totalProcessingSec: null,
 		_processing: null,
 		formAction: vi.fn(() => Promise.resolve({})),
 		renew: vi.fn(() => Promise.resolve({})),
@@ -272,6 +273,22 @@ describe('processing store', () => {
 		expect(processing.processingTimeoutAt).toBe(1_000);
 		expect(processing.renewalSec).toBe(10);
 		expect(processing.remainingProlongations).toBe(2);
+	});
+
+	it('reports the SDK’s total post-processing length, renewals included', () => {
+		const task = makeTask(inputForm(), {
+			totalProcessingSec: 90,
+		});
+
+		expect(store(task).processingTotalSec).toBe(90);
+
+		task.totalProcessingSec = 120;
+
+		expect(store(task).processingTotalSec).toBe(120);
+	});
+
+	it('has no total before post-processing starts', () => {
+		expect(store(makeTask(inputForm())).processingTotalSec).toBeNull();
 	});
 
 	it('renews by the queue prolongation, or lets the SDK default it', async () => {

@@ -33,6 +33,45 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Ақпарат',
+					postProcessing: 'Кейінгі өңдеу',
+					interaction: 'Өзара әрекет',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Айнымалылар жоқ',
+					loadError: 'Чат айнымалыларын жүктеу мүмкін болмады',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Қоңыраулар',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+					},
+					recordings: {
+						unavailable: 'Жазба қолжетімсіз',
+						playAudio: 'Аудионы ойнату',
+						playVideo: 'Бейнені ойнату',
+					},
+					actions: {
+						showCallInfo: 'Ақпаратты көрсету',
+					},
+					callInfo: {
+						title: 'Қоңырау туралы ақпарат',
+						postprocessing: 'Кейінгі өңдеу',
+						agentDescription: 'Оператордың пікірі',
+					},
+				},
+			},
+		},
 	},
 	error: {
 		calls: {

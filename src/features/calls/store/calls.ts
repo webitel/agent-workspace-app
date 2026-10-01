@@ -13,7 +13,7 @@ import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.
 import { useCallAudio } from '../composables/useCallAudio';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
-import { toDialableDestination } from '../scripts/toDialableDestination';
+import { sanitizeDestination } from '../scripts/sanitizeDestination';
 import { toIncomingCallPreview } from '../scripts/toIncomingCallPreview';
 
 /**
@@ -67,8 +67,12 @@ export const useCallsStore = defineStore('calls', () => {
 		await activeCall.hold();
 	}
 
-	async function call(rawDestination: string): Promise<boolean> {
-		const destination = toDialableDestination(rawDestination);
+	async function call({
+		destination: rawDestination,
+	}: {
+		destination: string;
+	}): Promise<boolean> {
+		const destination = sanitizeDestination(rawDestination);
 		/**
 		 * @author Oleksandr Palonnyi
 		 * The request can stay open for seconds while the browser waits on the

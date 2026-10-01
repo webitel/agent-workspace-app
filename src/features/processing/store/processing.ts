@@ -54,6 +54,10 @@ function createStoreDefinition(task: Task) {
 		const isPostProcessing = computed(() => task.state === JobState.Processing);
 		const processingTimeoutAt = computed(() => task.processingTimeoutAt);
 		const renewalSec = computed(() => task.renewalSec);
+
+		// Base length plus every renewal, counted by the SDK; null until the first
+		// `processing` event.
+		const processingTotalSec = computed(() => task.totalProcessingSec);
 		const prolongation = computed(
 			() =>
 				(
@@ -141,6 +145,7 @@ function createStoreDefinition(task: Task) {
 			isPostProcessing,
 			processingTimeoutAt,
 			renewalSec,
+			processingTotalSec,
 			remainingProlongations,
 			initialize,
 			change,

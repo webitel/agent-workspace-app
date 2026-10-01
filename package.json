@@ -36,7 +36,7 @@
 		"@webitel/styleguide": "~26.8",
 		"@webitel/ui-chats": "~26.8",
 		"@webitel/ui-datalist": "~26.8",
-		"@webitel/ui-sdk": "^26.8.117",
+		"@webitel/ui-sdk": "~26.8",
 		"axios": "^1.17.0",
 		"dompurify": "^3.4.16",
 		"jszip": "^3.10.2",
@@ -45,7 +45,7 @@
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.14"
+		"webitel-sdk": "^26.4.34"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
