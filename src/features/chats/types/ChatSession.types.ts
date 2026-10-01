@@ -5,6 +5,7 @@ export type {
 	MessageHistorySearchParams,
 	MessageHistorySearchResult,
 	ThreadModel,
+	ThreadVariablesModel,
 } from '@webitel/chat-web-sdk';
 
 // UI-only window layout state (not an SDK concept).
