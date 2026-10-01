@@ -1,5 +1,6 @@
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
+import { SortSymbols } from '@webitel/ui-sdk/scripts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, KeepAlive, nextTick, reactive, ref } from 'vue';
 
@@ -300,7 +301,7 @@ describe('chat-info', () => {
 			const { wrapper } = await mountWithRows();
 
 			expect(tableOf(wrapper).props('sortable')).toBe(true);
-			expect(headerSort(wrapper, 'key')).toBeNull();
+			expect(headerSort(wrapper, 'key')).toBe(SortSymbols.NONE);
 			expect(rowsOf(wrapper).map((row) => row.key)).toEqual([
 				'B',
 				'A',
@@ -315,7 +316,7 @@ describe('chat-info', () => {
 				{
 					field: 'key',
 				},
-				'asc',
+				SortSymbols.ASC,
 			);
 			await nextTick();
 
@@ -323,8 +324,8 @@ describe('chat-info', () => {
 				'A',
 				'B',
 			]);
-			expect(headerSort(wrapper, 'key')).toBe('asc');
-			expect(headerSort(wrapper, 'value')).toBeNull();
+			expect(headerSort(wrapper, 'key')).toBe(SortSymbols.ASC);
+			expect(headerSort(wrapper, 'value')).toBe(SortSymbols.NONE);
 		});
 
 		it('returns to source order when the table reports no sort', async () => {
@@ -334,7 +335,7 @@ describe('chat-info', () => {
 				{
 					field: 'key',
 				},
-				'asc',
+				SortSymbols.ASC,
 			);
 			await nextTick();
 
@@ -343,7 +344,7 @@ describe('chat-info', () => {
 				{
 					field: 'key',
 				},
-				null,
+				SortSymbols.NONE,
 			);
 			await nextTick();
 
@@ -367,14 +368,14 @@ describe('chat-info', () => {
 				{
 					field: 'key',
 				},
-				'asc',
+				SortSymbols.ASC,
 			);
 			await nextTick();
 
 			propsRef.threadId = 'thread-2';
 			await flushPromises();
 
-			expect(headerSort(wrapper, 'key')).toBeNull();
+			expect(headerSort(wrapper, 'key')).toBe(SortSymbols.NONE);
 		});
 	});
 });
