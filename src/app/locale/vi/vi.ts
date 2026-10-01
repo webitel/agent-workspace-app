@@ -54,6 +54,7 @@ export default {
 					callInfo: {
 						title: 'Thông tin cuộc gọi',
 						postprocessing: 'Xử lý sau cuộc gọi',
+						agentDescription: 'Nhận xét của nhân viên',
 					},
 				},
 			},

@@ -53,6 +53,7 @@ export default {
 					callInfo: {
 						title: 'Informații despre apel',
 						postprocessing: 'Postprocesare',
+						agentDescription: 'Comentariul agentului',
 					},
 				},
 			},

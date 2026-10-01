@@ -53,6 +53,7 @@ export default {
 					callInfo: {
 						title: 'Qoʻngʻiroq haqida maʼlumot',
 						postprocessing: 'Keyingi ishlov',
+						agentDescription: 'Operator izohi',
 					},
 				},
 			},

@@ -66,6 +66,7 @@ export default {
 					callInfo: {
 						title: 'Інформація про дзвінок',
 						postprocessing: 'Постобробка',
+						agentDescription: 'Коментар оператора',
 					},
 				},
 			},

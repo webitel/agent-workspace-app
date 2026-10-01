@@ -46,8 +46,10 @@ import { ComponentSize } from '@webitel/ui-sdk/enums';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCallInfo } from './api/callInfoApi';
+import CallsHistoryInfoPostprocessing from './calls-history-info-postprocessing.vue';
 import CallsHistoryInfoVariables from './calls-history-info-variables.vue';
 import { CallInfoTab } from './enums/CallInfoTab.enum';
+import type { CallInfo } from './types/CallInfo.types';
 
 const props = defineProps<{
 	item: EngineHistoryCall;
@@ -61,7 +63,7 @@ const { t } = useI18n();
 const { isLoading, runWithMinDuration } = useMinDurationLoader();
 
 const activeTab = ref<CallInfoTab>(CallInfoTab.Variables);
-const callInfo = ref<EngineHistoryCall | null>(null);
+const callInfo = ref<CallInfo | null>(null);
 
 const tabs = computed(() => [
 	{
@@ -75,6 +77,11 @@ const tabs = computed(() => [
 	{
 		value: CallInfoTab.Postprocessing,
 		text: t('ui.pages.history.calls.callInfo.postprocessing'),
+		component: CallsHistoryInfoPostprocessing,
+		props: {
+			forms: callInfo.value?.forms,
+			agentDescription: callInfo.value?.agentDescription,
+		},
 	},
 	{
 		value: CallInfoTab.Transcription,

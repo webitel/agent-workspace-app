@@ -53,6 +53,7 @@ export default {
 					callInfo: {
 						title: 'Informacje o połączeniu',
 						postprocessing: 'Przetwarzanie końcowe',
+						agentDescription: 'Komentarz agenta',
 					},
 				},
 			},
