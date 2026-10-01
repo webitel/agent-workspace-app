@@ -58,6 +58,7 @@ import {
 	WtTable,
 } from '@webitel/ui-sdk/components';
 import type { WtTableHeader } from '@webitel/ui-sdk/components/wt-table/types/WtTable';
+import { SortSymbols } from '@webitel/ui-sdk/scripts';
 import { computed, onActivated, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
@@ -96,7 +97,7 @@ watch(
 );
 
 const sortOf = (field: InfoSort['field']) =>
-	sort.value?.field === field ? sort.value.order : null;
+	sort.value?.field === field ? sort.value.order : SortSymbols.NONE;
 
 const headers = computed<WtTableHeader[]>(() => [
 	{
@@ -119,13 +120,17 @@ const headers = computed<WtTableHeader[]>(() => [
 	},
 ]);
 
-function handleSort(header: WtTableHeader, order: InfoSort['order'] | null) {
-	sort.value = order
-		? {
-				field: header.field as InfoSort['field'],
-				order,
-			}
-		: null;
+function handleSort(
+	header: WtTableHeader,
+	order: InfoSort['order'] | typeof SortSymbols.NONE,
+) {
+	sort.value =
+		order === SortSymbols.NONE
+			? null
+			: {
+					field: header.field as InfoSort['field'],
+					order,
+				};
 }
 
 // The window keeps this panel alive between tab switches, so a mount hook would
