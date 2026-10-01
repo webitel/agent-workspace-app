@@ -45,8 +45,6 @@ export default {
 				topBar: {
 					transfer: 'Transfer chat',
 					end: 'End chat',
-					endConfirmTitle: 'End chat',
-					endConfirmMessage: 'End this chat?',
 				},
 			},
 			history: {

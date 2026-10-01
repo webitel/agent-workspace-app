@@ -83,13 +83,6 @@ const stubs = {
 		template:
 			'<button class="button" :class="icon" :disabled="disabled" :data-loading="loading" />',
 	},
-	'wt-confirm-dialog': {
-		props: [
-			'callback',
-		],
-		template:
-			'<div class="confirm"><button class="confirm-yes" @click="callback" /></div>',
-	},
 };
 
 const endButton = (wrapper: ReturnType<typeof mountBar>) =>
@@ -147,14 +140,12 @@ describe('chat-top-bar', () => {
 		expect(transfer.attributes('disabled')).toBeDefined();
 	});
 
-	it('ends the chat after confirmation', async () => {
+	it('ends the chat on click, without asking first (AC_03.01.05)', async () => {
 		const task = makeTask();
 		endChatMock.mockResolvedValue(undefined);
 		const wrapper = mountBar(task);
 
-		expect(wrapper.find('.confirm').exists()).toBe(false);
 		await endButton(wrapper).trigger('click');
-		await wrapper.find('.confirm-yes').trigger('click');
 		await flushPromises();
 
 		expect(endChatMock).toHaveBeenCalledWith(task);
@@ -165,7 +156,6 @@ describe('chat-top-bar', () => {
 		const wrapper = mountBar(makeTask());
 
 		await endButton(wrapper).trigger('click');
-		await wrapper.find('.confirm-yes').trigger('click');
 		await flushPromises();
 
 		expect(emitMock).toHaveBeenCalledWith('notification', {
