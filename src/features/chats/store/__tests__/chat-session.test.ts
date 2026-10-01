@@ -1,4 +1,5 @@
 import { createTestingPinia } from '@pinia/testing';
+import { flushPromises } from '@vue/test-utils';
 import { getActivePinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -7,6 +8,15 @@ const fetchMessageHistoryMock = vi.fn();
 const sendMessageMock = vi.fn();
 
 vi.mock('../../api/chatSdk', () => ({
+	accountService: {
+		// the session caches the account module-wide, so every test sees this one
+		getAccount: vi.fn().mockResolvedValue({
+			contact: {
+				sub: '42',
+				iss: 'webitel',
+			},
+		}),
+	},
 	threadsService: {
 		fetchThread: (...args: unknown[]) => fetchThreadMock(...args),
 	},
@@ -85,6 +95,35 @@ describe('chat-session store', () => {
 			expect(store.hasMore).toBe(true);
 			expect(store.initialized).toBe(true);
 			expect(store.isLoading).toBe(false);
+		});
+
+		it('resolves the operator’s own member from the logged-in account', async () => {
+			fetchThreadMock.mockResolvedValue({
+				...(thread() as object),
+				members: [
+					{
+						id: 'm-client',
+						contact: {
+							sub: 'client-1',
+							iss: 'telegram',
+						},
+					},
+					{
+						id: 'm-agent',
+						contact: {
+							sub: '42',
+							iss: 'webitel',
+						},
+					},
+				],
+			});
+			fetchMessageHistoryMock.mockResolvedValue(historyPage([], null));
+			const store = useChatSessionStore('chat-self');
+
+			await store.load();
+			await flushPromises();
+
+			expect(store.selfMemberId).toBe('m-agent');
 		});
 
 		it('reports no more history when response has no nextCursor', async () => {

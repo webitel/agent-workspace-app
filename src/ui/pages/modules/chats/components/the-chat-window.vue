@@ -50,6 +50,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import ChatInfo from '../../../../../features/chats/components/chat-info/chat-info.vue';
 import ChatTopBar from '../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue';
+import { toChatThreadMode } from '../../../../../features/chats/scripts/toChatThreadMode';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
 import { useProcessingStore } from '../../../../../features/processing/store/processing';
@@ -150,7 +151,9 @@ const currentTab = computed(() => {
 	}
 	return {
 		is: TheChatThread,
-		props: {},
+		props: {
+			mode: toChatThreadMode(task.value, isPostProcessing.value),
+		},
 	};
 });
 
