@@ -3,7 +3,11 @@ import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
 import { threadsService } from '../api/chatSdk';
-import type { IMessage, IThread } from '../types/ChatSession.types';
+import type {
+	IMessage,
+	IThread,
+	ThreadVariablesModel,
+} from '../types/ChatSession.types';
 
 const storeId = (chatId: string) => `chat:${chatId}`;
 
@@ -26,6 +30,14 @@ function createStoreDefinition(chatId: string) {
 		// keyset cursor to OLDER messages (response nextCursor.id)
 		const olderCursor = ref<string | null>(null);
 		const initialized = ref(false);
+		// thread variables; reassigned wholesale on every refresh, never patched
+		const variables = shallowRef<
+			NonNullable<ThreadVariablesModel['variables']>
+		>({});
+		const variablesError = ref<unknown>(null);
+		const isVariablesLoading = ref(false);
+		// whether any request has settled yet: tells a first load from a refetch
+		const variablesLoaded = ref(false);
 
 		const hasMore = computed(() => olderCursor.value !== null);
 
@@ -75,6 +87,49 @@ function createStoreDefinition(chatId: string) {
 				error.value = err;
 			} finally {
 				isLoading.value = false;
+			}
+		}
+
+		// Tab switches can fire refreshes faster than the server answers; only the
+		// newest request may write, so an older answer landing late cannot win.
+		let latestVariablesRequest = 0;
+
+		async function refreshVariables() {
+			const request = ++latestVariablesRequest;
+			isVariablesLoading.value = true;
+			variablesError.value = null;
+			try {
+				const response = await threadsService.locateVariables(chatId);
+				if (request !== latestVariablesRequest) return;
+				variables.value = response.variables ?? {};
+			} catch (err) {
+				if (request !== latestVariablesRequest) return;
+				const status = (
+					err as {
+						response?: {
+							status?: number;
+						};
+					}
+				).response?.status;
+				if (status === 404 || status === 403) {
+					// No variables to read is not a failure, and an agent role without
+					// access to the endpoint can never succeed on retry — the tab falls
+					// back to the task's variables alone.
+					if (status === 403) {
+						console.warn(
+							`[chat ${chatId}] thread variables are not readable by this role`,
+						);
+					}
+					variables.value = {};
+					return;
+				}
+				// a failed refresh leaves the last good variables on screen
+				variablesError.value = err;
+			} finally {
+				if (request === latestVariablesRequest) {
+					isVariablesLoading.value = false;
+					variablesLoaded.value = true;
+				}
 			}
 		}
 
@@ -141,6 +196,11 @@ function createStoreDefinition(chatId: string) {
 			receiveMessage,
 			sendText,
 			sendFiles,
+			variables,
+			variablesError,
+			isVariablesLoading,
+			variablesLoaded,
+			refreshVariables,
 		};
 	});
 }

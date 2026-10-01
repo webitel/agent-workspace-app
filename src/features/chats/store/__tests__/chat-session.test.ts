@@ -5,10 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const fetchThreadMock = vi.fn();
 const fetchMessageHistoryMock = vi.fn();
 const sendMessageMock = vi.fn();
+const locateVariablesMock = vi.fn();
 
 vi.mock('../../api/chatSdk', () => ({
 	threadsService: {
 		fetchThread: (...args: unknown[]) => fetchThreadMock(...args),
+		locateVariables: (...args: unknown[]) => locateVariablesMock(...args),
 	},
 	messagesService: {},
 }));
@@ -53,6 +55,7 @@ describe('chat-session store', () => {
 		fetchThreadMock.mockReset();
 		fetchMessageHistoryMock.mockReset();
 		sendMessageMock.mockReset();
+		locateVariablesMock.mockReset();
 		fetchThreadMock.mockResolvedValue(thread());
 	});
 
@@ -405,6 +408,180 @@ describe('chat-session store', () => {
 
 			expect(reopened.initialized).toBe(false);
 			expect(reopened.messages).toEqual([]);
+		});
+	});
+
+	describe('refreshVariables', () => {
+		it('stores the thread variables it fetched', async () => {
+			locateVariablesMock.mockResolvedValue({
+				variables: {
+					Region: {
+						value: 'EU',
+					},
+				},
+			});
+			const store = useChatSessionStore('chat-1');
+
+			await store.refreshVariables();
+
+			expect(locateVariablesMock).toHaveBeenCalledWith('chat-1');
+			expect(store.variables).toEqual({
+				Region: {
+					value: 'EU',
+				},
+			});
+		});
+
+		it('keeps the last good variables and reports the error when a refresh fails', async () => {
+			locateVariablesMock.mockResolvedValueOnce({
+				variables: {
+					Region: {
+						value: 'EU',
+					},
+				},
+			});
+			const store = useChatSessionStore('chat-1');
+			await store.refreshVariables();
+
+			const failure = new Error('network down');
+			locateVariablesMock.mockRejectedValueOnce(failure);
+			await store.refreshVariables();
+
+			expect(store.variables).toEqual({
+				Region: {
+					value: 'EU',
+				},
+			});
+			expect(store.variablesError).toBe(failure);
+		});
+
+		it('clears a previous error once a refresh succeeds', async () => {
+			locateVariablesMock.mockRejectedValueOnce(new Error('network down'));
+			const store = useChatSessionStore('chat-1');
+			await store.refreshVariables();
+			expect(store.variablesError).not.toBeNull();
+
+			locateVariablesMock.mockResolvedValueOnce({
+				variables: {},
+			});
+			await store.refreshVariables();
+
+			expect(store.variablesError).toBeNull();
+		});
+
+		const httpError = (status: number) =>
+			Object.assign(new Error(`HTTP ${status}`), {
+				response: {
+					status,
+				},
+			});
+
+		it('treats a 404 as a thread without variables, not as an error', async () => {
+			locateVariablesMock.mockRejectedValueOnce(httpError(404));
+			const store = useChatSessionStore('chat-1');
+
+			await store.refreshVariables();
+
+			expect(store.variables).toEqual({});
+			expect(store.variablesError).toBeNull();
+		});
+
+		it('degrades a 403 to no thread variables, logging it instead of raising an error', async () => {
+			const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			locateVariablesMock.mockRejectedValueOnce(httpError(403));
+			const store = useChatSessionStore('chat-1');
+
+			await store.refreshVariables();
+
+			expect(store.variables).toEqual({});
+			expect(store.variablesError).toBeNull();
+			expect(warn).toHaveBeenCalled();
+			warn.mockRestore();
+		});
+
+		it('drops variables that vanished when the thread now answers 404', async () => {
+			locateVariablesMock.mockResolvedValueOnce({
+				variables: {
+					Region: {
+						value: 'EU',
+					},
+				},
+			});
+			const store = useChatSessionStore('chat-1');
+			await store.refreshVariables();
+
+			locateVariablesMock.mockRejectedValueOnce(httpError(404));
+			await store.refreshVariables();
+
+			expect(store.variables).toEqual({});
+		});
+
+		it('flags the request as loading, and the first answer as having arrived', async () => {
+			let answer: (value: unknown) => void = () => {};
+			locateVariablesMock.mockReturnValueOnce(
+				new Promise((resolve) => {
+					answer = resolve;
+				}),
+			);
+			const store = useChatSessionStore('chat-1');
+			expect(store.variablesLoaded).toBe(false);
+
+			const pending = store.refreshVariables();
+			expect(store.isVariablesLoading).toBe(true);
+
+			answer({
+				variables: {},
+			});
+			await pending;
+
+			expect(store.isVariablesLoading).toBe(false);
+			expect(store.variablesLoaded).toBe(true);
+		});
+
+		it('counts a failed first request as an answer, so the tab shows the error, not a loader', async () => {
+			locateVariablesMock.mockRejectedValueOnce(new Error('network down'));
+			const store = useChatSessionStore('chat-1');
+
+			await store.refreshVariables();
+
+			expect(store.variablesLoaded).toBe(true);
+		});
+
+		it('keeps the newest answer when an older request settles last', async () => {
+			const answers: Array<(value: unknown) => void> = [];
+			locateVariablesMock.mockImplementation(
+				() =>
+					new Promise((resolve) => {
+						answers.push(resolve);
+					}),
+			);
+			const store = useChatSessionStore('chat-1');
+
+			const older = store.refreshVariables();
+			const newer = store.refreshVariables();
+			answers[1]({
+				variables: {
+					Region: {
+						value: 'new',
+					},
+				},
+			});
+			await newer;
+			answers[0]({
+				variables: {
+					Region: {
+						value: 'old',
+					},
+				},
+			});
+			await older;
+
+			expect(store.variables).toEqual({
+				Region: {
+					value: 'new',
+				},
+			});
+			expect(store.isVariablesLoading).toBe(false);
 		});
 	});
 });
