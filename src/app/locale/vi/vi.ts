@@ -35,6 +35,20 @@ export default {
 			call: 'Gọi',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Trò chuyện',
+					info: 'Thông tin',
+					postProcessing: 'Xử lý sau',
+					interaction: 'Tương tác',
+					contact: 'Liên hệ',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Không có biến',
+					loadError: 'Không thể tải các biến của cuộc trò chuyện',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Cuộc gọi',

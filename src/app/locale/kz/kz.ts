@@ -34,6 +34,20 @@ export default {
 			call: 'Қоңырау шалу',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Ақпарат',
+					postProcessing: 'Кейінгі өңдеу',
+					interaction: 'Өзара әрекет',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Айнымалылар жоқ',
+					loadError: 'Чат айнымалыларын жүктеу мүмкін болмады',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Қоңыраулар',

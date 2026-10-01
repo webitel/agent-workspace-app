@@ -34,6 +34,20 @@ export default {
 			call: 'Qoʻngʻiroq qilish',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: "Ma'lumot",
+					postProcessing: 'Keyingi ishlov',
+					interaction: "O'zaro aloqa",
+					contact: 'Kontakt',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: "O'zgaruvchilar yo'q",
+					loadError: "Chat o'zgaruvchilarini yuklab bo'lmadi",
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Qoʻngʻiroqlar',

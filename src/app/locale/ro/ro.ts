@@ -34,6 +34,20 @@ export default {
 			call: 'Apelează',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Informații',
+					postProcessing: 'Post-procesare',
+					interaction: 'Interacțiune',
+					contact: 'Contact',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Nu există variabile',
+					loadError: 'Nu s-au putut încărca variabilele chatului',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Apeluri',

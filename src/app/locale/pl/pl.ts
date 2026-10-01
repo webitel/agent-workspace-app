@@ -34,6 +34,20 @@ export default {
 			call: 'Zadzwoń',
 		},
 		pages: {
+			chats: {
+				tabs: {
+					chat: 'Czat',
+					info: 'Informacje',
+					postProcessing: 'Przetwarzanie końcowe',
+					interaction: 'Interakcja',
+					contact: 'Kontakt',
+					iframe: 'Iframe',
+				},
+				info: {
+					empty: 'Brak zmiennych',
+					loadError: 'Nie udało się wczytać zmiennych czatu',
+				},
+			},
 			history: {
 				tabs: {
 					calls: 'Połączenia',

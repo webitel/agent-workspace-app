@@ -12,8 +12,23 @@
 			class="the-chat-window__tabs"
 			:current="{ value: activeTab }"
 			:tabs="tabs"
-			@change="activeTab = $event.value"
-		/>
+			@change="handleTabChange"
+		>
+			<!-- WtTabs has no disabled state; its buttons stay clickable, so the
+			     handler ignores these and the style below greys them out -->
+			<template
+				v-for="tab in disabledTabs"
+				:key="tab.value"
+				#[tab.value]
+			>
+				<span
+					class="the-chat-window__tab--disabled"
+					aria-disabled="true"
+				>
+					{{ tab.text }}
+				</span>
+			</template>
+		</wt-tabs>
 
 		<keep-alive>
 			<component
@@ -31,15 +46,25 @@
 >
 import { WtTabs } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
+import ChatInfo from '../../../../../features/chats/components/chat-info/chat-info.vue';
 import ChatTopBar from '../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
 import { useProcessingStore } from '../../../../../features/processing/store/processing';
 import TheChatThread from './the-chat-thread.vue';
 
-type ChatWindowTab = 'chat' | 'processing';
+type ChatWindowTab = 'chat' | 'info' | 'processing';
 
+interface ChatWindowTabItem {
+	value: string;
+	text: string;
+	/** the tab shows in the strip (DES-730) but has no content yet */
+	disabled?: boolean;
+}
+
+const { t } = useI18n();
 const route = useRoute();
 const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
@@ -60,37 +85,74 @@ const defaultTab = (): ChatWindowTab =>
 
 const activeTab = ref<ChatWindowTab>(defaultTab());
 
-// The strip stays put; only the Post-processing tab comes and goes with the
-// form, and a form arriving mid-chat does not pull the agent away from it.
-const tabs = computed(() => [
+// The strip follows Figma (DES-730): Chat, Info, Post-processing, then the tabs
+// whose content is not built yet. Only Post-processing comes and goes with the
+// form, and a form arriving mid-chat does not pull the agent away from the chat.
+const tabs = computed<ChatWindowTabItem[]>(() => [
 	{
 		value: 'chat',
-		text: 'Chat',
+		text: t('ui.pages.chats.tabs.chat'),
+	},
+	{
+		value: 'info',
+		text: t('ui.pages.chats.tabs.info'),
 	},
 	...(hasForm.value
 		? [
 				{
 					value: 'processing',
-					text: 'Post-processing',
+					text: t('ui.pages.chats.tabs.postProcessing'),
 				},
 			]
 		: []),
+	{
+		value: 'interaction',
+		text: t('ui.pages.chats.tabs.interaction'),
+		disabled: true,
+	},
+	{
+		value: 'contact',
+		text: t('ui.pages.chats.tabs.contact'),
+		disabled: true,
+	},
+	{
+		value: 'iframe',
+		text: t('ui.pages.chats.tabs.iframe'),
+		disabled: true,
+	},
 ]);
 
+const disabledTabs = computed(() => tabs.value.filter((tab) => tab.disabled));
+
+function handleTabChange(tab: ChatWindowTabItem) {
+	if (tab.disabled) return;
+	activeTab.value = tab.value as ChatWindowTab;
+}
+
 // keep-alive preserves each panel (chat scroll, form input) across switches.
-const currentTab = computed(() =>
-	activeTab.value === 'processing' && task.value
-		? {
-				is: TheProcessingForm,
-				props: {
-					task: task.value,
-				},
-			}
-		: {
-				is: TheChatThread,
-				props: {},
+const currentTab = computed(() => {
+	if (activeTab.value === 'processing' && task.value) {
+		return {
+			is: TheProcessingForm,
+			props: {
+				task: task.value,
 			},
-);
+		};
+	}
+	if (activeTab.value === 'info') {
+		return {
+			is: ChatInfo,
+			props: {
+				task: task.value,
+				threadId: threadId.value,
+			},
+		};
+	}
+	return {
+		is: TheChatThread,
+		props: {},
+	};
+});
 
 // Opening a chat lands on its form when it is already in post-processing.
 watch(threadId, () => {
@@ -130,6 +192,15 @@ watch(hasForm, (value) => {
 .the-chat-window__tabs {
 	flex: 0 0 auto;
 	padding-bottom: var(--spacing-xs);
+}
+
+.the-chat-window__tabs :deep(.wt-tab:has(.the-chat-window__tab--disabled)) {
+	pointer-events: none;
+}
+
+.the-chat-window__tab--disabled {
+	display: block;
+	opacity: 0.4;
 }
 
 .the-chat-window__panel {
