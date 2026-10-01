@@ -30,10 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # No `cache: npm`: on this runner the cache restore took up to 13 minutes
+      # and the post-job save another 5-7, against ~2 minutes of tests and about
+      # 10 seconds for a cold `npm ci`, which pushed the job past its timeout.
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*
-          cache: npm
 
       - run: npm ci
 
