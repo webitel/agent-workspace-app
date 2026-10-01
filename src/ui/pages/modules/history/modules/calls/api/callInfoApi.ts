@@ -16,6 +16,30 @@ const DO_NOT_CONVERT_KEYS = [
 	'form_fields',
 ];
 
+const FILE_FIELDS = [
+	'filesIncome',
+	'filesOutcome',
+];
+
+const formatFieldValue = (key: string, value: string) => {
+	if (!FILE_FIELDS.includes(key)) return value;
+	try {
+		const files: {
+			name: string;
+		}[] = JSON.parse(value);
+		return files.map(({ name }) => name).join(', ');
+	} catch {
+		return value;
+	}
+};
+
+const toFormFields = (formFields: Record<string, string> = {}) => {
+	return Object.entries(formFields).map(([key, value]) => ({
+		key,
+		value: formatFieldValue(key, value),
+	}));
+};
+
 export const getCallInfo = async (
 	id: string,
 ): Promise<CallInfo | undefined> => {
@@ -32,5 +56,17 @@ export const getCallInfo = async (
 		},
 		doNotConvertKeys: DO_NOT_CONVERT_KEYS,
 	});
-	return items[0];
+
+	const [call] = items;
+	if (!call) return;
+
+	return {
+		...call,
+		forms: (call.forms ?? [])
+			.map(({ form_fields, ...form }) => ({
+				...form,
+				fields: toFormFields(form_fields),
+			}))
+			.filter(({ fields }) => fields.length),
+	};
 };
