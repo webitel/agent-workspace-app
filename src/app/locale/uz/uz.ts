@@ -62,7 +62,7 @@ export default {
 						playVideo: 'Videoni ijro etish',
 					},
 					actions: {
-						showCallInfo: 'Qoʻngʻiroq haqida maʼlumot',
+						showCallInfo: 'Maʼlumotni koʻrsatish',
 					},
 					callInfo: {
 						title: 'Qoʻngʻiroq haqida maʼlumot',

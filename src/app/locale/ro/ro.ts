@@ -62,7 +62,7 @@ export default {
 						playVideo: 'Redă video',
 					},
 					actions: {
-						showCallInfo: 'Afișează informații despre apel',
+						showCallInfo: 'Afișează informații',
 					},
 					callInfo: {
 						title: 'Informații despre apel',

@@ -73,7 +73,7 @@ export default {
 						playVideo: 'Video Recording',
 					},
 					actions: {
-						showCallInfo: 'Show call info',
+						showCallInfo: 'Show info',
 					},
 					callInfo: {
 						title: 'Call info',

@@ -62,7 +62,7 @@ export default {
 						playVideo: 'Reproducir vídeo',
 					},
 					actions: {
-						showCallInfo: 'Mostrar información de la llamada',
+						showCallInfo: 'Mostrar información',
 					},
 					callInfo: {
 						title: 'Información de la llamada',
