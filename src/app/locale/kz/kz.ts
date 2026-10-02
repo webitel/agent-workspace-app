@@ -33,6 +33,10 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
+		variables: {
+			empty: 'Айнымалылар жоқ',
+			loadError: 'Айнымалыларды жүктеу мүмкін болмады',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -42,10 +46,6 @@ export default {
 					interaction: 'Өзара әрекет',
 					contact: 'Контакт',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Айнымалылар жоқ',
-					loadError: 'Чат айнымалыларын жүктеу мүмкін болмады',
 				},
 			},
 			history: {

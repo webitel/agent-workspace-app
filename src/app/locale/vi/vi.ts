@@ -34,6 +34,10 @@ export default {
 		numpad: {
 			call: 'Gọi',
 		},
+		variables: {
+			empty: 'Không có biến',
+			loadError: 'Không thể tải các biến',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -43,10 +47,6 @@ export default {
 					interaction: 'Tương tác',
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Không có biến',
-					loadError: 'Không thể tải các biến của cuộc trò chuyện',
 				},
 			},
 			history: {

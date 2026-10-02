@@ -33,6 +33,10 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		variables: {
+			empty: 'Nu există variabile',
+			loadError: 'Nu s-au putut încărca variabilele',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -42,10 +46,6 @@ export default {
 					interaction: 'Interacțiune',
 					contact: 'Contact',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Nu există variabile',
-					loadError: 'Nu s-au putut încărca variabilele chatului',
 				},
 			},
 			history: {

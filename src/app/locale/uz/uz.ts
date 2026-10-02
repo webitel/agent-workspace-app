@@ -33,6 +33,10 @@ export default {
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
 		},
+		variables: {
+			empty: "O'zgaruvchilar yo'q",
+			loadError: "O'zgaruvchilarni yuklab bo'lmadi",
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -42,10 +46,6 @@ export default {
 					interaction: "O'zaro aloqa",
 					contact: 'Kontakt',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: "O'zgaruvchilar yo'q",
-					loadError: "Chat o'zgaruvchilarini yuklab bo'lmadi",
 				},
 			},
 			history: {
