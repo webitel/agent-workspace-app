@@ -71,6 +71,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Айнымалылар бағандарын таңдау',
+				},
+			},
 		},
 	},
 	error: {
