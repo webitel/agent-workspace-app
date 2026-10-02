@@ -1,37 +1,26 @@
 <template>
-	<wt-tooltip
+	<div
 		v-if="!recordings.length"
-		placement="bottom-end"
-		class="calls-history-media-action"
+		class="calls-history-media-action calls-history-media-action__activator"
 	>
-		<template #activator>
-			<div class="calls-history-media-action__activator">
-				<wt-icon-btn
-					size="sm"
-					icon="play"
-					disabled
-				/>
-			</div>
-		</template>
-		{{ t('ui.pages.history.calls.recordings.unavailable') }}
-	</wt-tooltip>
+		<wt-icon-btn
+			size="sm"
+			icon="play"
+			disabled
+		/>
+	</div>
 
-	<wt-tooltip
+	<div
 		v-else-if="recordings.length === 1"
-		placement="bottom-end"
-		class="calls-history-media-action"
+		class="calls-history-media-action calls-history-media-action__activator"
 	>
-		<template #activator>
-			<div class="calls-history-media-action__activator">
-				<wt-icon-btn
-					icon="play"
-					size="sm"
-					@click="emit('play', recordings[0])"
-				/>
-			</div>
-		</template>
-		{{ getRecordingLabel(recordings[0]) }}
-	</wt-tooltip>
+		<wt-icon-btn
+			icon="play"
+			size="sm"
+			@click="emit('play', recordings[0])"
+		/>
+	</div>
+
 
 	<wt-context-menu
 		v-else
@@ -39,13 +28,12 @@
 		class="calls-history-media-action"
 		@click="({ option }) => emit('play', option.file)"
 	>
-		<template #activator="{ show }">
+		<template #activator="{ toggle }">
 			<div class="calls-history-media-action__activator">
 				<wt-icon-btn
 					icon="play"
 					size="sm"
-					@mouseenter="show"
-					@click="show"
+					@click="toggle"
 				/>
 			</div>
 		</template>
