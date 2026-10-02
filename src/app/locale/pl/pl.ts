@@ -62,17 +62,22 @@ export default {
 						playVideo: 'Odtwórz wideo',
 					},
 					actions: {
-						showCallInfo: 'Pokaż informacje o połączeniu',
+						showCallInfo: 'Pokaż informacje',
 					},
 					callInfo: {
 						title: 'Informacje o połączeniu',
 						postprocessing: 'Przetwarzanie końcowe',
+						agentDescription: 'Komentarz agenta',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed:
+				'Nie udało się nawiązać połączenia. Spróbuj ponownie.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Brak dostępu do mikrofonu. Nie można wykonać akcji.',

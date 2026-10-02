@@ -89,6 +89,47 @@ describe('toInfoRows', () => {
 			).toBe('[1,2]');
 		});
 
+		it('unwraps the {"value": …} envelope the thread puts around its values', () => {
+			const [row] = toInfoRows({
+				threadVariables: {
+					Note: {
+						value: {
+							value: 'plain text',
+						},
+					},
+				},
+			});
+
+			expect(row.value).toBe('plain text');
+		});
+
+		it('keeps a structured thread value that is more than the envelope', () => {
+			const [row] = toInfoRows({
+				threadVariables: {
+					Plan: {
+						value: {
+							value: 'gold',
+							since: 2024,
+						},
+					},
+				},
+			});
+
+			expect(row.value).toBe('{"value":"gold","since":2024}');
+		});
+
+		it('does not unwrap task variables, which carry no envelope', () => {
+			const [row] = toInfoRows({
+				taskVariables: {
+					Plan: {
+						value: 'gold',
+					},
+				},
+			});
+
+			expect(row.value).toBe('{"value":"gold"}');
+		});
+
 		it('formats a thread variable entry without a value as an empty cell', () => {
 			const [row] = toInfoRows({
 				threadVariables: {

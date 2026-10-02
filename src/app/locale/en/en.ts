@@ -57,8 +57,6 @@ export default {
 				topBar: {
 					transfer: 'Transfer chat',
 					end: 'End chat',
-					endConfirmTitle: 'End chat',
-					endConfirmMessage: 'End this chat?',
 				},
 			},
 			history: {
@@ -75,17 +73,21 @@ export default {
 						playVideo: 'Video Recording',
 					},
 					actions: {
-						showCallInfo: 'Show call info',
+						showCallInfo: 'Show info',
 					},
 					callInfo: {
 						title: 'Call info',
 						postprocessing: 'Postprocessing',
+						agentDescription: "Agent's comment",
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'The call could not be placed. Please try again.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Microphone access is denied. Cannot perform action.',

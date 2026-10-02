@@ -62,17 +62,21 @@ export default {
 						playVideo: 'Redă video',
 					},
 					actions: {
-						showCallInfo: 'Afișează informații despre apel',
+						showCallInfo: 'Afișează informații',
 					},
 					callInfo: {
 						title: 'Informații despre apel',
 						postprocessing: 'Postprocesare',
+						agentDescription: 'Comentariul agentului',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Apelul nu a putut fi efectuat. Încearcă din nou.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Accesul la microfon este refuzat. Acțiunea nu poate fi efectuată.',

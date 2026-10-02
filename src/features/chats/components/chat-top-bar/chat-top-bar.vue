@@ -28,11 +28,21 @@
 				size="sm"
 				disabled
 			/>
-			<chat-end-action
-				v-if="!isPostProcessing"
-				:callback="end"
-				:is-ending="isEnding"
-			/>
+			<wt-tooltip v-if="!isPostProcessing">
+				<template #activator>
+					<div>
+						<wt-button
+							:loading="isEnding"
+							:aria-label="t('ui.pages.chats.topBar.end')"
+							color="error"
+							icon="chat-end--filled"
+							size="sm"
+							@click="end"
+						/>
+					</div>
+				</template>
+				{{ t('ui.pages.chats.topBar.end') }}
+			</wt-tooltip>
 		</template>
 	</task-top-bar>
 </template>
@@ -47,7 +57,6 @@ import PostProcessingTimer from '../../../processing/components/post-processing-
 import { useProcessingStore } from '../../../processing/store/processing';
 import { toChatHeader } from '../../scripts/toChatHeader';
 import { useChatsStore } from '../../store/chats';
-import ChatEndAction from './chat-end-action.vue';
 
 const props = defineProps<{
 	task: Task;
@@ -61,6 +70,8 @@ const isPostProcessing = computed(
 	() => useProcessingStore(props.task).isPostProcessing,
 );
 
+// Stays on after the request resolves: the backend flips the task's state only
+// later, and a second click in between would fire against a chat already ending.
 const isEnding = ref(false);
 
 // One bar serves every chat the window shows; a pending end is not the next

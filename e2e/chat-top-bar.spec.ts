@@ -73,11 +73,10 @@ function startPostProcessing(socket: MockedSocket, timeoutInSec: number) {
 	);
 }
 
-// wt-popup renders an <aside>, with no dialog role to query by
-const dialog = (page: Page) => page.locator('.wt-popup');
-
 const endButton = (page: Page) =>
-	page.locator('.chat-end-action').getByRole('button');
+	page.getByRole('button', {
+		name: 'End chat',
+	});
 
 test.describe('chat top bar', () => {
 	test.beforeEach(() => {
@@ -105,7 +104,7 @@ test.describe('chat top bar', () => {
 		).toBeDisabled();
 	});
 
-	test('ends the chat by closing its task, once confirmed', async ({
+	test('ends the chat by closing its task, on the first click', async ({
 		page,
 		socket,
 	}) => {
@@ -116,13 +115,6 @@ test.describe('chat top bar', () => {
 		await openActiveChat(page, socket);
 
 		await endButton(page).click();
-		// asking first: nothing is sent until the agent agrees
-		expect(closeRequests()).toHaveLength(0);
-		await dialog(page)
-			.getByRole('button', {
-				name: 'End chat',
-			})
-			.click();
 
 		await expect.poll(() => closeRequests()).toHaveLength(1);
 		expect(closeRequests()[0]).toMatchObject({
@@ -130,27 +122,6 @@ test.describe('chat top bar', () => {
 				attempt_id: ATTEMPT_ID,
 			},
 		});
-	});
-
-	test('does not end the chat when the confirmation is cancelled', async ({
-		page,
-		socket,
-	}) => {
-		await openActiveChat(page, socket);
-
-		await endButton(page).click();
-		await dialog(page)
-			.getByRole('button', {
-				name: 'Cancel',
-			})
-			.click();
-
-		await expect(dialog(page)).toHaveCount(0);
-		expect(
-			socket.requests.filter(
-				(request) => request.action === 'cc_agent_task_close',
-			),
-		).toHaveLength(0);
 	});
 
 	test('swaps ending for the countdown once post-processing starts', async ({
@@ -164,7 +135,7 @@ test.describe('chat top bar', () => {
 
 		const timer = page.locator('.post-processing-timer');
 		await expect(timer).toContainText(/00:[0-5]\d/);
-		await expect(page.locator('.chat-end-action')).toHaveCount(0);
+		await expect(endButton(page)).toHaveCount(0);
 		await expect(timer.locator('.post-processing-timer__time')).toHaveClass(
 			/--success/,
 		);

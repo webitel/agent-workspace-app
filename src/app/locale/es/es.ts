@@ -62,17 +62,21 @@ export default {
 						playVideo: 'Reproducir vídeo',
 					},
 					actions: {
-						showCallInfo: 'Mostrar información de la llamada',
+						showCallInfo: 'Mostrar información',
 					},
 					callInfo: {
 						title: 'Información de la llamada',
 						postprocessing: 'Posprocesamiento',
+						agentDescription: 'Comentario del agente',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'No se pudo realizar la llamada. Inténtalo de nuevo.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Acceso al micrófono denegado. No se puede realizar la acción.',
