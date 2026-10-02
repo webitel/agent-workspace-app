@@ -406,10 +406,8 @@ test.describe('chat info tab', () => {
 			'Contact',
 			'Iframe',
 		]) {
-			// force: the tab is greyed out and ignores pointer events, as it should
-			await tab(page, name).click({
-				force: true,
-			});
+			// the button still takes the click; the window just ignores it
+			await tab(page, name).click();
 			await expect(tab(page, 'Chat')).toHaveClass(/wt-tab--highlight/);
 		}
 	});

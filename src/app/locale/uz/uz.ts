@@ -62,17 +62,21 @@ export default {
 						playVideo: 'Videoni ijro etish',
 					},
 					actions: {
-						showCallInfo: 'Qoʻngʻiroq haqida maʼlumot',
+						showCallInfo: 'Maʼlumotni koʻrsatish',
 					},
 					callInfo: {
 						title: 'Qoʻngʻiroq haqida maʼlumot',
 						postprocessing: 'Keyingi ishlov',
+						agentDescription: 'Operator izohi',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Qoʻngʻiroq qilib boʻlmadi. Qaytadan urinib koʻring.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Mikrofonga ruxsat yoʻq. Amalni bajarib boʻlmaydi.',

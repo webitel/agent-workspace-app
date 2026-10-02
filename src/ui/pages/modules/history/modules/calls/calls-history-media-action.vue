@@ -51,7 +51,7 @@
 		</template>
 
 		<template #option="{ text, icon }">
-			<div class="calls-history-media-action__option">
+			<div class="calls-history-media-action__option typo-body-2">
 				<wt-icon :icon="icon" />
 				{{ text }}
 			</div>
@@ -107,9 +107,7 @@ const menuOptions = computed(() =>
 	recordings.value.map((file) => ({
 		text: getRecordingLabel(file),
 		icon:
-			file.type === EngineCallFileType.FileTypeAudio
-				? 'play'
-				: 'preview-tag-video',
+			file.type === EngineCallFileType.FileTypeAudio ? 'play' : 'ws-play-video',
 		file,
 	})),
 );
@@ -122,7 +120,15 @@ const menuOptions = computed(() =>
 	gap: var(--spacing-xs);
 }
 
+.calls-history-media-action__option .wt-icon {
+	--icon-color: var(--wt-ws-chat-queue-pannel-colors-chat-end-reason-indicator-color);
+}
+
 .calls-history-media-action__activator {
 	padding: var(--spacing-xs);
+}
+
+.calls-history-media-action__activator .wt-icon-btn {
+	--icon-color: var(--wt-ws-chat-queue-pannel-colors-chat-end-reason-indicator-color);
 }
 </style>

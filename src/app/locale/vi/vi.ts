@@ -63,17 +63,21 @@ export default {
 						playVideo: 'Phát video',
 					},
 					actions: {
-						showCallInfo: 'Xem thông tin cuộc gọi',
+						showCallInfo: 'Xem thông tin',
 					},
 					callInfo: {
 						title: 'Thông tin cuộc gọi',
 						postprocessing: 'Xử lý sau cuộc gọi',
+						agentDescription: 'Nhận xét của nhân viên',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Không thể thực hiện cuộc gọi. Vui lòng thử lại.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Quyền truy cập micrô bị từ chối. Không thể thực hiện hành động.',

@@ -1,7 +1,7 @@
 <template>
 	<div
 		ref="tableWrapper"
-		v-show="dataList.length"
+		v-if="dataList.length"
 		class="table-section__table-wrapper"
 	>
 		<wt-table

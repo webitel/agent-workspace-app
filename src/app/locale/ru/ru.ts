@@ -62,17 +62,21 @@ export default {
 						playVideo: 'Воспроизвести видео',
 					},
 					actions: {
-						showCallInfo: 'Показать информацию о звонке',
+						showCallInfo: 'Показать информацию',
 					},
 					callInfo: {
 						title: 'Информация о звонке',
 						postprocessing: 'Постобработка',
+						agentDescription: 'Комментарий оператора',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Не удалось совершить звонок. Попробуйте ещё раз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Нет доступа к микрофону. Невозможно выполнить действие.',

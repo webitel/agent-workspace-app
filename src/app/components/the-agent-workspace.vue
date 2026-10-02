@@ -6,8 +6,10 @@
             </template>
             <the-workspace-nav />
             <section class="workspace-content-wrapper">
-                <router-view class="workspace-content" />
-                <the-workspace-sidebar />
+                <div class="workspace-content-row">
+                    <router-view class="workspace-content" />
+                    <the-workspace-sidebar />
+                </div>
                 <the-task-dock-panel />
             </section>
         </wt-page>
@@ -40,21 +42,19 @@ subscribeToWebSocketEvents();
 
 /* groups the layouts; the nav rail stays out of it */
 .workspace-content-wrapper {
-    position: relative;
-    /* task dock panel is absolute */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--wt-page-body-gap);
+    min-width: 0;
+}
+
+.workspace-content-row {
     flex: 1;
     display: flex;
     gap: var(--wt-page-body-gap);
     min-width: 0;
-
-    .the-task-dock-panel {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
-        pointer-events: none;
-    }
+    min-height: 0;
 }
 
 /* routed page root: either a wt-layout or a group of them */

@@ -1,6 +1,6 @@
 /**
- * `HTMLMediaElement.play()` only returns a promise in modern browsers — older
- * Safari (and jsdom) return undefined, so never chain off it directly.
+ * `HTMLMediaElement.play()` only returns a promise in modern browsers, older
+ * Safari (and jsdom) return undefined, so never chain off it directly
  */
 export function playSafely(element: HTMLAudioElement): Promise<void> {
 	try {

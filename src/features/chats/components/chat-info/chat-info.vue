@@ -155,12 +155,4 @@ onActivated(() => variablesStore.value.refresh());
 .chat-info__cell {
 	overflow-wrap: anywhere;
 }
-
-.chat-info :deep(.p-datatable-thead > tr > th:first-child) {
-	border-top-left-radius: var(--border-radius);
-}
-
-.chat-info :deep(.p-datatable-thead > tr > th:last-child) {
-	border-top-right-radius: var(--border-radius);
-}
 </style>

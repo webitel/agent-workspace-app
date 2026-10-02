@@ -62,17 +62,21 @@ export default {
 						playVideo: 'Бейнені ойнату',
 					},
 					actions: {
-						showCallInfo: 'Қоңырау туралы ақпарат',
+						showCallInfo: 'Ақпаратты көрсету',
 					},
 					callInfo: {
 						title: 'Қоңырау туралы ақпарат',
 						postprocessing: 'Кейінгі өңдеу',
+						agentDescription: 'Оператордың пікірі',
 					},
 				},
 			},
 		},
 	},
 	error: {
+		calls: {
+			outboundCallFailed: 'Қоңырау шалу мүмкін болмады. Қайталап көріңіз.',
+		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
 				'Микрофонға қол жеткізу мүмкін емес. Әрекетті орындау мүмкін емес.',
