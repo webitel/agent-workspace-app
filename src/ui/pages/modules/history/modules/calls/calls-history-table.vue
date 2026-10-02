@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
-import { WtTable } from '@webitel/ui-sdk/components';
+import { WtPlayer, WtTable } from '@webitel/ui-sdk/components';
 import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
