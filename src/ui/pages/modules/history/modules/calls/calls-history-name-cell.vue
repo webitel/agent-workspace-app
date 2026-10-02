@@ -1,6 +1,15 @@
 <template>
-	<div class="calls-history-name-cell">
-		<wt-avatar :username="displayName" size="sm" />
+	<div
+		:class="{
+			'calls-history-name-cell--queue': isUnansweredQueueCall,
+		}"
+		class="calls-history-name-cell"
+	>
+		<wt-avatar
+			:src="isUnansweredQueueCall ? queueAvatar : undefined"
+			:username="displayName"
+			size="sm"
+		/>
 		<wt-icon :icon="callIcon.icon" size="sm" :color="callIcon.color" />
 		<p>{{ displayName }}</p>
 	</div>
@@ -10,6 +19,7 @@
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { computed } from 'vue';
 import { CallDirection } from 'webitel-sdk';
+import queueAvatar from '../../../../../../app/assets/icons/sprite/ws-queue-avatar.svg';
 
 const props = defineProps<{
 	item: EngineHistoryCall;
@@ -45,6 +55,11 @@ const callIcon = computed(() => {
 		icon: 'ws-inbound-call',
 	};
 });
+
+const isUnansweredQueueCall = computed(() => {
+	const { direction, queue, bridgedAt } = props.item;
+	return direction === CallDirection.Outbound && !!queue?.id && !bridgedAt;
+});
 </script>
 
 <style scoped>
@@ -56,5 +71,9 @@ const callIcon = computed(() => {
 
 .calls-history-name-cell .wt-avatar {
 	flex-shrink: 0;
+}
+
+.calls-history-name-cell--queue p {
+	color: var(--wt-ws-avatar-colors-unknown-user-color);
 }
 </style>

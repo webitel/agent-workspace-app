@@ -55,6 +55,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Número de teléfono',
 					},
 					recordings: {
 						unavailable: 'Grabación no disponible',
@@ -65,7 +66,7 @@ export default {
 						showCallInfo: 'Mostrar información',
 					},
 					callInfo: {
-						title: 'Información de la llamada',
+						title: 'Información',
 						postprocessing: 'Posprocesamiento',
 						agentDescription: 'Comentario del agente',
 					},

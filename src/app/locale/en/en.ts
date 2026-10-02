@@ -66,6 +66,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Phone Number',
 					},
 					recordings: {
 						unavailable: 'Recording unavailable',
@@ -76,7 +77,7 @@ export default {
 						showCallInfo: 'Show info',
 					},
 					callInfo: {
-						title: 'Call info',
+						title: 'Information',
 						postprocessing: 'Postprocessing',
 						agentDescription: "Agent's comment",
 					},

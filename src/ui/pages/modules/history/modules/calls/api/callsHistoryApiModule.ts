@@ -33,6 +33,8 @@ const VIRTUAL_FIELDS: Record<string, string[]> = {
 		'destination',
 		'direction',
 		'answered_at',
+		'bridged_at',
+		'queue',
 	],
 	phone: [
 		'from',
