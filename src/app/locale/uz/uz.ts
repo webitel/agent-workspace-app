@@ -71,6 +71,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'O‘zgaruvchilar ustunini tanlash',
+				},
+			},
 		},
 	},
 	error: {

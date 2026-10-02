@@ -72,6 +72,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Chọn cột biến',
+				},
+			},
 		},
 	},
 	error: {

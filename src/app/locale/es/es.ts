@@ -71,6 +71,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Seleccionar columnas de variables',
+				},
+			},
 		},
 	},
 	error: {

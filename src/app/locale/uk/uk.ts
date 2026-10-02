@@ -82,6 +82,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Вибрати колонки зі змінними',
+				},
+			},
 		},
 	},
 	error: {
