@@ -40,6 +40,10 @@ export default {
 				extensionsLeft: 'Залишилось продовжень: {count}',
 			},
 		},
+		variables: {
+			empty: 'Змінних немає',
+			loadError: 'Не вдалося завантажити змінні',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -49,10 +53,6 @@ export default {
 					interaction: 'Взаємодія',
 					contact: 'Контакт',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Змінних немає',
-					loadError: 'Не вдалося завантажити змінні чату',
 				},
 				topBar: {
 					transfer: 'Перевести чат',

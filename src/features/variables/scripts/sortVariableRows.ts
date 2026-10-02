@@ -1,11 +1,6 @@
 import { SortSymbols } from '@webitel/ui-sdk/scripts';
 
-import type { InfoRow } from './toInfoRows';
-
-export interface InfoSort {
-	field: 'key' | 'value';
-	order: typeof SortSymbols.ASC | typeof SortSymbols.DESC;
-}
+import type { VariableRow, VariableSort } from '../types/Variables.types';
 
 const collator = new Intl.Collator(undefined, {
 	numeric: true,
@@ -13,15 +8,15 @@ const collator = new Intl.Collator(undefined, {
 });
 
 /**
- * Sorts a copy of the Info rows by one column. `numeric` makes `ticket-2` come
+ * Sorts a copy of the variable rows by one column. `numeric` makes `ticket-2` come
  * before `ticket-10`; `base` sensitivity ignores case. Ties keep their incoming
  * order in both directions (the sort is stable and descending flips the comparison,
  * not the result), so a key held by both sources stays task-first.
  */
-export function sortInfoRows(
-	rows: InfoRow[],
-	sort: InfoSort | null,
-): InfoRow[] {
+export function sortVariableRows(
+	rows: VariableRow[],
+	sort: VariableSort | null,
+): VariableRow[] {
 	if (!sort)
 		return [
 			...rows,

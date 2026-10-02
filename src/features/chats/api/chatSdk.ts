@@ -1,4 +1,5 @@
 import {
+	createAccountService,
 	createMessagesService,
 	createServiceConfig,
 	createThreadsService,
@@ -12,3 +13,4 @@ export const serviceConfig = createServiceConfig({
 
 export const threadsService = createThreadsService(serviceConfig);
 export const messagesService = createMessagesService(serviceConfig);
+export const accountService = createAccountService(serviceConfig);

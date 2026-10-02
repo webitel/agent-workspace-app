@@ -115,7 +115,8 @@ async function openActiveChat(page: Page, socket: MockedSocket) {
 	);
 
 	await page.locator('.chat-preview__open').click();
-	await expect(page.locator('.the-chat-thread h1')).toHaveText(THREAD.subject);
+	// the history renders once the thread has loaded
+	await expect(page.locator('.chat-history')).toBeVisible();
 }
 
 function sendForm(socket: MockedSocket, form: object = processingForm) {

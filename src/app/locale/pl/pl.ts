@@ -33,6 +33,10 @@ export default {
 		numpad: {
 			call: 'Zadzwoń',
 		},
+		variables: {
+			empty: 'Brak zmiennych',
+			loadError: 'Nie udało się wczytać zmiennych',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -42,10 +46,6 @@ export default {
 					interaction: 'Interakcja',
 					contact: 'Kontakt',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Brak zmiennych',
-					loadError: 'Nie udało się wczytać zmiennych czatu',
 				},
 			},
 			history: {

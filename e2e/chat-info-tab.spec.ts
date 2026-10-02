@@ -169,7 +169,10 @@ test.describe('chat info tab', () => {
 
 		await openInfo(page);
 
-		await expect(page.locator('.chat-info')).toContainText('No variables');
+		const empty = page.locator('.chat-info .wt-empty');
+		await expect(empty).toContainText('No variables');
+		// the illustration, not just the line of text
+		await expect(empty.locator('img')).toBeVisible();
 		await expect(infoRows(page)).toHaveCount(0);
 	});
 
@@ -262,7 +265,7 @@ test.describe('chat info tab', () => {
 		await openInfo(page);
 
 		await expect(page.locator('.chat-info .p-message')).toContainText(
-			"Couldn't load the chat's variables",
+			"Couldn't load the variables",
 		);
 		await expect(infoRows(page)).toHaveCount(1);
 
@@ -359,9 +362,11 @@ test.describe('chat info tab', () => {
 			});
 			await openInfo(page);
 
-			const keyCell = page.locator('.chat-info__cell--key').first();
+			const keyCell = page
+				.locator('.chat-info tbody tr td:nth-child(1) .variables-table__cell')
+				.first();
 			const valueCell = page
-				.locator('.chat-info tbody tr td:nth-child(2) .chat-info__cell')
+				.locator('.chat-info tbody tr td:nth-child(2) .variables-table__cell')
 				.first();
 
 			// keys read heavier than values (DES-730) ...

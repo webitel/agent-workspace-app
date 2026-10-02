@@ -40,6 +40,10 @@ export default {
 				extensionsLeft: 'Extensions left: {count}',
 			},
 		},
+		variables: {
+			empty: 'No variables',
+			loadError: "Couldn't load the variables",
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -49,10 +53,6 @@ export default {
 					interaction: 'Interaction',
 					contact: 'Contact',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'No variables',
-					loadError: "Couldn't load the chat's variables",
 				},
 				topBar: {
 					transfer: 'Transfer chat',

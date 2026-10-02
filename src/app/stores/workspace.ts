@@ -3,6 +3,7 @@ import { useAgentStore } from '../../features/agent/store/agent';
 import { useCallsStore } from '../../features/calls/store/calls';
 import { useChatsStore } from '../../features/chats/store/chats';
 import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
+import { watchProcessingDisposal } from '../../features/processing/store/processing';
 import { useUserStatusStore } from '../../features/user-status/store/userStatus';
 import { useConnectionQualityStore } from '../../ui/header/modules/connectionQuality/store/connectionQuality';
 import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
@@ -37,6 +38,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		// drops every channel event and `allTask()` returns an empty list, so chats
 		// (and later job/task channels) see nothing at all. Must precede them.
 		await initializeAgentSession();
+		// Processing stores, per attempt of any channel, end with their task.
+		watchProcessingDisposal();
 		// Chats coordinator (task feed + chats socket) needs the app socket up first.
 		useChatsStore().initialize();
 		useCallsStore().initialize();
