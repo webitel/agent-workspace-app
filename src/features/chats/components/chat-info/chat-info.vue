@@ -65,7 +65,8 @@ import { computed, onActivated, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
 
-import { type InfoSort, sortInfoRows } from '../../scripts/sortInfoRows';
+import { sortVariableRows } from '../../../variables/scripts/sortVariableRows';
+import type { VariableSort } from '../../../variables/types/Variables.types';
 import { toInfoRows } from '../../scripts/toInfoRows';
 import { useChatVariablesStore } from '../../store/chat-variables';
 
@@ -87,8 +88,8 @@ const rows = computed(() =>
 	}),
 );
 
-const sort = ref<InfoSort | null>(null);
-const sortedRows = computed(() => sortInfoRows(rows.value, sort.value));
+const sort = ref<VariableSort | null>(null);
+const sortedRows = computed(() => sortVariableRows(rows.value, sort.value));
 
 // One sort must not follow the agent into another chat.
 watch(
@@ -98,7 +99,7 @@ watch(
 	},
 );
 
-const sortOf = (field: InfoSort['field']) =>
+const sortOf = (field: VariableSort['field']) =>
 	sort.value?.field === field ? sort.value.order : SortSymbols.NONE;
 
 const headers = computed<WtTableHeader[]>(() => [
@@ -124,13 +125,13 @@ const headers = computed<WtTableHeader[]>(() => [
 
 function handleSort(
 	header: WtTableHeader,
-	order: InfoSort['order'] | typeof SortSymbols.NONE,
+	order: VariableSort['order'] | typeof SortSymbols.NONE,
 ) {
 	sort.value =
 		order === SortSymbols.NONE
 			? null
 			: {
-					field: header.field as InfoSort['field'],
+					field: header.field as VariableSort['field'],
 					order,
 				};
 }
