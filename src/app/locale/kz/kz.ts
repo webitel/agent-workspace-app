@@ -55,6 +55,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Телефон нөмірі',
 					},
 					recordings: {
 						unavailable: 'Жазба қолжетімсіз',
@@ -65,7 +66,7 @@ export default {
 						showCallInfo: 'Ақпаратты көрсету',
 					},
 					callInfo: {
-						title: 'Қоңырау туралы ақпарат',
+						title: 'Ақпарат',
 						postprocessing: 'Кейінгі өңдеу',
 						agentDescription: 'Оператордың пікірі',
 					},

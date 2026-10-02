@@ -56,6 +56,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Số điện thoại',
 					},
 					recordings: {
 						unavailable: 'Bản ghi không khả dụng',
@@ -66,7 +67,7 @@ export default {
 						showCallInfo: 'Xem thông tin',
 					},
 					callInfo: {
-						title: 'Thông tin cuộc gọi',
+						title: 'Thông tin',
 						postprocessing: 'Xử lý sau cuộc gọi',
 						agentDescription: 'Nhận xét của nhân viên',
 					},
