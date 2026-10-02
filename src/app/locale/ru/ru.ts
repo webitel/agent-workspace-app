@@ -33,6 +33,10 @@ export default {
 		numpad: {
 			call: 'Позвонить',
 		},
+		variables: {
+			empty: 'Переменных нет',
+			loadError: 'Не удалось загрузить переменные',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -42,10 +46,6 @@ export default {
 					interaction: 'Взаимодействие',
 					contact: 'Контакт',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Переменных нет',
-					loadError: 'Не удалось загрузить переменные чата',
 				},
 			},
 			history: {

@@ -33,6 +33,10 @@ export default {
 		numpad: {
 			call: 'Llamar',
 		},
+		variables: {
+			empty: 'Sin variables',
+			loadError: 'No se pudieron cargar las variables',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -42,10 +46,6 @@ export default {
 					interaction: 'Interacción',
 					contact: 'Contacto',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Sin variables',
-					loadError: 'No se pudieron cargar las variables del chat',
 				},
 			},
 			history: {
