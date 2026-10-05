@@ -158,7 +158,7 @@ const getVariableValue = (slotProps: unknown, headerValue: string) => {
 	const { item } = slotProps as {
 		item?: EngineHistoryCall;
 	};
-	return item?.variables?.[headerValue.slice(VARIABLE_FIELD_PREFIX.length)];
+	return item?.variables?.[headerValue?.slice(VARIABLE_FIELD_PREFIX.length)];
 };
 
 initialize().finally(() => {
