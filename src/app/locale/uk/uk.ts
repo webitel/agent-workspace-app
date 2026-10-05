@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Ви будете отримувати дзвінки тільки з черг',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Невідомий контакт',
+		},
 		notifications: {
 			offer: {
 				title: {

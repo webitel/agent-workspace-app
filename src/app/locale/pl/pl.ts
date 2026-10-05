@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Będziesz otrzymywać połączenia tylko z kolejek',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Nieznany kontakt',
+		},
 		notifications: {
 			offer: {
 				title: {

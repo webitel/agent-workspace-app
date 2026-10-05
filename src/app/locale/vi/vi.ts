@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Bạn sẽ chỉ nhận cuộc gọi từ hàng đợi',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Liên hệ không xác định',
+		},
 		notifications: {
 			offer: {
 				title: {

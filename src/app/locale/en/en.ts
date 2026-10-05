@@ -9,6 +9,9 @@ export default {
 				tooltip: 'You will receive calls from queues only',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Unknown contact',
+		},
 		notifications: {
 			offer: {
 				title: {

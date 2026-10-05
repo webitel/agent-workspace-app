@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Вы будете получать звонки только из очередей',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Неизвестный контакт',
+		},
 		notifications: {
 			offer: {
 				title: {

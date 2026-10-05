@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Vei primi apeluri doar din cozi',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Contact necunoscut',
+		},
 		notifications: {
 			offer: {
 				title: {
