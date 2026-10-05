@@ -1,10 +1,10 @@
 <template>
 	<div class="calls-history-phone-cell">
-		<!-- TODO: start a call to this number (AC_19.01.05) -->
 		<wt-button
 			variant="text"
 			class="calls-history-phone-cell__button"
 			icon="ws-navigation-calls"
+			@click="startCall"
 		/>
 		<p>{{ phoneNumber }}</p>
 	</div>
@@ -14,10 +14,13 @@
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { computed } from 'vue';
 import { CallDirection } from 'webitel-sdk';
+import { useCallsStore } from '../../../../../../features/calls/store/calls';
 
 const props = defineProps<{
 	item: EngineHistoryCall;
 }>();
+
+const callsStore = useCallsStore();
 
 const phoneNumber = computed(() => {
 	const { direction, to, from, destination } = props.item;
@@ -26,6 +29,14 @@ const phoneNumber = computed(() => {
 		? to?.number || destination
 		: from?.number;
 });
+
+function startCall() {
+	if (!phoneNumber.value) return;
+
+	callsStore.call({
+		destination: phoneNumber.value,
+	});
+}
 </script>
 
 <style scoped>
