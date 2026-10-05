@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const fetchMessageHistoryMock = vi.fn();
 const getAccountMock = vi.fn();
 
-vi.mock('../../api/chatSdk', () => ({
+vi.mock('../../../../api/chatSdk', () => ({
 	accountService: {
 		getAccount: (...args: unknown[]) => getAccountMock(...args),
 	},

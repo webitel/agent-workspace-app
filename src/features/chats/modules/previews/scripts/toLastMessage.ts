@@ -1,5 +1,5 @@
+import type { IMessage } from '../../../types/ChatSession.types';
 import type { LastMessage } from '../types/ChatPreview.types';
-import type { IMessage } from '../types/ChatSession.types';
 
 /**
  * Maps an SDK message onto the preview's last message, or `undefined` when it

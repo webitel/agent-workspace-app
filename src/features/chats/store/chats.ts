@@ -6,11 +6,11 @@ import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
+import { useChatPreviewsStore } from '../modules/previews/store/chat-previews';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toChatOfferContent } from '../scripts/toChatOfferContent';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
-import { useChatPreviewsStore } from './chat-previews';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
 // Singleton coordinator: owns the SDK task feed and window layout. Per-chat

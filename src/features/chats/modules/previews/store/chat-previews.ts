@@ -2,11 +2,11 @@ import type { AccountModel } from '@webitel/chat-web-sdk';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 
-import { messagesService } from '../api/chatSdk';
-import { loadAccount } from '../api/loadAccount';
+import { messagesService } from '../../../api/chatSdk';
+import { loadAccount } from '../../../api/loadAccount';
+import type { IMessage } from '../../../types/ChatSession.types';
 import { toLastMessage } from '../scripts/toLastMessage';
 import type { LastMessage } from '../types/ChatPreview.types';
-import type { IMessage } from '../types/ChatSession.types';
 
 /**
  * How many of the newest messages the seed reads. Usually the first one is the
