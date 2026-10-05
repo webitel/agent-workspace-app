@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Recibirás llamadas solo de las colas',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Contacto desconocido',
+		},
 		notifications: {
 			offer: {
 				title: {

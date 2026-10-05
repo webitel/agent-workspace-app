@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Siz faqat navbatlardan qo‘ng‘iroqlarni qabul qilasiz',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Nomaʼlum kontakt',
+		},
 		notifications: {
 			offer: {
 				title: {

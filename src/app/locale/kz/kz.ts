@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Сіз тек кезектерден қоңыраулар аласыз',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Белгісіз контакт',
+		},
 		notifications: {
 			offer: {
 				title: {
