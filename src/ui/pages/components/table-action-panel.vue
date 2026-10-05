@@ -23,6 +23,7 @@
 
 			<template #variables>
 				<wt-table-variable-column-select
+					v-if="variablesStorageKey"
 					:storage-key="variablesStorageKey"
 					:title="$t('ui.pages.tableActionPanel.variableColumnSelect.title')"
 					@update:variable-headers="updateVariableHeaders"
@@ -59,7 +60,6 @@ const props = withDefaults(
 		isSearch: false,
 		headers: () => [],
 		staticHeaders: () => [],
-		variablesStorageKey: '',
 		actions: () => [],
 	},
 );
