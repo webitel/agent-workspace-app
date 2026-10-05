@@ -193,6 +193,7 @@ watch(hasForm, (value) => {
 /* the page toolbar of DES-730 */
 .the-chat-window__tabs {
 	--tab-gap: var(--wt-ws-page-toolbar-sizes-gap);
+	--tab-underline-border-radius: var(--border-radius--pill);
 
 	flex: 0 0 auto;
 	padding: var(--wt-ws-page-toolbar-sizes-padding-y)
@@ -201,28 +202,6 @@ watch(hasForm, (value) => {
 		var(--wt-ws-page-toolbar-sizes-padding-left);
 	border-radius: var(--wt-ws-page-toolbar-sizes-border-radius);
 	background: var(--wt-ws-page-toolbar-colors-background);
-}
-
-/* the design's underline is a rounded bar, which a border cannot be */
-.the-chat-window__tabs :deep(.wt-tab) {
-	border-bottom-color: transparent;
-}
-
-.the-chat-window__tabs :deep(.wt-tab)::before {
-	position: absolute;
-	right: 0;
-	bottom: -4px;
-	left: 0;
-	height: 4px;
-	border-radius: 4px;
-	background: transparent;
-	content: '';
-}
-
-.the-chat-window__tabs :deep(.wt-tab--highlight)::before,
-.the-chat-window__tabs :deep(.wt-tab:hover)::before,
-.the-chat-window__tabs :deep(.wt-tab:focus)::before {
-	background: var(--wt-tabs-underline-active-color);
 }
 
 .the-chat-window__tab--disabled {
