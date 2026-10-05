@@ -3,7 +3,7 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { computed, ref } from 'vue';
 
-import { OfferKind, type OfferPreview } from '../../types/Offer.types';
+import { type OfferCardContent, OfferKind } from '../../types/Offer.types';
 import { useOffersStore } from '../offers';
 
 const ringtone = {
@@ -36,7 +36,9 @@ vi.mock('../../../../../../app/locale/i18n', () => ({
 	},
 }));
 
-const buildPreview = (overrides: Partial<OfferPreview> = {}): OfferPreview => ({
+const buildContent = (
+	overrides: Partial<OfferCardContent> = {},
+): OfferCardContent => ({
 	kind: OfferKind.Call,
 	name: 'John Smith',
 	identifier: '380671234678',
@@ -46,7 +48,7 @@ const buildPreview = (overrides: Partial<OfferPreview> = {}): OfferPreview => ({
 
 const buildOffer = (id = 'call-1') => ({
 	id,
-	preview: buildPreview(),
+	content: buildContent(),
 	onAccept: vi.fn(),
 	onDecline: vi.fn(),
 });
@@ -230,7 +232,7 @@ describe('useOffersStore', () => {
 	describe('per-channel sound', () => {
 		const buildChatInteraction = (id = 'chat-1') => ({
 			...buildOffer(id),
-			preview: buildPreview({
+			content: buildContent({
 				kind: OfferKind.Chat,
 			}),
 		});
@@ -337,7 +339,7 @@ describe('useOffersStore', () => {
 			store.notify(buildOffer('call-1'));
 			store.notify({
 				...buildOffer('chat-1'),
-				preview: buildPreview({
+				content: buildContent({
 					kind: OfferKind.Chat,
 				}),
 			});
@@ -384,28 +386,28 @@ describe('useOffersStore', () => {
 	});
 
 	/**
-	 * The preview must stay live — a snapshot would freeze the waiting timer and
+	 * The content must stay live — a snapshot would freeze the waiting timer and
 	 * any late-arriving contact identification.
 	 */
-	it('keeps the preview reactive instead of snapshotting it', () => {
+	it('keeps the content reactive instead of snapshotting it', () => {
 		const store = useOffersStore();
 		const name = ref('Unknown');
-		const preview = computed(() =>
-			buildPreview({
+		const content = computed(() =>
+			buildContent({
 				name: name.value,
 			}),
 		);
 
 		store.notify({
 			id: 'call-1',
-			preview,
+			content,
 			onAccept: vi.fn(),
 			onDecline: vi.fn(),
 		});
 
 		name.value = 'John Smith';
 
-		const stored = store.offers[0].preview as typeof preview;
+		const stored = store.offers[0].content as typeof content;
 		expect(stored.value.name).toBe('John Smith');
 	});
 });

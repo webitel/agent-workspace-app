@@ -8,6 +8,12 @@ Accepted. Implemented by [WS-32](https://webitel.atlassian.net/browse/WS-32)
 (calls, US_14.01) and [WS-19](https://webitel.atlassian.net/browse/WS-19)
 (chats, US_06.01).
 
+Naming note: the contract and its mappers were first called `OfferPreview` and
+`toIncomingChatPreview` / `toIncomingCallPreview`, and the `Offer` field `preview`.
+They are now `OfferCardContent`, `toChatOfferContent` / `toCallOfferContent` and
+`content`, so "preview" means only the chat list row (see `CONTEXT.md`). The text
+below keeps the original names. `DES-727` keeps its Figma title.
+
 ## Context
 
 An agent must be told, from anywhere in the app, that a call or a chat has been

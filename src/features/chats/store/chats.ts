@@ -8,7 +8,7 @@ import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.
 import { useChatsSocket } from '../composables/useChatsSocket';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
-import { toIncomingChatPreview } from '../scripts/toIncomingChatPreview';
+import { toChatOfferContent } from '../scripts/toChatOfferContent';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
@@ -141,7 +141,7 @@ export const useChatsStore = defineStore('chats', () => {
 							// the task owns the offer's lifecycle; the thread id is only
 							// needed for navigation, and may not be there at all
 							id: String(task.id),
-							preview: () => toIncomingChatPreview(task),
+							content: () => toChatOfferContent(task),
 							onAccept: () => acceptOffer(task),
 							onDecline: () => declineOffer(task),
 							onBodyClick: task.thread?.id

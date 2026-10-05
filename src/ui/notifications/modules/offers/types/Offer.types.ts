@@ -3,8 +3,8 @@ import type { MaybeRefOrGetter } from 'vue';
 /**
  * Channel-neutral contract between the domain stores (calls, chats) and this
  * module. Producers map their SDK objects onto it; nothing here knows about
- * `webitel-sdk` or `@webitel/chat-web-sdk`, which is what keeps the preview
- * component shared between WS-32 (call offer) and WS-19 (chat offer).
+ * `webitel-sdk` or `@webitel/chat-web-sdk`, which is what keeps the offer card
+ * shared between WS-32 (call offer) and WS-19 (chat offer).
  */
 
 export const OfferKind = {
@@ -23,7 +23,7 @@ export interface OfferSource {
 	value: string;
 }
 
-export interface OfferPreview {
+export interface OfferCardContent {
 	kind: OfferKind;
 	/** Contact/member/schema name. Undefined renders as "Unknown contact" + N/A avatar. */
 	name?: string;
@@ -61,10 +61,10 @@ export interface Offer {
 	/** Call id / chat task id. Also the OS notification tag. */
 	id: string;
 	/**
-	 * Kept as a ref, never a snapshot: the preview tracks the live SDK entity so
+	 * Kept as a ref, never a snapshot: the content tracks the live SDK entity so
 	 * the card updates in place. Callers must not spread it.
 	 */
-	preview: MaybeRefOrGetter<OfferPreview>;
+	content: MaybeRefOrGetter<OfferCardContent>;
 	/**
 	 * Awaited by the store, which keeps the card up until the producer settles
 	 * and leaves it in place when the producer rejects. Returning nothing is
