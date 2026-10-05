@@ -19,7 +19,8 @@
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { computed } from 'vue';
 import { CallDirection } from 'webitel-sdk';
-import queueAvatar from '../../../../../../app/assets/icons/sprite/ws-queue-avatar.svg';
+import queueAvatar from '../../../../../../app/assets/ws-queue-avatar.svg';
+import { isUnansweredQueueCall as checkUnansweredQueueCall } from '../../../../../../features/calls/scripts/isUnansweredQueueCall';
 
 const props = defineProps<{
 	item: EngineHistoryCall;
@@ -56,10 +57,9 @@ const callIcon = computed(() => {
 	};
 });
 
-const isUnansweredQueueCall = computed(() => {
-	const { direction, queue, bridgedAt } = props.item;
-	return direction === CallDirection.Outbound && !!queue?.id && !bridgedAt;
-});
+const isUnansweredQueueCall = computed(() =>
+	checkUnansweredQueueCall(props.item),
+);
 </script>
 
 <style scoped>
