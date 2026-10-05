@@ -29,6 +29,7 @@ export default {
 		},
 		reusable: {
 			run: 'Іске қосу',
+			nothingToShowHere: 'Мұнда ештеңе жоқ',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',

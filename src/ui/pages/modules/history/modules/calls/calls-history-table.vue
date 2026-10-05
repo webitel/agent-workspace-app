@@ -1,7 +1,6 @@
 <template>
 	<div
 		ref="tableWrapper"
-		v-if="dataList.length"
 		class="table-section__table-wrapper"
 	>
 		<wt-table
@@ -11,6 +10,7 @@
 			:selectable="false"
 			:on-loading="onLoading"
 			data-key="id"
+			fixed-actions
 			resizable-columns
 			reorderable-columns
 			@column-resize="columnResize"
@@ -57,6 +57,13 @@
 					@show-info="openCallInfo"
 				/>
 			</template>
+
+			<template #empty>
+				<wt-empty
+					:image="emptyImage"
+					:text="t('ui.reusable.nothingToShowHere')"
+				/>
+			</template>
 		</wt-table>
 
 		<wt-vidstack-player
@@ -97,15 +104,21 @@ import {
 	VARIABLE_FIELD_PREFIX,
 } from '@webitel/ui-sdk/modules/TableVariableColumnSelect';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
+import emptyTableDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-dark.svg';
+import emptyTableLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-light.svg';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useThemedImage } from '../../../../../../app/composables/useThemedImage';
 import CallsHistoryInfoPopup from './calls-history-info-popup.vue';
 import CallsHistoryNameCell from './calls-history-name-cell.vue';
 import CallsHistoryPhoneCell from './calls-history-phone-cell.vue';
 import CallsHistoryRowActions from './calls-history-row-actions.vue';
 import { usePlayCallRecording } from './composables/usePlayCallRecording';
 import { useCallsHistoryDataListStore } from './store/calls-history';
+
+const { t } = useI18n();
 
 const store = useCallsHistoryDataListStore();
 
@@ -114,6 +127,11 @@ const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
 const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 	usePlayCallRecording();
+
+const emptyImage = useThemedImage({
+	light: emptyTableLight,
+	dark: emptyTableDark,
+});
 
 const tableWrapper = ref<HTMLElement>();
 const callInfoItem = ref<EngineHistoryCall | null>(null);

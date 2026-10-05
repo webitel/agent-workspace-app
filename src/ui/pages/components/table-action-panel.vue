@@ -12,6 +12,7 @@
 			v-if="actions.length"
 			mode="table"
 			:include="includedActions"
+			@click:refresh="emit('refresh')"
 		>
 			<template #columns>
 				<wt-table-column-select

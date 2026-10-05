@@ -29,6 +29,7 @@ export default {
 		},
 		reusable: {
 			run: 'Uruchom',
+			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
 		},
 		numpad: {
 			call: 'Zadzwoń',

@@ -4,7 +4,7 @@
 		:headers="headers"
 		:static-headers="staticHeaders"
 		:variables-storage-key="CALLS_VARIABLE_HEADERS_STORAGE_KEY"
-		@refresh="loadDataList()"
+		@refresh="refresh"
 		@update:headers="updateShownHeaders"
 	>
 		<dynamic-filter-search
@@ -32,6 +32,7 @@ const props = defineProps<{
 const actions = [
 	TableActionPanelAction.ColumnSelect,
 	TableActionPanelAction.VariableColumnSelect,
+	TableActionPanelAction.Refresh,
 ];
 
 const staticHeaders = [
@@ -47,5 +48,11 @@ const {
 	deleteFilter,
 	updateShownHeaders,
 	loadDataList,
+	updatePage,
 } = props.store;
+
+const refresh = () => {
+	updatePage(1);
+	loadDataList();
+};
 </script>

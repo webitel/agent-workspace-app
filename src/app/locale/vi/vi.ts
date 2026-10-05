@@ -28,8 +28,8 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Hủy',
 			run: 'Chạy',
+			nothingToShowHere: 'Không có gì để hiển thị ở đây',
 		},
 		numpad: {
 			call: 'Gọi',

@@ -29,6 +29,7 @@ export default {
 		},
 		reusable: {
 			run: 'Ejecutar',
+			nothingToShowHere: 'Aquí no hay nada que mostrar',
 		},
 		numpad: {
 			call: 'Llamar',
