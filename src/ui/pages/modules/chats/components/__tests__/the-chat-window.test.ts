@@ -25,6 +25,10 @@ vi.mock('../../../../../../features/chats/store/chats', () => ({
 }));
 
 vi.mock('@webitel/ui-sdk/components', () => ({
+	WtDivider: {
+		name: 'WtDivider',
+		template: '<hr />',
+	},
 	WtTabs: {
 		name: 'WtTabs',
 		props: [

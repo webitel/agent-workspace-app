@@ -1,13 +1,5 @@
 <template>
 	<section class="the-chat-window">
-		<!-- above the tabs: the deadline has to stay in view on every one of them
-		     (DES-711), the form tab included -->
-		<chat-top-bar
-			v-if="task"
-			class="the-chat-window__top-bar"
-			:task="task"
-		/>
-
 		<wt-tabs
 			class="the-chat-window__tabs"
 			:current="{ value: activeTab }"
@@ -30,6 +22,16 @@
 			</template>
 		</wt-tabs>
 
+		<wt-divider />
+
+		<!-- under the tab strip, over the panel: the deadline has to stay in view
+		     on every tab (DES-711), the form tab included -->
+		<chat-top-bar
+			v-if="task"
+			class="the-chat-window__top-bar"
+			:task="task"
+		/>
+
 		<keep-alive>
 			<component
 				:is="currentTab.is"
@@ -44,7 +46,7 @@
 	setup
 	lang="ts"
 >
-import { WtTabs } from '@webitel/ui-sdk/components';
+import { WtDivider, WtTabs } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
@@ -182,24 +184,33 @@ watch(hasForm, (value) => {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
+	gap: var(--wt-ws-layout-sizes-root-gap);
 	height: 100%;
 	min-height: 0;
 	min-width: 0;
 }
 
-.the-chat-window__top-bar {
-	flex: 0 0 auto;
-	margin-bottom: var(--spacing-xs);
-}
-
+/* the page toolbar of DES-730 */
 .the-chat-window__tabs {
+	--tab-gap: var(--wt-ws-page-toolbar-sizes-gap);
+	--tab-underline-border-radius: var(--border-radius--pill);
+
 	flex: 0 0 auto;
-	padding-bottom: var(--spacing-xs);
+	padding: var(--wt-ws-page-toolbar-sizes-padding-y)
+		var(--wt-ws-page-toolbar-sizes-padding-right)
+		var(--wt-ws-page-toolbar-sizes-padding-y)
+		var(--wt-ws-page-toolbar-sizes-padding-left);
+	border-radius: var(--wt-ws-page-toolbar-sizes-border-radius);
+	background: var(--wt-ws-page-toolbar-colors-background);
 }
 
 .the-chat-window__tab--disabled {
 	display: block;
 	opacity: 0.4;
+}
+
+.the-chat-window__top-bar {
+	flex: 0 0 auto;
 }
 
 .the-chat-window__panel {
