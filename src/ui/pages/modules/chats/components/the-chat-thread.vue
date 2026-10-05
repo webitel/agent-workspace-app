@@ -1,14 +1,17 @@
 <template>
 	<section class="the-chat-thread">
-		<h1>{{ thread?.subject ?? 'Chat Window' }}</h1>
-		<chat-container
-			:messages="chatMessages"
-			:chat-actions="chatActions"
-			:can-load-next-messages="hasMore"
-			:is-next-messages-loading="isLoading"
-			@load-next-messages="chatSession.loadMore"
-			@action:sendMessage="handleSendMessage"
-			@action:attachFiles="handleAttachFiles"
+		<chat-thread
+			v-if="thread"
+			:thread="thread"
+			:messages="messages"
+			:self-member-id="selfMemberId"
+			:mode="props.mode"
+			:has-more="hasMore"
+			:actions="chatActions"
+			@load-more="chatSession.loadMore"
+			@send="chatSession.sendText"
+			@attach="chatSession.sendFiles"
+			@seen="handleSeen"
 		/>
 	</section>
 </template>
@@ -17,13 +20,26 @@
 	setup
 	lang="ts"
 >
-import { mapMessagesToChatMessages } from '@webitel/ui-chats/adapters';
-import { ChatAction, ChatContainer } from '@webitel/ui-chats/ui';
-import type { ResultCallbacks } from '@webitel/ui-sdk/src/types';
+import {
+	ChatComposerAction,
+	ChatThread,
+	ChatThreadMode,
+	type MessageModel,
+} from '@webitel/ui-chats/v2';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
+
+const props = withDefaults(
+	defineProps<{
+		/** decided by the chat window, which knows the task behind the chat */
+		mode?: ChatThreadMode;
+	}>(),
+	{
+		mode: ChatThreadMode.Readonly,
+	},
+);
 
 const route = useRoute();
 const threadId = computed(() => route.params.threadId as string);
@@ -34,41 +50,22 @@ const chatSession = computed(() => useChatSessionStore(threadId.value));
 const thread = computed(() => chatSession.value.thread);
 const messages = computed(() => chatSession.value.messages);
 const hasMore = computed(() => chatSession.value.hasMore);
-const isLoading = computed(() => chatSession.value.isLoading);
-
-const chatMessages = computed(() => mapMessagesToChatMessages(messages.value));
+const selfMemberId = computed(() => chatSession.value.selfMemberId);
 
 const chatActions = [
-	ChatAction.SendMessage,
-	ChatAction.AttachFiles,
+	ChatComposerAction.Attach,
+	ChatComposerAction.Emoji,
+	ChatComposerAction.Send,
 ];
 
-async function handleSendMessage(
-	text: string,
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendText(text);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
-}
-
-async function handleAttachFiles(
-	files: File[],
-	{ onSuccess, onError, onComplete }: ResultCallbacks = {},
-) {
-	try {
-		await chatSession.value.sendFiles(files);
-		onSuccess?.();
-	} catch (error) {
-		onError?.(error as Error);
-	} finally {
-		onComplete?.();
-	}
+// ui-chats never calls SDK methods; the store holds IMessage instances, which
+// can mark themselves read.
+function handleSeen(message: MessageModel) {
+	void (
+		message as MessageModel & {
+			markRead?: () => Promise<void>;
+		}
+	).markRead?.();
 }
 </script>
 
@@ -81,7 +78,7 @@ async function handleAttachFiles(
 	min-height: 0;
 }
 
-.the-chat-container {
+.chat-thread {
 	flex: 1;
 	min-height: 0;
 }

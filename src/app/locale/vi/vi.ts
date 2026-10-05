@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Bạn sẽ chỉ nhận cuộc gọi từ hàng đợi',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Liên hệ không xác định',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -34,6 +37,10 @@ export default {
 		numpad: {
 			call: 'Gọi',
 		},
+		variables: {
+			empty: 'Không có biến',
+			loadError: 'Không thể tải các biến',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -44,10 +51,6 @@ export default {
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
 				},
-				info: {
-					empty: 'Không có biến',
-					loadError: 'Không thể tải các biến của cuộc trò chuyện',
-				},
 			},
 			history: {
 				tabs: {
@@ -56,6 +59,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Số điện thoại',
 					},
 					recordings: {
 						unavailable: 'Bản ghi không khả dụng',
@@ -66,10 +70,15 @@ export default {
 						showCallInfo: 'Xem thông tin',
 					},
 					callInfo: {
-						title: 'Thông tin cuộc gọi',
+						title: 'Thông tin',
 						postprocessing: 'Xử lý sau cuộc gọi',
 						agentDescription: 'Nhận xét của nhân viên',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Chọn cột biến',
 				},
 			},
 		},

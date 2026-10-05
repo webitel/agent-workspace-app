@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Сіз тек кезектерден қоңыраулар аласыз',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Белгісіз контакт',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -33,6 +36,10 @@ export default {
 		numpad: {
 			call: 'Қоңырау шалу',
 		},
+		variables: {
+			empty: 'Айнымалылар жоқ',
+			loadError: 'Айнымалыларды жүктеу мүмкін болмады',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -43,10 +50,6 @@ export default {
 					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
-				info: {
-					empty: 'Айнымалылар жоқ',
-					loadError: 'Чат айнымалыларын жүктеу мүмкін болмады',
-				},
 			},
 			history: {
 				tabs: {
@@ -55,6 +58,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Телефон нөмірі',
 					},
 					recordings: {
 						unavailable: 'Жазба қолжетімсіз',
@@ -65,10 +69,15 @@ export default {
 						showCallInfo: 'Ақпаратты көрсету',
 					},
 					callInfo: {
-						title: 'Қоңырау туралы ақпарат',
+						title: 'Ақпарат',
 						postprocessing: 'Кейінгі өңдеу',
 						agentDescription: 'Оператордың пікірі',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Айнымалылар бағандарын таңдау',
 				},
 			},
 		},

@@ -1,20 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-/** jsdom does not implement media playback, so drive the element through spies. */
-function stubMediaElement(playImpl?: () => Promise<void> | undefined) {
-	return {
-		play: vi
-			.spyOn(HTMLMediaElement.prototype, 'play')
-			.mockImplementation(
-				playImpl ?? (() => Promise.resolve() as unknown as Promise<void>),
-			),
-		pause: vi
-			.spyOn(HTMLMediaElement.prototype, 'pause')
-			.mockImplementation(() => {}),
-	};
-}
+import {
+	drainGestureListeners,
+	flush,
+	installFakeWebAudio,
+} from '../../../../../sound/utils/__tests__/fakeWebAudio';
 
-/** Fresh module registry per test: the chirp caches one audio element. */
+/** Fresh module registry per test: the chirp caches its decoded buffer. */
 async function loadChirp() {
 	vi.resetModules();
 	const { useOfferChirp } = await import('../useOfferChirp');
@@ -24,34 +16,54 @@ async function loadChirp() {
 describe('useOfferChirp', () => {
 	beforeEach(() => {
 		localStorage.clear();
+		vi.useFakeTimers();
 	});
 
-	afterEach(() => {
+	afterEach(async () => {
+		await drainGestureListeners();
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
 
 	it('plays once for an offer', async () => {
-		const media = stubMediaElement();
+		const audio = installFakeWebAudio();
 		const chirp = await loadChirp();
 
 		chirp.play();
+		await flush();
 
-		expect(media.play).toHaveBeenCalledTimes(1);
+		expect(audio.sources).toHaveLength(1);
+		expect(audio.sources[0].loop).toBe(false);
+		expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
 	});
 
 	it('plays again for a second offer rather than being one-shot forever', async () => {
-		const media = stubMediaElement();
+		const audio = installFakeWebAudio();
 		const chirp = await loadChirp();
 
 		chirp.play();
+		await flush();
 		chirp.play();
+		await flush();
 
-		expect(media.play).toHaveBeenCalledTimes(2);
+		expect(audio.sources).toHaveLength(2);
+	});
+
+	it('chirps without a media element the OS media keys could reach', async () => {
+		const audio = installFakeWebAudio();
+		const chirp = await loadChirp();
+
+		chirp.play();
+		await flush();
+
+		expect(audio.AudioElement).not.toHaveBeenCalled();
+		expect(audio.mediaPlay).not.toHaveBeenCalled();
 	});
 
 	/** Several tabs each receive the event; only the first to claim makes a sound. */
 	it('stays silent while another tab holds the chirp lock', async () => {
-		const media = stubMediaElement();
+		const audio = installFakeWebAudio();
 		localStorage.setItem(
 			'wt/agent-workspace/sound-lock/chirp',
 			JSON.stringify({
@@ -62,8 +74,9 @@ describe('useOfferChirp', () => {
 
 		const chirp = await loadChirp();
 		chirp.play();
+		await flush();
 
-		expect(media.play).not.toHaveBeenCalled();
+		expect(audio.sources).toHaveLength(0);
 	});
 
 	/**
@@ -71,7 +84,7 @@ describe('useOfferChirp', () => {
 	 * be running, and a ring would swallow every chirp behind it.
 	 */
 	it('does not take the ringtone lock', async () => {
-		stubMediaElement();
+		installFakeWebAudio();
 		vi.resetModules();
 		const { useOfferChirp } = await import('../useOfferChirp');
 		const { SoundLockKind, useSoundLock } = await import('../useSoundLock');
@@ -86,33 +99,34 @@ describe('useOfferChirp', () => {
 	 * Sharing that key is what muted this app for good.
 	 */
 	it('chirps even when another app owns the legacy tab slot', async () => {
-		const media = stubMediaElement();
+		const audio = installFakeWebAudio();
 		localStorage.setItem('currentTabId', '0.8222423407829396');
 
 		const chirp = await loadChirp();
 		chirp.play();
+		await flush();
 
-		expect(media.play).toHaveBeenCalledTimes(1);
+		expect(audio.sources).toHaveLength(1);
 	});
 
-	it('swallows a rejected play instead of leaving it unhandled', async () => {
-		stubMediaElement(() => Promise.reject(new Error('autoplay blocked')));
-		const chirp = await loadChirp();
-
-		expect(() => chirp.play()).not.toThrow();
-		// let the rejection settle; an unhandled one fails the suite
-		await Promise.resolve();
-		await Promise.resolve();
-	});
-
-	it('survives a play() that throws synchronously', async () => {
-		stubMediaElement(() => {
-			throw new Error('no output device');
+	it('swallows a blocked autoplay instead of leaving it unhandled', async () => {
+		installFakeWebAudio({
+			canStart: false,
 		});
 		const chirp = await loadChirp();
 
 		expect(() => chirp.play()).not.toThrow();
-		await Promise.resolve();
-		await Promise.resolve();
+		// let the rejection settle; an unhandled one fails the suite
+		await vi.advanceTimersByTimeAsync(300);
+		await flush();
+	});
+
+	it('survives a failed load', async () => {
+		const audio = installFakeWebAudio();
+		audio.fetchMock.mockRejectedValue(new Error('offline'));
+		const chirp = await loadChirp();
+
+		expect(() => chirp.play()).not.toThrow();
+		await flush();
 	});
 });

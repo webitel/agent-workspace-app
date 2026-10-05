@@ -33,6 +33,8 @@ const VIRTUAL_FIELDS: Record<string, string[]> = {
 		'destination',
 		'direction',
 		'answered_at',
+		'bridged_at',
+		'queue',
 	],
 	phone: [
 		'from',
@@ -65,9 +67,14 @@ const toApiFields = (fields: string[] = []) => [
 	),
 ];
 
+const DO_NOT_CONVERT_KEYS = [
+	'variables',
+];
+
 /**
- * Adapts datalist table store params to CallHistoryAPI:
- * CallHistoryAPI.getList does not convert keys, so wire params go in snake_case.
+ * Adapts datalist table store params to CallHistoryAPI.getListPost:
+ * body keys go in camelCase, getListPost converts them to snake_case
+ * except DO_NOT_CONVERT_KEYS.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
 	const { createdAt, sort, fields, ownerId, parentId, search, ...rest } =
@@ -78,24 +85,26 @@ const getList = async (params: Record<string, unknown> = {}) => {
 	);
 	const defaultCreatedAtRange = getDefaultCreatedAtRange();
 
-	const wireParams = {
+	const data = {
 		...rest,
 		q: search as string | undefined,
 		fields: toApiFields(fields as string[] | undefined),
 		sort: sort || DEFAULT_SORT,
-		'created_at.from': createdAtRange?.from ?? defaultCreatedAtRange.from,
-		'created_at.to': createdAtRange?.to ?? defaultCreatedAtRange.to,
-		owner_id: [
+		createdAt: {
+			from: createdAtRange?.from ?? defaultCreatedAtRange.from,
+			to: createdAtRange?.to ?? defaultCreatedAtRange.to,
+		},
+		ownerId: [
 			ownerId,
 		],
-		options: {},
 	};
 
-	return CallHistoryAPI.getList(
-		applyTransform<typeof wireParams>(wireParams, [
+	return CallHistoryAPI.getListPost({
+		data: applyTransform<typeof data>(data, [
 			starToSearch('q'),
 		]),
-	);
+		doNotConvertKeys: DO_NOT_CONVERT_KEYS,
+	});
 };
 
 export const callsHistoryApiModule = {

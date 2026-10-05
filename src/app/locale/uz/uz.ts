@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Siz faqat navbatlardan qo‘ng‘iroqlarni qabul qilasiz',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Nomaʼlum kontakt',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -33,6 +36,10 @@ export default {
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
 		},
+		variables: {
+			empty: "O'zgaruvchilar yo'q",
+			loadError: "O'zgaruvchilarni yuklab bo'lmadi",
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -43,10 +50,6 @@ export default {
 					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
-				info: {
-					empty: "O'zgaruvchilar yo'q",
-					loadError: "Chat o'zgaruvchilarini yuklab bo'lmadi",
-				},
 			},
 			history: {
 				tabs: {
@@ -55,6 +58,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Telefon raqami',
 					},
 					recordings: {
 						unavailable: 'Yozuv mavjud emas',
@@ -65,10 +69,15 @@ export default {
 						showCallInfo: 'Maʼlumotni koʻrsatish',
 					},
 					callInfo: {
-						title: 'Qoʻngʻiroq haqida maʼlumot',
+						title: 'Maʼlumot',
 						postprocessing: 'Keyingi ishlov',
 						agentDescription: 'Operator izohi',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'O‘zgaruvchilar ustunini tanlash',
 				},
 			},
 		},

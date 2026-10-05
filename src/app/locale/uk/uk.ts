@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Ви будете отримувати дзвінки тільки з черг',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Невідомий контакт',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -40,6 +43,10 @@ export default {
 				extensionsLeft: 'Залишилось продовжень: {count}',
 			},
 		},
+		variables: {
+			empty: 'Змінних немає',
+			loadError: 'Не вдалося завантажити змінні',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -49,10 +56,6 @@ export default {
 					interaction: 'Взаємодія',
 					contact: 'Контакт',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'Змінних немає',
-					loadError: 'Не вдалося завантажити змінні чату',
 				},
 				topBar: {
 					transfer: 'Перевести чат',
@@ -66,6 +69,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Номер телефону',
 					},
 					recordings: {
 						unavailable: 'Запис недоступний',
@@ -76,10 +80,15 @@ export default {
 						showCallInfo: 'Показати інформацію',
 					},
 					callInfo: {
-						title: 'Інформація про дзвінок',
+						title: 'Інформація',
 						postprocessing: 'Постобробка',
 						agentDescription: 'Коментар оператора',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Вибрати колонки зі змінними',
 				},
 			},
 		},

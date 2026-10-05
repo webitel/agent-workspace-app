@@ -49,12 +49,6 @@ vi.mock('../chat-session', () => ({
 	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
 }));
 
-const disposeProcessingMock = vi.fn();
-
-vi.mock('../../../processing/store/processing', () => ({
-	disposeProcessing: (...args: unknown[]) => disposeProcessingMock(...args),
-}));
-
 const connectChatsSocketMock = vi.fn();
 // Captures the handler chats registers so tests can emit a socket message.
 let threadMessageHandler: ((message: { threadId?: string }) => void) | null =
@@ -238,37 +232,6 @@ describe('chats store', () => {
 
 		expect(store.chatTaskList).toHaveLength(1);
 		expect(store.incomingOffers).toHaveLength(1);
-	});
-
-	describe('processing stores', () => {
-		it("disposes an attempt's processing store once its task leaves the feed", async () => {
-			const store = useChatsStore();
-			store.initialize();
-
-			tasks.value = [
-				{
-					id: 1,
-					channel: 'im',
-				},
-				{
-					id: 2,
-					channel: 'im',
-				},
-			];
-			await nextTick();
-			expect(disposeProcessingMock).not.toHaveBeenCalled();
-
-			tasks.value = [
-				{
-					id: 2,
-					channel: 'im',
-				},
-			];
-			await nextTick();
-
-			expect(disposeProcessingMock).toHaveBeenCalledTimes(1);
-			expect(disposeProcessingMock).toHaveBeenCalledWith(1);
-		});
 	});
 
 	describe('incoming offers', () => {

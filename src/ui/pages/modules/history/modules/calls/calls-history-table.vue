@@ -41,6 +41,14 @@
 					tooltip-text-prefix="calls.connectionQuality"
 				/>
 			</template>
+
+			<template
+				v-for="header in variableHeaders"
+				:key="header.value"
+				#[header.value]="slotProps"
+			>
+				{{ getVariableValue(slotProps, header.value) }}
+			</template>
 			
 			<template #actions="{ item }">
 				<calls-history-row-actions
@@ -82,8 +90,12 @@
 <script setup lang="ts">
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
-import { WtTable } from '@webitel/ui-sdk/components';
+import { WtPlayer, WtTable } from '@webitel/ui-sdk/components';
 import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
+import {
+	isVariableHeader,
+	VARIABLE_FIELD_PREFIX,
+} from '@webitel/ui-sdk/modules/TableVariableColumnSelect';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
@@ -105,6 +117,7 @@ const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 
 const tableWrapper = ref<HTMLElement>();
 const callInfoItem = ref<EngineHistoryCall | null>(null);
+const isInitializing = ref(true);
 
 // audio player is rendered in <body> (outside the table DOM, so it can't trigger
 // table recalculation and extra page loads) and positioned over the table bottom
@@ -117,7 +130,9 @@ const playerStyle = computed(() => ({
 	bottom: `${windowHeight.value - bottom.value}px`,
 }));
 
-const isInitializing = ref(true);
+const variableHeaders = computed(() =>
+	shownHeaders.value.filter(isVariableHeader),
+);
 
 const onLoading = async () => {
 	if (isInitializing.value || isLoading.value || !next.value) return;
@@ -136,6 +151,14 @@ const openCallInfo = (item: EngineHistoryCall) => {
 
 const closeCallInfo = () => {
 	callInfoItem.value = null;
+};
+
+// dynamic slot names are untyped in vue-tsc: slot props come as `{}`
+const getVariableValue = (slotProps: unknown, headerValue: string) => {
+	const { item } = slotProps as {
+		item?: EngineHistoryCall;
+	};
+	return item?.variables?.[headerValue?.slice(VARIABLE_FIELD_PREFIX.length)];
 };
 
 initialize().finally(() => {

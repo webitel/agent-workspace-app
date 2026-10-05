@@ -1,6 +1,7 @@
 export const TableActionPanelAction = {
 	Refresh: 'refresh',
 	ColumnSelect: 'columnSelect',
+	VariableColumnSelect: 'variableColumnSelect',
 	Filter: 'filter',
 } as const;
 

@@ -8,7 +8,7 @@ export interface ChatHeader {
 
 /**
  * Maps an SDK chat `Task` onto what the top bar shows. Same sources as the
- * incoming offer (`toIncomingChatPreview`), so a chat reads the same before
+ * incoming offer (`toChatOfferContent`), so a chat reads the same before
  * and after it is accepted.
  */
 export function toChatHeader(task: Task): ChatHeader {

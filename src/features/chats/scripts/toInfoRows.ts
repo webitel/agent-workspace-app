@@ -1,22 +1,6 @@
+import { toVariableRows } from '../../variables/scripts/toVariableRows';
+import type { VariableRow } from '../../variables/types/Variables.types';
 import type { ThreadVariablesModel } from '../types/ChatSession.types';
-
-export interface InfoRow {
-	/** source-qualified: the same key may legitimately come from both sources */
-	id: string;
-	key: string;
-	value: string;
-}
-
-/**
- * Variables are arbitrary JSON, but a cell is text: strings pass through whole
- * (never truncated, the agent needs the full value), absent values are blank,
- * structures become compact JSON.
- */
-function formatValue(value: unknown): string {
-	if (value === null || value === undefined) return '';
-	if (typeof value === 'object') return JSON.stringify(value);
-	return String(value);
-}
 
 /**
  * The thread wraps what was stored in a `{ "value": … }` envelope of its own, so
@@ -50,22 +34,16 @@ export function toInfoRows({
 }: {
 	taskVariables?: Record<string, unknown>;
 	threadVariables?: ThreadVariablesModel['variables'];
-}): InfoRow[] {
-	const taskRows = Object.entries(taskVariables ?? {}).map(([key, value]) => ({
-		id: `task:${key}`,
-		key,
-		value: formatValue(value),
-	}));
-	const threadRows = Object.entries(threadVariables ?? {}).map(
-		([key, entry]) => ({
-			id: `thread:${key}`,
+}): VariableRow[] {
+	const threadValues = Object.fromEntries(
+		Object.entries(threadVariables ?? {}).map(([key, entry]) => [
 			key,
-			value: formatValue(unwrapEnvelope(entry.value)),
-		}),
+			unwrapEnvelope(entry.value),
+		]),
 	);
 
 	return [
-		...taskRows,
-		...threadRows,
+		...toVariableRows(taskVariables, 'task'),
+		...toVariableRows(threadValues, 'thread'),
 	];
 }

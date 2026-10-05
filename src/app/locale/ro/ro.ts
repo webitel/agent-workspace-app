@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Vei primi apeluri doar din cozi',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Contact necunoscut',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -33,6 +36,10 @@ export default {
 		numpad: {
 			call: 'Apelează',
 		},
+		variables: {
+			empty: 'Nu există variabile',
+			loadError: 'Nu s-au putut încărca variabilele',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -43,10 +50,6 @@ export default {
 					contact: 'Contact',
 					iframe: 'Iframe',
 				},
-				info: {
-					empty: 'Nu există variabile',
-					loadError: 'Nu s-au putut încărca variabilele chatului',
-				},
 			},
 			history: {
 				tabs: {
@@ -55,6 +58,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Număr de telefon',
 					},
 					recordings: {
 						unavailable: 'Înregistrare indisponibilă',
@@ -65,10 +69,15 @@ export default {
 						showCallInfo: 'Afișează informații',
 					},
 					callInfo: {
-						title: 'Informații despre apel',
+						title: 'Informații',
 						postprocessing: 'Postprocesare',
 						agentDescription: 'Comentariul agentului',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Selectează coloanele variabile',
 				},
 			},
 		},

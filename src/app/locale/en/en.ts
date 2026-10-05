@@ -9,6 +9,9 @@ export default {
 				tooltip: 'You will receive calls from queues only',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Unknown contact',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -40,6 +43,10 @@ export default {
 				extensionsLeft: 'Extensions left: {count}',
 			},
 		},
+		variables: {
+			empty: 'No variables',
+			loadError: "Couldn't load the variables",
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -49,10 +56,6 @@ export default {
 					interaction: 'Interaction',
 					contact: 'Contact',
 					iframe: 'Iframe',
-				},
-				info: {
-					empty: 'No variables',
-					loadError: "Couldn't load the chat's variables",
 				},
 				topBar: {
 					transfer: 'Transfer chat',
@@ -66,6 +69,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Phone Number',
 					},
 					recordings: {
 						unavailable: 'Recording unavailable',
@@ -76,10 +80,15 @@ export default {
 						showCallInfo: 'Show info',
 					},
 					callInfo: {
-						title: 'Call info',
+						title: 'Information',
 						postprocessing: 'Postprocessing',
 						agentDescription: "Agent's comment",
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Select variables columns',
 				},
 			},
 		},

@@ -5,6 +5,7 @@ import { useWorkspaceStore } from '../workspace';
 
 const connect = vi.fn(async () => {});
 const initializeAgent = vi.fn(async () => {});
+const watchProcessingDisposal = vi.fn(() => {});
 const initializeChats = vi.fn(() => {});
 const initializeCalls = vi.fn(() => {});
 const initializeGlobalHandlers = vi.fn(() => {});
@@ -19,6 +20,9 @@ vi.mock('../../../features/agent/store/agent', () => ({
 	useAgentStore: () => ({
 		initializeAgent: () => initializeAgent(),
 	}),
+}));
+vi.mock('../../../features/processing/store/processing', () => ({
+	watchProcessingDisposal: () => watchProcessingDisposal(),
 }));
 vi.mock('../../../features/chats/store/chats', () => ({
 	useChatsStore: () => ({
@@ -97,6 +101,13 @@ describe('useWorkspaceStore', () => {
 		expect(initializeCalls).toHaveBeenCalledTimes(1);
 		expect(initializeGlobalHandlers).toHaveBeenCalledTimes(1);
 		expect(initializeUserStatus).toHaveBeenCalledTimes(1);
+	});
+
+	// Calls and chats both render processing forms; neither owns their cleanup.
+	it('starts processing store disposal once, for every channel', async () => {
+		await useWorkspaceStore().initialize();
+
+		expect(watchProcessingDisposal).toHaveBeenCalledTimes(1);
 	});
 
 	it('does not resolve the agent session before the socket is connected', async () => {

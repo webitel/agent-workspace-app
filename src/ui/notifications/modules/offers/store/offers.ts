@@ -25,8 +25,8 @@ export const useOffersStore = defineStore('offers', () => {
 	const osNotifications = useOsNotifications();
 
 	/**
-	 * `shallowRef` is load-bearing: entries hold a `preview` ref, and a deep
-	 * `ref([])` would unwrap it on property access, collapsing the live preview
+	 * `shallowRef` is load-bearing: entries hold a `content` ref, and a deep
+	 * `ref([])` would unwrap it on property access, collapsing the live content
 	 * into a snapshot. Mutations replace the array.
 	 */
 	const offers = shallowRef<Offer[]>([]);
@@ -49,7 +49,7 @@ export const useOffersStore = defineStore('offers', () => {
 	}
 
 	function kindOf(offer: Offer): OfferKind {
-		return toValue(offer.preview).kind;
+		return toValue(offer.content).kind;
 	}
 
 	/** Only calls ring; a chat offer must not keep the ringtone alive. */
@@ -58,17 +58,17 @@ export const useOffersStore = defineStore('offers', () => {
 	}
 
 	function pushOsNotification(offer: Offer) {
-		const preview = toValue(offer.preview);
-		const title = i18n.global.t(`ui.notifications.offer.title.${preview.kind}`);
+		const content = toValue(offer.content);
+		const title = i18n.global.t(`ui.notifications.offer.title.${content.kind}`);
 		const name =
-			preview.name ?? i18n.global.t('ui.notifications.offer.unknownContact');
+			content.name ?? i18n.global.t('ui.notifications.offer.unknownContact');
 
 		osNotifications.show({
 			id: offer.id,
-			title: preview.source
-				? `${title}\n${preview.source.label}: ${preview.source.value}`
+			title: content.source
+				? `${title}\n${content.source.label}: ${content.source.value}`
 				: title,
-			body: preview.identifier ? `${name}: ${preview.identifier}` : name,
+			body: content.identifier ? `${name}: ${content.identifier}` : name,
 			actions: [
 				{
 					action: 'accept',
@@ -132,7 +132,7 @@ export const useOffersStore = defineStore('offers', () => {
 		for (const offer of [
 			...offers.value,
 		]) {
-			if (toValue(offer.preview).kind !== kind) continue;
+			if (toValue(offer.content).kind !== kind) continue;
 			if (!live.has(offer.id)) dismiss(offer.id);
 		}
 	}

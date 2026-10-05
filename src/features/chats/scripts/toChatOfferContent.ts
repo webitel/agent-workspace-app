@@ -1,12 +1,12 @@
 import type { Task } from 'webitel-sdk';
 
 import {
+	type OfferCardContent,
 	OfferKind,
-	type OfferPreview,
 } from '../../../ui/notifications/modules/offers/types/Offer.types';
 
 /**
- * Maps an SDK chat `Task` onto the channel-neutral preview contract, so the
+ * Maps an SDK chat `Task` onto the channel-neutral offer card content contract, so the
  * notifications module stays free of `webitel-sdk`.
  */
 
@@ -19,7 +19,7 @@ function resolveName(task: Task): string | undefined {
 	return task.displayName || undefined;
 }
 
-export function toIncomingChatPreview(task: Task): OfferPreview {
+export function toChatOfferContent(task: Task): OfferCardContent {
 	return {
 		kind: OfferKind.Chat,
 		name: resolveName(task),

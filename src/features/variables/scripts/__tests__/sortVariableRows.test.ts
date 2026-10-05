@@ -1,22 +1,22 @@
 import { SortSymbols } from '@webitel/ui-sdk/scripts';
 import { describe, expect, it } from 'vitest';
-import { sortInfoRows } from '../sortInfoRows';
-import type { InfoRow } from '../toInfoRows';
+import type { VariableRow } from '../../types/Variables.types';
+import { sortVariableRows } from '../sortVariableRows';
 
-const row = (id: string, key: string, value = ''): InfoRow => ({
+const row = (id: string, key: string, value = ''): VariableRow => ({
 	id,
 	key,
 	value,
 });
 
-describe('sortInfoRows', () => {
+describe('sortVariableRows', () => {
 	it('keeps the incoming order, without mutating it, when there is no sort', () => {
 		const rows = [
 			row('task:b', 'b'),
 			row('task:a', 'a'),
 		];
 
-		const sorted = sortInfoRows(rows, null);
+		const sorted = sortVariableRows(rows, null);
 
 		expect(sorted.map((item) => item.key)).toEqual([
 			'b',
@@ -32,8 +32,8 @@ describe('sortInfoRows', () => {
 			row('task:a', 'a', '2'),
 		];
 
-		const keys = (sort: Parameters<typeof sortInfoRows>[1]) =>
-			sortInfoRows(rows, sort).map((item) => item.key);
+		const keys = (sort: Parameters<typeof sortVariableRows>[1]) =>
+			sortVariableRows(rows, sort).map((item) => item.key);
 
 		expect(
 			keys({
@@ -74,7 +74,7 @@ describe('sortInfoRows', () => {
 			row('task:3', 'ticket-1'),
 		];
 
-		const sorted = sortInfoRows(rows, {
+		const sorted = sortVariableRows(rows, {
 			field: 'key',
 			order: SortSymbols.ASC,
 		});
@@ -96,7 +96,7 @@ describe('sortInfoRows', () => {
 			SortSymbols.ASC,
 			SortSymbols.DESC,
 		]) {
-			const sorted = sortInfoRows(rows, {
+			const sorted = sortVariableRows(rows, {
 				field: 'key',
 				order,
 			});

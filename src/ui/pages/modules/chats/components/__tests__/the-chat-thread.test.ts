@@ -13,35 +13,43 @@ vi.mock('vue-router', () => ({
 	}),
 }));
 
-// Mock the ui-chats /ui entry: importing the real ChatContainer pulls the
+// Mock the ui-chats /v2 entry: importing the real ChatThread pulls the
 // styleguide/ui-sdk asset tree (svg?raw) that vitest refuses to transform.
-// A lightweight stub that captures props and re-emits the wired events is
-// enough to exercise the thread's binding logic. The /adapters entry is
-// type-only and stays real, so message mapping is exercised for real.
-vi.mock('@webitel/ui-chats/ui', () => ({
-	ChatAction: {
-		SendMessage: 'sendMessage',
-		AttachFiles: 'attachFiles',
+// A stub that captures props is enough to check the thread's wiring.
+vi.mock('@webitel/ui-chats/v2', () => ({
+	ChatThreadMode: {
+		Awaiting: 'awaiting',
+		Active: 'active',
+		Readonly: 'readonly',
 	},
-	ChatContainer: {
-		name: 'ChatContainer',
+	ChatComposerAction: {
+		Attach: 'attach',
+		Emoji: 'emoji',
+		Send: 'send',
+	},
+	ChatThread: {
+		name: 'ChatThread',
 		props: [
+			'thread',
 			'messages',
-			'chatActions',
-			'canLoadNextMessages',
-			'isNextMessagesLoading',
+			'selfMemberId',
+			'mode',
+			'hasMore',
+			'actions',
+			'onLoadMore',
+			'onSend',
+			'onAttach',
 		],
 		emits: [
-			'load-next-messages',
-			'action:sendMessage',
-			'action:attachFiles',
+			'seen',
 		],
-		template: '<div class="chat-container-stub" />',
+		template: '<div class="chat-thread-stub" />',
 	},
 }));
 
-const mountThread = () =>
+const mountThread = (props = {}) =>
 	mount(TheChatThread, {
+		props,
 		global: {
 			plugins: [
 				createTestingPinia({
@@ -51,19 +59,34 @@ const mountThread = () =>
 		},
 	});
 
-const container = (wrapper: ReturnType<typeof mountThread>) =>
+const chatThread = (wrapper: ReturnType<typeof mountThread>) =>
 	wrapper.findComponent({
-		name: 'ChatContainer',
+		name: 'ChatThread',
 	});
+
+const withThread = async (wrapper: ReturnType<typeof mountThread>) => {
+	const store = useChatSessionStore('chat-1');
+	store.thread = {
+		id: 'chat-1',
+		members: [],
+	} as never;
+	await wrapper.vm.$nextTick();
+	return store;
+};
 
 describe('the-chat-thread', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it('maps store messages into the container and mirrors paging state', async () => {
+	it('renders nothing until the thread has loaded', () => {
 		const wrapper = mountThread();
-		const store = useChatSessionStore('chat-1');
+		expect(chatThread(wrapper).exists()).toBe(false);
+	});
+
+	it('passes the store’s thread, messages and paging state through', async () => {
+		const wrapper = mountThread();
+		const store = await withThread(wrapper);
 		store.messages = [
 			{
 				id: 'm1',
@@ -71,82 +94,54 @@ describe('the-chat-thread', () => {
 			},
 		] as never;
 		store.olderCursor = 'cursor-1';
-		store.isLoading = true;
 		await wrapper.vm.$nextTick();
 
-		expect(container(wrapper).props('messages')).toEqual([
+		expect(chatThread(wrapper).props('thread')).toMatchObject({
+			id: 'chat-1',
+		});
+		expect(chatThread(wrapper).props('messages')).toEqual([
 			expect.objectContaining({
 				id: 'm1',
-				text: 'hello',
 			}),
 		]);
-		expect(container(wrapper).props('canLoadNextMessages')).toBe(true);
-		expect(container(wrapper).props('isNextMessagesLoading')).toBe(true);
+		expect(chatThread(wrapper).props('hasMore')).toBe(true);
+		expect(chatThread(wrapper).props('actions')).toEqual([
+			'attach',
+			'emoji',
+			'send',
+		]);
 	});
 
-	it('routes the load-next-messages event to store.loadMore', async () => {
+	it('hands the store’s async actions straight to ChatThread', async () => {
 		const wrapper = mountThread();
-		const store = useChatSessionStore('chat-1');
+		const store = await withThread(wrapper);
 
-		await container(wrapper).vm.$emit('load-next-messages');
-
-		expect(store.loadMore).toHaveBeenCalledOnce();
+		expect(chatThread(wrapper).props('onSend')).toBe(store.sendText);
+		expect(chatThread(wrapper).props('onAttach')).toBe(store.sendFiles);
+		expect(chatThread(wrapper).props('onLoadMore')).toBe(store.loadMore);
 	});
 
-	it('sends text and resolves onSuccess on a successful send', async () => {
+	it('passes the mode the chat window decided, read-only by default', async () => {
 		const wrapper = mountThread();
-		const store = useChatSessionStore('chat-1');
-		const onSuccess = vi.fn();
-		const onComplete = vi.fn();
+		await withThread(wrapper);
+		expect(chatThread(wrapper).props('mode')).toBe('readonly');
 
-		await container(wrapper).vm.$emit('action:sendMessage', 'hi', {
-			onSuccess,
-			onComplete,
+		await wrapper.setProps({
+			mode: 'active',
 		});
-		await wrapper.vm.$nextTick();
-
-		expect(store.sendText).toHaveBeenCalledWith('hi');
-		expect(onSuccess).toHaveBeenCalledOnce();
-		expect(onComplete).toHaveBeenCalledOnce();
+		expect(chatThread(wrapper).props('mode')).toBe('active');
 	});
 
-	it('reports onError when a send rejects', async () => {
+	it('marks a seen message read', async () => {
 		const wrapper = mountThread();
-		const store = useChatSessionStore('chat-1');
-		const failure = new Error('boom');
-		vi.mocked(store.sendText).mockRejectedValueOnce(failure);
-		const onSuccess = vi.fn();
-		const onError = vi.fn();
-		const onComplete = vi.fn();
+		await withThread(wrapper);
+		const markRead = vi.fn().mockResolvedValue(undefined);
 
-		await container(wrapper).vm.$emit('action:sendMessage', 'hi', {
-			onSuccess,
-			onError,
-			onComplete,
+		await chatThread(wrapper).vm.$emit('seen', {
+			id: 'm1',
+			markRead,
 		});
-		await wrapper.vm.$nextTick();
 
-		expect(onSuccess).not.toHaveBeenCalled();
-		expect(onError).toHaveBeenCalledWith(failure);
-		expect(onComplete).toHaveBeenCalledOnce();
-	});
-
-	it('routes the attach-files event to store.sendFiles', async () => {
-		const wrapper = mountThread();
-		const store = useChatSessionStore('chat-1');
-		const files = [
-			{
-				name: 'a.png',
-			},
-		] as never;
-		const onSuccess = vi.fn();
-
-		await container(wrapper).vm.$emit('action:attachFiles', files, {
-			onSuccess,
-		});
-		await wrapper.vm.$nextTick();
-
-		expect(store.sendFiles).toHaveBeenCalledWith(files);
-		expect(onSuccess).toHaveBeenCalledOnce();
+		expect(markRead).toHaveBeenCalledOnce();
 	});
 });

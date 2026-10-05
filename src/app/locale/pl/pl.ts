@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Będziesz otrzymywać połączenia tylko z kolejek',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Nieznany kontakt',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -33,6 +36,10 @@ export default {
 		numpad: {
 			call: 'Zadzwoń',
 		},
+		variables: {
+			empty: 'Brak zmiennych',
+			loadError: 'Nie udało się wczytać zmiennych',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -43,10 +50,6 @@ export default {
 					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
-				info: {
-					empty: 'Brak zmiennych',
-					loadError: 'Nie udało się wczytać zmiennych czatu',
-				},
 			},
 			history: {
 				tabs: {
@@ -55,6 +58,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Numer telefonu',
 					},
 					recordings: {
 						unavailable: 'Nagranie niedostępne',
@@ -65,10 +69,15 @@ export default {
 						showCallInfo: 'Pokaż informacje',
 					},
 					callInfo: {
-						title: 'Informacje o połączeniu',
+						title: 'Informacje',
 						postprocessing: 'Przetwarzanie końcowe',
 						agentDescription: 'Komentarz agenta',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Wybierz kolumny zmiennych',
 				},
 			},
 		},

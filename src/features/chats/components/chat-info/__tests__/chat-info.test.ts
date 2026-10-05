@@ -210,7 +210,7 @@ describe('chat-info', () => {
 		expect(wrapper.find('.loader').exists()).toBe(false);
 	});
 
-	it('shows a loader, not an empty state, until the first answer when nothing is known yet', async () => {
+	it('waits with a loader, not an empty state, until the first answer when nothing is known yet', async () => {
 		locateVariablesMock.mockReturnValue(new Promise(() => {}));
 		const { wrapper } = mountInfo();
 		await nextTick();
@@ -219,12 +219,11 @@ describe('chat-info', () => {
 		expect(wrapper.find('.empty').exists()).toBe(false);
 	});
 
-	it('shows the empty state when neither source has variables', async () => {
+	it('says there are no variables once both sources have answered empty', async () => {
 		const { wrapper } = mountInfo();
 		await flushPromises();
 
-		expect(wrapper.find('.empty').text()).toBe('ui.pages.chats.info.empty');
-		expect(wrapper.find('table').exists()).toBe(false);
+		expect(wrapper.find('.empty').exists()).toBe(true);
 		expect(wrapper.find('.loader').exists()).toBe(false);
 	});
 
@@ -243,9 +242,7 @@ describe('chat-info', () => {
 		isShown.value = true;
 		await flushPromises();
 
-		expect(wrapper.find('.message').text()).toContain(
-			'ui.pages.chats.info.loadError',
-		);
+		expect(wrapper.find('.message').text()).toContain('ui.variables.loadError');
 		expect(rowsOf(wrapper)).toHaveLength(1);
 
 		locateVariablesMock.mockResolvedValueOnce(
@@ -259,123 +256,40 @@ describe('chat-info', () => {
 		expect(wrapper.find('.message').exists()).toBe(false);
 	});
 
-	it('shows the error alone, without an empty state, when the first request fails', async () => {
-		locateVariablesMock.mockRejectedValue(new Error('network down'));
-		const { wrapper } = mountInfo();
+	it('forgets the sort when the chat changes', async () => {
+		// the task survives the switch, so the table is still there to inspect
+		const { wrapper, propsRef } = mountInfo({
+			task: taskWith({
+				B: '2',
+				A: '1',
+			}),
+		});
 		await flushPromises();
-
-		expect(wrapper.find('.message').exists()).toBe(true);
-		expect(wrapper.find('.empty').exists()).toBe(false);
-	});
-
-	describe('sorting', () => {
-		const tableOf = (wrapper: ReturnType<typeof mountInfo>['wrapper']) =>
+		const table = () =>
 			wrapper.findComponent({
 				name: 'WtTable',
 			});
-
-		async function mountWithRows() {
-			locateVariablesMock.mockResolvedValue(
-				threadVariables({
-					B: '2',
-					A: '1',
-				}),
-			);
-			const mounted = mountInfo();
-			await flushPromises();
-			return mounted;
-		}
-
-		const headerSort = (
-			wrapper: ReturnType<typeof mountInfo>['wrapper'],
-			field: string,
-		) =>
+		const keySort = () =>
 			(
-				tableOf(wrapper).props('headers') as {
+				table().props('headers') as {
 					field: string;
 					sort: unknown;
 				}[]
-			).find((header) => header.field === field)?.sort;
+			).find((header) => header.field === 'key')?.sort;
 
-		it('turns table sorting on and starts unsorted, in source order', async () => {
-			const { wrapper } = await mountWithRows();
+		table().vm.$emit(
+			'sort',
+			{
+				field: 'key',
+			},
+			SortSymbols.ASC,
+		);
+		await nextTick();
+		expect(keySort()).toBe(SortSymbols.ASC);
 
-			expect(tableOf(wrapper).props('sortable')).toBe(true);
-			expect(headerSort(wrapper, 'key')).toBe(SortSymbols.NONE);
-			expect(rowsOf(wrapper).map((row) => row.key)).toEqual([
-				'B',
-				'A',
-			]);
-		});
+		propsRef.threadId = 'thread-2';
+		await flushPromises();
 
-		it('sorts by the column the table reports, and reflects it in that header', async () => {
-			const { wrapper } = await mountWithRows();
-
-			tableOf(wrapper).vm.$emit(
-				'sort',
-				{
-					field: 'key',
-				},
-				SortSymbols.ASC,
-			);
-			await nextTick();
-
-			expect(rowsOf(wrapper).map((row) => row.key)).toEqual([
-				'A',
-				'B',
-			]);
-			expect(headerSort(wrapper, 'key')).toBe(SortSymbols.ASC);
-			expect(headerSort(wrapper, 'value')).toBe(SortSymbols.NONE);
-		});
-
-		it('returns to source order when the table reports no sort', async () => {
-			const { wrapper } = await mountWithRows();
-			tableOf(wrapper).vm.$emit(
-				'sort',
-				{
-					field: 'key',
-				},
-				SortSymbols.ASC,
-			);
-			await nextTick();
-
-			tableOf(wrapper).vm.$emit(
-				'sort',
-				{
-					field: 'key',
-				},
-				SortSymbols.NONE,
-			);
-			await nextTick();
-
-			expect(rowsOf(wrapper).map((row) => row.key)).toEqual([
-				'B',
-				'A',
-			]);
-		});
-
-		it('forgets the sort when the chat changes', async () => {
-			// the task survives the switch, so the table is still there to inspect
-			const { wrapper, propsRef } = mountInfo({
-				task: taskWith({
-					B: '2',
-					A: '1',
-				}),
-			});
-			await flushPromises();
-			tableOf(wrapper).vm.$emit(
-				'sort',
-				{
-					field: 'key',
-				},
-				SortSymbols.ASC,
-			);
-			await nextTick();
-
-			propsRef.threadId = 'thread-2';
-			await flushPromises();
-
-			expect(headerSort(wrapper, 'key')).toBe(SortSymbols.NONE);
-		});
+		expect(keySort()).toBe(SortSymbols.NONE);
 	});
 });

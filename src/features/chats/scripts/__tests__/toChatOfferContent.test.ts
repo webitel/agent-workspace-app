@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Task } from 'webitel-sdk';
 
 import { OfferKind } from '../../../../ui/notifications/modules/offers/types/Offer.types';
-import { toIncomingChatPreview } from '../toIncomingChatPreview';
+import { toChatOfferContent } from '../toChatOfferContent';
 
 const buildTask = (overrides: Partial<Task> = {}): Task =>
 	({
@@ -17,9 +17,9 @@ const buildTask = (overrides: Partial<Task> = {}): Task =>
 		...overrides,
 	}) as unknown as Task;
 
-describe('toIncomingChatPreview', () => {
+describe('toChatOfferContent', () => {
 	it('maps an identified contact with the last message', () => {
-		expect(toIncomingChatPreview(buildTask())).toEqual({
+		expect(toChatOfferContent(buildTask())).toEqual({
 			kind: OfferKind.Chat,
 			name: 'John Smith',
 			identifier: '@john',
@@ -32,24 +32,24 @@ describe('toIncomingChatPreview', () => {
 
 	// `displayName` is null when the platform pushed no member name
 	it('drops the name when the contact was not identified', () => {
-		const preview = toIncomingChatPreview(
+		const content = toChatOfferContent(
 			buildTask({
 				displayName: null,
 			}),
 		);
 
-		expect(preview.name).toBeUndefined();
-		expect(preview.identifier).toBe('@john');
+		expect(content.name).toBeUndefined();
+		expect(content.identifier).toBe('@john');
 	});
 
 	it('tolerates a task with no thread preview', () => {
-		const preview = toIncomingChatPreview(
+		const content = toChatOfferContent(
 			buildTask({
 				thread: undefined,
 			}),
 		);
 
-		expect(preview.body).toBeUndefined();
+		expect(content.body).toBeUndefined();
 	});
 
 	/**
@@ -57,7 +57,7 @@ describe('toIncomingChatPreview', () => {
 	 * read as one while naming the messenger instead. Omitted until WS-35.
 	 */
 	it('omits the source line until the gateway is on the wire', () => {
-		expect(toIncomingChatPreview(buildTask()).source).toBeUndefined();
+		expect(toChatOfferContent(buildTask()).source).toBeUndefined();
 	});
 
 	/**
@@ -65,9 +65,9 @@ describe('toIncomingChatPreview', () => {
 	 * restart at zero and the bar would go greener the longer they waited.
 	 */
 	it('reports no waiting time until a queue-entry epoch exists', () => {
-		const preview = toIncomingChatPreview(buildTask());
+		const content = toChatOfferContent(buildTask());
 
-		expect(preview.waitingSince).toBeUndefined();
-		expect(preview.maxWaitSec).toBeUndefined();
+		expect(content.waitingSince).toBeUndefined();
+		expect(content.maxWaitSec).toBeUndefined();
 	});
 });

@@ -9,6 +9,9 @@ export default {
 				tooltip: 'Вы будете получать звонки только из очередей',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Неизвестный контакт',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -33,6 +36,10 @@ export default {
 		numpad: {
 			call: 'Позвонить',
 		},
+		variables: {
+			empty: 'Переменных нет',
+			loadError: 'Не удалось загрузить переменные',
+		},
 		pages: {
 			chats: {
 				tabs: {
@@ -43,10 +50,6 @@ export default {
 					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
-				info: {
-					empty: 'Переменных нет',
-					loadError: 'Не удалось загрузить переменные чата',
-				},
 			},
 			history: {
 				tabs: {
@@ -55,6 +58,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Номер телефона',
 					},
 					recordings: {
 						unavailable: 'Запись недоступна',
@@ -65,10 +69,15 @@ export default {
 						showCallInfo: 'Показать информацию',
 					},
 					callInfo: {
-						title: 'Информация о звонке',
+						title: 'Информация',
 						postprocessing: 'Постобработка',
 						agentDescription: 'Комментарий оператора',
 					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Выбрать колонки с переменными',
 				},
 			},
 		},
