@@ -1,12 +1,8 @@
 import type { AccountModel } from '@webitel/chat-web-sdk';
 import type { Task } from 'webitel-sdk';
-
-import type {
-	ChatPreview,
-	LastMessage,
-} from '../modules/previews/types/ChatPreview.types';
-import { findSelfMemberId } from './findSelfMemberId';
-import { toChatHeader } from './toChatHeader';
+import { findSelfMemberId } from '../../../scripts/findSelfMemberId';
+import { toChatHeader } from '../../../scripts/toChatHeader';
+import type { ChatPreview, LastMessage } from '../types/ChatPreview.types';
 
 /**
  * Maps an accepted chat's task, and the last message held for it, onto what its
