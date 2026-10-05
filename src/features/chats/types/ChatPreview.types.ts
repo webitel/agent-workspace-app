@@ -11,3 +11,19 @@ export interface LastMessage {
 	/** Thread member id of the sender, compared against the agent's own member. */
 	senderId?: string;
 }
+
+export type LastMessageSender = 'client' | 'agent';
+
+/** What a row of the chat list shows for one chat (CONTEXT.md: Chat preview). */
+export interface ChatPreview {
+	/** The client's messenger username, falling back to their name. */
+	name?: string;
+	queueName?: string;
+	lastMessage?: {
+		body?: string;
+		/** Epoch ms. */
+		at?: number;
+		/** Absent while it cannot be told, e.g. before the agent's account loads. */
+		sender?: LastMessageSender;
+	};
+}
