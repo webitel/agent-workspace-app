@@ -46,16 +46,24 @@ export const useOutboundCallStore = defineStore('outboundCall', () => {
 		await callsStore.toggleMute(placedCall.value.id);
 	}
 
-	function dismiss() {
+	function clearAttempt() {
 		destination.value = null;
 		placedCall.value = null;
 		pendingDial = null;
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the previous attempt is cleared before the request, not after it succeeds:
+	 * `Ringing` may arrive before `callsStore.call` resolves, so a late clear would
+	 * wipe the freshly linked `placedCall`, and keeping the old one would show its
+	 * stale status (e.g. No answer on retry) until the new call is linked
+	 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+	 */
 	async function start(rawDestination: string) {
 		if (callsStore.isOutboundCallRequestPending) return;
 
-		dismiss();
+		clearAttempt();
 		destination.value = rawDestination;
 		const currentDial = {
 			callIdsBeforeDial: new Set(
@@ -68,7 +76,7 @@ export const useOutboundCallStore = defineStore('outboundCall', () => {
 		const isPlaced = await callsStore.call({
 			destination: rawDestination,
 		});
-		if (!isPlaced && pendingDial === currentDial) dismiss();
+		if (!isPlaced && pendingDial === currentDial) clearAttempt();
 	}
 
 	async function retry() {
@@ -93,7 +101,7 @@ export const useOutboundCallStore = defineStore('outboundCall', () => {
 			return;
 		}
 		const callId = placedCall.value.id;
-		dismiss();
+		clearAttempt();
 		await callsStore.hangup(callId);
 	}
 
@@ -136,7 +144,7 @@ export const useOutboundCallStore = defineStore('outboundCall', () => {
 		 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
 		 */
 		watch(status, (currentStatus) => {
-			if (currentStatus === OutboundCallStatus.Answered) dismiss();
+			if (currentStatus === OutboundCallStatus.Answered) clearAttempt();
 		});
 	}
 
@@ -152,7 +160,7 @@ export const useOutboundCallStore = defineStore('outboundCall', () => {
 		retry,
 		toggleMute,
 		hangup,
-		dismiss,
+		clearAttempt,
 	};
 });
 

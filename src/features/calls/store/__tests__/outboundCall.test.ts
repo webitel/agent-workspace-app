@@ -291,7 +291,7 @@ describe('useOutboundCallStore', () => {
 		expect(store.isMuted).toBe(false);
 	});
 
-	it('closes the attempt on dismiss', async () => {
+	it('clears the attempt', async () => {
 		const store = setup();
 		await store.start('100');
 		const call = buildCall();
@@ -299,7 +299,7 @@ describe('useOutboundCallStore', () => {
 		call.hangupAt = 2000;
 		await nextTick();
 
-		store.dismiss();
+		store.clearAttempt();
 
 		expect(store.status).toBeNull();
 		expect(store.destination).toBeNull();
