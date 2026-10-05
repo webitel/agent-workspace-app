@@ -1,23 +1,58 @@
 <template>
-  <div class="chat-preview-footer">
-    <wt-chip v-if="queue.name">
-      {{ queue.name }}
-    </wt-chip>
-  </div>
+    <p
+        class="chat-preview-footer typo-caption"
+        :title="queueName"
+    >
+        <span class="chat-preview-footer__text">
+            <span class="chat-preview-footer__label">
+                {{ t('ui.chatPreview.queue') }}:
+            </span>
+            {{ queueName }}
+        </span>
+        <!-- room for the expand control (more info, copy chat id): laid out, not built -->
+        <wt-icon
+            class="chat-preview-footer__expand"
+            icon="arrow-down"
+            :size="ComponentSize.XS"
+            aria-hidden="true"
+        />
+    </p>
 </template>
 
 <script
-  lang="ts"
-  setup
+    lang="ts"
+    setup
 >
-import { WtChip } from '@webitel/ui-sdk/components';
+import { WtIcon } from '@webitel/ui-sdk/components';
+import { ComponentSize } from '@webitel/ui-sdk/enums';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{
-	queue: {
-		id: string | number;
-		name: string;
-	}; // string, or object with {id, name}
+	queueName: string;
 }>();
+
+const { t } = useI18n();
 </script>
 
-<style scoped></style>
+<style scoped>
+.chat-preview-footer {
+    display: flex;
+    gap: var(--spacing-2xs, 4px);
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-preview-footer__text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.chat-preview-footer__label {
+    font-weight: 500;
+}
+
+.chat-preview-footer__expand {
+    flex: none;
+}
+</style>

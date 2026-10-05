@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Liên hệ không xác định',
 		},
+		chatPreview: {
+			queue: 'Hàng đợi',
+		},
 		notifications: {
 			offer: {
 				title: {

@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Unknown contact',
 		},
+		chatPreview: {
+			queue: 'Queue',
+		},
 		notifications: {
 			offer: {
 				title: {
