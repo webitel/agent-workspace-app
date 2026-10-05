@@ -10,7 +10,7 @@ const chatsStore = {
 		  }
 		| undefined,
 };
-vi.mock('../../../store/chats', () => ({
+vi.mock('../../../../../store/chats', () => ({
 	useChatsStore: () => chatsStore,
 }));
 

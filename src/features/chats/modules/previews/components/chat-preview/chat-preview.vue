@@ -37,11 +37,11 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { type Task } from 'webitel-sdk';
 
-import ClientIdentityBlock from '../../../../ui/components/client-identity-block/client-identity-block.vue';
+import ClientIdentityBlock from '../../../../../../ui/components/client-identity-block/client-identity-block.vue';
+import { useChatsStore } from '../../../../store/chats';
 import { formatPreviewTime } from '../../scripts/formatPreviewTime';
 import { toChatPreview } from '../../scripts/toChatPreview';
 import { useChatPreviewsStore } from '../../store/chat-previews';
-import { useChatsStore } from '../../store/chats';
 import ChatPreviewBody from './preview-body/chat-preview-body.vue';
 import ChatPreviewFooter from './preview-footer/chat-preview-footer.vue';
 
