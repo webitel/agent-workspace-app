@@ -1,30 +1,30 @@
 <template>
     <article
         class="offer-card"
-        :class="`offer-card--${preview.kind}`"
+        :class="`offer-card--${content.kind}`"
     >
         <div
             class="offer-card__body"
             :class="{ 'offer-card__body--clickable': clickable }"
             @click="onBodyClick"
         >
-            <offer-kind-chip :kind="preview.kind" />
+            <offer-kind-chip :kind="content.kind" />
 
             <offer-identity
-                :name="preview.name"
-                :additional-contacts="preview.additionalContacts"
-                :identifier="preview.identifier"
+                :name="content.name"
+                :additional-contacts="content.additionalContacts"
+                :identifier="content.identifier"
                 :channel="channelSource"
             />
 
             <offer-last-message
-                v-if="preview.body"
-                :text="preview.body"
+                v-if="content.body"
+                :text="content.body"
             />
 
             <offer-waiting-time
-                :waiting-since="preview.waitingSince"
-                :max-wait-sec="preview.maxWaitSec"
+                :waiting-since="content.waitingSince"
+                :max-wait-sec="content.maxWaitSec"
             />
 
             <template v-if="queueSource">
@@ -39,7 +39,7 @@
         <wt-divider />
 
         <offer-actions
-            :kind="preview.kind"
+            :kind="content.kind"
             :pending="pending"
             @accept="emit('accept')"
             @decline="emit('decline')"
@@ -56,8 +56,8 @@ import { computed } from 'vue';
 
 import {
 	type OfferAction,
+	type OfferCardContent,
 	OfferKind,
-	type OfferPreview,
 } from '../../types/Offer.types';
 import OfferActions from './offer-actions.vue';
 import OfferIdentity from './offer-identity.vue';
@@ -72,11 +72,11 @@ import OfferWaitingTime from './offer-waiting-time.vue';
  * offer's single `source` belongs.
  */
 const {
-	preview,
+	content,
 	clickable = false,
 	pending,
 } = defineProps<{
-	preview: OfferPreview;
+	content: OfferCardContent;
 	clickable?: boolean;
 	/** The action currently in flight, if any — both buttons lock while it runs. */
 	pending?: OfferAction;
@@ -88,15 +88,15 @@ const emit = defineEmits<{
 	bodyClick: [];
 }>();
 
-const isChat = computed(() => preview.kind === OfferKind.Chat);
+const isChat = computed(() => content.kind === OfferKind.Chat);
 
 /** Chats name their gateway inside the identity block, beside the username. */
 const channelSource = computed(() =>
-	isChat.value ? preview.source : undefined,
+	isChat.value ? content.source : undefined,
 );
 
 /** Calls name their queue below the wait bar, where the variables block sits. */
-const queueSource = computed(() => (isChat.value ? undefined : preview.source));
+const queueSource = computed(() => (isChat.value ? undefined : content.source));
 
 const onBodyClick = () => {
 	if (clickable) emit('bodyClick');

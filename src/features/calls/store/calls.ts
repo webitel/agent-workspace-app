@@ -14,7 +14,7 @@ import { useCallAudio } from '../composables/useCallAudio';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
-import { toIncomingCallPreview } from '../scripts/toIncomingCallPreview';
+import { toCallOfferContent } from '../scripts/toCallOfferContent';
 
 /**
  * Call feed coordinator.
@@ -134,7 +134,7 @@ export const useCallsStore = defineStore('calls', () => {
 					offersStore.notify({
 						id: call.id,
 						// a getter, so the card tracks the live call instead of a snapshot
-						preview: () => toIncomingCallPreview(call),
+						content: () => toCallOfferContent(call),
 						onAccept: () => answer(call.id),
 						onDecline: () => hangup(call.id),
 					});

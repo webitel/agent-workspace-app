@@ -78,6 +78,28 @@ when the queue has no post-processing.
 **Close window** — dropping a chat from the workspace's open windows. Purely a
 view concern: the thread and task carry on. Never a substitute for **End chat**.
 
+**Offer** — a chat or call that has been distributed to the agent and is waiting
+for them to accept or decline. An offered chat is not in the agent's chat list
+yet and the agent is not a member of its thread. It joins the list once
+accepted.
+
+**Offer card** — the incoming-interaction notification that presents an Offer in
+the top-right corner. Calls and chats share one design.
+
+**Chat preview** — one row of the chat list's Active tab: a chat the agent has
+accepted, summarised before they open it. It shows who the client is, the
+channel and queue, and the **Last message**. Opening it brings the chat into the
+central panel, and the row of the chat currently open there is shown selected.
+
+"Preview" on its own is ambiguous — say **Chat preview** for the list row and
+**Offer card** for the notification. The SDK's `ThreadPreview` is its own name
+for the summary carried on a task and is neither of these.
+
+**Last message** — the newest message in a chat as the Chat preview shows it: its
+text, when it was sent, and whether the agent or the client sent it. Kept for
+every listed chat whether or not its window is open; it is not read from an open
+chat's message history.
+
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.
 

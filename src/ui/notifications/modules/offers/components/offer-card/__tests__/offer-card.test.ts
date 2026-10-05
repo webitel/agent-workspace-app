@@ -1,11 +1,13 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import { OfferKind, type OfferPreview } from '../../../types/Offer.types';
+import { type OfferCardContent, OfferKind } from '../../../types/Offer.types';
 import OfferActions from '../offer-actions.vue';
 import OfferCard from '../offer-card.vue';
 
-const buildPreview = (overrides: Partial<OfferPreview> = {}): OfferPreview => ({
+const buildContent = (
+	overrides: Partial<OfferCardContent> = {},
+): OfferCardContent => ({
 	kind: OfferKind.Call,
 	name: 'John Smith',
 	identifier: '380671234678',
@@ -15,7 +17,7 @@ const buildPreview = (overrides: Partial<OfferPreview> = {}): OfferPreview => ({
 const mountCard = (props: Record<string, unknown> = {}) =>
 	mount(OfferCard, {
 		props: {
-			preview: buildPreview(),
+			content: buildContent(),
 			...props,
 		},
 	});
@@ -28,7 +30,7 @@ describe('offer-card', () => {
 	 */
 	it('renders a chat offer’s source inside the identity block', () => {
 		const wrapper = mountCard({
-			preview: buildPreview({
+			content: buildContent({
 				kind: OfferKind.Chat,
 				source: {
 					label: 'Channel',
@@ -45,7 +47,7 @@ describe('offer-card', () => {
 
 	it('renders a call offer’s source as the queue line', () => {
 		const wrapper = mountCard({
-			preview: buildPreview({
+			content: buildContent({
 				source: {
 					label: 'Queue',
 					value: 'Support',
@@ -63,7 +65,7 @@ describe('offer-card', () => {
 		expect(mountCard().find('.offer-last-message').exists()).toBe(false);
 
 		const withMessage = mountCard({
-			preview: buildPreview({
+			content: buildContent({
 				kind: OfferKind.Chat,
 				body: 'Hello there',
 			}),

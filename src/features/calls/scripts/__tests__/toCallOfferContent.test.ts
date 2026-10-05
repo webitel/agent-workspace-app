@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Call } from 'webitel-sdk';
 
 import { OfferKind } from '../../../../ui/notifications/modules/offers/types/Offer.types';
-import { maskNumber, toIncomingCallPreview } from '../toIncomingCallPreview';
+import { maskNumber, toCallOfferContent } from '../toCallOfferContent';
 
 // the shared i18n instance can't be constructed under the global vue-i18n mock
 vi.mock('../../../../app/locale/i18n', () => ({
@@ -41,9 +41,9 @@ describe('maskNumber', () => {
 	});
 });
 
-describe('toIncomingCallPreview', () => {
+describe('toCallOfferContent', () => {
 	it('maps an identified contact', () => {
-		expect(toIncomingCallPreview(buildCall())).toEqual({
+		expect(toCallOfferContent(buildCall())).toEqual({
 			kind: OfferKind.Call,
 			name: 'John Smith',
 			identifier: '380671234678',
@@ -55,39 +55,39 @@ describe('toIncomingCallPreview', () => {
 
 	// `displayName` is '' when the platform has nothing better than the number
 	it('drops the name when the contact was not identified', () => {
-		const preview = toIncomingCallPreview(
+		const content = toCallOfferContent(
 			buildCall({
 				displayName: '',
 			}),
 		);
 
-		expect(preview.name).toBeUndefined();
-		expect(preview.identifier).toBe('380671234678');
+		expect(content.name).toBeUndefined();
+		expect(content.identifier).toBe('380671234678');
 	});
 
 	it('fails closed on hideContact even when a name is present', () => {
-		const preview = toIncomingCallPreview(
+		const content = toCallOfferContent(
 			buildCall({
 				hideContact: true,
 			}),
 		);
 
-		expect(preview.name).toBeUndefined();
+		expect(content.name).toBeUndefined();
 	});
 
 	it('masks the number when the call hides it, keeping the name', () => {
-		const preview = toIncomingCallPreview(
+		const content = toCallOfferContent(
 			buildCall({
 				hideNumber: true,
 			}),
 		);
 
-		expect(preview.name).toBe('John Smith');
-		expect(preview.identifier).toBe('*****678');
+		expect(content.name).toBe('John Smith');
+		expect(content.identifier).toBe('*****678');
 	});
 
 	it('exposes the queue as the source line', () => {
-		const preview = toIncomingCallPreview(
+		const content = toCallOfferContent(
 			buildCall({
 				queue: {
 					queue_name: 'Support',
@@ -95,7 +95,7 @@ describe('toIncomingCallPreview', () => {
 			} as Partial<Call>),
 		);
 
-		expect(preview.source).toEqual({
+		expect(content.source).toEqual({
 			label: 'ui.notifications.offer.queue',
 			value: 'Support',
 		});
@@ -103,11 +103,11 @@ describe('toIncomingCallPreview', () => {
 
 	// the field does not exist on the wire yet (WS-16) — the bar stays hidden
 	it('leaves maxWaitSec undefined until the queue exposes it', () => {
-		expect(toIncomingCallPreview(buildCall()).maxWaitSec).toBeUndefined();
+		expect(toCallOfferContent(buildCall()).maxWaitSec).toBeUndefined();
 	});
 
 	it('picks up the queue max wait time as soon as it appears', () => {
-		const preview = toIncomingCallPreview(
+		const content = toCallOfferContent(
 			buildCall({
 				queue: {
 					queue_name: 'Support',
@@ -117,6 +117,6 @@ describe('toIncomingCallPreview', () => {
 			} as unknown as Partial<Call>),
 		);
 
-		expect(preview.maxWaitSec).toBe(120);
+		expect(content.maxWaitSec).toBe(120);
 	});
 });

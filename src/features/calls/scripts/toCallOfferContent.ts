@@ -2,12 +2,12 @@ import type { Call } from 'webitel-sdk';
 
 import i18n from '../../../app/locale/i18n';
 import {
+	type OfferCardContent,
 	OfferKind,
-	type OfferPreview,
 } from '../../../ui/notifications/modules/offers/types/Offer.types';
 
 /**
- * Maps an SDK `Call` onto the channel-neutral preview contract. Everything the
+ * Maps an SDK `Call` onto the channel-neutral offer card content contract. Everything the
  * spec calls "наявна логіка" resolves here so the notifications module stays
  * free of `webitel-sdk`.
  */
@@ -51,7 +51,7 @@ function resolveMaxWaitSec(call: Call): number | undefined {
 		: undefined;
 }
 
-export function toIncomingCallPreview(call: Call): OfferPreview {
+export function toCallOfferContent(call: Call): OfferCardContent {
 	const number = call.displayNumber;
 
 	return {
