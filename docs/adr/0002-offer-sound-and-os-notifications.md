@@ -106,3 +106,19 @@ they survived so long.
 `registration.getNotifications({tag: undefined})` matches **every** notification,
 not none. Any guard on a message payload must reject a missing id rather than
 default it, or one malformed message closes everything.
+
+## Amendment (2026-10-02): offer sounds play through Web Audio
+
+The ring and the chirp were `HTMLAudioElement`s. A media element that has played
+registers the page as the OS's "Now Playing" source and stays the last active
+session after it pauses, so on macOS the Play/Pause media key resumed it: an
+agent pressing play for their music started the ringtone.
+
+Both now play through an `AudioContext` (`ui/sound/utils/createSound.ts`), which
+the OS media controls cannot reach. The first gesture resumes the context and
+decodes the sounds, replacing the muted play/pause priming; a context that stays
+blocked rejects `play()` after a short wait, so the callers still release their
+lock. The cross-tab locks and the ring-versus-chirp rules above are unchanged.
+
+Call audio is not a cue but the conversation itself, and stays on an `<audio>`
+element fed by the remote stream.

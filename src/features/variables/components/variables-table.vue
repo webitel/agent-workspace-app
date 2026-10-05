@@ -45,7 +45,6 @@
 			v-else-if="!error"
 			:image="emptyImage"
 			:text="t('ui.variables.empty')"
-			size="sm"
 		/>
 	</section>
 </template>
