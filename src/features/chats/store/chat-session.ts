@@ -5,7 +5,8 @@ import {
 import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
-import { accountService, threadsService } from '../api/chatSdk';
+import { threadsService } from '../api/chatSdk';
+import { loadAccount } from '../api/loadAccount';
 import { findSelfMemberId } from '../scripts/findSelfMemberId';
 import type { IMessage, IThread } from '../types/ChatSession.types';
 import { disposeChatVariables } from './chat-variables';
@@ -13,20 +14,6 @@ import { disposeChatVariables } from './chat-variables';
 const storeId = (chatId: string) => `chat:${chatId}`;
 
 const PAGE_SIZE = 30;
-
-// One account request shared by every chat session. A failure resolves to
-// null — the thread shows no delivery ticks but still loads — and is not
-// cached, so the next chat opened tries again.
-// Logout navigates away (userinfo store: window.location.href = authUrl), so
-// the cached account never outlives the session it belongs to.
-let accountRequest: Promise<AccountModel | null> | null = null;
-const loadAccount = () => {
-	accountRequest ??= accountService.getAccount().catch(() => {
-		accountRequest = null;
-		return null;
-	});
-	return accountRequest;
-};
 
 // Cache of store definitions so repeated useChatSessionStore(id) calls (e.g.
 // coordinator + component) reuse one defineStore wrapper, not a fresh one each time.

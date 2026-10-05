@@ -5,7 +5,7 @@ import type { AccountModel, ThreadModel } from '@webitel/chat-web-sdk';
  * logged-in IM account (same issuer + subject). '' when not a member yet.
  */
 export function findSelfMemberId(
-	thread: ThreadModel | null,
+	thread: Pick<ThreadModel, 'members'> | null | undefined,
 	account: AccountModel | null,
 ): string {
 	const self = account?.contact;

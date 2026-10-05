@@ -4,8 +4,12 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchMessageHistoryMock = vi.fn();
+const getAccountMock = vi.fn();
 
 vi.mock('../../api/chatSdk', () => ({
+	accountService: {
+		getAccount: (...args: unknown[]) => getAccountMock(...args),
+	},
 	messagesService: {
 		fetchMessageHistory: (...args: unknown[]) =>
 			fetchMessageHistoryMock(...args),
@@ -34,12 +38,38 @@ const historyPage = (...messages: unknown[]) => ({
 describe('chat-previews store', () => {
 	beforeEach(() => {
 		fetchMessageHistoryMock.mockReset();
+		getAccountMock.mockResolvedValue({
+			contact: {
+				sub: '42',
+				iss: 'webitel',
+			},
+		});
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
 				createSpy: vi.fn,
 			}),
 		);
+	});
+
+	describe('account', () => {
+		it('loads the agent account once the list has chats', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage());
+			const store = useChatPreviewsStore();
+			expect(store.account).toBeNull();
+
+			store.sync([
+				't1',
+			]);
+			await flushPromises();
+
+			expect(store.account).toEqual({
+				contact: {
+					sub: '42',
+					iss: 'webitel',
+				},
+			});
+		});
 	});
 
 	describe('seeding', () => {
