@@ -16,7 +16,13 @@ const WEEK_DAYS = 7;
  */
 export function formatPreviewTime(
 	at: number,
-	{ now = new Date(), locale }: { now?: Date; locale?: string } = {},
+	{
+		now = new Date(),
+		locale,
+	}: {
+		now?: Date;
+		locale?: string;
+	} = {},
 ): string {
 	const sent = new Date(at);
 	const daysAgo = differenceInCalendarDays(now, sent);

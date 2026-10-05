@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchMessageHistoryMock = vi.fn();
 
-vi.mock('../../api/chatSdk', () => ({
+vi.mock('../../../../api/chatSdk', () => ({
 	messagesService: {
 		fetchMessageHistory: (...args: unknown[]) =>
 			fetchMessageHistoryMock(...args),
