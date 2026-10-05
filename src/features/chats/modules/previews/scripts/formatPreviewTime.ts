@@ -1,10 +1,6 @@
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { differenceInCalendarDays, format } from 'date-fns';
+
 const WEEK_DAYS = 7;
-
-const startOfDay = (date: Date) =>
-	new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-
-const pad = (value: number) => String(value).padStart(2, '0');
 
 /**
  * When a message was sent, the way AC_02.03.01 shows it on a chat preview:
@@ -14,6 +10,9 @@ const pad = (value: number) => String(value).padStart(2, '0');
  * Days are counted on the calendar, not in 24h blocks, so 23:50 yesterday is
  * "yesterday" at 00:10 and a DST change cannot move a message into the wrong
  * bucket. A timestamp in the future (clock skew) reads as today.
+ *
+ * The weekday comes from `Intl` rather than date-fns: date-fns needs a locale
+ * object imported and mapped for each app locale, `Intl` takes the code as is.
  */
 export function formatPreviewTime(
 	at: number,
@@ -26,14 +25,14 @@ export function formatPreviewTime(
 	} = {},
 ): string {
 	const sent = new Date(at);
-	const daysAgo = Math.round((startOfDay(now) - startOfDay(sent)) / DAY_MS);
+	const daysAgo = differenceInCalendarDays(now, sent);
 
-	if (daysAgo <= 0) return `${pad(sent.getHours())}:${pad(sent.getMinutes())}`;
+	if (daysAgo <= 0) return format(sent, 'HH:mm');
 
 	if (daysAgo <= WEEK_DAYS)
 		return new Intl.DateTimeFormat(locale, {
 			weekday: 'short',
 		}).format(sent);
 
-	return `${pad(sent.getDate())}.${pad(sent.getMonth() + 1)}.${sent.getFullYear()}`;
+	return format(sent, 'dd.MM.yyyy');
 }

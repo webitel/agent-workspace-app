@@ -1,7 +1,10 @@
 import type { AccountModel } from '@webitel/chat-web-sdk';
 import type { Task } from 'webitel-sdk';
 
-import type { ChatPreview, LastMessage } from '../types/ChatPreview.types';
+import type {
+	ChatPreview,
+	LastMessage,
+} from '../modules/previews/types/ChatPreview.types';
 import { findSelfMemberId } from './findSelfMemberId';
 import { toChatHeader } from './toChatHeader';
 

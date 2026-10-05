@@ -52,7 +52,7 @@ vi.mock('../chat-session', () => ({
 const syncPreviewsMock = vi.fn();
 const receivePreviewMessageMock = vi.fn();
 
-vi.mock('../chat-previews', () => ({
+vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
 		sync: syncPreviewsMock,
 		receiveMessage: receivePreviewMessageMock,
