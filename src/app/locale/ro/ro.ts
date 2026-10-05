@@ -55,6 +55,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
+						phoneNumber: 'Număr de telefon',
 					},
 					recordings: {
 						unavailable: 'Înregistrare indisponibilă',
@@ -65,7 +66,7 @@ export default {
 						showCallInfo: 'Afișează informații',
 					},
 					callInfo: {
-						title: 'Informații despre apel',
+						title: 'Informații',
 						postprocessing: 'Postprocesare',
 						agentDescription: 'Comentariul agentului',
 					},
