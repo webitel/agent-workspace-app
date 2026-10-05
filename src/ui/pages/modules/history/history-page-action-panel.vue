@@ -1,6 +1,9 @@
 <template>
 	<table-action-panel
-		:headers="shownHeaders"
+		:actions="actions"
+		:headers="headers"
+		:static-headers="staticHeaders"
+		:variables-storage-key="CALLS_VARIABLE_HEADERS_STORAGE_KEY"
 		@refresh="loadDataList()"
 		@update:headers="updateShownHeaders"
 	>
@@ -18,13 +21,24 @@
 import { DynamicFilterSearchComponent as DynamicFilterSearch } from '@webitel/ui-datalist/filters';
 import { storeToRefs } from 'pinia';
 import TableActionPanel from '../../components/table-action-panel.vue';
+import { TableActionPanelAction } from '../../enums/TableActionPanelAction.enum';
+import { CALLS_VARIABLE_HEADERS_STORAGE_KEY } from './constants/storageKeys';
 import type { useCallsHistoryDataListStore } from './modules/calls/store/calls-history';
 
 const props = defineProps<{
 	store: ReturnType<typeof useCallsHistoryDataListStore>;
 }>();
 
-const { shownHeaders, filtersManager, isFiltersRestoring } = storeToRefs(
+const actions = [
+	TableActionPanelAction.ColumnSelect,
+	TableActionPanelAction.VariableColumnSelect,
+];
+
+const staticHeaders = [
+	'createdAt',
+];
+
+const { headers, filtersManager, isFiltersRestoring } = storeToRefs(
 	props.store,
 );
 const {

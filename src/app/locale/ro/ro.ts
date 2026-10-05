@@ -71,6 +71,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Selectează coloanele variabile',
+				},
+			},
 		},
 	},
 	error: {

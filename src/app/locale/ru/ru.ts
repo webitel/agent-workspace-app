@@ -71,6 +71,11 @@ export default {
 					},
 				},
 			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Выбрать колонки с переменными',
+				},
+			},
 		},
 	},
 	error: {
