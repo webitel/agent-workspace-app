@@ -1,29 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-/** jsdom doesn't implement media playback, so drive the element through spies. */
-function stubMediaElement() {
-	const play = vi
-		.spyOn(HTMLMediaElement.prototype, 'play')
-		.mockImplementation(function (this: HTMLMediaElement) {
-			Object.defineProperty(this, 'paused', {
-				value: false,
-				configurable: true,
-			});
-			return Promise.resolve();
-		});
-	const pause = vi
-		.spyOn(HTMLMediaElement.prototype, 'pause')
-		.mockImplementation(function (this: HTMLMediaElement) {
-			Object.defineProperty(this, 'paused', {
-				value: true,
-				configurable: true,
-			});
-		});
-	return {
-		play,
-		pause,
-	};
-}
+import {
+	drainGestureListeners,
+	flush,
+	installFakeWebAudio,
+} from '../../../../../sound/utils/__tests__/fakeWebAudio';
 
 async function loadRingtone() {
 	vi.resetModules();
@@ -34,70 +15,91 @@ async function loadRingtone() {
 describe('useRingtone', () => {
 	beforeEach(() => {
 		localStorage.clear();
+		vi.useFakeTimers();
 	});
 
-	afterEach(() => {
+	afterEach(async () => {
+		await drainGestureListeners();
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
 
 	it('starts and stops the loop', async () => {
-		const media = stubMediaElement();
+		const audio = installFakeWebAudio();
 		const ringtone = await loadRingtone();
 
 		ringtone.start();
-		expect(media.play).toHaveBeenCalled();
+		await flush();
+		expect(audio.sources).toHaveLength(1);
+		expect(audio.sources[0].loop).toBe(true);
+		expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
 
 		ringtone.stop();
-		expect(media.pause).toHaveBeenCalled();
+		expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
 	});
 
 	it('does not start a second loop while already ringing', async () => {
-		const media = stubMediaElement();
+		const audio = installFakeWebAudio();
 		const ringtone = await loadRingtone();
 
 		ringtone.start();
 		ringtone.start();
+		await flush();
 
-		expect(media.play).toHaveBeenCalledTimes(1);
+		expect(audio.sources).toHaveLength(1);
 	});
 
 	/**
-	 * `{ once: true }` only removes the listener that fired, so after a pointer
-	 * gesture the keydown listener survives — and priming again mid-ring pauses
-	 * the ringtone. An agent typing during an offer would silence it.
+	 * A played media element becomes the OS's Now Playing source, and the
+	 * Play/Pause key on macOS then restarts it: music key presses rang the phone.
 	 */
-	it('keeps ringing when a second input modality is used after priming', async () => {
-		const media = stubMediaElement();
+	it('rings without a media element the OS media keys could reach', async () => {
+		const audio = installFakeWebAudio();
 		const ringtone = await loadRingtone();
 
-		// first gesture primes the element
-		window.dispatchEvent(new Event('pointerdown'));
-		await Promise.resolve();
-
 		ringtone.start();
-		expect(media.play).toHaveBeenCalled();
-		media.pause.mockClear();
+		await flush();
+		ringtone.stop();
 
-		// agent types while the offer is ringing
-		window.dispatchEvent(new Event('keydown'));
-		await Promise.resolve();
-		await Promise.resolve();
-
-		expect(media.pause).not.toHaveBeenCalled();
+		expect(audio.AudioElement).not.toHaveBeenCalled();
+		expect(audio.mediaPlay).not.toHaveBeenCalled();
 	});
 
-	it('primes only once regardless of how many gestures arrive', async () => {
-		const media = stubMediaElement();
-		await loadRingtone();
+	/** Typing during an offer must not silence it. */
+	it('keeps ringing when a second input modality is used after the first', async () => {
+		const audio = installFakeWebAudio();
+		const ringtone = await loadRingtone();
 
 		window.dispatchEvent(new Event('pointerdown'));
-		await Promise.resolve();
-		const afterFirst = media.play.mock.calls.length;
+		await flush();
+		ringtone.start();
+		await flush();
 
 		window.dispatchEvent(new Event('keydown'));
-		window.dispatchEvent(new Event('pointerdown'));
-		await Promise.resolve();
+		await flush();
 
-		expect(media.play.mock.calls.length).toBe(afterFirst);
+		expect(audio.sources[0].stop).not.toHaveBeenCalled();
+	});
+
+	it('lets a later offer try again once autoplay was blocked', async () => {
+		const audio = installFakeWebAudio({
+			canStart: false,
+		});
+		const ringtone = await loadRingtone();
+
+		ringtone.start();
+		await vi.advanceTimersByTimeAsync(300);
+		await flush();
+		const attempts = audio.contexts[0].resume.mock.calls.length;
+
+		// the lock was released, so this is not swallowed as "already ringing"
+		ringtone.start();
+		await vi.advanceTimersByTimeAsync(300);
+		await flush();
+
+		expect(audio.contexts[0].resume.mock.calls.length).toBeGreaterThan(
+			attempts,
+		);
 	});
 });
