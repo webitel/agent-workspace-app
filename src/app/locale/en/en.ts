@@ -70,7 +70,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Phone Number',
+						phoneNumber: 'Phone number',
 					},
 					recordings: {
 						unavailable: 'Recording unavailable',
