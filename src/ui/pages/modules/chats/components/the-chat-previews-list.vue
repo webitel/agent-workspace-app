@@ -17,7 +17,7 @@
 import { WtDivider } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { type Task } from 'webitel-sdk';
-import ChatPreview from '../../../../../features/chats/components/chat-preview/chat-preview.vue';
+import ChatPreview from '../../../../../features/chats/modules/previews/components/chat-preview/chat-preview.vue';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 
 const chatsStore = useChatsStore();

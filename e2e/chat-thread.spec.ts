@@ -207,7 +207,7 @@ async function openChat(page: Page, socket: MockedSocket) {
 		}),
 	);
 
-	await page.locator('.chat-preview__open').first().click();
+	await page.locator('.chat-preview').first().click();
 	await expect(page.locator('.chat-history')).toBeVisible();
 }
 
@@ -294,7 +294,9 @@ test.describe('chat thread', () => {
 		const scroller = page.locator('.chat-history__scroll');
 
 		// opens on the newest message
-		await expect(page.getByText('Message number 50')).toBeVisible();
+		await expect(
+			page.locator('.chat-history').getByText('Message number 50'),
+		).toBeVisible();
 		await expect(
 			page.getByText('Message number 5', {
 				exact: true,
@@ -467,6 +469,8 @@ test.describe('chat thread', () => {
 		await expect(invoice).toContainText('2 Kb');
 		await expect(invoice).toHaveAttribute('href', /invoice\.pdf$/);
 		await expect(invoice).toHaveAttribute('download', '');
-		await expect(page.getByText('Photo and invoice')).toBeVisible();
+		await expect(
+			page.locator('.chat-history').getByText('Photo and invoice'),
+		).toBeVisible();
 	});
 });
