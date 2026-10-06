@@ -150,8 +150,10 @@ describe('toChatPreview', () => {
 		});
 	});
 
-	// an attachment has no text of its own; the row should not go blank
-	it('falls back to the task text for a message with no body', () => {
+	// the task's text is a snapshot from distribution; next to a newer message
+	// that has no text of its own (an image) it would be an old message's words
+	// under the new message's time and author
+	it('does not put the task text on a newer message that has no body', () => {
 		const preview = toChatPreview(
 			buildTask(),
 			buildLastMessage({
@@ -160,8 +162,9 @@ describe('toChatPreview', () => {
 			account,
 		);
 
-		expect(preview.lastMessage?.body).toBe('task text');
+		expect(preview.lastMessage?.body).toBeUndefined();
 		expect(preview.lastMessage?.at).toBe(1760000000000);
+		expect(preview.lastMessage?.sender).toBe('client');
 	});
 
 	it('tolerates a task with no thread', () => {
