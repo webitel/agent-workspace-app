@@ -328,4 +328,47 @@ describe('chat-previews store', () => {
 			expect(store.lastMessages.t1).toBeUndefined();
 		});
 	});
+
+	describe('reseeding', () => {
+		it('reads every listed chat again', async () => {
+			fetchMessageHistoryMock.mockResolvedValueOnce(
+				historyPage(buildMessage()),
+			);
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			await flushPromises();
+			fetchMessageHistoryMock.mockResolvedValueOnce(
+				historyPage(
+					buildMessage({
+						id: 'm2',
+						body: 'written while the socket was down',
+						createdAt: '2000',
+					}),
+				),
+			);
+
+			store.reseed();
+			await flushPromises();
+
+			expect(fetchMessageHistoryMock).toHaveBeenCalledTimes(2);
+			expect(store.lastMessages.t1?.id).toBe('m2');
+		});
+
+		it('does not read a chat the list no longer shows', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			await flushPromises();
+			store.sync([]);
+
+			store.reseed();
+			await flushPromises();
+
+			expect(fetchMessageHistoryMock).toHaveBeenCalledOnce();
+		});
+	});
 });

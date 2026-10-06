@@ -5,7 +5,11 @@ import { computed, ref, shallowRef } from 'vue';
 import { threadsService } from '../api/chatSdk';
 import { findSelfMemberId } from '../scripts/findSelfMemberId';
 import { mergeMessages } from '../scripts/mergeMessages';
-import type { IMessage, IThread } from '../types/ChatSession.types';
+import type {
+	IMessage,
+	IThread,
+	MessageHistorySearchResult,
+} from '../types/ChatSession.types';
 import { useChatAccountStore } from './chat-account';
 import { disposeChatVariables } from './chat-variables';
 
@@ -40,27 +44,69 @@ function createStoreDefinition(chatId: string) {
 
 		const hasMore = computed(() => olderCursor.value !== null);
 
+		// Bumped by every catch-up: an older page read before it may no longer
+		// sit next to the history, so its answer is dropped rather than prepended.
+		let historyGeneration = 0;
+		let isCatchingUp = false;
+
+		// the messages held right now, by id, to tell later socket deliveries
+		// (new messages, and new copies of held ones) from what a read predates
+		const snapshotMessages = () =>
+			new Map(
+				messages.value.map((message) => [
+					message.id,
+					message,
+				]),
+			);
+
+		/**
+		 * Puts the newest history page into the session. `heldBefore` is what the
+		 * session held when the read started; a message that is not there as the
+		 * same object arrived over the socket meanwhile — new, or a new copy of a
+		 * held one — and wins over the page's copy, which may predate it.
+		 *
+		 * A page that overlaps the history is merged into it, keeping the older
+		 * pages already read. One that does not means more than a page was
+		 * missed, so it replaces the history and the older cursor starts again
+		 * from it.
+		 */
+		function applyNewestPage(
+			page: MessageHistorySearchResult,
+			heldBefore: ReadonlyMap<string, IMessage>,
+		) {
+			// API returns newest->oldest (DESC); the UI renders top->bottom with
+			// newest at the bottom, so store oldest->newest (ASC)
+			const newest = [
+				...page.items,
+			].reverse();
+			const arrived = messages.value.filter(
+				(message) => heldBefore.get(message.id) !== message,
+			);
+
+			if (newest.some((message) => heldBefore.has(message.id))) {
+				messages.value = mergeMessages(
+					mergeMessages(messages.value, newest),
+					arrived,
+				);
+				return;
+			}
+
+			messages.value = mergeMessages(newest, arrived);
+			olderCursor.value = page.nextCursor?.id ?? null;
+		}
+
 		async function load() {
 			if (initialized.value || isLoading.value) return;
 			isLoading.value = true;
 			error.value = null;
+			const heldBefore = snapshotMessages();
 			try {
 				const fetchedThread = await threadsService.fetchThread(chatId);
 				const page = await fetchedThread.fetchMessageHistory({
 					size: PAGE_SIZE,
 				});
 				thread.value = fetchedThread;
-				// API returns newest->oldest (DESC); the UI renders top->bottom with
-				// newest at the bottom, so store oldest->newest (ASC). Messages the
-				// socket delivered while the page was in flight are already in
-				// `messages` and may be newer than the page: merge, do not overwrite.
-				messages.value = mergeMessages(
-					[
-						...page.items,
-					].reverse(),
-					messages.value,
-				);
-				olderCursor.value = page.nextCursor?.id ?? null;
+				applyNewestPage(page, heldBefore);
 				initialized.value = true;
 			} catch (err) {
 				error.value = err;
@@ -70,14 +116,22 @@ function createStoreDefinition(chatId: string) {
 		}
 
 		async function loadMore() {
-			if (!thread.value || !olderCursor.value || isLoading.value) return;
+			if (
+				!thread.value ||
+				!olderCursor.value ||
+				isLoading.value ||
+				isCatchingUp
+			)
+				return;
 			isLoading.value = true;
+			const generation = historyGeneration;
 			try {
 				const page = await thread.value.fetchMessageHistory({
 					size: PAGE_SIZE,
 					cursorId: olderCursor.value,
 					cursorBefore: false, // false -> older direction
 				});
+				if (generation !== historyGeneration) return;
 				// Older page is also DESC; reverse to ASC, then prepend the whole
 				// (older) block ahead of the messages already in view.
 				messages.value = [
@@ -105,6 +159,31 @@ function createStoreDefinition(chatId: string) {
 				thread.value = await threadsService.fetchThread(chatId);
 			} catch (err) {
 				error.value = err;
+			}
+		}
+
+		/**
+		 * Brings a loaded session up to date after the chats socket was down and
+		 * may have missed messages: the thread and the newest page are read
+		 * again. A failed read leaves what is on screen.
+		 */
+		async function catchUp() {
+			if (!initialized.value) return;
+			const heldBefore = snapshotMessages();
+			historyGeneration += 1;
+			// paging back now would read from a cursor the catch-up may replace
+			isCatchingUp = true;
+			try {
+				const fetchedThread = await threadsService.fetchThread(chatId);
+				const page = await fetchedThread.fetchMessageHistory({
+					size: PAGE_SIZE,
+				});
+				thread.value = fetchedThread;
+				applyNewestPage(page, heldBefore);
+			} catch (err) {
+				error.value = err;
+			} finally {
+				isCatchingUp = false;
 			}
 		}
 
@@ -169,6 +248,7 @@ function createStoreDefinition(chatId: string) {
 			load,
 			loadMore,
 			refreshThread,
+			catchUp,
 			appendMessage,
 			receiveMessage,
 			sendText,
@@ -194,6 +274,13 @@ export function hasChatSession(chatId: string) {
 	return storeDefinitions.has(chatId);
 }
 
+/** Every chat that has a session. */
+export function chatSessionIds() {
+	return [
+		...storeDefinitions.keys(),
+	];
+}
+
 // $dispose() stops the scope but leaves state in pinia.state.value for setup
 // stores — delete it manually or the chat's state leaks. Drop the cached
 // definition too so a reopened chat gets a fresh store, not a stale wrapper.
@@ -210,9 +297,7 @@ export function disposeChatSession(chatId: string) {
  * the coordinator's call (ADR-0007); this only carries it out.
  */
 export function retainChatSessions(keep: ReadonlySet<string>) {
-	for (const chatId of [
-		...storeDefinitions.keys(),
-	]) {
+	for (const chatId of chatSessionIds()) {
 		if (!keep.has(chatId)) disposeChatSession(chatId);
 	}
 }
