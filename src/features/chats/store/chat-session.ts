@@ -4,6 +4,7 @@ import { computed, ref, shallowRef } from 'vue';
 
 import { threadsService } from '../api/chatSdk';
 import { findSelfMemberId } from '../scripts/findSelfMemberId';
+import { mergeMessages } from '../scripts/mergeMessages';
 import type { IMessage, IThread } from '../types/ChatSession.types';
 import { useChatAccountStore } from './chat-account';
 import { disposeChatVariables } from './chat-variables';
@@ -48,10 +49,15 @@ function createStoreDefinition(chatId: string) {
 				});
 				thread.value = fetchedThread;
 				// API returns newest->oldest (DESC); the UI renders top->bottom with
-				// newest at the bottom, so store oldest->newest (ASC).
-				messages.value = [
-					...page.items,
-				].reverse();
+				// newest at the bottom, so store oldest->newest (ASC). Messages the
+				// socket delivered while the page was in flight are already in
+				// `messages` and may be newer than the page: merge, do not overwrite.
+				messages.value = mergeMessages(
+					[
+						...page.items,
+					].reverse(),
+					messages.value,
+				);
 				olderCursor.value = page.nextCursor?.id ?? null;
 				initialized.value = true;
 			} catch (err) {
