@@ -16,12 +16,16 @@ const mountFilter = () =>
 	mount(ChatUnreadFilter, {
 		global: {
 			stubs: {
-				'wt-icon': {
+				'wt-icon-btn': {
 					props: [
 						'icon',
 						'color',
 					],
-					template: '<i :data-icon="icon" :data-color="color" />',
+					emits: [
+						'click',
+					],
+					template:
+						'<button :data-icon="icon" :data-color="color" @click="$emit(\'click\')" />',
 				},
 			},
 		},
@@ -37,7 +41,8 @@ describe('chat-unread-filter', () => {
 		const wrapper = mountFilter();
 
 		expect(wrapper.attributes('aria-pressed')).toBe('false');
-		expect(wrapper.find('i').attributes('data-color')).toBe('default');
+		expect(wrapper.attributes('data-icon')).toBe('chat');
+		expect(wrapper.attributes('data-color')).toBe('default');
 	});
 
 	it('reports being on', () => {
@@ -46,7 +51,8 @@ describe('chat-unread-filter', () => {
 		const wrapper = mountFilter();
 
 		expect(wrapper.attributes('aria-pressed')).toBe('true');
-		expect(wrapper.find('i').attributes('data-color')).toBe('active');
+		expect(wrapper.attributes('data-icon')).toBe('chat--filled');
+		expect(wrapper.attributes('data-color')).toBe('active');
 	});
 
 	it('toggles the filter on click', async () => {
