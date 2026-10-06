@@ -60,10 +60,11 @@ async function attemptConnect(
 	if (client.value !== socketClient) return;
 	retryDelay = FIRST_RETRY_DELAY;
 	// whatever was written while the socket was down was never pushed
-	if (isRetry)
+	if (isRetry) {
 		reconnectHandlers.forEach((handler) => {
 			handler();
 		});
+	}
 }
 
 export function useChatsSocket() {
