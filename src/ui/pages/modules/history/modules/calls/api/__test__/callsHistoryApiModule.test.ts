@@ -11,7 +11,6 @@ vi.mock('@webitel/api-services/api', () => ({
 import { callsHistoryApiModule } from '../callsHistoryApiModule';
 
 const NOW = new Date(2026, 9, 6, 14, 30);
-const START_OF_TODAY = new Date(2026, 9, 6).getTime();
 const END_OF_TODAY = new Date(2026, 9, 6, 23, 59, 59, 999).getTime();
 
 const getRequest = () => getListPost.mock.calls[0][0];
@@ -76,11 +75,11 @@ describe('callsHistoryApiModule.getList', () => {
 		expect(getListPost.mock.calls[1][0].data.sort).toBe('+duration');
 	});
 
-	it('limits the period to today when no createdAt filter is set', async () => {
+	it('requests the whole history up to the end of today when no createdAt filter is set', async () => {
 		await callsHistoryApiModule.getList();
 
 		expect(getRequest().data.createdAt).toEqual({
-			from: START_OF_TODAY,
+			from: 0,
 			to: END_OF_TODAY,
 		});
 	});
@@ -99,7 +98,7 @@ describe('callsHistoryApiModule.getList', () => {
 		});
 	});
 
-	it('fills a missing range bound with today', async () => {
+	it('fills a missing range end with the end of today', async () => {
 		await callsHistoryApiModule.getList({
 			createdAt: {
 				from: 1000,
@@ -109,6 +108,19 @@ describe('callsHistoryApiModule.getList', () => {
 		expect(getRequest().data.createdAt).toEqual({
 			from: 1000,
 			to: END_OF_TODAY,
+		});
+	});
+
+	it('fills a missing range start with the beginning of history', async () => {
+		await callsHistoryApiModule.getList({
+			createdAt: {
+				to: 2000,
+			},
+		});
+
+		expect(getRequest().data.createdAt).toEqual({
+			from: 0,
+			to: 2000,
 		});
 	});
 

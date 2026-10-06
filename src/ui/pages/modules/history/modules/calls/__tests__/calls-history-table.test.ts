@@ -5,7 +5,7 @@ import {
 	EngineCallFileType,
 	type EngineHistoryCall,
 } from '@webitel/api-services/gen/models';
-import { FormatDateMode, RelativeDatetimeValue } from '@webitel/ui-sdk/enums';
+import { FormatDateMode } from '@webitel/ui-sdk/enums';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive, ref } from 'vue';
@@ -27,9 +27,7 @@ const createStore = () => {
 		>([]),
 		next: ref(true),
 		isLoading: ref(false),
-		filtersManager: ref({
-			hasFilter: vi.fn(() => false),
-		}),
+		filtersManager: ref({}),
 		initialize: vi.fn(
 			() =>
 				new Promise<void>((resolve) => {
@@ -95,9 +93,6 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 
 // the real filters entry point pulls in the library i18n setup
 vi.mock('@webitel/ui-datalist/filters', () => ({
-	FilterOption: {
-		CreatedAt: 'createdAt',
-	},
 	ColumnFilterComponent: {
 		template: '<div />',
 	},
@@ -212,21 +207,7 @@ describe('calls-history-table', () => {
 	});
 
 	describe('on mount', () => {
-		it('adds the default "today" date filter when there is none', () => {
-			mountTable();
-
-			expect(mockStore.filtersManager.hasFilter).toHaveBeenCalledWith(
-				'createdAt',
-			);
-			expect(mockStore.addFilter).toHaveBeenCalledWith({
-				name: 'createdAt',
-				value: RelativeDatetimeValue.Today,
-			});
-		});
-
-		it('keeps an existing date filter', () => {
-			mockStore.filtersManager.hasFilter.mockReturnValue(true);
-
+		it('does not add a date filter: the default period comes from the API', () => {
 			mountTable();
 
 			expect(mockStore.addFilter).not.toHaveBeenCalled();
