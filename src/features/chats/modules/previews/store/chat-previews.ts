@@ -1,9 +1,8 @@
-import type { AccountModel } from '@webitel/chat-web-sdk';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 
 import { messagesService } from '../../../api/chatSdk';
-import { loadAccount } from '../../../api/loadAccount';
+import { useChatAccountStore } from '../../../store/chat-account';
 import type { IMessage } from '../../../types/ChatSession.types';
 import { toLastMessage } from '../scripts/toLastMessage';
 import type { LastMessage } from '../types/ChatPreview.types';
@@ -28,9 +27,9 @@ const SEED_PAGE_SIZE = 10;
 export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// reassigned, never mutated, so shallow reactivity is enough
 	const lastMessages = shallowRef<Record<string, LastMessage>>({});
-	// the agent's own account, to tell their messages from the client's; null
-	// until it loads, and the row then says nothing about who wrote the message
-	const account = shallowRef<AccountModel | null>(null);
+	// the agent's own account tells their messages from the client's; until it
+	// loads the row says nothing about who wrote the last message
+	const accountStore = useChatAccountStore();
 	// threads the list is showing: the socket carries every thread the agent is
 	// in, and only these are worth keeping
 	const tracked = new Set<string>();
@@ -92,8 +91,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	function sync(threadIds: string[]) {
 		const current = new Set(threadIds);
 
-		if (!account.value)
-			void loadAccount().then((value) => (account.value = value));
+		void accountStore.load();
 
 		for (const threadId of [
 			...tracked,
@@ -114,7 +112,6 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	return {
 		// state
 		lastMessages,
-		account,
 
 		// actions
 		sync,

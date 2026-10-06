@@ -9,7 +9,7 @@ const sendMessageMock = vi.fn();
 
 vi.mock('../../api/chatSdk', () => ({
 	accountService: {
-		// the session caches the account module-wide, so every test sees this one
+		// the chat-account store asks once per pinia; every test gets this answer
 		getAccount: vi.fn().mockResolvedValue({
 			contact: {
 				sub: '42',
