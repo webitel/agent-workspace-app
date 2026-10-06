@@ -23,6 +23,13 @@
                 >
                     +{{ additionalContacts }}
                 </wt-chip>
+                <!-- row extras that sit at the end of the name, e.g. time -->
+                <div
+                    v-if="$slots.aside"
+                    class="client-identity-block__aside"
+                >
+                    <slot name="aside" />
+                </div>
             </div>
             <p
                 v-if="identifier"
@@ -94,6 +101,10 @@ const { t } = useI18n();
     align-items: center;
 }
 
+.client-identity-block--sm .client-identity-block__info {
+    flex: 1;
+}
+
 .client-identity-block__avatar {
     position: relative;
     flex: none;
@@ -120,6 +131,15 @@ const { t } = useI18n();
 
 .client-identity-block--lg .client-identity-block__name-row {
     justify-content: center;
+}
+
+.client-identity-block--sm .client-identity-block__name-row {
+    width: 100%;
+}
+
+.client-identity-block__aside {
+    flex: none;
+    margin-left: auto;
 }
 
 .client-identity-block__name,

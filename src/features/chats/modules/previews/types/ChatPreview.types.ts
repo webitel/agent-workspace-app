@@ -1,3 +1,5 @@
+import type { ContactIdentity } from '../../../scripts/isSelfContact';
+
 /**
  * A chat's newest message as the chat preview shows it (CONTEXT.md: Last
  * message). Not the SDK message: the preview needs three facts from it and
@@ -8,6 +10,22 @@ export interface LastMessage {
 	body?: string;
 	/** Epoch ms. Absent when the message carried no usable timestamp. */
 	at?: number;
-	/** Thread member id of the sender, compared against the agent's own member. */
-	senderId?: string;
+	/** Who wrote it, compared against the agent's own account. */
+	senderContact?: ContactIdentity;
+}
+
+export type LastMessageSender = 'client' | 'agent';
+
+/** What a row of the chat list shows for one chat (CONTEXT.md: Chat preview). */
+export interface ChatPreview {
+	/** The client's messenger username, falling back to their name. */
+	name?: string;
+	queueName?: string;
+	lastMessage?: {
+		body?: string;
+		/** Epoch ms. */
+		at?: number;
+		/** Absent while it cannot be told, e.g. before the agent's account loads. */
+		sender?: LastMessageSender;
+	};
 }

@@ -98,7 +98,11 @@ for the summary carried on a task and is neither of these.
 **Last message** — the newest message in a chat as the Chat preview shows it: its
 text, when it was sent, and whether the agent or the client sent it. Kept for
 every listed chat whether or not its window is open; it is not read from an open
-chat's message history.
+chat's message history. The task carries a summary of its thread too, but only as
+it was when the chat was distributed, and nothing refreshes it. It identifies the
+thread, so the chats socket's events can be matched to the chat; its text and its
+members are never shown or relied on, and a row shows no message until the first
+read of the Last message answers.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.

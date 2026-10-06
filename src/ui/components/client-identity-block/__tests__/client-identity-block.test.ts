@@ -136,4 +136,30 @@ describe('client-identity-block', () => {
 			true,
 		);
 	});
+
+	it('puts row extras at the end of the name', () => {
+		const wrapper = mount(ClientIdentityBlock, {
+			props: {
+				size: 'sm',
+				name: 'John Smith',
+			},
+			slots: {
+				aside: '<time class="time">12:54</time>',
+			},
+		});
+
+		expect(
+			wrapper
+				.find(
+					'.client-identity-block__name-row .client-identity-block__aside .time',
+				)
+				.text(),
+		).toBe('12:54');
+	});
+
+	it('renders no extras wrapper when none are given', () => {
+		expect(mountBlock().find('.client-identity-block__aside').exists()).toBe(
+			false,
+		);
+	});
 });
