@@ -49,7 +49,17 @@
 			>
 				{{ getVariableValue(slotProps, header.value) }}
 			</template>
-			
+
+			<template #column-filter="scope">
+				<column-filter
+					v-bind="scope"
+					:filters-manager="filtersManager"
+					@add:filter="addFilter"
+					@update:filter="updateFilter"
+					@delete:filter="deleteFilter"
+				/>
+			</template>
+
 			<template #actions="{ item }">
 				<calls-history-row-actions
 					:item="item"
@@ -97,8 +107,16 @@
 <script setup lang="ts">
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
+import {
+	ColumnFilterComponent as ColumnFilter,
+	FilterOption,
+} from '@webitel/ui-datalist/filters';
 import { WtPlayer, WtTable } from '@webitel/ui-sdk/components';
-import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
+import {
+	ComponentSize,
+	FormatDateMode,
+	RelativeDatetimeValue,
+} from '@webitel/ui-sdk/enums';
 import {
 	isVariableHeader,
 	VARIABLE_FIELD_PREFIX,
@@ -122,8 +140,17 @@ const { t } = useI18n();
 
 const store = useCallsHistoryDataListStore();
 
-const { initialize, appendToDataList, columnResize, columnReorder } = store;
-const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
+const {
+	initialize,
+	appendToDataList,
+	columnResize,
+	columnReorder,
+	addFilter,
+	updateFilter,
+	deleteFilter,
+} = store;
+const { dataList, shownHeaders, next, isLoading, filtersManager } =
+	storeToRefs(store);
 
 const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 	usePlayCallRecording();
@@ -178,6 +205,17 @@ const getVariableValue = (slotProps: unknown, headerValue: string) => {
 	};
 	return item?.variables?.[headerValue?.slice(VARIABLE_FIELD_PREFIX.length)];
 };
+
+const initializeDefaultCreatedAtFilter = () => {
+	if (filtersManager.value.hasFilter(FilterOption.CreatedAt)) return;
+
+	addFilter({
+		name: FilterOption.CreatedAt,
+		value: RelativeDatetimeValue.Today,
+	});
+};
+
+initializeDefaultCreatedAtFilter();
 
 initialize().finally(() => {
 	isInitializing.value = false;
