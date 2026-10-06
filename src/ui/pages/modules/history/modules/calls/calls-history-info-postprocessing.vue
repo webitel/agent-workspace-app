@@ -1,5 +1,5 @@
 <template>
-	<ul class="calls-history-info-postprocessing">
+	<ul v-if="sections.length" class="calls-history-info-postprocessing">
 		<li
 			v-for="(section, index) of sections"
 			:key="index"
@@ -24,12 +24,21 @@
 			</template>
 		</li>
 	</ul>
+
+	<wt-empty
+		v-else
+		:image="emptyImage"
+		:text="t('ui.reusable.nothingToShowHere')"
+	/>
 </template>
 
 <script setup lang="ts">
 import type { EngineLookup } from '@webitel/api-services/gen/models';
+import emptyTableDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-dark.svg';
+import emptyTableLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-light.svg';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useThemedImage } from '../../../../../../app/composables/useThemedImage';
 import type { CallInfoForm, CallInfoFormField } from './types/CallInfo.types';
 
 interface PostprocessingSection {
@@ -43,6 +52,11 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+
+const emptyImage = useThemedImage({
+	light: emptyTableLight,
+	dark: emptyTableDark,
+});
 
 const sections = computed<PostprocessingSection[]>(() => {
 	const forms = props.forms ?? [];
@@ -73,5 +87,9 @@ const sections = computed<PostprocessingSection[]>(() => {
 .calls-history-info-postprocessing__field {
 	padding: var(--spacing-xs) 0;
 	word-break: break-word;
+}
+
+.wt-empty {
+	height: 100%;
 }
 </style>

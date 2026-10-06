@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Contact necunoscut',
 		},
+		chatPreview: {
+			onlyUnread: 'Doar conversațiile necitite',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -32,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Rulează',
+			nothingToShowHere: 'Nu există nimic de afișat aici',
 		},
 		numpad: {
 			call: 'Apelează',

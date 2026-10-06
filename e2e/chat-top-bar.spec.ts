@@ -51,7 +51,7 @@ async function openActiveChat(page: Page, socket: MockedSocket) {
 		}),
 	);
 
-	await page.locator('.chat-preview__open').click();
+	await page.locator('.chat-preview').click();
 	await expect(page.locator('.chat-top-bar')).toBeVisible();
 }
 

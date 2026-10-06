@@ -65,8 +65,18 @@ const isUnansweredQueueCall = computed(() =>
 <style scoped>
 .calls-history-name-cell {
 	display: flex;
+	flex-grow: 1;
 	align-items: center;
 	gap: var(--spacing-xs);
+	width: 0;
+}
+
+.calls-history-name-cell p {
+	flex-grow: 1;
+	width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .calls-history-name-cell .wt-avatar {

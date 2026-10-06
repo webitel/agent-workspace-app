@@ -30,7 +30,7 @@
 				</ul>
 				<wt-empty
 					v-else
-					:image="emptySearchImage"
+					:image="emptyImage"
 					:text="t('webitelUI.dummy.text')"
 				/>
 			</section>
@@ -50,11 +50,11 @@
 <script setup lang="ts">
 import { WtEmpty } from '@webitel/ui-sdk/components';
 import { useMinDurationLoader } from '@webitel/ui-sdk/composables';
-import emptySearchDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-dark.svg';
-import emptySearchLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-light.svg';
-import { computed, ref, watch } from 'vue';
+import emptyTableDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-dark.svg';
+import emptyTableLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-light.svg';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
+import { useThemedImage } from '../../../app/composables/useThemedImage';
 import FlowsAPI from '../api/FlowsAPI';
 import type { Flow } from '../types/Flow.types';
 import RunFlowButton from './run-flow-button.vue';
@@ -68,17 +68,15 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const appearanceStore = useAppearanceStore();
 
 const { isLoading, runWithMinDuration } = useMinDurationLoader();
 
+const emptyImage = useThemedImage({
+	light: emptyTableLight,
+	dark: emptyTableDark,
+});
+
 const flowsList = ref<Flow[]>([]);
-
-const darkMode = computed(() => appearanceStore.darkMode);
-
-const emptySearchImage = computed(() =>
-	darkMode.value ? emptySearchDark : emptySearchLight,
-);
 
 const loadFlows = () => {
 	runWithMinDuration(async () => {

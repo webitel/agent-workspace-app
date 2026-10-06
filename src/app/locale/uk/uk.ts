@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Невідомий контакт',
 		},
+		chatPreview: {
+			onlyUnread: 'Лише непрочитані чати',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -32,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Запустити',
+			nothingToShowHere: 'Тут нічого немає',
 		},
 		numpad: {
 			call: 'Зателефонувати',

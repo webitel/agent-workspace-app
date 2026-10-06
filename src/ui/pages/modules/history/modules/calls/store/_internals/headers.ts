@@ -1,4 +1,5 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
+import { createFilterConfig, FilterOption } from '@webitel/ui-datalist/filters';
 
 export const headers: DatalistTableHeader[] = [
 	{
@@ -15,6 +16,9 @@ export const headers: DatalistTableHeader[] = [
 		show: true,
 		field: 'created_at',
 		width: '170px',
+		filter: createFilterConfig({
+			name: FilterOption.CreatedAt,
+		}),
 	},
 	{
 		value: 'duration',
@@ -25,10 +29,7 @@ export const headers: DatalistTableHeader[] = [
 	},
 	{
 		value: 'phone',
-		locale: [
-			'vocabulary.phones',
-			1,
-		],
+		locale: 'ui.pages.history.calls.table.phoneNumber',
 		show: true,
 		// virtual field, expanded to API fields in callsHistoryApiModule
 		field: 'phone',

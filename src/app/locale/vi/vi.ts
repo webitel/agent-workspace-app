@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Liên hệ không xác định',
 		},
+		chatPreview: {
+			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -31,8 +34,8 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Hủy',
 			run: 'Chạy',
+			nothingToShowHere: 'Không có gì để hiển thị ở đây',
 		},
 		numpad: {
 			call: 'Gọi',

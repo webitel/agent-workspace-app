@@ -29,6 +29,9 @@ and should not be carried over wholesale.
 - [ADR-0006](docs/adr/0006-info-tab-variables.md) — the Info tab merges the
   task's and the thread's variables, shows a key held by both twice, and treats
   a 403/404 on the thread read as "none".
+- [ADR-0007](docs/adr/0007-chat-session-lifetime.md) — a chat session lives
+  while its chat is listed or has a window, and why the chat preview's history
+  read is not deduplicated against it.
 
 ## Language
 
@@ -98,7 +101,19 @@ for the summary carried on a task and is neither of these.
 **Last message** — the newest message in a chat as the Chat preview shows it: its
 text, when it was sent, and whether the agent or the client sent it. Kept for
 every listed chat whether or not its window is open; it is not read from an open
-chat's message history.
+chat's message history. The task carries a summary of its thread too, but only as
+it was when the chat was distributed, and nothing refreshes it. It identifies the
+thread, so the chats socket's events can be matched to the chat; its text and its
+members are never shown or relied on, and a row shows no message until the first
+read of the Last message answers.
+
+**Unread chat** — a chat with client messages the agent has not read yet. A chat
+counts as read once the agent has opened it and clicked its input field, not
+merely opened it (AC_02.03.03). The chat list can be narrowed to unread chats.
+The backend does not yet say how many unread messages a task's chat has, so no
+chat is unread as far as the app can tell and the narrowing control stays out of
+sight until it does — an unread state worked out on the client would read as
+fact.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.

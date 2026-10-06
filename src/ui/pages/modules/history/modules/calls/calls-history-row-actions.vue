@@ -101,4 +101,8 @@ const handleMenuClick = ({
 .calls-history-row-actions__option .wt-icon {
 	--icon-color: var(--wt-ws-chat-queue-pannel-colors-chat-end-reason-indicator-color);
 }
+
+.wt-icon-btn {
+	padding: var(--spacing-xs);
+}
 </style>

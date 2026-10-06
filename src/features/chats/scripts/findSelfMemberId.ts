@@ -1,4 +1,5 @@
 import type { AccountModel, ThreadModel } from '@webitel/chat-web-sdk';
+import { isSelfContact } from './isSelfContact';
 
 /**
  * The operator's member in this thread: the one whose contact is the
@@ -8,14 +9,10 @@ export function findSelfMemberId(
 	thread: ThreadModel | null,
 	account: AccountModel | null,
 ): string {
-	const self = account?.contact;
-	if (!thread || !self?.sub) return '';
+	if (!thread) return '';
 
 	return (
-		thread.members?.find(
-			(member) =>
-				member.contact?.sub === self.sub &&
-				(!self.iss || member.contact?.iss === self.iss),
-		)?.id ?? ''
+		thread.members?.find((member) => isSelfContact(member.contact, account))
+			?.id ?? ''
 	);
 }
