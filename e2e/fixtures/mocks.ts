@@ -448,14 +448,11 @@ export function chatDistribute({
 	threadId = 'e2e-thread-1',
 	subject = 'Jane Doe',
 	variables = {},
-	members,
 }: {
 	threadId?: string;
 	subject?: string;
 	/** the task's own variables, as the queue attached them */
 	variables?: Record<string, string>;
-	/** the thread's members, which a preview needs to tell the agent from the client */
-	members?: Record<string, unknown>[];
 } = {}) {
 	return {
 		app_id: 'e2e',
@@ -472,11 +469,6 @@ export function chatDistribute({
 				id: threadId,
 				subject,
 				last_msg: 'Hi, I need help',
-				...(members
-					? {
-							members,
-						}
-					: {}),
 			},
 		},
 	};

@@ -63,9 +63,10 @@ const message = (
 
 /**
  * Puts a bridged chat task in the feed; the list shows it as a preview.
- * `messages` is the thread's history, newest first. The agent's account and the
- * thread's members are what let the row tell the agent's messages from the
- * client's.
+ * `messages` is the thread's history, newest first. The agent's account is what
+ * lets the row tell the agent's messages from the client's. The task itself
+ * carries only a snapshot of its thread (`last_msg` and no members), which the
+ * row must not read.
  */
 async function acceptChat(
 	page: Page,
@@ -107,10 +108,6 @@ async function acceptChat(
 			distribute: chatDistribute({
 				threadId: THREAD.id,
 				subject: THREAD.subject,
-				members: [
-					AGENT,
-					CLIENT,
-				],
 			}),
 		}),
 	);
@@ -132,17 +129,37 @@ test.describe('chat preview', () => {
 		page,
 		socket,
 	}) => {
-		await acceptChat(page, socket);
+		await acceptChat(page, socket, {
+			messages: [
+				message('msg-1', CLIENT, 'Can you help me?', todayAt(9, 5)),
+			],
+		});
 
 		const preview = page.locator('.chat-preview');
 		await expect(preview).toBeVisible();
 		await expect(preview.locator('.client-identity-block__name')).toHaveText(
 			'@jane',
 		);
-		await expect(lastMessageText(page)).toHaveText('Hi, I need help');
+		await expect(lastMessageText(page)).toHaveText('Can you help me?');
 		await expect(preview.locator('.chat-preview-footer')).toContainText(
 			'Chat support',
 		);
+	});
+
+	// the task's `last_msg` is a snapshot from distribution that nothing
+	// refreshes: the row waits for the chat's real history instead
+	test("does not show the task's own copy of the last message", async ({
+		page,
+		socket,
+	}) => {
+		const history = page.waitForResponse('**/api/v1/e2e-thread-1/messages**');
+
+		await acceptChat(page, socket);
+		await expect(page.locator('.chat-preview')).toBeVisible();
+		await history;
+
+		await expect(lastMessage(page)).toHaveCount(0);
+		await expect(page.getByText('Hi, I need help')).toHaveCount(0);
 	});
 
 	test('marks the chat open in the central panel as selected', async ({

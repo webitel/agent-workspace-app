@@ -37,6 +37,8 @@ const account = {
 	},
 };
 
+// the thread is the snapshot a task carries from distribution: the row reads its
+// id and nothing else, so its text and members are made to look stale on purpose
 const buildTask = (overrides: Record<string, unknown> = {}) =>
 	({
 		displayName: 'John Smith',
@@ -47,23 +49,8 @@ const buildTask = (overrides: Record<string, unknown> = {}) =>
 		},
 		thread: {
 			id: 't1',
-			lastMsg: 'task text',
-			members: [
-				{
-					id: 'member-client',
-					contact: {
-						sub: 'client-1',
-						iss: 'telegram',
-					},
-				},
-				{
-					id: 'member-agent',
-					contact: {
-						sub: '42',
-						iss: 'webitel',
-					},
-				},
-			],
+			lastMsg: 'text from distribution',
+			members: [],
 		},
 		...overrides,
 	}) as never;
@@ -87,7 +74,10 @@ describe('chat-preview', () => {
 				id: 'm1',
 				body: 'message text',
 				at: today0905,
-				senderId: 'member-client',
+				senderContact: {
+					sub: 'client-1',
+					iss: 'telegram',
+				},
 			},
 		};
 		accountStore.account = account;
@@ -155,7 +145,10 @@ describe('chat-preview', () => {
 					id: 'm1',
 					body: 'my reply',
 					at: today0905,
-					senderId: 'member-agent',
+					senderContact: {
+						sub: '42',
+						iss: 'webitel',
+					},
 				},
 			};
 			const wrapper = mountPreview();
@@ -184,23 +177,13 @@ describe('chat-preview', () => {
 			previewsStore.lastMessages = {};
 		});
 
-		it('shows the task text, without a time', () => {
+		// the task's text is a snapshot nothing refreshes: not worth showing
+		it('shows the chat but no message, though the task carries text', () => {
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body__text').text()).toBe('task text');
-			expect(wrapper.find('.chat-preview__time').exists()).toBe(false);
-		});
-
-		it('shows no message row when the task carries no text', () => {
-			const wrapper = mountPreview(
-				buildTask({
-					thread: {
-						id: 't1',
-					},
-				}),
-			);
-
+			expect(wrapper.find('.client-identity-block__name').text()).toBe('@john');
 			expect(wrapper.find('.chat-preview-body').exists()).toBe(false);
+			expect(wrapper.find('.chat-preview__time').exists()).toBe(false);
 		});
 	});
 
