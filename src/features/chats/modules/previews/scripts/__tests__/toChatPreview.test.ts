@@ -9,6 +9,8 @@ const account = {
 	},
 };
 
+// the snapshot a task carries from distribution: text and members that may
+// already be out of date, and which the preview must not read
 const buildTask = (overrides: Record<string, unknown> = {}) =>
 	({
 		displayName: 'John Smith',
@@ -19,20 +21,13 @@ const buildTask = (overrides: Record<string, unknown> = {}) =>
 		},
 		thread: {
 			id: 't1',
-			lastMsg: 'task text',
+			lastMsg: 'text from distribution',
 			members: [
 				{
 					id: 'member-client',
 					contact: {
 						sub: 'client-1',
 						iss: 'telegram',
-					},
-				},
-				{
-					id: 'member-agent',
-					contact: {
-						sub: '42',
-						iss: 'webitel',
 					},
 				},
 			],
@@ -44,7 +39,10 @@ const buildLastMessage = (overrides: Record<string, unknown> = {}) => ({
 	id: 'm1',
 	body: 'message text',
 	at: 1760000000000,
-	senderId: 'member-client',
+	senderContact: {
+		sub: 'client-1',
+		iss: 'telegram',
+	},
 	...overrides,
 });
 
@@ -79,80 +77,94 @@ describe('toChatPreview', () => {
 		});
 	});
 
-	it("marks the agent's own message as theirs", () => {
-		expect(
-			toChatPreview(
-				buildTask(),
-				buildLastMessage({
-					senderId: 'member-agent',
-				}),
-				account,
-			).lastMessage?.sender,
-		).toBe('agent');
+	describe('who wrote the last message', () => {
+		it("marks the agent's own message as theirs", () => {
+			expect(
+				toChatPreview(
+					buildTask(),
+					buildLastMessage({
+						senderContact: {
+							sub: '42',
+							iss: 'webitel',
+						},
+					}),
+					account,
+				).lastMessage?.sender,
+			).toBe('agent');
+		});
+
+		// a bot or another operator is not the agent
+		it('treats any other contact as not the agent', () => {
+			expect(
+				toChatPreview(
+					buildTask(),
+					buildLastMessage({
+						senderContact: {
+							sub: '7',
+							iss: 'webitel',
+						},
+					}),
+					account,
+				).lastMessage?.sender,
+			).toBe('client');
+		});
+
+		// the snapshot's member list is not consulted: at distribution the agent
+		// is not a member yet, and the message names its sender anyway
+		it('does not need the agent to be among the task thread members', () => {
+			expect(
+				toChatPreview(
+					buildTask(),
+					buildLastMessage({
+						senderContact: {
+							sub: '42',
+							iss: 'webitel',
+						},
+					}),
+					account,
+				).lastMessage?.sender,
+			).toBe('agent');
+		});
+
+		// without the account the agent cannot be recognised; saying "client"
+		// would be wrong for half the messages
+		it('does not guess before the account loads', () => {
+			expect(
+				toChatPreview(buildTask(), buildLastMessage(), null).lastMessage
+					?.sender,
+			).toBeUndefined();
+		});
+
+		it('does not guess when the message names no sender', () => {
+			expect(
+				toChatPreview(
+					buildTask(),
+					buildLastMessage({
+						senderContact: undefined,
+					}),
+					account,
+				).lastMessage?.sender,
+			).toBeUndefined();
+		});
 	});
 
-	// a bot or another operator is not the agent
-	it('treats any other member as not the agent', () => {
-		expect(
-			toChatPreview(
-				buildTask(),
-				buildLastMessage({
-					senderId: 'member-bot',
-				}),
-				account,
-			).lastMessage?.sender,
-		).toBe('client');
-	});
-
-	// without the account the agent's member cannot be found; saying "client"
-	// would be wrong for half the messages
-	it('does not guess the sender before the account loads', () => {
-		expect(
-			toChatPreview(buildTask(), buildLastMessage(), null).lastMessage?.sender,
-		).toBeUndefined();
-	});
-
-	it('does not guess the sender when the message names none', () => {
-		expect(
-			toChatPreview(
-				buildTask(),
-				buildLastMessage({
-					senderId: undefined,
-				}),
-				account,
-			).lastMessage?.sender,
-		).toBeUndefined();
-	});
-
+	// the task's text is a snapshot from distribution and nothing refreshes it,
+	// so it is not shown, not even until the first read answers
 	describe('before the last message is known', () => {
-		it('shows the task text, without time or sender', () => {
+		it('shows no message, though the task carries text', () => {
 			expect(
 				toChatPreview(buildTask(), undefined, account).lastMessage,
-			).toEqual({
-				body: 'task text',
-				at: undefined,
-				sender: undefined,
-			});
+			).toBeUndefined();
 		});
 
-		it('has no last message at all when the task carries no text either', () => {
-			const preview = toChatPreview(
-				buildTask({
-					thread: {
-						id: 't1',
-					},
-				}),
-				undefined,
-				account,
-			);
+		it('still names the chat', () => {
+			const preview = toChatPreview(buildTask(), undefined, account);
 
-			expect(preview.lastMessage).toBeUndefined();
+			expect(preview.name).toBe('@john');
+			expect(preview.queueName).toBe('Support');
 		});
 	});
 
-	// the task's text is a snapshot from distribution; next to a newer message
-	// that has no text of its own (an image) it would be an old message's words
-	// under the new message's time and author
 	it('does not put the task text on a newer message that has no body', () => {
 		const preview = toChatPreview(
 			buildTask(),

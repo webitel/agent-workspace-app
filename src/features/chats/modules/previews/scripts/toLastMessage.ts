@@ -16,11 +16,17 @@ export function toLastMessage(message: IMessage): LastMessage | undefined {
 	if (message.system) return undefined;
 
 	const at = Number(message.createdAt);
+	const sender = message.sender?.contact;
 
 	return {
 		id: message.id,
 		body: message.body || undefined,
 		at: Number.isFinite(at) && at > 0 ? at : undefined,
-		senderId: message.sender?.id || undefined,
+		senderContact: sender?.sub
+			? {
+					sub: sender.sub,
+					iss: sender.iss,
+				}
+			: undefined,
 	};
 }
