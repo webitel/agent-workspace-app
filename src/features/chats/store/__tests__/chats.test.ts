@@ -38,6 +38,7 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 
 const loadMock = vi.fn();
 const refreshThreadMock = vi.fn();
+const catchUpMock = vi.fn();
 const receiveMessageMock = vi.fn();
 // chats that have a session, the way the real registry tracks them
 const sessionIds = new Set<string>();
@@ -48,6 +49,7 @@ const useChatSessionStoreMock = vi.fn((chatId: string) => {
 		initialized: sessionInitialized,
 		load: loadMock,
 		refreshThread: refreshThreadMock,
+		catchUp: catchUpMock,
 		receiveMessage: receiveMessageMock,
 	};
 });
@@ -56,6 +58,9 @@ const retainChatSessionsMock = vi.fn();
 vi.mock('../chat-session', () => ({
 	useChatSessionStore: (chatId: string) => useChatSessionStoreMock(chatId),
 	hasChatSession: (chatId: string) => sessionIds.has(chatId),
+	chatSessionIds: () => [
+		...sessionIds,
+	],
 	retainChatSessions: (...args: unknown[]) => retainChatSessionsMock(...args),
 }));
 
@@ -68,10 +73,12 @@ vi.mock('../chat-account', () => ({
 }));
 
 const receivePreviewMessageMock = vi.fn();
+const reseedPreviewsMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
 		receiveMessage: receivePreviewMessageMock,
+		reseed: reseedPreviewsMock,
 	}),
 }));
 
@@ -86,11 +93,18 @@ const onThreadMessageMock = vi.fn(
 	},
 );
 
+let reconnectedHandler: (() => void) | null = null;
+const onReconnectedMock = vi.fn((callback: () => void) => {
+	reconnectedHandler = callback;
+	return () => {};
+});
+
 vi.mock('../../composables/useChatsSocket', () => ({
 	useChatsSocket: () => ({
 		connect: connectChatsSocketMock,
 		disconnect: vi.fn(),
 		onThreadMessage: onThreadMessageMock,
+		onReconnected: onReconnectedMock,
 	}),
 }));
 
@@ -175,6 +189,7 @@ describe('chats store', () => {
 		sessionInitialized = false;
 		tasks.value = [];
 		threadMessageHandler = null;
+		reconnectedHandler = null;
 		routerCurrentRoute.value.params = {};
 	});
 
@@ -223,6 +238,19 @@ describe('chats store', () => {
 		});
 
 		// the list shows every accepted chat, not only the open ones
+		// whatever was written while the socket was down was never pushed
+		it('catches up the list and every chat session once the socket is back', () => {
+			const store = useChatsStore();
+			store.initialize();
+			store.openChat('chat-1');
+			store.openChat('chat-2', 'minimized');
+
+			reconnectedHandler?.();
+
+			expect(reseedPreviewsMock).toHaveBeenCalledOnce();
+			expect(catchUpMock).toHaveBeenCalledTimes(2);
+		});
+
 		// a listed chat's session outlives its window and must stay current
 		it('keeps routing to a session whose window was closed', () => {
 			const store = useChatsStore();

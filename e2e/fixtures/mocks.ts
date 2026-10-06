@@ -146,6 +146,11 @@ export interface MockedSocket {
 	 * so `data` is written in snake_case like the backend does.
 	 */
 	sendChatEvent(event: string, data: unknown): void;
+	/**
+	 * Drops the chat socket the way a network blip does. Frames pushed until
+	 * the app connects again are held and delivered to the new socket.
+	 */
+	dropChatSocket(): Promise<void>;
 	/** Every request the app sent over a socket, oldest first. */
 	requests: MockedSocketRequest[];
 }
@@ -248,6 +253,11 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 					},
 				}),
 			);
+		},
+		async dropChatSocket() {
+			const target = sockets.chat;
+			sockets.chat = undefined;
+			await target?.close();
 		},
 	};
 }
