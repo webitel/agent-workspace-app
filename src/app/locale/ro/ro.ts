@@ -32,6 +32,7 @@ export default {
 		},
 		reusable: {
 			run: 'Rulează',
+			nothingToShowHere: 'Nu există nimic de afișat aici',
 		},
 		numpad: {
 			call: 'Apelează',

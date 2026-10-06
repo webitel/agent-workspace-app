@@ -32,6 +32,7 @@ export default {
 		},
 		reusable: {
 			run: 'Ishga tushirish',
+			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',

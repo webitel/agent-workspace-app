@@ -32,6 +32,7 @@ export default {
 		},
 		reusable: {
 			run: 'Запустить',
+			nothingToShowHere: 'Здесь ничего нет',
 		},
 		numpad: {
 			call: 'Позвонить',
