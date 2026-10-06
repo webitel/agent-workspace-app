@@ -139,7 +139,8 @@ vi.mock('../../../../app/router', () => ({
 }));
 
 import { useChatsSocket } from '../../composables/useChatsSocket';
-import { useChatSessionStore } from '../chat-session';
+import { retainChatSessions, useChatSessionStore } from '../chat-session';
+import { useChatVariablesStore } from '../chat-variables';
 import { useChatsStore } from '../chats';
 
 /** An accepted chat task, as the SDK feed holds it. */
@@ -201,6 +202,8 @@ describe('chat session and chat previews, together', () => {
 	});
 
 	afterEach(() => {
+		// the session registry is module state, shared by every test
+		retainChatSessions(new Set());
 		useChatsSocket().disconnect();
 		(
 			pinia as unknown as {
@@ -213,6 +216,112 @@ describe('chat session and chat previews, together', () => {
 			}
 		)._s.forEach((store) => {
 			store.$dispose();
+		});
+	});
+
+	describe('a chat session lives as long as its chat is listed', () => {
+		it('keeps scrolled-back history across closing and reopening the window', async () => {
+			histories.set('t1', [
+				message('m3', 3000),
+			]);
+			olderPages.set('t1', [
+				message('m2', 2000),
+				message('m1', 1000),
+			]);
+			tasks.value = [
+				listedTask('t1'),
+			];
+			const chats = useChatsStore();
+			chats.initialize();
+
+			chats.openChat('t1');
+			await flushPromises();
+			await useChatSessionStore('t1').loadMore();
+			chats.closeChat('t1');
+			chats.openChat('t1');
+			await flushPromises();
+
+			expect(messageIds('t1')).toEqual([
+				'm1',
+				'm2',
+				'm3',
+			]);
+		});
+
+		it('re-reads only the thread, not its history, when a retained chat is shown again', async () => {
+			histories.set('t1', [
+				message('m1', 1000),
+			]);
+			tasks.value = [
+				listedTask('t1'),
+			];
+			const chats = useChatsStore();
+			chats.initialize();
+
+			chats.openChat('t1');
+			await flushPromises();
+			const readsBeforeReopening = sessionHistoryMock.mock.calls.length;
+			chats.closeChat('t1');
+			chats.openChat('t1');
+			await flushPromises();
+
+			// read states and delivery ticks come from the thread
+			expect(fetchThreadMock).toHaveBeenCalledTimes(2);
+			expect(sessionHistoryMock).toHaveBeenCalledTimes(readsBeforeReopening);
+		});
+
+		it('keeps a closed window current from the socket', async () => {
+			histories.set('t1', [
+				message('m1', 1000),
+			]);
+			tasks.value = [
+				listedTask('t1'),
+			];
+			const chats = useChatsStore();
+			chats.initialize();
+			chats.openChat('t1');
+			await flushPromises();
+			chats.closeChat('t1');
+
+			pushMessage(message('m2', 2000));
+			chats.openChat('t1');
+			await flushPromises();
+
+			expect(messageIds('t1')).toEqual([
+				'm1',
+				'm2',
+			]);
+		});
+
+		it('disposes the session and its variables once the chat leaves the list, not before', async () => {
+			tasks.value = [
+				listedTask('t1'),
+			];
+			const chats = useChatsStore();
+			chats.initialize();
+			chats.openChat('t1');
+			await flushPromises();
+			await useChatVariablesStore('t1').refresh();
+			chats.closeChat('t1');
+
+			expect(pinia.state.value['chat:t1']).toBeDefined();
+
+			tasks.value = [];
+			await flushPromises();
+
+			expect(pinia.state.value['chat:t1']).toBeUndefined();
+			expect(pinia.state.value['chat-variables:t1']).toBeUndefined();
+		});
+
+		it('disposes a deep-linked chat that was never listed when its window closes', async () => {
+			const chats = useChatsStore();
+			chats.initialize();
+			chats.openChat('t9');
+			await flushPromises();
+
+			chats.closeChat('t9');
+
+			expect(pinia.state.value['chat:t9']).toBeUndefined();
 		});
 	});
 

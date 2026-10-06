@@ -29,6 +29,9 @@ and should not be carried over wholesale.
 - [ADR-0006](docs/adr/0006-info-tab-variables.md) — the Info tab merges the
   task's and the thread's variables, shows a key held by both twice, and treats
   a 403/404 on the thread read as "none".
+- [ADR-0007](docs/adr/0007-chat-session-lifetime.md) — a chat session lives
+  while its chat is listed or has a window, and why the chat preview's history
+  read is not deduplicated against it.
 
 ## Language
 
