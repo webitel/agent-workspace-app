@@ -13,7 +13,6 @@ export default {
 			unknownContact: 'Невідомий контакт',
 		},
 		chatPreview: {
-			queue: 'Черга',
 			onlyUnread: 'Лише непрочитані чати',
 		},
 		notifications: {
@@ -36,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Запустити',
+			nothingToShowHere: 'Тут нічого немає',
 		},
 		numpad: {
 			call: 'Зателефонувати',

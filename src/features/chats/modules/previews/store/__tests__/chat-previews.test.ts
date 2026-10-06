@@ -4,12 +4,8 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchMessageHistoryMock = vi.fn();
-const getAccountMock = vi.fn();
 
 vi.mock('../../../../api/chatSdk', () => ({
-	accountService: {
-		getAccount: (...args: unknown[]) => getAccountMock(...args),
-	},
 	messagesService: {
 		fetchMessageHistory: (...args: unknown[]) =>
 			fetchMessageHistoryMock(...args),
@@ -26,6 +22,10 @@ const buildMessage = (overrides: Record<string, unknown> = {}) =>
 		createdAt: '1000',
 		sender: {
 			id: 'member-client',
+			contact: {
+				sub: 'client-1',
+				iss: 'telegram',
+			},
 		},
 		...overrides,
 	}) as never;
@@ -38,12 +38,6 @@ const historyPage = (...messages: unknown[]) => ({
 describe('chat-previews store', () => {
 	beforeEach(() => {
 		fetchMessageHistoryMock.mockReset();
-		getAccountMock.mockResolvedValue({
-			contact: {
-				sub: '42',
-				iss: 'webitel',
-			},
-		});
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -75,26 +69,6 @@ describe('chat-previews store', () => {
 		});
 	});
 
-	describe('account', () => {
-		it('loads the agent account once the list has chats', async () => {
-			fetchMessageHistoryMock.mockResolvedValue(historyPage());
-			const store = useChatPreviewsStore();
-			expect(store.account).toBeNull();
-
-			store.sync([
-				't1',
-			]);
-			await flushPromises();
-
-			expect(store.account).toEqual({
-				contact: {
-					sub: '42',
-					iss: 'webitel',
-				},
-			});
-		});
-	});
-
 	describe('seeding', () => {
 		it('reads the newest messages of a chat once it is listed', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
@@ -112,7 +86,10 @@ describe('chat-previews store', () => {
 				id: 'm1',
 				body: 'hello',
 				at: 1000,
-				senderId: 'member-client',
+				senderContact: {
+					sub: 'client-1',
+					iss: 'telegram',
+				},
 			});
 		});
 

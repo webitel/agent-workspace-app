@@ -49,6 +49,14 @@ vi.mock('../chat-session', () => ({
 	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
 }));
 
+const loadAccountMock = vi.fn();
+
+vi.mock('../chat-account', () => ({
+	useChatAccountStore: () => ({
+		load: loadAccountMock,
+	}),
+}));
+
 const receivePreviewMessageMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
@@ -142,6 +150,15 @@ describe('chats store', () => {
 		tasks.value = [];
 		threadMessageHandler = null;
 		routerCurrentRoute.value.params = {};
+	});
+
+	// it does not change within a session, so one read at startup serves every chat
+	it('loads the agent account once on initialize', () => {
+		const store = useChatsStore();
+
+		store.initialize();
+
+		expect(loadAccountMock).toHaveBeenCalledOnce();
 	});
 
 	it('subscribes to tasks on the connected client on initialize', () => {

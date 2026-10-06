@@ -38,6 +38,7 @@ import { useI18n } from 'vue-i18n';
 import { type Task } from 'webitel-sdk';
 
 import ClientIdentityBlock from '../../../../../../ui/components/client-identity-block/client-identity-block.vue';
+import { useChatAccountStore } from '../../../../store/chat-account';
 import { useChatsStore } from '../../../../store/chats';
 import { formatPreviewTime } from '../../scripts/formatPreviewTime';
 import { toChatPreview } from '../../scripts/toChatPreview';
@@ -51,6 +52,7 @@ const props = defineProps<{
 
 const chatsStore = useChatsStore();
 const previewsStore = useChatPreviewsStore();
+const accountStore = useChatAccountStore();
 const { locale } = useI18n();
 
 // the route param threadId equals task.thread.id
@@ -60,7 +62,7 @@ const preview = computed(() =>
 	toChatPreview(
 		props.task,
 		previewsStore.lastMessages[threadId.value],
-		previewsStore.account,
+		accountStore.account,
 	),
 );
 

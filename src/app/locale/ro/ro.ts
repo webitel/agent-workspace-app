@@ -13,7 +13,6 @@ export default {
 			unknownContact: 'Contact necunoscut',
 		},
 		chatPreview: {
-			queue: 'Coadă',
 			onlyUnread: 'Doar conversațiile necitite',
 		},
 		notifications: {
@@ -36,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Rulează',
+			nothingToShowHere: 'Nu există nimic de afișat aici',
 		},
 		numpad: {
 			call: 'Apelează',

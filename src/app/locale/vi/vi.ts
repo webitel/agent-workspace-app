@@ -13,7 +13,6 @@ export default {
 			unknownContact: 'Liên hệ không xác định',
 		},
 		chatPreview: {
-			queue: 'Hàng đợi',
 			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
 		},
 		notifications: {
@@ -35,8 +34,8 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Hủy',
 			run: 'Chạy',
+			nothingToShowHere: 'Không có gì để hiển thị ở đây',
 		},
 		numpad: {
 			call: 'Gọi',

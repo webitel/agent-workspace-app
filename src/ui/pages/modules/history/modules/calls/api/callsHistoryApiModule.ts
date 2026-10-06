@@ -3,23 +3,15 @@ import {
 	applyTransform,
 	starToSearch,
 } from '@webitel/api-services/api/transformers';
+import { RelativeDatetimeValue } from '@webitel/api-services/enums';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
-import { normalizeDatetimeRange } from '@webitel/api-services/scripts';
+import {
+	normalizeDatetimeRange,
+	normalizeToTimestamp,
+} from '@webitel/api-services/scripts';
 import type { ApiModule } from '@webitel/ui-sdk/api/types/ApiModule';
 
 const DEFAULT_SORT = '-created_at';
-
-/**
- * Backend rejects the list without a created_at range.
- * AC_19.01.24: default period starts on the 1st of the previous month.
- */
-const getDefaultCreatedAtRange = () => {
-	const now = new Date();
-	return {
-		from: new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime(),
-		to: new Date(now).setHours(23, 59, 59, 999),
-	};
-};
 
 /**
  * Header `field` values that are not backend fields: a column cell
@@ -83,7 +75,6 @@ const getList = async (params: Record<string, unknown> = {}) => {
 	const createdAtRange = normalizeDatetimeRange(
 		createdAt as Parameters<typeof normalizeDatetimeRange>[0],
 	);
-	const defaultCreatedAtRange = getDefaultCreatedAtRange();
 
 	const data = {
 		...rest,
@@ -91,8 +82,16 @@ const getList = async (params: Record<string, unknown> = {}) => {
 		fields: toApiFields(fields as string[] | undefined),
 		sort: sort || DEFAULT_SORT,
 		createdAt: {
-			from: createdAtRange?.from ?? defaultCreatedAtRange.from,
-			to: createdAtRange?.to ?? defaultCreatedAtRange.to,
+			from:
+				createdAtRange?.from ??
+				normalizeToTimestamp(RelativeDatetimeValue.Today, {
+					round: 'start',
+				}),
+			to:
+				createdAtRange?.to ??
+				normalizeToTimestamp(RelativeDatetimeValue.Today, {
+					round: 'end',
+				}),
 		},
 		ownerId: [
 			ownerId,

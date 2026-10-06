@@ -13,7 +13,6 @@ export default {
 			unknownContact: 'Белгісіз контакт',
 		},
 		chatPreview: {
-			queue: 'Кезек',
 			onlyUnread: 'Тек оқылмаған чаттар',
 		},
 		notifications: {
@@ -36,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Іске қосу',
+			nothingToShowHere: 'Мұнда ештеңе жоқ',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',

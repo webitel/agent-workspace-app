@@ -13,7 +13,6 @@ export default {
 			unknownContact: 'Unknown contact',
 		},
 		chatPreview: {
-			queue: 'Queue',
 			onlyUnread: 'Show only unread chats',
 		},
 		notifications: {
@@ -36,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Run',
+			nothingToShowHere: 'Nothing to show here',
 		},
 		numpad: {
 			call: 'Call',
@@ -73,7 +73,7 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Phone Number',
+						phoneNumber: 'Phone number',
 					},
 					recordings: {
 						unavailable: 'Recording unavailable',

@@ -140,6 +140,12 @@ function replyFor(action?: string): object {
  */
 export interface MockedSocket {
 	send(event: string, data: unknown, channel?: MockedSocketChannel): void;
+	/**
+	 * Pushes an event down the chat socket. It does not frame like `send`: the
+	 * chat-web-sdk reads `{ payload: { <event>: ... } }` and camel-cases the keys,
+	 * so `data` is written in snake_case like the backend does.
+	 */
+	sendChatEvent(event: string, data: unknown): void;
 	/** Every request the app sent over a socket, oldest first. */
 	requests: MockedSocketRequest[];
 }
@@ -212,20 +218,36 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 		}
 	});
 
+	const deliver = (channel: MockedSocketChannel, frame: string) => {
+		const target = sockets[channel];
+		if (target) {
+			target.send(frame);
+			return;
+		}
+		queued[channel] ??= [];
+		queued[channel].push(frame);
+	};
+
 	return {
 		requests,
 		send(event, data, channel = 'main') {
-			const frame = JSON.stringify({
-				event,
-				data,
-			});
-			const target = sockets[channel];
-			if (target) {
-				target.send(frame);
-				return;
-			}
-			queued[channel] ??= [];
-			queued[channel].push(frame);
+			deliver(
+				channel,
+				JSON.stringify({
+					event,
+					data,
+				}),
+			);
+		},
+		sendChatEvent(event, data) {
+			deliver(
+				'chat',
+				JSON.stringify({
+					payload: {
+						[event]: data,
+					},
+				}),
+			);
 		},
 	};
 }
@@ -308,9 +330,12 @@ export async function mockChatThread(
 	{
 		id,
 		subject,
+		messages = [],
 	}: {
 		id: string;
 		subject: string;
+		/** history, newest first (the API order), snake_case on the wire */
+		messages?: Record<string, unknown>[];
 	},
 ) {
 	await page.route(`**/api/v1/threads/${id}`, async (route) => {
@@ -328,7 +353,7 @@ export async function mockChatThread(
 			status: 200,
 			contentType: 'application/json',
 			body: JSON.stringify({
-				items: [],
+				items: messages,
 			}),
 		});
 	});

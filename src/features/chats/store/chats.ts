@@ -11,6 +11,7 @@ import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toChatOfferContent } from '../scripts/toChatOfferContent';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
+import { useChatAccountStore } from './chat-account';
 import { disposeChatSession, useChatSessionStore } from './chat-session';
 
 // Singleton coordinator: owns the SDK task feed and window layout. Per-chat
@@ -24,6 +25,7 @@ export const useChatsStore = defineStore('chats', () => {
 	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
 	const offersStore = useOffersStore();
 	const previewsStore = useChatPreviewsStore();
+	const accountStore = useChatAccountStore();
 
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
@@ -168,6 +170,10 @@ export const useChatsStore = defineStore('chats', () => {
 
 		offersStore.initialize();
 		subscribeToOffers();
+
+		// the agent's account does not change within a session, so it is read
+		// once here and every chat store reads it from its own store
+		void accountStore.load();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {

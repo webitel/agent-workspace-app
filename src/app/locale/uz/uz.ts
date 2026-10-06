@@ -13,7 +13,6 @@ export default {
 			unknownContact: 'Nomaʼlum kontakt',
 		},
 		chatPreview: {
-			queue: 'Navbat',
 			onlyUnread: 'Faqat o‘qilmagan chatlar',
 		},
 		notifications: {
@@ -36,6 +35,7 @@ export default {
 		},
 		reusable: {
 			run: 'Ishga tushirish',
+			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
