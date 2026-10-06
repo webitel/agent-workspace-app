@@ -4,7 +4,7 @@
         :title="queueName"
     >
         <span class="chat-preview-footer__text">
-            <span class="chat-preview-footer__label">
+            <span class="typo-caption-bold">
                 {{ t('objects.queue.queue', 1) }}:
             </span>
             {{ queueName }}
@@ -46,10 +46,6 @@ const { t } = useI18n();
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-}
-
-.chat-preview-footer__label {
-    font-weight: 500;
 }
 
 .chat-preview-footer__expand {
