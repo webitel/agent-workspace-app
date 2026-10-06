@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, shallowRef } from 'vue';
 
 const chatTaskList = ref<
@@ -52,6 +52,12 @@ describe('chat-list store', () => {
 		chatTaskList.value = [];
 		unreadByThread.value = {};
 		setActivePinia(createPinia());
+	});
+
+	// the store's watcher reads the shared task list, so a store left running
+	// would keep calling the shared sync mock from every later test
+	afterEach(() => {
+		useChatListStore().$dispose();
 	});
 
 	describe('chats', () => {
@@ -141,10 +147,23 @@ describe('chat-list store', () => {
 				2,
 				4,
 			]);
-			expect(syncMock).toHaveBeenLastCalledWith([
-				't2',
-				't4',
-			]);
+		});
+
+		// a hidden chat still has a last message to keep, and dropping it would
+		// read its history again when the filter goes off
+		it('keeps the previews of every chat while the filter hides some', async () => {
+			chatTaskList.value = buildChats(4);
+			unreadByThread.value = {
+				t2: 1,
+			};
+			const store = useChatListStore();
+			syncMock.mockClear();
+
+			store.toggleOnlyUnread();
+			await nextTick();
+
+			expect(store.tasks).toHaveLength(1);
+			expect(syncMock).not.toHaveBeenCalled();
 		});
 
 		it('lists every chat again once switched off', () => {

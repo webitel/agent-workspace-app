@@ -6,8 +6,8 @@ import { useChatPreviewsStore } from './chat-previews';
 
 /**
  * What the chat list shows out of the agent's chats: all of them, or the unread
- * ones when the filter is on (AC_02.01.04). Also what the previews are told to
- * keep a last message for.
+ * ones when the filter is on (AC_02.01.04). Also hands the agent's chats to the
+ * previews, which keep a last message for each.
  *
  * Paging on scroll (AC_02.01.02) is deliberately not here yet; the list is every
  * active chat the task feed carries.
@@ -43,12 +43,14 @@ export const useChatListStore = defineStore('chat-list', () => {
 	}
 
 	/**
-	 * The previews follow the list: a chat that joins is seeded, one that leaves
-	 * is forgotten. `sync` is idempotent, so the SDK mutating tasks in place and
-	 * re-running this costs nothing.
+	 * The previews follow the agent's chats, not what the filter leaves showing: a
+	 * chat the filter hides still has a last message to keep current, and
+	 * forgetting it would read its history again the moment the filter is off.
+	 * `sync` is idempotent, so the SDK mutating tasks in place and re-running this
+	 * costs nothing.
 	 */
 	watch(
-		() => tasks.value.flatMap((task) => task.thread?.id ?? []),
+		() => chatsStore.chatTaskList.flatMap((task) => task.thread?.id ?? []),
 		(threadIds) => previewsStore.sync(threadIds),
 		{
 			immediate: true,
