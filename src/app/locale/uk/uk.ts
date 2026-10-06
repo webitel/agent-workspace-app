@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Невідомий контакт',
 		},
+		chatPreview: {
+			onlyUnread: 'Лише непрочитані чати',
+		},
 		notifications: {
 			offer: {
 				title: {

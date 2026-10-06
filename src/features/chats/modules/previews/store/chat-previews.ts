@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { shallowRef } from 'vue';
+import { computed, shallowRef } from 'vue';
 
 import { messagesService } from '../../../api/chatSdk';
 import type { IMessage } from '../../../types/ChatSession.types';
@@ -30,6 +30,27 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// in, and only these are worth keeping
 	const tracked = new Set<string>();
 	const seeded = new Set<string>();
+
+	/**
+	 * Unread message count per thread. Nothing fills it yet: the backend does not
+	 * send one for a task (asked for on WS-35), and a count guessed on the client
+	 * would read as fact (ADR-0001). It is the single place the real value will
+	 * land, and the unread filter appears on its own once it holds anything.
+	 */
+	const unreadByThread = shallowRef<Record<string, number>>({});
+	const hasUnreadData = computed(
+		() => Object.keys(unreadByThread.value).length > 0,
+	);
+
+	function setUnreadCount(threadId: string, count: number) {
+		unreadByThread.value = {
+			...unreadByThread.value,
+			[threadId]: count,
+		};
+	}
+
+	const isUnread = (threadId: string) =>
+		(unreadByThread.value[threadId] ?? 0) > 0;
 
 	/**
 	 * A message replaces the stored one when it is the same message (an edit or
@@ -106,8 +127,14 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	return {
 		// state
 		lastMessages,
+		unreadByThread,
+
+		// getters
+		hasUnreadData,
+		isUnread,
 
 		// actions
+		setUnreadCount,
 		sync,
 		receiveMessage,
 	};

@@ -46,6 +46,29 @@ describe('chat-previews store', () => {
 		);
 	});
 
+	describe('unread', () => {
+		// nothing in the app fills the counts yet, so the filter built on them has
+		// to stay out of sight until something does
+		it('holds no unread data until a count is set', () => {
+			const store = useChatPreviewsStore();
+
+			expect(store.hasUnreadData).toBe(false);
+			expect(store.isUnread('t1')).toBe(false);
+		});
+
+		it('tells a chat with unread messages from one without', () => {
+			const store = useChatPreviewsStore();
+
+			store.setUnreadCount('t1', 3);
+			store.setUnreadCount('t2', 0);
+
+			expect(store.hasUnreadData).toBe(true);
+			expect(store.isUnread('t1')).toBe(true);
+			expect(store.isUnread('t2')).toBe(false);
+			expect(store.isUnread('t3')).toBe(false);
+		});
+	});
+
 	describe('seeding', () => {
 		it('reads the newest messages of a chat once it is listed', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));

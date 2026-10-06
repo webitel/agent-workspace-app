@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Белгісіз контакт',
 		},
+		chatPreview: {
+			onlyUnread: 'Тек оқылмаған чаттар',
+		},
 		notifications: {
 			offer: {
 				title: {

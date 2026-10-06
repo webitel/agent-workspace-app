@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Liên hệ không xác định',
 		},
+		chatPreview: {
+			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
+		},
 		notifications: {
 			offer: {
 				title: {

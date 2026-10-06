@@ -12,6 +12,9 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Unknown contact',
 		},
+		chatPreview: {
+			onlyUnread: 'Show only unread chats',
+		},
 		notifications: {
 			offer: {
 				title: {

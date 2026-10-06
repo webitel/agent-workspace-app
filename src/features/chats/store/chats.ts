@@ -163,25 +163,6 @@ export const useChatsStore = defineStore('chats', () => {
 		else register();
 	}
 
-	/**
-	 * The list's last messages follow the list: a chat that joins is seeded, one
-	 * that leaves is forgotten. `sync` is idempotent, so the SDK mutating tasks
-	 * in place and re-running this costs nothing.
-	 */
-	function subscribeToPreviews() {
-		const register = () =>
-			watch(
-				() => chatTaskList.value.flatMap((task) => task.thread?.id ?? []),
-				(threadIds) => previewsStore.sync(threadIds),
-				{
-					immediate: true,
-				},
-			);
-
-		if (storeScope) storeScope.run(register);
-		else register();
-	}
-
 	function initialize() {
 		const client = getClient();
 		// the SDK needs a subscriber before it will populate the task feed
@@ -189,7 +170,6 @@ export const useChatsStore = defineStore('chats', () => {
 
 		offersStore.initialize();
 		subscribeToOffers();
-		subscribeToPreviews();
 
 		// the agent's account does not change within a session, so it is read
 		// once here and every chat store reads it from its own store
