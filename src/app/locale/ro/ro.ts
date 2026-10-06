@@ -12,9 +12,6 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Contact necunoscut',
 		},
-		chatPreview: {
-			queue: 'Coadă',
-		},
 		notifications: {
 			offer: {
 				title: {

@@ -12,9 +12,6 @@ export default {
 		clientIdentity: {
 			unknownContact: 'Nomaʼlum kontakt',
 		},
-		chatPreview: {
-			queue: 'Navbat',
-		},
 		notifications: {
 			offer: {
 				title: {

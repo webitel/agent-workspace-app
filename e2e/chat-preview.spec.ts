@@ -141,8 +141,9 @@ test.describe('chat preview', () => {
 			'@jane',
 		);
 		await expect(lastMessageText(page)).toHaveText('Can you help me?');
+		// the label is ui-sdk's shared key: a wrong path would render the path
 		await expect(preview.locator('.chat-preview-footer')).toContainText(
-			'Chat support',
+			'Queue: Chat support',
 		);
 	});
 

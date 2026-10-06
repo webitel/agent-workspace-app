@@ -5,7 +5,7 @@
     >
         <span class="chat-preview-footer__text">
             <span class="chat-preview-footer__label">
-                {{ t('ui.chatPreview.queue') }}:
+                {{ t('objects.queue.queue', 1) }}:
             </span>
             {{ queueName }}
         </span>
