@@ -6,6 +6,7 @@ import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
+import { useChatPreviewsStore } from '../modules/previews/store/chat-previews';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toChatOfferContent } from '../scripts/toChatOfferContent';
@@ -22,6 +23,7 @@ export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
 	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
 	const offersStore = useOffersStore();
+	const previewsStore = useChatPreviewsStore();
 
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
@@ -159,6 +161,25 @@ export const useChatsStore = defineStore('chats', () => {
 		else register();
 	}
 
+	/**
+	 * The list's last messages follow the list: a chat that joins is seeded, one
+	 * that leaves is forgotten. `sync` is idempotent, so the SDK mutating tasks
+	 * in place and re-running this costs nothing.
+	 */
+	function subscribeToPreviews() {
+		const register = () =>
+			watch(
+				() => chatTaskList.value.flatMap((task) => task.thread?.id ?? []),
+				(threadIds) => previewsStore.sync(threadIds),
+				{
+					immediate: true,
+				},
+			);
+
+		if (storeScope) storeScope.run(register);
+		else register();
+	}
+
 	function initialize() {
 		const client = getClient();
 		// the SDK needs a subscriber before it will populate the task feed
@@ -166,9 +187,12 @@ export const useChatsStore = defineStore('chats', () => {
 
 		offersStore.initialize();
 		subscribeToOffers();
+		subscribeToPreviews();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
+			// every listed chat keeps its last message current, open or not
+			previewsStore.receiveMessage(message);
 			if (!message.threadId || !isOpen(message.threadId)) return;
 			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
