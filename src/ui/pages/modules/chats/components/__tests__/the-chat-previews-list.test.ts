@@ -3,12 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
 const chatListStore = reactive({
-	visibleTasks: [] as {
+	tasks: [] as {
 		id: number;
 	}[],
-	hasMore: false,
 	isUnreadFilterAvailable: false,
-	loadMore: vi.fn(),
 });
 vi.mock(
 	'../../../../../../features/chats/modules/previews/store/chat-list',
@@ -49,14 +47,12 @@ const mountList = () =>
 
 describe('the-chat-previews-list', () => {
 	beforeEach(() => {
-		chatListStore.visibleTasks = [];
-		chatListStore.hasMore = false;
+		chatListStore.tasks = [];
 		chatListStore.isUnreadFilterAvailable = false;
-		chatListStore.loadMore.mockClear();
 	});
 
-	it('renders a row for every chat in the window', () => {
-		chatListStore.visibleTasks = [
+	it('renders a row for every chat', () => {
+		chatListStore.tasks = [
 			{
 				id: 1,
 			},
@@ -87,17 +83,5 @@ describe('the-chat-previews-list', () => {
 		const wrapper = mountList();
 
 		expect(wrapper.find('.chat-unread-filter-stub').exists()).toBe(true);
-	});
-
-	it('has a scroll sentinel only while there are more chats to load', () => {
-		chatListStore.hasMore = true;
-		expect(mountList().find('.the-chat-previews-list__sentinel').exists()).toBe(
-			true,
-		);
-
-		chatListStore.hasMore = false;
-		expect(mountList().find('.the-chat-previews-list__sentinel').exists()).toBe(
-			false,
-		);
 	});
 });
