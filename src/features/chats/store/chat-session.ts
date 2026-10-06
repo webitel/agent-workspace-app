@@ -13,8 +13,10 @@ const storeId = (chatId: string) => `chat:${chatId}`;
 
 const PAGE_SIZE = 30;
 
-// Cache of store definitions so repeated useChatSessionStore(id) calls (e.g.
-// coordinator + component) reuse one defineStore wrapper, not a fresh one each time.
+// Cache of store definitions, keyed by chat id, so repeated
+// useChatSessionStore(id) calls (e.g. coordinator + component) reuse one
+// defineStore wrapper, not a fresh one each time. It is also the registry of
+// sessions: a chat has a session exactly while it has an entry here.
 const storeDefinitions = new Map<
 	string,
 	ReturnType<typeof createStoreDefinition>
@@ -92,6 +94,20 @@ function createStoreDefinition(chatId: string) {
 			}
 		}
 
+		/**
+		 * Re-reads the thread alone, for a session shown again: the socket kept
+		 * its history current, but read states and delivery ticks come from the
+		 * thread. A failed read leaves the last thread on screen.
+		 */
+		async function refreshThread() {
+			if (!initialized.value) return;
+			try {
+				thread.value = await threadsService.fetchThread(chatId);
+			} catch (err) {
+				error.value = err;
+			}
+		}
+
 		function appendMessage(message: IMessage) {
 			messages.value = [
 				...messages.value,
@@ -152,6 +168,7 @@ function createStoreDefinition(chatId: string) {
 			initialized,
 			load,
 			loadMore,
+			refreshThread,
 			appendMessage,
 			receiveMessage,
 			sendText,
@@ -161,25 +178,41 @@ function createStoreDefinition(chatId: string) {
 }
 
 // One isolated store per chat (namespaced by chatId). Coordinator owns its
-// lifecycle, not components — a minimized chat outlives its unmounted component.
+// lifecycle, not components — a minimized chat outlives its unmounted component,
+// and a listed chat's session outlives its window (ADR-0007).
 export function useChatSessionStore(chatId: string) {
-	const id = storeId(chatId);
-	let useStore = storeDefinitions.get(id);
+	let useStore = storeDefinitions.get(chatId);
 	if (!useStore) {
 		useStore = createStoreDefinition(chatId);
-		storeDefinitions.set(id, useStore);
+		storeDefinitions.set(chatId, useStore);
 	}
 	return useStore();
+}
+
+/** Whether a chat has a session, without creating one. */
+export function hasChatSession(chatId: string) {
+	return storeDefinitions.has(chatId);
 }
 
 // $dispose() stops the scope but leaves state in pinia.state.value for setup
 // stores — delete it manually or the chat's state leaks. Drop the cached
 // definition too so a reopened chat gets a fresh store, not a stale wrapper.
 export function disposeChatSession(chatId: string) {
-	const id = storeId(chatId);
 	useChatSessionStore(chatId).$dispose();
 	disposeChatVariables(chatId);
 	const pinia = getActivePinia();
-	if (pinia) delete pinia.state.value[id];
-	storeDefinitions.delete(id);
+	if (pinia) delete pinia.state.value[storeId(chatId)];
+	storeDefinitions.delete(chatId);
+}
+
+/**
+ * Disposes every session whose chat is not in `keep`. Which chats keep one is
+ * the coordinator's call (ADR-0007); this only carries it out.
+ */
+export function retainChatSessions(keep: ReadonlySet<string>) {
+	for (const chatId of [
+		...storeDefinitions.keys(),
+	]) {
+		if (!keep.has(chatId)) disposeChatSession(chatId);
+	}
 }

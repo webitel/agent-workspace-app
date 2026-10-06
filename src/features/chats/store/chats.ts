@@ -12,7 +12,11 @@ import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toChatOfferContent } from '../scripts/toChatOfferContent';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { useChatAccountStore } from './chat-account';
-import { disposeChatSession, useChatSessionStore } from './chat-session';
+import {
+	hasChatSession,
+	retainChatSessions,
+	useChatSessionStore,
+} from './chat-session';
 
 // Singleton coordinator: owns the SDK task feed and window layout. Per-chat
 // history lives in dynamic chat-session stores; this store never holds it.
@@ -39,6 +43,10 @@ export const useChatsStore = defineStore('chats', () => {
 	 */
 	const chatTaskList = computed(() =>
 		allChatTasks.value.filter((task) => !isIncomingChatOffer(task)),
+	);
+
+	const listedThreadIds = computed(() =>
+		chatTaskList.value.flatMap((task) => task.thread?.id ?? []),
 	);
 
 	const incomingOffers = computed(() =>
@@ -69,7 +77,11 @@ export const useChatsStore = defineStore('chats', () => {
 				mode,
 			});
 		setMode(id, mode);
-		useChatSessionStore(id).load();
+		const session = useChatSessionStore(id);
+		// a session kept from an earlier window, or one being switched back to,
+		// has its history current from the socket; only its thread is re-read
+		if (session.initialized) session.refreshThread();
+		else session.load();
 		// main window mirrors the URL; skip the push when already there so a
 		// route-triggered open (deep link, back/forward) doesn't loop back.
 		if (
@@ -102,9 +114,27 @@ export const useChatsStore = defineStore('chats', () => {
 		return task.close();
 	}
 
+	/**
+	 * Drops the window. The chat's session stays while the chat is listed, so
+	 * reopening it shows the history as it was left (ADR-0007).
+	 */
 	function closeChat(id: string) {
 		openChats.value = openChats.value.filter((chat) => chat.id !== id);
-		disposeChatSession(id);
+		releaseUnusedSessions();
+	}
+
+	/**
+	 * A chat session lives while its chat is listed or has a window
+	 * (ADR-0007): a deep-linked chat that was never listed lives as long as its
+	 * window, and a chat that leaves the list keeps it until its window closes.
+	 */
+	function releaseUnusedSessions() {
+		retainChatSessions(
+			new Set([
+				...listedThreadIds.value,
+				...openChats.value.map((chat) => chat.id),
+			]),
+		);
 	}
 
 	/**
@@ -163,6 +193,14 @@ export const useChatsStore = defineStore('chats', () => {
 		else register();
 	}
 
+	/** A chat that leaves the list loses its session once it has no window either. */
+	function subscribeToSessions() {
+		const register = () => watch(listedThreadIds, releaseUnusedSessions);
+
+		if (storeScope) storeScope.run(register);
+		else register();
+	}
+
 	function initialize() {
 		const client = getClient();
 		// the SDK needs a subscriber before it will populate the task feed
@@ -170,6 +208,7 @@ export const useChatsStore = defineStore('chats', () => {
 
 		offersStore.initialize();
 		subscribeToOffers();
+		subscribeToSessions();
 
 		// the agent's account does not change within a session, so it is read
 		// once here and every chat store reads it from its own store
@@ -179,7 +218,9 @@ export const useChatsStore = defineStore('chats', () => {
 		onThreadMessage((message) => {
 			// every listed chat keeps its last message current, open or not
 			previewsStore.receiveMessage(message);
-			if (!message.threadId || !isOpen(message.threadId)) return;
+			// a session outlives its window while its chat is listed, so it is
+			// kept current whether its window is open or not
+			if (!message.threadId || !hasChatSession(message.threadId)) return;
 			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
 	}

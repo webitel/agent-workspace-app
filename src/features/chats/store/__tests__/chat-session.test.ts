@@ -24,7 +24,12 @@ vi.mock('../../api/chatSdk', () => ({
 }));
 
 import { useChatAccountStore } from '../chat-account';
-import { disposeChatSession, useChatSessionStore } from '../chat-session';
+import {
+	disposeChatSession,
+	hasChatSession,
+	retainChatSessions,
+	useChatSessionStore,
+} from '../chat-session';
 import { useChatVariablesStore } from '../chat-variables';
 
 // minimal SDK-shaped fakes
@@ -268,6 +273,61 @@ describe('chat-session store', () => {
 		});
 	});
 
+	describe('refreshThread', () => {
+		it('re-reads the thread and keeps the history', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(
+				historyPage(
+					[
+						'm1',
+					],
+					null,
+				),
+			);
+			const store = useChatSessionStore('chat-1');
+			await store.load();
+			const refreshed = thread();
+			fetchThreadMock.mockResolvedValue(refreshed);
+
+			await store.refreshThread();
+
+			expect(fetchThreadMock).toHaveBeenCalledTimes(2);
+			expect(fetchMessageHistoryMock).toHaveBeenCalledOnce();
+			expect(store.thread).toBe(refreshed);
+			expect(store.messages.map((shown) => shown.id)).toEqual([
+				'm1',
+			]);
+		});
+
+		it('does nothing before the first load', async () => {
+			const store = useChatSessionStore('chat-1');
+
+			await store.refreshThread();
+
+			expect(fetchThreadMock).not.toHaveBeenCalled();
+		});
+
+		it('keeps the last thread when the read fails', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(
+				historyPage(
+					[
+						'm1',
+					],
+					null,
+				),
+			);
+			const store = useChatSessionStore('chat-1');
+			await store.load();
+			const loaded = store.thread;
+			const failure = new Error('offline');
+			fetchThreadMock.mockRejectedValue(failure);
+
+			await store.refreshThread();
+
+			expect(store.thread).toBe(loaded);
+			expect(store.error).toBe(failure);
+		});
+	});
+
 	describe('appendMessage', () => {
 		it('appends an incoming message to the tail', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(
@@ -494,6 +554,35 @@ describe('chat-session store', () => {
 
 			expect(reopened.initialized).toBe(false);
 			expect(reopened.messages).toEqual([]);
+		});
+	});
+
+	describe('session registry', () => {
+		it('tells whether a chat has a session, without creating one', () => {
+			expect(hasChatSession('registry-1')).toBe(false);
+			expect(getActivePinia()?.state.value['chat:registry-1']).toBeUndefined();
+
+			useChatSessionStore('registry-1');
+
+			expect(hasChatSession('registry-1')).toBe(true);
+			disposeChatSession('registry-1');
+			expect(hasChatSession('registry-1')).toBe(false);
+		});
+
+		it('disposes every session that is not kept', () => {
+			useChatSessionStore('registry-2');
+			useChatSessionStore('registry-3');
+
+			retainChatSessions(
+				new Set([
+					'registry-2',
+				]),
+			);
+
+			expect(hasChatSession('registry-2')).toBe(true);
+			expect(hasChatSession('registry-3')).toBe(false);
+			expect(getActivePinia()?.state.value['chat:registry-3']).toBeUndefined();
+			disposeChatSession('registry-2');
 		});
 	});
 });

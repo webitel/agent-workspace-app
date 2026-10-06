@@ -15,9 +15,9 @@ const SEED_PAGE_SIZE = 10;
 
 /**
  * The last message of every chat in the list. Lives apart from the per-chat
- * session stores on purpose: a session exists only while its window is open and
- * is disposed with it, while a chat preview must show its last message for
- * every listed chat.
+ * session stores on purpose: a session exists only for a chat that was opened
+ * (ADR-0007), while a chat preview must show its last message for every listed
+ * chat, opened or not.
  *
  * A chat is seeded once with a single history request, then kept current from
  * the chats socket, so the list costs one request per chat rather than a
