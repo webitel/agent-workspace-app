@@ -74,6 +74,7 @@ vi.mock('../../api/chatSdk', () => ({
 // --- SDK socket client -------------------------------------------------------
 
 let sdkMessageHandler: ((data: unknown) => void) | null = null;
+const stateHandlers = new Map<string, ((payload: unknown) => void)[]>();
 const socketConnectMock = vi.fn();
 
 vi.mock('@webitel/chat-web-sdk', () => ({
@@ -98,12 +99,21 @@ vi.mock('@webitel/chat-web-sdk', () => ({
 		onMessage: (_event: string, callback: (data: unknown) => void) => {
 			sdkMessageHandler = callback;
 		},
-		onState: vi.fn(),
+		onState: (state: string, callback: (payload: unknown) => void) => {
+			stateHandlers.set(state, [
+				...(stateHandlers.get(state) ?? []),
+				callback,
+			]);
+		},
 	}),
 }));
 
 /** The server pushes a message over the chats socket. */
 const pushMessage = (pushed: FakeMessage) => sdkMessageHandler?.(pushed);
+/** The SDK reports a connection state, the way its `onclose`/`onerror` do. */
+const enterState = (state: string) => {
+	for (const handler of stateHandlers.get(state) ?? []) handler({});
+};
 
 // --- app singletons ----------------------------------------------------------
 
@@ -139,6 +149,8 @@ vi.mock('../../../../app/router', () => ({
 }));
 
 import { useChatsSocket } from '../../composables/useChatsSocket';
+import { useChatListStore } from '../../modules/previews/store/chat-list';
+import { useChatPreviewsStore } from '../../modules/previews/store/chat-previews';
 import { retainChatSessions, useChatSessionStore } from '../chat-session';
 import { useChatVariablesStore } from '../chat-variables';
 import { useChatsStore } from '../chats';
@@ -173,6 +185,7 @@ describe('chat session and chat previews, together', () => {
 		olderPages.clear();
 		holdSessionHistory = null;
 		sdkMessageHandler = null;
+		stateHandlers.clear();
 
 		socketConnectMock.mockResolvedValue(undefined);
 		previewHistoryMock.mockImplementation(async (threadId: string) => ({
@@ -350,6 +363,63 @@ describe('chat session and chat previews, together', () => {
 				'm1',
 				'm2',
 			]);
+		});
+	});
+
+	// real timers on purpose: flushPromises needs an unfaked timer, so these
+	// wait out the real 1s first retry with vi.waitFor
+	describe('a dropped chats socket', () => {
+		it('connects again after the socket drops', async () => {
+			const chats = useChatsStore();
+			chats.initialize();
+			await flushPromises();
+
+			enterState('disconnected');
+
+			await vi.waitFor(
+				() => {
+					expect(socketConnectMock).toHaveBeenCalledTimes(2);
+				},
+				{
+					timeout: 3_000,
+				},
+			);
+		});
+
+		it('catches up the list and a closed window’s retained session', async () => {
+			histories.set('t1', [
+				message('m1', 1000),
+			]);
+			tasks.value = [
+				listedTask('t1'),
+			];
+			const chats = useChatsStore();
+			chats.initialize();
+			// the list store is what hands the listed chats to the previews
+			useChatListStore();
+			chats.openChat('t1');
+			await flushPromises();
+			chats.closeChat('t1');
+
+			// m2 is written while the socket is down, so it is never pushed
+			enterState('disconnected');
+			histories.set('t1', [
+				message('m2', 2000),
+				message('m1', 1000),
+			]);
+
+			await vi.waitFor(
+				() => {
+					expect(useChatPreviewsStore().lastMessages.t1?.id).toBe('m2');
+					expect(messageIds('t1')).toEqual([
+						'm1',
+						'm2',
+					]);
+				},
+				{
+					timeout: 3_000,
+				},
+			);
 		});
 	});
 });
