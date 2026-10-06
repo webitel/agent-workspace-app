@@ -174,6 +174,38 @@ describe('chat-session store', () => {
 			expect(store.initialized).toBe(false);
 			expect(store.isLoading).toBe(false);
 		});
+
+		it('keeps a message the socket delivered while the first page was in flight', async () => {
+			let answer: (page: unknown) => void = () => {};
+			fetchMessageHistoryMock.mockReturnValue(
+				new Promise((resolve) => {
+					answer = resolve;
+				}),
+			);
+			const store = useChatSessionStore('chat-1');
+
+			const loading = store.load();
+			await flushPromises();
+			store.receiveMessage({
+				id: 'm2',
+				threadId: 'chat-1',
+				createdAt: '2000',
+			} as never);
+			answer({
+				items: [
+					{
+						id: 'm1',
+						createdAt: '1000',
+					},
+				],
+			});
+			await loading;
+
+			expect(store.messages.map((shown) => shown.id)).toEqual([
+				'm1',
+				'm2',
+			]);
+		});
 	});
 
 	describe('loadMore', () => {
