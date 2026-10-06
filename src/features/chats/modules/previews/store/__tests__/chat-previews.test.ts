@@ -22,6 +22,10 @@ const buildMessage = (overrides: Record<string, unknown> = {}) =>
 		createdAt: '1000',
 		sender: {
 			id: 'member-client',
+			contact: {
+				sub: 'client-1',
+				iss: 'telegram',
+			},
 		},
 		...overrides,
 	}) as never;
@@ -59,7 +63,10 @@ describe('chat-previews store', () => {
 				id: 'm1',
 				body: 'hello',
 				at: 1000,
-				senderId: 'member-client',
+				senderContact: {
+					sub: 'client-1',
+					iss: 'telegram',
+				},
 			});
 		});
 

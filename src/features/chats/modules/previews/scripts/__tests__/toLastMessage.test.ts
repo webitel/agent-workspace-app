@@ -9,6 +9,10 @@ const buildMessage = (overrides: Record<string, unknown> = {}) =>
 		createdAt: '1760000000000',
 		sender: {
 			id: 'member-client',
+			contact: {
+				sub: 'client-1',
+				iss: 'telegram',
+			},
 		},
 		...overrides,
 	}) as never;
@@ -19,7 +23,10 @@ describe('toLastMessage', () => {
 			id: 'm1',
 			body: 'hello',
 			at: 1760000000000,
-			senderId: 'member-client',
+			senderContact: {
+				sub: 'client-1',
+				iss: 'telegram',
+			},
 		});
 	});
 
@@ -71,13 +78,24 @@ describe('toLastMessage', () => {
 		).toBeUndefined();
 	});
 
-	it('tolerates a message with no sender', () => {
+	it.each([
+		[
+			'no sender',
+			undefined,
+		],
+		[
+			'a sender without a contact',
+			{
+				id: 'member-x',
+			},
+		],
+	])('tolerates a message with %s', (_label, sender) => {
 		expect(
 			toLastMessage(
 				buildMessage({
-					sender: undefined,
+					sender,
 				}),
-			)?.senderId,
+			)?.senderContact,
 		).toBeUndefined();
 	});
 });
