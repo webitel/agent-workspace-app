@@ -124,6 +124,16 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		}
 	}
 
+	/**
+	 * Reads every listed chat's last message again, for when the chats socket
+	 * was down and may have missed some. `keepNewest` settles a read racing the
+	 * socket, as it does for the first seed.
+	 */
+	function reseed() {
+		seeded.clear();
+		for (const threadId of tracked) void seed(threadId);
+	}
+
 	return {
 		// state
 		lastMessages,
@@ -137,6 +147,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		setUnreadCount,
 		sync,
 		receiveMessage,
+		reseed,
 	};
 });
 
