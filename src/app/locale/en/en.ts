@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Queue',
+			onlyUnread: 'Show only unread chats',
 		},
 		notifications: {
 			offer: {

@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Hàng đợi',
+			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
 		},
 		notifications: {
 			offer: {

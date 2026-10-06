@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Кезек',
+			onlyUnread: 'Тек оқылмаған чаттар',
 		},
 		notifications: {
 			offer: {

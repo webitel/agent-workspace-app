@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Kolejka',
+			onlyUnread: 'Tylko nieprzeczytane czaty',
 		},
 		notifications: {
 			offer: {

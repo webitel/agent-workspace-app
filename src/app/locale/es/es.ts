@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Cola',
+			onlyUnread: 'Solo chats no leídos',
 		},
 		notifications: {
 			offer: {

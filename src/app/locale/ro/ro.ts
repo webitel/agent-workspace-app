@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Coadă',
+			onlyUnread: 'Doar conversațiile necitite',
 		},
 		notifications: {
 			offer: {

@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Navbat',
+			onlyUnread: 'Faqat o‘qilmagan chatlar',
 		},
 		notifications: {
 			offer: {

@@ -49,12 +49,10 @@ vi.mock('../chat-session', () => ({
 	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
 }));
 
-const syncPreviewsMock = vi.fn();
 const receivePreviewMessageMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
-		sync: syncPreviewsMock,
 		receiveMessage: receivePreviewMessageMock,
 	}),
 }));
@@ -256,74 +254,6 @@ describe('chats store', () => {
 
 		expect(store.chatTaskList).toHaveLength(1);
 		expect(store.incomingOffers).toHaveLength(1);
-	});
-
-	describe('chat previews', () => {
-		// `null`, not `undefined`: passing undefined would re-apply the default
-		const buildListed = (id: number, threadId: string | null) => ({
-			id,
-			channel: 'im',
-			offeringAt: 1,
-			bridgedAt: 2,
-			closedAt: 0,
-			thread: threadId
-				? {
-						id: threadId,
-					}
-				: undefined,
-		});
-
-		it('gives the previews the thread ids of the listed chats', () => {
-			tasks.value = [
-				buildListed(1, 't1'),
-				buildListed(2, 't2'),
-			];
-			const store = useChatsStore();
-
-			store.initialize();
-
-			expect(syncPreviewsMock).toHaveBeenLastCalledWith([
-				't1',
-				't2',
-			]);
-		});
-
-		it('follows the list as chats join and leave', async () => {
-			const store = useChatsStore();
-			store.initialize();
-
-			tasks.value = [
-				buildListed(1, 't1'),
-			];
-			await nextTick();
-			expect(syncPreviewsMock).toHaveBeenLastCalledWith([
-				't1',
-			]);
-
-			tasks.value = [];
-			await nextTick();
-			expect(syncPreviewsMock).toHaveBeenLastCalledWith([]);
-		});
-
-		// an offered chat is not in the list, and a task with no thread has no
-		// history to read
-		it('leaves out offered chats and chats without a thread', () => {
-			tasks.value = [
-				{
-					...buildListed(1, 't1'),
-					bridgedAt: 0,
-				},
-				buildListed(2, null),
-				buildListed(3, 't3'),
-			];
-			const store = useChatsStore();
-
-			store.initialize();
-
-			expect(syncPreviewsMock).toHaveBeenLastCalledWith([
-				't3',
-			]);
-		});
 	});
 
 	describe('incoming offers', () => {

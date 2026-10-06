@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Очередь',
+			onlyUnread: 'Только непрочитанные чаты',
 		},
 		notifications: {
 			offer: {

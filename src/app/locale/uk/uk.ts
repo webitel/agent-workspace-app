@@ -14,6 +14,7 @@ export default {
 		},
 		chatPreview: {
 			queue: 'Черга',
+			onlyUnread: 'Лише непрочитані чати',
 		},
 		notifications: {
 			offer: {

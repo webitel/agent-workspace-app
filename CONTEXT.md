@@ -97,8 +97,16 @@ for the summary carried on a task and is neither of these.
 
 **Last message** — the newest message in a chat as the Chat preview shows it: its
 text, when it was sent, and whether the agent or the client sent it. Kept for
-every listed chat whether or not its window is open; it is not read from an open
-chat's message history.
+every chat the list is showing whether or not its window is open; it is not read
+from an open chat's message history.
+
+**Unread chat** — a chat with client messages the agent has not read yet. A chat
+counts as read once the agent has opened it and clicked its input field, not
+merely opened it (AC_02.03.03). The chat list can be narrowed to unread chats.
+The backend does not yet say how many unread messages a task's chat has, so no
+chat is unread as far as the app can tell and the narrowing control stays out of
+sight until it does — an unread state worked out on the client would read as
+fact.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.
