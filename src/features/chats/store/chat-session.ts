@@ -1,14 +1,11 @@
-import {
-	type AccountModel,
-	MessageAttachmentType,
-} from '@webitel/chat-web-sdk';
+import { MessageAttachmentType } from '@webitel/chat-web-sdk';
 import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
 import { threadsService } from '../api/chatSdk';
-import { loadAccount } from '../api/loadAccount';
 import { findSelfMemberId } from '../scripts/findSelfMemberId';
 import type { IMessage, IThread } from '../types/ChatSession.types';
+import { useChatAccountStore } from './chat-account';
 import { disposeChatVariables } from './chat-variables';
 
 const storeId = (chatId: string) => `chat:${chatId}`;
@@ -27,10 +24,10 @@ function createStoreDefinition(chatId: string) {
 		// shallowRef: SDK class instances carry methods — keep them out of deep proxies, reassign to update
 		const thread = shallowRef<IThread | null>(null);
 		const messages = shallowRef<IMessage[]>([]);
-		const account = shallowRef<AccountModel | null>(null);
+		const accountStore = useChatAccountStore();
 		// the operator's own member in this thread, for delivery ticks
 		const selfMemberId = computed(() =>
-			findSelfMemberId(thread.value, account.value),
+			findSelfMemberId(thread.value, accountStore.account),
 		);
 		const isLoading = ref(false);
 		const error = ref<unknown>(null);
@@ -44,9 +41,7 @@ function createStoreDefinition(chatId: string) {
 			if (initialized.value || isLoading.value) return;
 			isLoading.value = true;
 			error.value = null;
-			void loadAccount().then((value) => {
-				account.value = value;
-			});
+			void accountStore.load();
 			try {
 				const fetchedThread = await threadsService.fetchThread(chatId);
 				const page = await fetchedThread.fetchMessageHistory({

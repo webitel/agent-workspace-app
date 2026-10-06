@@ -16,6 +16,7 @@ vi.mock('../../../../api/chatSdk', () => ({
 	},
 }));
 
+import { useChatAccountStore } from '../../../../store/chat-account';
 import { useChatPreviewsStore } from '../chat-previews';
 
 const buildMessage = (overrides: Record<string, unknown> = {}) =>
@@ -56,14 +57,15 @@ describe('chat-previews store', () => {
 		it('loads the agent account once the list has chats', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage());
 			const store = useChatPreviewsStore();
-			expect(store.account).toBeNull();
+			const accountStore = useChatAccountStore();
+			expect(accountStore.account).toBeNull();
 
 			store.sync([
 				't1',
 			]);
 			await flushPromises();
 
-			expect(store.account).toEqual({
+			expect(accountStore.account).toEqual({
 				contact: {
 					sub: '42',
 					iss: 'webitel',
