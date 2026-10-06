@@ -2,7 +2,6 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 
 import { messagesService } from '../../../api/chatSdk';
-import { useChatAccountStore } from '../../../store/chat-account';
 import type { IMessage } from '../../../types/ChatSession.types';
 import { toLastMessage } from '../scripts/toLastMessage';
 import type { LastMessage } from '../types/ChatPreview.types';
@@ -27,9 +26,6 @@ const SEED_PAGE_SIZE = 10;
 export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// reassigned, never mutated, so shallow reactivity is enough
 	const lastMessages = shallowRef<Record<string, LastMessage>>({});
-	// the agent's own account tells their messages from the client's; until it
-	// loads the row says nothing about who wrote the last message
-	const accountStore = useChatAccountStore();
 	// threads the list is showing: the socket carries every thread the agent is
 	// in, and only these are worth keeping
 	const tracked = new Set<string>();
@@ -90,8 +86,6 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	 */
 	function sync(threadIds: string[]) {
 		const current = new Set(threadIds);
-
-		void accountStore.load();
 
 		for (const threadId of [
 			...tracked,

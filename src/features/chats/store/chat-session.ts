@@ -41,7 +41,6 @@ function createStoreDefinition(chatId: string) {
 			if (initialized.value || isLoading.value) return;
 			isLoading.value = true;
 			error.value = null;
-			void accountStore.load();
 			try {
 				const fetchedThread = await threadsService.fetchThread(chatId);
 				const page = await fetchedThread.fetchMessageHistory({
