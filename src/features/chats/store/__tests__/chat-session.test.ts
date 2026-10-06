@@ -434,6 +434,135 @@ describe('chat-session store', () => {
 			expect(store.messages.at(-1)).toEqual(timedMessage('m2', 2000, 'edited'));
 		});
 
+		it('keeps a live edit of a message already on screen over the page’s older copy', async () => {
+			fetchMessageHistoryMock.mockResolvedValueOnce({
+				items: [
+					timedMessage('m1', 1000, 'original'),
+				],
+			});
+			const store = useChatSessionStore('chat-1');
+			await store.load();
+			let answer: (page: unknown) => void = () => {};
+			fetchMessageHistoryMock.mockReturnValueOnce(
+				new Promise((resolve) => {
+					answer = resolve;
+				}),
+			);
+
+			const catchingUp = store.catchUp();
+			await flushPromises();
+			store.receiveMessage(timedMessage('m1', 1000, 'edited'));
+			answer({
+				items: [
+					timedMessage('m1', 1000, 'original'),
+				],
+			});
+			await catchingUp;
+
+			expect(store.messages).toEqual([
+				timedMessage('m1', 1000, 'edited'),
+			]);
+		});
+
+		// an older page answering after the history was replaced would sit on
+		// top of the new page, with the messages between them never read
+		it('drops an older page that answers after a catch-up replaced the history', async () => {
+			fetchMessageHistoryMock.mockResolvedValueOnce({
+				items: [
+					timedMessage('m31', 31_000),
+					timedMessage('m30', 30_000),
+				],
+				nextCursor: {
+					id: 'cursor-m30',
+				},
+			});
+			const store = useChatSessionStore('chat-1');
+			await store.load();
+			let answerOlder: (page: unknown) => void = () => {};
+			fetchMessageHistoryMock.mockReturnValueOnce(
+				new Promise((resolve) => {
+					answerOlder = resolve;
+				}),
+			);
+			const loadingMore = store.loadMore();
+			fetchMessageHistoryMock.mockResolvedValueOnce({
+				items: [
+					timedMessage('m99', 99_000),
+					timedMessage('m98', 98_000),
+				],
+				nextCursor: {
+					id: 'cursor-m98',
+				},
+			});
+
+			await store.catchUp();
+			answerOlder({
+				items: [
+					timedMessage('m29', 29_000),
+					timedMessage('m28', 28_000),
+				],
+				nextCursor: {
+					id: 'cursor-m28',
+				},
+			});
+			await loadingMore;
+
+			expect(ids(store)).toEqual([
+				'm98',
+				'm99',
+			]);
+			expect(store.olderCursor).toBe('cursor-m98');
+		});
+
+		it('does not page back while a catch-up is reading', async () => {
+			fetchMessageHistoryMock.mockResolvedValueOnce({
+				items: [
+					timedMessage('m31', 31_000),
+					timedMessage('m30', 30_000),
+				],
+				nextCursor: {
+					id: 'cursor-m30',
+				},
+			});
+			const store = useChatSessionStore('chat-1');
+			await store.load();
+			let answer: (page: unknown) => void = () => {};
+			fetchMessageHistoryMock.mockReturnValueOnce(
+				new Promise((resolve) => {
+					answer = resolve;
+				}),
+			);
+			fetchMessageHistoryMock.mockResolvedValueOnce({
+				items: [
+					timedMessage('m29', 29_000),
+					timedMessage('m28', 28_000),
+				],
+				nextCursor: {
+					id: 'cursor-m28',
+				},
+			});
+
+			const catchingUp = store.catchUp();
+			await flushPromises();
+			await store.loadMore();
+			answer({
+				items: [
+					timedMessage('m99', 99_000),
+					timedMessage('m98', 98_000),
+				],
+				nextCursor: {
+					id: 'cursor-m98',
+				},
+			});
+			await catchingUp;
+
+			expect(ids(store)).toEqual([
+				'm98',
+				'm99',
+			]);
+			expect(store.olderCursor).toBe('cursor-m98');
+		});
+
 		it('does nothing before the first load', async () => {
 			const store = useChatSessionStore('chat-1');
 

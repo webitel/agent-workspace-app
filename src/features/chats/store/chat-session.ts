@@ -44,11 +44,26 @@ function createStoreDefinition(chatId: string) {
 
 		const hasMore = computed(() => olderCursor.value !== null);
 
+		// Bumped by every catch-up: an older page read before it may no longer
+		// sit next to the history, so its answer is dropped rather than prepended.
+		let historyGeneration = 0;
+		let isCatchingUp = false;
+
+		// the messages held right now, by id, to tell later socket deliveries
+		// (new messages, and new copies of held ones) from what a read predates
+		const snapshotMessages = () =>
+			new Map(
+				messages.value.map((message) => [
+					message.id,
+					message,
+				]),
+			);
+
 		/**
-		 * Puts the newest history page into the session. `knownBefore` holds the
-		 * ids the session had when the read started; anything else in `messages`
-		 * arrived over the socket meanwhile and wins over the page's copy, which
-		 * may predate it.
+		 * Puts the newest history page into the session. `heldBefore` is what the
+		 * session held when the read started; a message that is not there as the
+		 * same object arrived over the socket meanwhile — new, or a new copy of a
+		 * held one — and wins over the page's copy, which may predate it.
 		 *
 		 * A page that overlaps the history is merged into it, keeping the older
 		 * pages already read. One that does not means more than a page was
@@ -57,7 +72,7 @@ function createStoreDefinition(chatId: string) {
 		 */
 		function applyNewestPage(
 			page: MessageHistorySearchResult,
-			knownBefore: ReadonlySet<string>,
+			heldBefore: ReadonlyMap<string, IMessage>,
 		) {
 			// API returns newest->oldest (DESC); the UI renders top->bottom with
 			// newest at the bottom, so store oldest->newest (ASC)
@@ -65,10 +80,10 @@ function createStoreDefinition(chatId: string) {
 				...page.items,
 			].reverse();
 			const arrived = messages.value.filter(
-				(message) => !knownBefore.has(message.id),
+				(message) => heldBefore.get(message.id) !== message,
 			);
 
-			if (newest.some((message) => knownBefore.has(message.id))) {
+			if (newest.some((message) => heldBefore.has(message.id))) {
 				messages.value = mergeMessages(
 					mergeMessages(messages.value, newest),
 					arrived,
@@ -84,14 +99,14 @@ function createStoreDefinition(chatId: string) {
 			if (initialized.value || isLoading.value) return;
 			isLoading.value = true;
 			error.value = null;
-			const knownBefore = new Set(messages.value.map((message) => message.id));
+			const heldBefore = snapshotMessages();
 			try {
 				const fetchedThread = await threadsService.fetchThread(chatId);
 				const page = await fetchedThread.fetchMessageHistory({
 					size: PAGE_SIZE,
 				});
 				thread.value = fetchedThread;
-				applyNewestPage(page, knownBefore);
+				applyNewestPage(page, heldBefore);
 				initialized.value = true;
 			} catch (err) {
 				error.value = err;
@@ -101,14 +116,22 @@ function createStoreDefinition(chatId: string) {
 		}
 
 		async function loadMore() {
-			if (!thread.value || !olderCursor.value || isLoading.value) return;
+			if (
+				!thread.value ||
+				!olderCursor.value ||
+				isLoading.value ||
+				isCatchingUp
+			)
+				return;
 			isLoading.value = true;
+			const generation = historyGeneration;
 			try {
 				const page = await thread.value.fetchMessageHistory({
 					size: PAGE_SIZE,
 					cursorId: olderCursor.value,
 					cursorBefore: false, // false -> older direction
 				});
+				if (generation !== historyGeneration) return;
 				// Older page is also DESC; reverse to ASC, then prepend the whole
 				// (older) block ahead of the messages already in view.
 				messages.value = [
@@ -146,16 +169,21 @@ function createStoreDefinition(chatId: string) {
 		 */
 		async function catchUp() {
 			if (!initialized.value) return;
-			const knownBefore = new Set(messages.value.map((message) => message.id));
+			const heldBefore = snapshotMessages();
+			historyGeneration += 1;
+			// paging back now would read from a cursor the catch-up may replace
+			isCatchingUp = true;
 			try {
 				const fetchedThread = await threadsService.fetchThread(chatId);
 				const page = await fetchedThread.fetchMessageHistory({
 					size: PAGE_SIZE,
 				});
 				thread.value = fetchedThread;
-				applyNewestPage(page, knownBefore);
+				applyNewestPage(page, heldBefore);
 			} catch (err) {
 				error.value = err;
+			} finally {
+				isCatchingUp = false;
 			}
 		}
 
