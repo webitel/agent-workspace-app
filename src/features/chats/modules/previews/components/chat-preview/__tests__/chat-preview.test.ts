@@ -16,10 +16,16 @@ vi.mock('../../../../../store/chats', () => ({
 
 const previewsStore = {
 	lastMessages: {} as Record<string, unknown>,
-	account: null as unknown,
 };
 vi.mock('../../../store/chat-previews', () => ({
 	useChatPreviewsStore: () => previewsStore,
+}));
+
+const accountStore = {
+	account: null as unknown,
+};
+vi.mock('../../../../../store/chat-account', () => ({
+	useChatAccountStore: () => accountStore,
 }));
 
 import ChatPreview from '../chat-preview.vue';
@@ -84,7 +90,7 @@ describe('chat-preview', () => {
 				senderId: 'member-client',
 			},
 		};
-		previewsStore.account = account;
+		accountStore.account = account;
 	});
 
 	it('shows who the client is, the last message and the queue', () => {
@@ -161,7 +167,7 @@ describe('chat-preview', () => {
 
 		// the agent's account has not loaded: no avatar rather than a wrong one
 		it('shows no avatar while it cannot be told', () => {
-			previewsStore.account = null;
+			accountStore.account = null;
 			const wrapper = mountPreview();
 
 			expect(wrapper.find('.chat-preview-body__text').text()).toBe(
