@@ -9,7 +9,7 @@ const sendMessageMock = vi.fn();
 
 vi.mock('../../api/chatSdk', () => ({
 	accountService: {
-		// the chat-account store asks once per pinia; every test gets this answer
+		// every test gets this answer when it loads the chat-account store
 		getAccount: vi.fn().mockResolvedValue({
 			contact: {
 				sub: '42',
@@ -23,6 +23,7 @@ vi.mock('../../api/chatSdk', () => ({
 	messagesService: {},
 }));
 
+import { useChatAccountStore } from '../chat-account';
 import { disposeChatSession, useChatSessionStore } from '../chat-session';
 import { useChatVariablesStore } from '../chat-variables';
 
@@ -118,6 +119,8 @@ describe('chat-session store', () => {
 				],
 			});
 			fetchMessageHistoryMock.mockResolvedValue(historyPage([], null));
+			// the chats store loads the account at startup; the session only reads it
+			await useChatAccountStore().load();
 			const store = useChatSessionStore('chat-self');
 
 			await store.load();

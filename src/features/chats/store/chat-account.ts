@@ -6,13 +6,15 @@ import { accountService } from '../api/chatSdk';
 
 /**
  * The agent's own account in the chat backend: who they are in a thread, which
- * is how their messages are told from the client's. Everything that needs to
- * make that distinction (the chat sessions, the chat list) reads it here
- * rather than asking for it.
+ * is how their messages are told from the client's. The chats store loads it
+ * once at startup, since it does not change within a session, and everything
+ * that needs to make that distinction (the chat sessions, the chat list) reads
+ * it here.
  *
  * It stays `null` until it loads, and when the request fails: the thread then
  * shows no delivery ticks and a preview does not say who wrote the last
- * message, but both still work, and the next `load()` asks again.
+ * message, but both still work. Nothing asks again on its own; a later
+ * `load()` makes a fresh request.
  *
  * Logout navigates away (userinfo store: window.location.href = authUrl), so
  * the account never outlives the session it belongs to.
