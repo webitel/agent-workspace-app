@@ -53,6 +53,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Активні',
+				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Інфо',
