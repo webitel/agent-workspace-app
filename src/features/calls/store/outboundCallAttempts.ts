@@ -193,6 +193,13 @@ export const useOutboundCallAttemptsStore = defineStore(
 			if (isInitialized) return;
 			isInitialized = true;
 
+			/**
+			 * @author Oleksandr Palonnyi
+			 * `callsStore.call` returns no call id, and the `Call` reaches `callList` only
+			 * later (on `Ringing`), at an unknown moment. Each list change is therefore
+			 * checked for a new outbound call to attach to an attempt that has none yet
+			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+			 */
 			watch(() => callsStore.callList, linkPlacedCalls);
 
 			/**
