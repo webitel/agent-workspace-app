@@ -1,9 +1,10 @@
 <template>
-	<wt-icon
-		class="ringing-indicator"
-		icon="wt-ringing-bell"
-		aria-hidden="true"
-	/>
+	<div class="ringing-indicator">
+		<wt-icon
+			icon="wt-ringing-bell"
+			:color="IconColor.SUCCESS"
+		/>
+	</div>
 </template>
 
 <script
@@ -11,17 +12,14 @@
 	lang="ts"
 >
 import { WtIcon } from '@webitel/ui-sdk/components';
+import { IconColor } from '@webitel/ui-sdk/enums';
 </script>
 
 <style scoped>
-/**
- * @author Oleksandr Palonnyi
- * The Figma "Ringing Indicator" (Dialer DES-721) is 96px, and the largest
- * `wt-icon` size (6xl) is 80px, so the size is set here instead
- * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
- */
 .ringing-indicator {
-	width: 96px;
-	height: 96px;
+	display: flex;
+	padding: var(--spacing-sm);
+	border-radius: 50%;
+	background-color: var(--success-light-color);
 }
 </style>

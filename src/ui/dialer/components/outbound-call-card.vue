@@ -31,7 +31,11 @@
 			<ringing-indicator v-if="isRinging" />
 			<template v-else>
 				<div class="outbound-call-card__no-answer-icon">
-					<span class="outbound-call-card__icon-placeholder" />
+					<wt-icon
+						icon="wt-call-no-answer"
+						:color="IconColor.WARNING"
+						aria-hidden="true"
+					/>
 				</div>
 				<p class="outbound-call-card__no-answer-text typo-caption">
 					{{ t('ui.dialer.outboundCall.noAnswerDescription') }}
@@ -86,9 +90,10 @@ import {
 	WtAvatar,
 	WtButton,
 	WtChip,
+	WtIcon,
 	WtIconBtn,
 } from '@webitel/ui-sdk/components';
-import { ChipColor } from '@webitel/ui-sdk/enums';
+import { ChipColor, IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -180,18 +185,6 @@ const statusChipColor = computed(() =>
 	padding: var(--spacing-sm);
 	border-radius: 50%;
 	background-color: var(--warning-light-color);
-}
-
-/**
- * @author Oleksandr Palonnyi
- * Reserves the 24px slot of the "Call Status Indicator / NoAnswer" icon
- * (Figma, Dialer DES-721) until the icon is added; the ui-sdk sprite has none.
- * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
- */
-.outbound-call-card__icon-placeholder {
-	display: block;
-	width: 24px;
-	height: 24px;
 }
 
 .outbound-call-card__no-answer-text {

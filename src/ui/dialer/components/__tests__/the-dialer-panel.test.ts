@@ -6,34 +6,28 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
 
 import { OutboundCallStatus } from '../../../../features/calls/enums/OutboundCallStatus.enum';
+import type { OutboundCallAttemptView } from '../../../../features/calls/types/OutboundCallAttempt.types';
 import { useNumpadStore } from '../../../numpad/store/numpad';
 import { OutboundCallCardState } from '../../enums/OutboundCallCardState.enum';
 import TheDialerPanel from '../the-dialer-panel.vue';
 
 /**
  * @author Oleksandr Palonnyi
- * The outbound call store is replaced by its public surface: its behaviour is
+ * The outbound call attempts store is replaced by its public surface: its behaviour is
  * covered by its own suite, here only what the panel shows and forwards
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */
-const outboundCallStore = reactive({
-	status: null as OutboundCallStatus | null,
-	destination: null as string | null,
-	preview: null as {
-		name?: string;
-		number: string;
-	} | null,
-	placedCall: null as object | null,
-	isMuted: false,
+const outboundCallAttemptsStore = reactive({
+	attempts: [] as OutboundCallAttemptView[],
 	start: vi.fn(),
 	retry: vi.fn(),
 	hangup: vi.fn(),
 	toggleMute: vi.fn(),
-	dismiss: vi.fn(),
+	clearAttempt: vi.fn(),
 });
 
-vi.mock('../../../../features/calls/store/outboundCall', () => ({
-	useOutboundCallStore: () => outboundCallStore,
+vi.mock('../../../../features/calls/store/outboundCallAttempts', () => ({
+	useOutboundCallAttemptsStore: () => outboundCallAttemptsStore,
 }));
 
 function mountPanel() {
@@ -54,16 +48,30 @@ function mountPanel() {
 	});
 }
 
-function showOutboundCall(status: OutboundCallStatus) {
-	outboundCallStore.status = status;
-	outboundCallStore.destination = '0671234567';
-	outboundCallStore.preview = {
-		number: '0671234567',
+function buildAttempt(
+	id: string,
+	status: OutboundCallStatus,
+	overrides: Partial<OutboundCallAttemptView> = {},
+): OutboundCallAttemptView {
+	return {
+		id,
+		destination: '0671234567',
+		placedCall: null,
+		status,
+		preview: {
+			number: '0671234567',
+		},
+		isMuted: false,
+		...overrides,
 	};
 }
 
-function findOutboundCard(wrapper: ReturnType<typeof mountPanel>) {
-	return wrapper.findComponent({
+function showOutboundCalls(...attempts: OutboundCallAttemptView[]) {
+	outboundCallAttemptsStore.attempts = attempts;
+}
+
+function findOutboundCards(wrapper: ReturnType<typeof mountPanel>) {
+	return wrapper.findAllComponents({
 		name: 'OutboundCallCard',
 	});
 }
@@ -84,16 +92,13 @@ async function placeCallFromNumpad(
 
 describe('the-dialer-panel', () => {
 	beforeEach(() => {
-		outboundCallStore.status = null;
-		outboundCallStore.destination = null;
-		outboundCallStore.preview = null;
-		outboundCallStore.placedCall = null;
+		outboundCallAttemptsStore.attempts = [];
 		for (const action of [
-			outboundCallStore.start,
-			outboundCallStore.retry,
-			outboundCallStore.hangup,
-			outboundCallStore.toggleMute,
-			outboundCallStore.dismiss,
+			outboundCallAttemptsStore.start,
+			outboundCallAttemptsStore.retry,
+			outboundCallAttemptsStore.hangup,
+			outboundCallAttemptsStore.toggleMute,
+			outboundCallAttemptsStore.clearAttempt,
 		]) {
 			action.mockClear();
 		}
@@ -134,7 +139,7 @@ describe('the-dialer-panel', () => {
 
 		await placeCallFromNumpad(wrapper, '0671234567');
 
-		expect(outboundCallStore.start).toHaveBeenCalledWith('0671234567');
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith('0671234567');
 	});
 
 	it('closes the numpad once a call is placed', async () => {
@@ -151,10 +156,10 @@ describe('the-dialer-panel', () => {
 	])('shows the ringing card while %s', async (status) => {
 		const wrapper = mountPanel();
 
-		showOutboundCall(status);
+		showOutboundCalls(buildAttempt('a1', status));
 		await nextTick();
 
-		expect(findOutboundCard(wrapper).props('state')).toBe(
+		expect(findOutboundCards(wrapper)[0].props('state')).toBe(
 			OutboundCallCardState.Ringing,
 		);
 	});
@@ -162,10 +167,10 @@ describe('the-dialer-panel', () => {
 	it('shows the no answer card after an unanswered call', async () => {
 		const wrapper = mountPanel();
 
-		showOutboundCall(OutboundCallStatus.NoAnswer);
+		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.NoAnswer));
 		await nextTick();
 
-		expect(findOutboundCard(wrapper).props('state')).toBe(
+		expect(findOutboundCards(wrapper)[0].props('state')).toBe(
 			OutboundCallCardState.NoAnswer,
 		);
 	});
@@ -173,59 +178,85 @@ describe('the-dialer-panel', () => {
 	it('leaves an answered call to the active call window', async () => {
 		const wrapper = mountPanel();
 
-		showOutboundCall(OutboundCallStatus.Answered);
+		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.Answered));
 		await nextTick();
 
 		expect(wrapper.find('.the-dialer-panel').exists()).toBe(false);
 	});
 
-	it('shows the numpad over the card when the agent opens it', async () => {
+	it('shows one card per attempt', async () => {
 		const wrapper = mountPanel();
-		showOutboundCall(OutboundCallStatus.Ringing);
+
+		showOutboundCalls(
+			buildAttempt('a1', OutboundCallStatus.Ringing),
+			buildAttempt('a2', OutboundCallStatus.NoAnswer),
+		);
+		await nextTick();
+
+		expect(findOutboundCards(wrapper)).toHaveLength(2);
+	});
+
+	it('keeps the numpad open beside the cards', async () => {
+		const wrapper = mountPanel();
+		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.Ringing));
 
 		useNumpadStore().open();
 		await nextTick();
 
-		expect(findOutboundCard(wrapper).exists()).toBe(false);
+		expect(
+			wrapper
+				.findComponent({
+					name: 'TheNumpad',
+				})
+				.exists(),
+		).toBe(true);
+		expect(findOutboundCards(wrapper)).toHaveLength(1);
 	});
 
 	it('allows mute only once the call exists', async () => {
 		const wrapper = mountPanel();
-		showOutboundCall(OutboundCallStatus.Dialing);
+		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.Dialing));
 		await nextTick();
 
-		expect(findOutboundCard(wrapper).props('canToggleMute')).toBe(false);
+		expect(findOutboundCards(wrapper)[0].props('canToggleMute')).toBe(false);
 
-		outboundCallStore.placedCall = {};
+		showOutboundCalls(
+			buildAttempt('a1', OutboundCallStatus.Ringing, {
+				placedCall: {} as OutboundCallAttemptView['placedCall'],
+			}),
+		);
 		await nextTick();
 
-		expect(findOutboundCard(wrapper).props('canToggleMute')).toBe(true);
+		expect(findOutboundCards(wrapper)[0].props('canToggleMute')).toBe(true);
 	});
 
 	it('goes back to the dialpad with the unanswered number', async () => {
 		const wrapper = mountPanel();
 		const numpadStore = useNumpadStore();
-		showOutboundCall(OutboundCallStatus.NoAnswer);
+		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.NoAnswer));
 		await nextTick();
 
-		findOutboundCard(wrapper).vm.$emit('backToDialpad');
+		findOutboundCards(wrapper)[0].vm.$emit('backToDialpad');
 
-		expect(outboundCallStore.dismiss).toHaveBeenCalled();
+		expect(outboundCallAttemptsStore.clearAttempt).toHaveBeenCalledWith('a1');
 		expect(numpadStore.open).toHaveBeenCalledWith('0671234567');
 	});
 
-	it('forwards retry, hang up and mute to the outbound call', async () => {
+	it('forwards retry, hang up and mute with the id of their own attempt', async () => {
 		const wrapper = mountPanel();
-		showOutboundCall(OutboundCallStatus.Ringing);
+		showOutboundCalls(
+			buildAttempt('a1', OutboundCallStatus.Ringing),
+			buildAttempt('a2', OutboundCallStatus.Ringing),
+		);
 		await nextTick();
-		const card = findOutboundCard(wrapper);
+		const secondCard = findOutboundCards(wrapper)[1];
 
-		card.vm.$emit('retry');
-		card.vm.$emit('hangup');
-		card.vm.$emit('toggleMute');
+		secondCard.vm.$emit('retry');
+		secondCard.vm.$emit('hangup');
+		secondCard.vm.$emit('toggleMute');
 
-		expect(outboundCallStore.retry).toHaveBeenCalled();
-		expect(outboundCallStore.hangup).toHaveBeenCalled();
-		expect(outboundCallStore.toggleMute).toHaveBeenCalled();
+		expect(outboundCallAttemptsStore.retry).toHaveBeenCalledWith('a2');
+		expect(outboundCallAttemptsStore.hangup).toHaveBeenCalledWith('a2');
+		expect(outboundCallAttemptsStore.toggleMute).toHaveBeenCalledWith('a2');
 	});
 });
