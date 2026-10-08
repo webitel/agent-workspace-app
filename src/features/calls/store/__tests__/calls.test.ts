@@ -384,6 +384,53 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('toggleMute', () => {
+		it('mutes an unmuted call', async () => {
+			const call = buildCall({
+				muted: false,
+				mute: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleMute('call-1');
+
+			expect(call.mute).toHaveBeenCalledWith(true);
+		});
+
+		it('unmutes a muted call', async () => {
+			const call = buildCall({
+				muted: true,
+				mute: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleMute('call-1');
+
+			expect(call.mute).toHaveBeenCalledWith(false);
+		});
+
+		it('leaves a call that already ended alone', async () => {
+			const call = buildCall({
+				allowHangup: false,
+				mute: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleMute('call-1');
+
+			expect(call.mute).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('call audio', () => {
 		it('plays the remote party once its stream arrives', () => {
 			const store = useCallsStore();
