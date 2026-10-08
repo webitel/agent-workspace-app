@@ -39,16 +39,18 @@ const routes: RouteRecordRaw[] = [
 			},
 			{
 				path: '/chats',
-				name: 'chats',
 				component: TheChatsWorkspace,
-				redirect: {
-					name: ChatsPageTab.Active,
-				},
 				children: [
 					{
-						path: 'active',
-						name: ChatsPageTab.Active,
+						path: '',
 						component: TheChatsPage,
+						children: [
+							{
+								path: '',
+								name: ChatsPageTab.Active,
+								component: NoopRouteComponent,
+							},
+						],
 					},
 					{
 						path: ':threadId',

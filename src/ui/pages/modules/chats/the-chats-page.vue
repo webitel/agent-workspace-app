@@ -20,7 +20,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { PageTab } from '../../types/PageTab.types';
 import ChatsPanelWrapper from './components/chats-panel-wrapper.vue';
 import { ChatsPageTab } from './enums/ChatsPageTab.enum';
-import ChatsActiveTable from './modules/active/chats-active-table.vue';
+import ChatsActiveTable from './modules/active/active-chats-table.vue';
 
 const { t } = useI18n();
 const route = useRoute();
