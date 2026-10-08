@@ -242,7 +242,11 @@ describe('useCallsStore', () => {
 		it('dials the number with the formatting stripped', async () => {
 			const store = useCallsStore();
 
-			await expect(store.call('+38 (067) 123-45-67')).resolves.toBe(true);
+			await expect(
+				store.call({
+					destination: '+38 (067) 123-45-67',
+				}),
+			).resolves.toBe(true);
 
 			expect(clientCall).toHaveBeenCalledWith({
 				destination: '+380671234567',
@@ -263,7 +267,9 @@ describe('useCallsStore', () => {
 			);
 			const store = useCallsStore();
 
-			await store.call('100');
+			await store.call({
+				destination: '100',
+			});
 
 			expect(clientCall).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -277,7 +283,9 @@ describe('useCallsStore', () => {
 		it('does not dial when nothing dialable was entered', async () => {
 			const store = useCallsStore();
 
-			await store.call(' - ');
+			await store.call({
+				destination: ' - ',
+			});
 
 			expect(clientCall).not.toHaveBeenCalled();
 		});
@@ -292,9 +300,13 @@ describe('useCallsStore', () => {
 			);
 			const store = useCallsStore();
 
-			const firstAttempt = store.call('100');
+			const firstAttempt = store.call({
+				destination: '100',
+			});
 			await vi.waitFor(() => expect(clientCall).toHaveBeenCalled());
-			await store.call('100');
+			await store.call({
+				destination: '100',
+			});
 			resolveRequest();
 			await firstAttempt;
 
@@ -311,7 +323,9 @@ describe('useCallsStore', () => {
 			];
 			const store = useCallsStore();
 
-			await store.call('100');
+			await store.call({
+				destination: '100',
+			});
 
 			expect(activeCall.hold).toHaveBeenCalledTimes(1);
 			expect(clientCall).toHaveBeenCalled();
@@ -327,7 +341,9 @@ describe('useCallsStore', () => {
 			];
 			const store = useCallsStore();
 
-			await store.call('100');
+			await store.call({
+				destination: '100',
+			});
 
 			expect(heldCall.hold).not.toHaveBeenCalled();
 		});
@@ -336,7 +352,9 @@ describe('useCallsStore', () => {
 			isMicrophoneAllowed.mockResolvedValue(false);
 			const store = useCallsStore();
 
-			await store.call('100');
+			await store.call({
+				destination: '100',
+			});
 
 			expect(clientCall).not.toHaveBeenCalled();
 			expect(mockEmit).toHaveBeenCalledWith(
@@ -352,7 +370,11 @@ describe('useCallsStore', () => {
 			clientCall.mockRejectedValueOnce(new Error('rejected'));
 			const store = useCallsStore();
 
-			await expect(store.call('100')).resolves.toBe(false);
+			await expect(
+				store.call({
+					destination: '100',
+				}),
+			).resolves.toBe(false);
 
 			expect(mockEmit).toHaveBeenCalledWith('notification', {
 				type: 'error',

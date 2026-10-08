@@ -1,0 +1,48 @@
+<template>
+	<div
+		v-if="numpadStore.isOpen"
+		class="the-numpad-panel"
+	>
+		<the-numpad
+			:initial-number="numpadStore.prefilledNumber"
+			@call="onCall"
+		/>
+	</div>
+</template>
+
+<script
+	setup
+	lang="ts"
+>
+import { useCallsStore } from '../../../features/calls/store/calls';
+import { useNumpadStore } from '../store/numpad';
+import TheNumpad from './the-numpad.vue';
+
+const numpadStore = useNumpadStore();
+const callsStore = useCallsStore();
+
+function onCall(destination: string) {
+	callsStore.call({
+		destination,
+	});
+	numpadStore.close();
+}
+</script>
+
+<style scoped>
+/**
+ * @author Oleksandr Palonnyi
+ * The left offset is an interim value that clears the nav: the nav has no width token yet
+ * to position against
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+.the-numpad-panel {
+	position: fixed;
+	bottom: 0;
+  left: var(--wt-ws-dialer-sizes-root-offset-left);
+	z-index: 101;
+	border-radius: var(--p-border-radius-lg);
+	background-color: var(--content-wrapper-color);
+	box-shadow: var(--elevation-10);
+}
+</style>

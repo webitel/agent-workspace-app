@@ -37,22 +37,42 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 }));
 
 const loadMock = vi.fn();
+const refreshThreadMock = vi.fn();
 const receiveMessageMock = vi.fn();
-const useChatSessionStoreMock = vi.fn((..._args: unknown[]) => ({
-	load: loadMock,
-	receiveMessage: receiveMessageMock,
-}));
-const disposeChatSessionMock = vi.fn();
+// chats that have a session, the way the real registry tracks them
+const sessionIds = new Set<string>();
+let sessionInitialized = false;
+const useChatSessionStoreMock = vi.fn((chatId: string) => {
+	sessionIds.add(chatId);
+	return {
+		initialized: sessionInitialized,
+		load: loadMock,
+		refreshThread: refreshThreadMock,
+		receiveMessage: receiveMessageMock,
+	};
+});
+const retainChatSessionsMock = vi.fn();
 
 vi.mock('../chat-session', () => ({
-	useChatSessionStore: (...args: unknown[]) => useChatSessionStoreMock(...args),
-	disposeChatSession: (...args: unknown[]) => disposeChatSessionMock(...args),
+	useChatSessionStore: (chatId: string) => useChatSessionStoreMock(chatId),
+	hasChatSession: (chatId: string) => sessionIds.has(chatId),
+	retainChatSessions: (...args: unknown[]) => retainChatSessionsMock(...args),
 }));
 
-const disposeProcessingMock = vi.fn();
+const loadAccountMock = vi.fn();
 
-vi.mock('../../../processing/store/processing', () => ({
-	disposeProcessing: (...args: unknown[]) => disposeProcessingMock(...args),
+vi.mock('../chat-account', () => ({
+	useChatAccountStore: () => ({
+		load: loadAccountMock,
+	}),
+}));
+
+const receivePreviewMessageMock = vi.fn();
+
+vi.mock('../../modules/previews/store/chat-previews', () => ({
+	useChatPreviewsStore: () => ({
+		receiveMessage: receivePreviewMessageMock,
+	}),
 }));
 
 const connectChatsSocketMock = vi.fn();
@@ -104,6 +124,20 @@ vi.mock('../../../../app/router', () => ({
 
 import { useChatsStore } from '../chats';
 
+// `null`, not `undefined`: passing undefined would re-apply the default
+const buildListed = (id: number, threadId: string | null) => ({
+	id,
+	channel: 'im',
+	offeringAt: 1,
+	bridgedAt: 2,
+	closedAt: 0,
+	thread: threadId
+		? {
+				id: threadId,
+			}
+		: undefined,
+});
+
 describe('chats store', () => {
 	/**
 	 * The store watches a module-level `tasks` ref. Without disposing, every
@@ -137,9 +171,20 @@ describe('chats store', () => {
 		});
 		setActivePinia(pinia);
 		vi.clearAllMocks();
+		sessionIds.clear();
+		sessionInitialized = false;
 		tasks.value = [];
 		threadMessageHandler = null;
 		routerCurrentRoute.value.params = {};
+	});
+
+	// it does not change within a session, so one read at startup serves every chat
+	it('loads the agent account once on initialize', () => {
+		const store = useChatsStore();
+
+		store.initialize();
+
+		expect(loadAccountMock).toHaveBeenCalledOnce();
 	});
 
 	it('subscribes to tasks on the connected client on initialize', () => {
@@ -161,7 +206,7 @@ describe('chats store', () => {
 			expect(onThreadMessageMock).toHaveBeenCalledWith(expect.any(Function));
 		});
 
-		it('routes a live message to the matching open session store', () => {
+		it("routes a live message to the chat's session", () => {
 			const store = useChatsStore();
 			store.initialize();
 			store.openChat('chat-1');
@@ -177,7 +222,37 @@ describe('chats store', () => {
 			});
 		});
 
-		it('ignores a message for a chat that is not open', () => {
+		// the list shows every accepted chat, not only the open ones
+		// a listed chat's session outlives its window and must stay current
+		it('keeps routing to a session whose window was closed', () => {
+			const store = useChatsStore();
+			store.initialize();
+			store.openChat('chat-1');
+			store.closeChat('chat-1');
+
+			threadMessageHandler?.({
+				threadId: 'chat-1',
+			});
+
+			expect(receiveMessageMock).toHaveBeenCalledWith({
+				threadId: 'chat-1',
+			});
+		});
+
+		it('keeps the previews current for a chat that is not open', () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			threadMessageHandler?.({
+				threadId: 'chat-unknown',
+			});
+
+			expect(receivePreviewMessageMock).toHaveBeenCalledWith({
+				threadId: 'chat-unknown',
+			});
+		});
+
+		it('ignores a message for a chat with no session', () => {
 			const store = useChatsStore();
 			store.initialize();
 
@@ -238,37 +313,6 @@ describe('chats store', () => {
 
 		expect(store.chatTaskList).toHaveLength(1);
 		expect(store.incomingOffers).toHaveLength(1);
-	});
-
-	describe('processing stores', () => {
-		it("disposes an attempt's processing store once its task leaves the feed", async () => {
-			const store = useChatsStore();
-			store.initialize();
-
-			tasks.value = [
-				{
-					id: 1,
-					channel: 'im',
-				},
-				{
-					id: 2,
-					channel: 'im',
-				},
-			];
-			await nextTick();
-			expect(disposeProcessingMock).not.toHaveBeenCalled();
-
-			tasks.value = [
-				{
-					id: 2,
-					channel: 'im',
-				},
-			];
-			await nextTick();
-
-			expect(disposeProcessingMock).toHaveBeenCalledTimes(1);
-			expect(disposeProcessingMock).toHaveBeenCalledWith(1);
-		});
 	});
 
 	describe('incoming offers', () => {
@@ -386,6 +430,18 @@ describe('chats store', () => {
 	});
 
 	describe('openChat', () => {
+		// switching windows, or reopening a kept session: the socket kept its
+		// history current, only the thread's read states are re-read
+		it('re-reads only the thread of a session that already loaded', () => {
+			sessionInitialized = true;
+			const store = useChatsStore();
+
+			store.openChat('chat-1');
+
+			expect(refreshThreadMock).toHaveBeenCalledOnce();
+			expect(loadMock).not.toHaveBeenCalled();
+		});
+
 		it('opens a chat as main and warms its session store', () => {
 			const store = useChatsStore();
 
@@ -472,14 +528,96 @@ describe('chats store', () => {
 	});
 
 	describe('closeChat', () => {
-		it('removes the chat and disposes its session store', () => {
+		it('removes the window and keeps the session of a listed chat', () => {
+			tasks.value = [
+				buildListed(1, 'chat-1'),
+			];
 			const store = useChatsStore();
 			store.openChat('chat-1');
 
 			store.closeChat('chat-1');
 
 			expect(store.isOpen('chat-1')).toBe(false);
-			expect(disposeChatSessionMock).toHaveBeenCalledWith('chat-1');
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(
+				new Set([
+					'chat-1',
+				]),
+			);
+		});
+
+		it('releases the session of a chat that was never listed', () => {
+			const store = useChatsStore();
+			store.openChat('chat-9');
+
+			store.closeChat('chat-9');
+
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(new Set());
+		});
+	});
+
+	describe('chat sessions follow the list', () => {
+		it('releases the session of a chat that leaves the list', async () => {
+			tasks.value = [
+				buildListed(1, 'chat-1'),
+			];
+			const store = useChatsStore();
+			store.initialize();
+
+			tasks.value = [];
+			await nextTick();
+
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(new Set());
+		});
+
+		// the task was released, but the agent still has the window open
+		it('keeps the session while the chat that left still has a window', async () => {
+			tasks.value = [
+				buildListed(1, 'chat-1'),
+			];
+			const store = useChatsStore();
+			store.initialize();
+			store.openChat('chat-1');
+
+			tasks.value = [];
+			await nextTick();
+
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(
+				new Set([
+					'chat-1',
+				]),
+			);
+		});
+	});
+	describe('ending a chat', () => {
+		it('closes the chat task', async () => {
+			const store = useChatsStore();
+			const task = {
+				close: vi.fn(() => Promise.resolve({})),
+			};
+
+			await store.endChat(task as never);
+
+			expect(task.close).toHaveBeenCalledOnce();
+		});
+
+		it('passes a failure on to the caller', async () => {
+			const store = useChatsStore();
+			const task = {
+				close: vi.fn(() => Promise.reject(new Error('offline'))),
+			};
+
+			await expect(store.endChat(task as never)).rejects.toThrow('offline');
+		});
+
+		it('does not touch the open window', async () => {
+			const store = useChatsStore();
+			store.openChat('chat-1');
+
+			await store.endChat({
+				close: vi.fn(() => Promise.resolve({})),
+			} as never);
+
+			expect(store.isOpen('chat-1')).toBe(true);
 		});
 	});
 });

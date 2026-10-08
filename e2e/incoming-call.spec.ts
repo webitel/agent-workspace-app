@@ -28,6 +28,79 @@ test.describe('incoming call notification', () => {
 		});
 	});
 
+	/**
+	 * A played media element becomes the OS's Now Playing source, and on macOS the
+	 * Play/Pause key then resumes it: pressing play for music started the ring. The
+	 * ring has to come from Web Audio, which the media keys cannot reach.
+	 */
+	test('rings through Web Audio and never plays a media element', async ({
+		page,
+		socket,
+	}) => {
+		test.setTimeout(60_000);
+
+		await page.addInitScript(() => {
+			const counts = {
+				mediaPlays: 0,
+				sourceStarts: 0,
+				sourceStops: 0,
+			};
+			(
+				window as unknown as {
+					__sound: typeof counts;
+				}
+			).__sound = counts;
+
+			const play = HTMLMediaElement.prototype.play;
+			HTMLMediaElement.prototype.play = function (...args) {
+				counts.mediaPlays += 1;
+				return play.apply(this, args);
+			};
+			const start = AudioBufferSourceNode.prototype.start;
+			AudioBufferSourceNode.prototype.start = function (...args) {
+				counts.sourceStarts += 1;
+				return start.apply(this, args);
+			};
+			const stop = AudioBufferSourceNode.prototype.stop;
+			AudioBufferSourceNode.prototype.stop = function (...args) {
+				counts.sourceStops += 1;
+				return stop.apply(this, args);
+			};
+		});
+		const sound = () =>
+			page.evaluate(
+				() =>
+					(
+						window as unknown as {
+							__sound: {
+								mediaPlays: number;
+								sourceStarts: number;
+								sourceStops: number;
+							};
+						}
+					).__sound,
+			);
+
+		await page.goto('calls');
+		// browsers start audio only after a gesture
+		await page.mouse.click(5, 5);
+
+		socket.send('call', callRingingFrame());
+		await expect(page.locator('.offer-card')).toBeVisible({
+			timeout: 30_000,
+		});
+
+		await expect.poll(async () => (await sound()).sourceStarts).toBe(1);
+
+		socket.send('call', callHangupFrame());
+		await expect(page.locator('.offer-card')).toHaveCount(0);
+
+		await expect
+			.poll(async () => (await sound()).sourceStops)
+			.toBeGreaterThan(0);
+		expect((await sound()).mediaPlays).toBe(0);
+	});
+
 	test('shows an offer for a ringing call and clears it when the call ends', async ({
 		page,
 		socket,

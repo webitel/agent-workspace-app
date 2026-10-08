@@ -9,6 +9,12 @@ export default {
 				tooltip: 'Bạn sẽ chỉ nhận cuộc gọi từ hàng đợi',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Liên hệ không xác định',
+		},
+		chatPreview: {
+			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -28,11 +34,56 @@ export default {
 			},
 		},
 		reusable: {
-			cancel: 'Hủy',
 			run: 'Chạy',
+			nothingToShowHere: 'Không có gì để hiển thị ở đây',
 		},
 		numpad: {
 			call: 'Gọi',
+		},
+		variables: {
+			empty: 'Không có biến',
+			loadError: 'Không thể tải các biến',
+		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Trò chuyện',
+					info: 'Thông tin',
+					postProcessing: 'Xử lý sau',
+					interaction: 'Tương tác',
+					contact: 'Liên hệ',
+					iframe: 'Iframe',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Cuộc gọi',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+						phoneNumber: 'Số điện thoại',
+					},
+					recordings: {
+						unavailable: 'Bản ghi không khả dụng',
+						playAudio: 'Phát âm thanh',
+						playVideo: 'Phát video',
+					},
+					actions: {
+						showCallInfo: 'Xem thông tin',
+					},
+					callInfo: {
+						title: 'Thông tin',
+						postprocessing: 'Xử lý sau cuộc gọi',
+						agentDescription: 'Nhận xét của nhân viên',
+					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Chọn cột biến',
+				},
+			},
 		},
 		dialer: {
 			outboundCall: {

@@ -6,7 +6,7 @@
         <offer-card
             v-for="offer in store.offers"
             :key="offer.id"
-            :preview="toValue(offer.preview)"
+            :content="toValue(offer.content)"
             :clickable="!!offer.onBodyClick"
             :pending="store.pendingAction(offer.id)"
             @accept="store.accept(offer.id)"

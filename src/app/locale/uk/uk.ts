@@ -9,6 +9,12 @@ export default {
 				tooltip: 'Ви будете отримувати дзвінки тільки з черг',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Невідомий контакт',
+		},
+		chatPreview: {
+			onlyUnread: 'Лише непрочитані чати',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -29,9 +35,66 @@ export default {
 		},
 		reusable: {
 			run: 'Запустити',
+			nothingToShowHere: 'Тут нічого немає',
 		},
 		numpad: {
 			call: 'Зателефонувати',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Постобробка',
+				extend: 'Продовжити постобробку',
+				extensionsLeft: 'Залишилось продовжень: {count}',
+			},
+		},
+		variables: {
+			empty: 'Змінних немає',
+			loadError: 'Не вдалося завантажити змінні',
+		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Чат',
+					info: 'Інфо',
+					postProcessing: 'Постобробка',
+					interaction: 'Взаємодія',
+					contact: 'Контакт',
+					iframe: 'Iframe',
+				},
+				topBar: {
+					transfer: 'Перевести чат',
+					end: 'Завершити чат',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Дзвінки',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+						phoneNumber: 'Номер телефону',
+					},
+					recordings: {
+						unavailable: 'Запис недоступний',
+						playAudio: 'Відтворити аудіо',
+						playVideo: 'Відтворити відео',
+					},
+					actions: {
+						showCallInfo: 'Показати інформацію',
+					},
+					callInfo: {
+						title: 'Інформація',
+						postprocessing: 'Постобробка',
+						agentDescription: 'Коментар оператора',
+					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Вибрати колонки зі змінними',
+				},
+			},
 		},
 		dialer: {
 			outboundCall: {

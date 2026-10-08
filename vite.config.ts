@@ -1,4 +1,5 @@
 import vue from '@vitejs/plugin-vue';
+import { vite as vidstack } from 'vidstack/plugins';
 import { defineConfig, loadEnv } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 
@@ -40,6 +41,9 @@ export default ({ mode }) => {
 				'deep-copy',
 				'deep-equal',
 				'deepmerge',
+				// only ever loaded lazily, which the dependency scan doesn't follow: found
+				// at runtime instead, it re-optimizes and reloads the page mid-boot
+				'jszip',
 			],
 		},
 		server: {
@@ -49,7 +53,14 @@ export default ({ mode }) => {
 			proxy: e2eProxy,
 		},
 		plugins: [
-			vue(),
+			vue({
+				template: {
+					compilerOptions: {
+						isCustomElement: (tag) => tag.startsWith('media-'),
+					},
+				},
+			}),
+			vidstack(),
 			vueDevTools(),
 		],
 		resolve: {
@@ -59,6 +70,8 @@ export default ({ mode }) => {
 				'vue',
 				'vue-i18n',
 				'vue-router',
+				'pinia',
+				'vidstack',
 			],
 			alias: {
 				lodash: 'lodash-es',

@@ -1,6 +1,6 @@
 import chatOfferSound from '@webitel/ui-sdk/src/modules/Notifications/assets/audio/chat-new.wav';
 
-import { playSafely } from '../utils/playSafely';
+import { createSound } from '../../../../sound/utils/createSound';
 import { SoundLockKind, useSoundLock } from './useSoundLock';
 
 /**
@@ -19,12 +19,7 @@ import { SoundLockKind, useSoundLock } from './useSoundLock';
 /** Long enough to cover one cue, short enough not to swallow the next offer. */
 const CHIRP_LOCK_MS = 1000;
 
-let audio: HTMLAudioElement | null = null;
-
-function getAudio(): HTMLAudioElement {
-	if (!audio) audio = new Audio(chatOfferSound);
-	return audio;
-}
+const chirp = createSound(chatOfferSound);
 
 export function useOfferChirp() {
 	const { acquire } = useSoundLock(SoundLockKind.Chirp, CHIRP_LOCK_MS);
@@ -32,9 +27,7 @@ export function useOfferChirp() {
 	function play() {
 		if (!acquire()) return; // another tab just chirped for this offer
 
-		const element = getAudio();
-		element.currentTime = 0;
-		playSafely(element).catch(() => {
+		chirp.play().catch(() => {
 			// autoplay still blocked, or no output device — the card carries the offer
 		});
 	}

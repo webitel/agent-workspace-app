@@ -16,18 +16,8 @@ vi.mock('vue-i18n', () => ({
 	useI18n: () => ({
 		t: mockT,
 		te: mockTe,
-	}),
-	/**
-	 * @author Oleksandr Palonnyi
-	 * Stores translate outside components through the `app/locale/i18n`
-	 * singleton, so any component test that reaches one (task dock, numpad
-	 * panel, calls store) evaluates `createI18n` at import time
-	 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
-	 */
-	createI18n: () => ({
-		global: {
-			t: mockT,
-			te: mockTe,
+		locale: {
+			value: 'en',
 		},
 	}),
 }));

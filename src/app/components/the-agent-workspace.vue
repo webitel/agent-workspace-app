@@ -1,14 +1,18 @@
 <template>
     <main class="the-agent-workspace">
-        <the-workspace-header />
-        <div class="workspace-content-nav-wrapper">
+        <wt-page>
+            <template #header>
+                <the-workspace-header />
+            </template>
             <the-workspace-nav />
             <section class="workspace-content-wrapper">
-                <router-view class="workspace-content" />
-                <the-workspace-sidebar />
+                <div class="workspace-content-row">
+                    <router-view class="workspace-content" />
+                    <the-workspace-sidebar />
+                </div>
                 <the-task-dock-panel />
             </section>
-        </div>
+        </wt-page>
         <the-notifications-layer />
     </main>
 </template>
@@ -17,6 +21,8 @@
     setup
     lang="ts"
 >
+import { WtPage } from '@webitel/ui-sdk/components';
+
 import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
 import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
 import TheNotificationsLayer from '../../ui/notifications/components/the-notifications-layer.vue';
@@ -31,37 +37,28 @@ subscribeToWebSocketEvents();
 
 <style scoped>
 .the-agent-workspace {
-    display: flex;
-    flex-direction: column;
     height: 100vh;
-    background-color: var(--wt-page-wrapper-background-color);
 }
 
-.workspace-content-nav-wrapper {
+/* groups the layouts; the nav rail stays out of it */
+.workspace-content-wrapper {
+    flex: 1;
     display: flex;
-    height: 100%;
+    flex-direction: column;
+    gap: var(--wt-page-body-gap);
+    min-width: 0;
+}
+
+.workspace-content-row {
+    flex: 1;
+    display: flex;
+    gap: var(--wt-page-body-gap);
+    min-width: 0;
     min-height: 0;
 }
 
-.workspace-content-wrapper {
-    position: relative;
-    /* task dock panel is absolute */
-    flex: 1;
-    display: flex;
-    gap: var(--spacing-sm);
-
-    .the-task-dock-panel {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
-    }
-}
-
+/* routed page root: either a wt-layout or a group of them */
 .workspace-content {
-    flex: 1;
-    display: flex;
-    background-color: var(--content-wrapper-color);
+    flex: 1 1 0;
 }
 </style>

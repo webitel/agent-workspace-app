@@ -25,6 +25,10 @@ vi.mock('../../../../../../features/chats/store/chats', () => ({
 }));
 
 vi.mock('@webitel/ui-sdk/components', () => ({
+	WtDivider: {
+		name: 'WtDivider',
+		template: '<hr />',
+	},
 	WtTabs: {
 		name: 'WtTabs',
 		props: [
@@ -59,14 +63,28 @@ vi.mock(
 );
 
 vi.mock(
-	'../../../../../../features/processing/components/post-processing-chip.vue',
+	'../../../../../../features/chats/components/chat-info/chat-info.vue',
 	() => ({
 		default: {
-			name: 'PostProcessingChip',
+			name: 'ChatInfo',
+			props: [
+				'task',
+				'threadId',
+			],
+			template: '<div class="info-stub" />',
+		},
+	}),
+);
+
+vi.mock(
+	'../../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue',
+	() => ({
+		default: {
+			name: 'ChatTopBar',
 			props: [
 				'task',
 			],
-			template: '<div class="chip-stub" />',
+			template: '<div class="top-bar-stub" />',
 		},
 	}),
 );
@@ -104,16 +122,34 @@ const mountWindow = () =>
 		},
 	});
 
+type StripTab = {
+	value: string;
+	text: string;
+	disabled?: boolean;
+};
+
+const tabsOf = (wrapper: ReturnType<typeof mountWindow>) =>
+	wrapper
+		.findComponent({
+			name: 'WtTabs',
+		})
+		.props('tabs') as StripTab[];
+
 const tabValues = (wrapper: ReturnType<typeof mountWindow>) =>
-	(
-		wrapper
-			.findComponent({
-				name: 'WtTabs',
-			})
-			.props('tabs') as {
-			value: string;
-		}[]
-	).map((tab) => tab.value);
+	tabsOf(wrapper).map((tab) => tab.value);
+
+const selectTab = async (
+	wrapper: ReturnType<typeof mountWindow>,
+	value: string,
+) => {
+	const tab = tabsOf(wrapper).find((candidate) => candidate.value === value);
+	wrapper
+		.findComponent({
+			name: 'WtTabs',
+		})
+		.vm.$emit('change', tab);
+	await nextTick();
+};
 
 const showsForm = (wrapper: ReturnType<typeof mountWindow>) =>
 	wrapper.find('.processing-form-stub').exists();
@@ -124,15 +160,76 @@ describe('the-chat-window', () => {
 		for (const key of Object.keys(tasksByThread)) delete tasksByThread[key];
 	});
 
-	it('always shows the tab strip, with only the chat tab while there is no form', () => {
+	it('always shows the tab strip, without the post-processing tab while there is no form', () => {
 		tasksByThread['thread-1'] = makeTask();
 
 		const wrapper = mountWindow();
 
 		expect(tabValues(wrapper)).toEqual([
 			'chat',
+			'info',
+			'interaction',
+			'contact',
+			'iframe',
 		]);
 		expect(wrapper.find('.thread-stub').exists()).toBe(true);
+	});
+
+	it('labels the tabs from the locale', () => {
+		tasksByThread['thread-1'] = makeTask({
+			withForm: true,
+		});
+
+		const wrapper = mountWindow();
+
+		expect(tabsOf(wrapper).map((tab) => tab.text)).toEqual([
+			'ui.pages.chats.tabs.chat',
+			'ui.pages.chats.tabs.info',
+			'ui.pages.chats.tabs.postProcessing',
+			'ui.pages.chats.tabs.interaction',
+			'ui.pages.chats.tabs.contact',
+			'ui.pages.chats.tabs.iframe',
+		]);
+	});
+
+	it('opens the info panel for the open chat and its task', async () => {
+		const task = makeTask();
+		tasksByThread['thread-1'] = task;
+		const wrapper = mountWindow();
+
+		await selectTab(wrapper, 'info');
+
+		const info = wrapper.findComponent({
+			name: 'ChatInfo',
+		});
+		expect(info.exists()).toBe(true);
+		expect(info.props('threadId')).toBe('thread-1');
+		expect(info.props('task')).toStrictEqual(task);
+		expect(wrapper.find('.thread-stub').exists()).toBe(false);
+	});
+
+	it('marks the tabs whose content is not built yet as disabled, and ignores selecting them', async () => {
+		tasksByThread['thread-1'] = makeTask();
+		const wrapper = mountWindow();
+
+		expect(
+			tabsOf(wrapper)
+				.filter((tab) => tab.disabled)
+				.map((tab) => tab.value),
+		).toEqual([
+			'interaction',
+			'contact',
+			'iframe',
+		]);
+
+		for (const value of [
+			'interaction',
+			'contact',
+			'iframe',
+		]) {
+			await selectTab(wrapper, value);
+			expect(wrapper.find('.thread-stub').exists()).toBe(true);
+		}
 	});
 
 	it('adds the post-processing tab when a form arrives mid-chat, without switching to it', async () => {
@@ -152,7 +249,11 @@ describe('the-chat-window', () => {
 
 		expect(tabValues(wrapper)).toEqual([
 			'chat',
+			'info',
 			'processing',
+			'interaction',
+			'contact',
+			'iframe',
 		]);
 		expect(showsForm(wrapper)).toBe(false);
 	});
@@ -169,8 +270,9 @@ describe('the-chat-window', () => {
 		await nextTick();
 
 		expect(showsForm(wrapper)).toBe(true);
-		// the countdown lives beside the panels, so the form tab still shows it
-		expect(wrapper.find('.chip-stub').exists()).toBe(true);
+		// the bar carries the countdown and sits above the panels, so the form tab
+		// still shows it
+		expect(wrapper.find('.top-bar-stub').exists()).toBe(true);
 	});
 
 	it('opens a chat already in post-processing on its form', async () => {
@@ -200,8 +302,6 @@ describe('the-chat-window', () => {
 		await nextTick();
 
 		expect(showsForm(wrapper)).toBe(false);
-		expect(tabValues(wrapper)).toEqual([
-			'chat',
-		]);
+		expect(tabValues(wrapper)).not.toContain('processing');
 	});
 });

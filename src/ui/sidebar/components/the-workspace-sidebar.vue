@@ -1,13 +1,14 @@
 <template>
-    <section v-if="isOpen" class="workspace-sidebar">
+    <wt-layout v-if="isOpen" :default-width="320" class="workspace-sidebar">
         <div class="workspace-sidebar__header">
             <h1>Workspace Sidebar</h1>
             <wt-icon-btn icon="close" @click="close()" />
         </div>
-    </section>
+    </wt-layout>
 </template>
 
 <script setup lang="ts">
+import { WtLayout } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { useWorkspaceSidebarStore } from '../store/workspace-sidebar';
 
@@ -17,11 +18,6 @@ const { close } = sidebarStore;
 </script>
 
 <style scoped>
-.workspace-sidebar {
-    width: 280px;
-    background-color: var(--content-wrapper-color);
-}
-
 .workspace-sidebar__header {
     display: flex;
     align-items: center;

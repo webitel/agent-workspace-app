@@ -1,13 +1,31 @@
 import { createTestingPinia } from '@pinia/testing';
 import { getActivePinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
+import { nextTick, reactive, ref } from 'vue';
 import type { Task } from 'webitel-sdk';
 
 import { mockEmit as emitMock } from '../../../../../test/setup';
 import type { ProcessingFormData } from '../../types/ProcessingForm.types';
 import { toNaiveUtcTimestamp } from '../../utils/naiveUtcTimestamp';
-import { disposeProcessing, useProcessingStore } from '../processing';
+import {
+	disposeProcessing,
+	useProcessingStore,
+	watchProcessingDisposal,
+} from '../processing';
+
+// the SDK task feed, every channel
+const feed = ref<
+	{
+		id: number;
+		channel: string;
+	}[]
+>([]);
+
+vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
+	useWebSocketClient: () => ({
+		tasks: feed,
+	}),
+}));
 
 let nextId = 1;
 
@@ -20,6 +38,7 @@ function makeTask(form: ProcessingFormData | null, overrides = {}) {
 		form,
 		processingTimeoutAt: null,
 		renewalSec: null,
+		totalProcessingSec: null,
 		_processing: null,
 		formAction: vi.fn(() => Promise.resolve({})),
 		renew: vi.fn(() => Promise.resolve({})),
@@ -274,6 +293,22 @@ describe('processing store', () => {
 		expect(processing.remainingProlongations).toBe(2);
 	});
 
+	it('reports the SDK’s total post-processing length, renewals included', () => {
+		const task = makeTask(inputForm(), {
+			totalProcessingSec: 90,
+		});
+
+		expect(store(task).processingTotalSec).toBe(90);
+
+		task.totalProcessingSec = 120;
+
+		expect(store(task).processingTotalSec).toBe(120);
+	});
+
+	it('has no total before post-processing starts', () => {
+		expect(store(makeTask(inputForm())).processingTotalSec).toBeNull();
+	});
+
 	it('renews by the queue prolongation, or lets the SDK default it', async () => {
 		const withProlongation = makeTask(inputForm(), {
 			_processing: {
@@ -337,5 +372,67 @@ describe('processing store', () => {
 			undefined,
 		);
 		expect(store(task)).not.toBe(processing);
+	});
+
+	describe('disposal', () => {
+		it("disposes an attempt's store once its task leaves the feed, whatever the channel", async () => {
+			const chat = makeTask(inputForm());
+			const call = makeTask(inputForm());
+			const chatProcessing = store(chat);
+			const callProcessing = store(call);
+			const stop = watchProcessingDisposal();
+
+			feed.value = [
+				{
+					id: chat.id,
+					channel: 'chat',
+				},
+				{
+					id: call.id,
+					channel: 'call',
+				},
+			];
+			await nextTick();
+			expect(store(chat)).toBe(chatProcessing);
+			expect(store(call)).toBe(callProcessing);
+
+			feed.value = [];
+			await nextTick();
+
+			expect(store(chat)).not.toBe(chatProcessing);
+			expect(store(call)).not.toBe(callProcessing);
+			stop();
+		});
+
+		it('leaves the stores of tasks still in the feed alone', async () => {
+			const leaving = makeTask(inputForm());
+			const staying = makeTask(inputForm());
+			const leavingProcessing = store(leaving);
+			const stayingProcessing = store(staying);
+			const stop = watchProcessingDisposal();
+
+			feed.value = [
+				{
+					id: leaving.id,
+					channel: 'chat',
+				},
+				{
+					id: staying.id,
+					channel: 'call',
+				},
+			];
+			await nextTick();
+			feed.value = [
+				{
+					id: staying.id,
+					channel: 'call',
+				},
+			];
+			await nextTick();
+
+			expect(store(leaving)).not.toBe(leavingProcessing);
+			expect(store(staying)).toBe(stayingProcessing);
+			stop();
+		});
 	});
 });

@@ -140,6 +140,12 @@ function replyFor(action?: string): object {
  */
 export interface MockedSocket {
 	send(event: string, data: unknown, channel?: MockedSocketChannel): void;
+	/**
+	 * Pushes an event down the chat socket. It does not frame like `send`: the
+	 * chat-web-sdk reads `{ payload: { <event>: ... } }` and camel-cases the keys,
+	 * so `data` is written in snake_case like the backend does.
+	 */
+	sendChatEvent(event: string, data: unknown): void;
 	/** Every request the app sent over a socket, oldest first. */
 	requests: MockedSocketRequest[];
 }
@@ -212,20 +218,36 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 		}
 	});
 
+	const deliver = (channel: MockedSocketChannel, frame: string) => {
+		const target = sockets[channel];
+		if (target) {
+			target.send(frame);
+			return;
+		}
+		queued[channel] ??= [];
+		queued[channel].push(frame);
+	};
+
 	return {
 		requests,
 		send(event, data, channel = 'main') {
-			const frame = JSON.stringify({
-				event,
-				data,
-			});
-			const target = sockets[channel];
-			if (target) {
-				target.send(frame);
-				return;
-			}
-			queued[channel] ??= [];
-			queued[channel].push(frame);
+			deliver(
+				channel,
+				JSON.stringify({
+					event,
+					data,
+				}),
+			);
+		},
+		sendChatEvent(event, data) {
+			deliver(
+				'chat',
+				JSON.stringify({
+					payload: {
+						[event]: data,
+					},
+				}),
+			);
 		},
 	};
 }
@@ -350,9 +372,12 @@ export async function mockChatThread(
 	{
 		id,
 		subject,
+		messages = [],
 	}: {
 		id: string;
 		subject: string;
+		/** history, newest first (the API order), snake_case on the wire */
+		messages?: Record<string, unknown>[];
 	},
 ) {
 	await page.route(`**/api/v1/threads/${id}`, async (route) => {
@@ -370,10 +395,70 @@ export async function mockChatThread(
 			status: 200,
 			contentType: 'application/json',
 			body: JSON.stringify({
-				items: [],
+				items: messages,
 			}),
 		});
 	});
+}
+
+/**
+ * Stubs chat-web-sdk's variables read for one thread, answering in the shape
+ * the backend does (see `unwrapEnvelope` in toInfoRows). Returns a handle so a
+ * test can change what the next read sees — the tab re-reads on every visit —
+ * or make it fail.
+ */
+export async function mockThreadVariables(
+	page: Page,
+	id: string,
+	initial: Record<string, unknown> = {},
+) {
+	let variables = initial;
+	let failWith: number | null = null;
+	const requests: string[] = [];
+
+	await page.route(`**/api/v1/threads/${id}/variables`, async (route) => {
+		requests.push(route.request().url());
+		if (failWith !== null) {
+			await route.fulfill({
+				status: failWith,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					message: 'e2e failure',
+				}),
+			});
+			return;
+		}
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				thread_id: id,
+				variables: Object.fromEntries(
+					Object.entries(variables).map(([key, value]) => [
+						key,
+						// the real API wraps what was stored in a { value } envelope of its
+						// own, inside the entry's `value`
+						{
+							value: {
+								value,
+							},
+						},
+					]),
+				),
+			}),
+		});
+	});
+
+	return {
+		requests,
+		set(next: Record<string, unknown>) {
+			variables = next;
+			failWith = null;
+		},
+		fail(status: number) {
+			failWith = status;
+		},
+	};
 }
 
 /**
@@ -404,9 +489,12 @@ export function chatTaskFrame(
 export function chatDistribute({
 	threadId = 'e2e-thread-1',
 	subject = 'Jane Doe',
+	variables = {},
 }: {
 	threadId?: string;
 	subject?: string;
+	/** the task's own variables, as the queue attached them */
+	variables?: Record<string, string>;
 } = {}) {
 	return {
 		app_id: 'e2e',
@@ -416,6 +504,7 @@ export function chatDistribute({
 		member_name: subject,
 		has_form: false,
 		has_reporting: false,
+		variables,
 		communication: {
 			destination: '@jane',
 			thread: {

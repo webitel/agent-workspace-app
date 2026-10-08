@@ -1,6 +1,6 @@
 import type { Call } from 'webitel-sdk';
 
-import { playSafely } from '../../../ui/notifications/modules/sound/utils/playSafely';
+import { playSafely } from '../../../ui/sound/utils/playSafely';
 
 export function useCallAudio() {
 	const remoteAudioByCallId = new Map<string, HTMLAudioElement>();

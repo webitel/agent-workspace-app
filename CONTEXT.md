@@ -24,6 +24,14 @@ and should not be carried over wholesale.
 - [ADR-0004](docs/adr/0004-processing-form-state.md) — processing form values
   live on the SDK task, and a per-attempt store holds only the UI state around
   them.
+- [ADR-0005](docs/adr/0005-end-chat-closes-the-task.md) — ending a chat closes
+  its task, and why leaving the thread was not used.
+- [ADR-0006](docs/adr/0006-info-tab-variables.md) — the Info tab merges the
+  task's and the thread's variables, shows a key held by both twice, and treats
+  a 403/404 on the thread read as "none".
+- [ADR-0007](docs/adr/0007-chat-session-lifetime.md) — a chat session lives
+  while its chat is listed or has a window, and why the chat preview's history
+  read is not deduplicated against it.
 
 ## Language
 
@@ -59,6 +67,62 @@ the chat route's param.
 offered it to this agent, carries its processing form and ends in
 post-processing. One thread can see several tasks over its life (a transfer is a
 new attempt).
+
+**Task variables** and **thread variables** — the two places a chat keeps
+variables, and not the same set. Task variables are attached by the queue when it
+distributes the chat and live on the `Task`. Thread variables are set by bots and
+flows during the chat and live behind REST on the thread. The Info tab shows both
+(ADR-0006).
+
+**End chat** — the agent's request to the backend to finish the task. It is
+answered by post-processing starting, or by the task being released outright
+when the queue has no post-processing.
+
+**Close window** — dropping a chat from the workspace's open windows. Purely a
+view concern: the thread and task carry on. Never a substitute for **End chat**.
+
+**Outbound attempt** — one manual dial by the agent, from the request until the
+callee answers or the agent closes it. Ringing and No answer are states of an
+attempt. Several can run at once. It is not an **Active call**: when the callee
+answers, the attempt ends and the call carries on in the active-call window.
+
+**Active call** — a call that is connected, whichever side started it. Any number
+can exist at once, one live and the rest on hold. Derived from the SDK's call
+list; no store of its own.
+
+**Offer** — a chat or call that has been distributed to the agent and is waiting
+for them to accept or decline. An offered chat is not in the agent's chat list
+yet and the agent is not a member of its thread. It joins the list once
+accepted.
+
+**Offer card** — the incoming-interaction notification that presents an Offer in
+the top-right corner. Calls and chats share one design.
+
+**Chat preview** — one row of the chat list's Active tab: a chat the agent has
+accepted, summarised before they open it. It shows who the client is, the
+channel and queue, and the **Last message**. Opening it brings the chat into the
+central panel, and the row of the chat currently open there is shown selected.
+
+"Preview" on its own is ambiguous — say **Chat preview** for the list row and
+**Offer card** for the notification. The SDK's `ThreadPreview` is its own name
+for the summary carried on a task and is neither of these.
+
+**Last message** — the newest message in a chat as the Chat preview shows it: its
+text, when it was sent, and whether the agent or the client sent it. Kept for
+every listed chat whether or not its window is open; it is not read from an open
+chat's message history. The task carries a summary of its thread too, but only as
+it was when the chat was distributed, and nothing refreshes it. It identifies the
+thread, so the chats socket's events can be matched to the chat; its text and its
+members are never shown or relied on, and a row shows no message until the first
+read of the Last message answers.
+
+**Unread chat** — a chat with client messages the agent has not read yet. A chat
+counts as read once the agent has opened it and clicked its input field, not
+merely opened it (AC_02.03.03). The chat list can be narrowed to unread chats.
+The backend does not yet say how many unread messages a task's chat has, so no
+chat is unread as far as the app can tell and the narrowing control stays out of
+sight until it does — an unread state worked out on the client would read as
+fact.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.

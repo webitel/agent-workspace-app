@@ -9,6 +9,12 @@ export default {
 				tooltip: 'Recibirás llamadas solo de las colas',
 			},
 		},
+		clientIdentity: {
+			unknownContact: 'Contacto desconocido',
+		},
+		chatPreview: {
+			onlyUnread: 'Solo chats no leídos',
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -29,9 +35,55 @@ export default {
 		},
 		reusable: {
 			run: 'Ejecutar',
+			nothingToShowHere: 'Aquí no hay nada que mostrar',
 		},
 		numpad: {
 			call: 'Llamar',
+		},
+		variables: {
+			empty: 'Sin variables',
+			loadError: 'No se pudieron cargar las variables',
+		},
+		pages: {
+			chats: {
+				tabs: {
+					chat: 'Chat',
+					info: 'Información',
+					postProcessing: 'Posprocesamiento',
+					interaction: 'Interacción',
+					contact: 'Contacto',
+					iframe: 'Iframe',
+				},
+			},
+			history: {
+				tabs: {
+					calls: 'Llamadas',
+				},
+				calls: {
+					table: {
+						mos: 'MOS',
+						phoneNumber: 'Número de teléfono',
+					},
+					recordings: {
+						unavailable: 'Grabación no disponible',
+						playAudio: 'Reproducir audio',
+						playVideo: 'Reproducir vídeo',
+					},
+					actions: {
+						showCallInfo: 'Mostrar información',
+					},
+					callInfo: {
+						title: 'Información',
+						postprocessing: 'Posprocesamiento',
+						agentDescription: 'Comentario del agente',
+					},
+				},
+			},
+			tableActionPanel: {
+				variableColumnSelect: {
+					title: 'Seleccionar columnas de variables',
+				},
+			},
 		},
 		dialer: {
 			outboundCall: {

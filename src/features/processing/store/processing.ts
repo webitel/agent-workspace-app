@@ -1,7 +1,9 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { defineStore, getActivePinia } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { JobState, type Task } from 'webitel-sdk';
+
+import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 
 import type {
 	FormBodyElement,
@@ -54,6 +56,10 @@ function createStoreDefinition(task: Task) {
 		const isPostProcessing = computed(() => task.state === JobState.Processing);
 		const processingTimeoutAt = computed(() => task.processingTimeoutAt);
 		const renewalSec = computed(() => task.renewalSec);
+
+		// Base length plus every renewal, counted by the SDK; null until the first
+		// `processing` event.
+		const processingTotalSec = computed(() => task.totalProcessingSec);
 		const prolongation = computed(
 			() =>
 				(
@@ -141,6 +147,7 @@ function createStoreDefinition(task: Task) {
 			isPostProcessing,
 			processingTimeoutAt,
 			renewalSec,
+			processingTotalSec,
 			remainingProlongations,
 			initialize,
 			change,
@@ -151,8 +158,8 @@ function createStoreDefinition(task: Task) {
 	});
 }
 
-// One store per task attempt. The owning coordinator (the chats store for
-// chats) creates and disposes it; components only read it.
+// One store per task attempt, for any channel: created by whoever renders the
+// attempt, disposed by `watchProcessingDisposal`; components only read it.
 export function useProcessingStore(task: Task) {
 	const id = storeId(task.id);
 	let useStore = storeDefinitions.get(id);
@@ -173,4 +180,22 @@ export function disposeProcessing(attemptId: AttemptId) {
 	const pinia = getActivePinia();
 	if (pinia) delete pinia.state.value[id];
 	storeDefinitions.delete(id);
+}
+
+/**
+ * Each attempt's processing store lives exactly as long as its task, whatever
+ * the channel: disposed once the task leaves the SDK feed (the SDK drops it at
+ * wrap time), never by a component, which may be showing another attempt by
+ * then. Started once, at workspace bootstrap; returns the watcher's stop.
+ */
+export function watchProcessingDisposal() {
+	const { tasks } = useWebSocketClient();
+	return watch(
+		() => (tasks.value ?? []).map((task) => task.id),
+		(ids, previousIds = []) => {
+			for (const id of previousIds) {
+				if (!ids.includes(id)) disposeProcessing(id);
+			}
+		},
+	);
 }

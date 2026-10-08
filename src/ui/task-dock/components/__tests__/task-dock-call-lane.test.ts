@@ -2,11 +2,26 @@ import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import WebitelUI from '@webitel/ui-sdk';
 import { eventBus } from '@webitel/ui-sdk/scripts';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { useNumpadStore } from '../../../numpad/store/numpad';
 import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
+
+/**
+ * @author Oleksandr Palonnyi
+ * the lane mounts the numpad panel, which reaches the calls store and its
+ * `app/locale/i18n` singleton, so the singleton is replaced here rather than
+ * `createI18n` being stubbed for every suite in `test/setup.ts`
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+vi.mock('../../../../app/locale/i18n', () => ({
+	default: {
+		global: {
+			t: (key: string) => key,
+		},
+	},
+}));
 
 function mountCallLane() {
 	return mount(TaskDockCallLane, {

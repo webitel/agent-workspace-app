@@ -1,0 +1,110 @@
+import { SortSymbols } from '@webitel/ui-sdk/scripts';
+import { describe, expect, it } from 'vitest';
+import type { VariableRow } from '../../types/Variables.types';
+import { sortVariableRows } from '../sortVariableRows';
+
+const row = (id: string, key: string, value = ''): VariableRow => ({
+	id,
+	key,
+	value,
+});
+
+describe('sortVariableRows', () => {
+	it('keeps the incoming order, without mutating it, when there is no sort', () => {
+		const rows = [
+			row('task:b', 'b'),
+			row('task:a', 'a'),
+		];
+
+		const sorted = sortVariableRows(rows, null);
+
+		expect(sorted.map((item) => item.key)).toEqual([
+			'b',
+			'a',
+		]);
+		expect(sorted).not.toBe(rows);
+	});
+
+	it('sorts ascending and descending by the chosen column', () => {
+		const rows = [
+			row('task:b', 'b', '1'),
+			row('task:c', 'c', '3'),
+			row('task:a', 'a', '2'),
+		];
+
+		const keys = (sort: Parameters<typeof sortVariableRows>[1]) =>
+			sortVariableRows(rows, sort).map((item) => item.key);
+
+		expect(
+			keys({
+				field: 'key',
+				order: SortSymbols.ASC,
+			}),
+		).toEqual([
+			'a',
+			'b',
+			'c',
+		]);
+		expect(
+			keys({
+				field: 'key',
+				order: SortSymbols.DESC,
+			}),
+		).toEqual([
+			'c',
+			'b',
+			'a',
+		]);
+		expect(
+			keys({
+				field: 'value',
+				order: SortSymbols.ASC,
+			}),
+		).toEqual([
+			'b',
+			'a',
+			'c',
+		]);
+	});
+
+	it('compares numbers inside text by magnitude and ignores case', () => {
+		const rows = [
+			row('task:1', 'ticket-10'),
+			row('task:2', 'Ticket-2'),
+			row('task:3', 'ticket-1'),
+		];
+
+		const sorted = sortVariableRows(rows, {
+			field: 'key',
+			order: SortSymbols.ASC,
+		});
+
+		expect(sorted.map((item) => item.key)).toEqual([
+			'ticket-1',
+			'Ticket-2',
+			'ticket-10',
+		]);
+	});
+
+	it('keeps the task row ahead of the thread row when their keys tie', () => {
+		const rows = [
+			row('task:Language', 'Language', 'EN'),
+			row('thread:Language', 'Language', 'UK'),
+		];
+
+		for (const order of [
+			SortSymbols.ASC,
+			SortSymbols.DESC,
+		]) {
+			const sorted = sortVariableRows(rows, {
+				field: 'key',
+				order,
+			});
+
+			expect(sorted.map((item) => item.id)).toEqual([
+				'task:Language',
+				'thread:Language',
+			]);
+		}
+	});
+});

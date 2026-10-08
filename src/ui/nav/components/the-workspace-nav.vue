@@ -34,6 +34,7 @@ const navItemsWithBadges = computed(() =>
 	gap: var(--spacing-xs);
 	height: 100%;
 	padding: var(--spacing-xs);
+	border-radius: var(--p-border-radius-lg);
 	background: var(--wt-ws-sidebar-menu-colors-background);
 }
 </style>

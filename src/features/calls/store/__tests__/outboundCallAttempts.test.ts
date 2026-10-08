@@ -1,0 +1,414 @@
+import { createTestingPinia } from '@pinia/testing';
+import { setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, reactive } from 'vue';
+import { type Call, CallDirection } from 'webitel-sdk';
+
+import { OutboundCallStatus } from '../../enums/OutboundCallStatus.enum';
+import { useOutboundCallAttemptsStore } from '../outboundCallAttempts';
+
+/**
+ * @author Oleksandr Palonnyi
+ * The calls store is replaced by its public surface: dialling and hanging up
+ * are covered by its own suite, here only the attempts' bookkeeping matters.
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+const callsStore = reactive({
+	callList: [] as Call[],
+	isOutboundCallRequestPending: false,
+	call: vi.fn(async (_request: { destination: string }) => true),
+	hangup: vi.fn(async (_callId: string) => undefined),
+	toggleMute: vi.fn(async (_callId: string) => undefined),
+});
+
+vi.mock('../calls', () => ({
+	useCallsStore: () => callsStore,
+}));
+
+/**
+ * @author Oleksandr Palonnyi
+ * Reactive like the SDK's `callStore` entries, so field changes reach the
+ * derived status the same way they do in the app.
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+const buildCall = (overrides: Partial<Call> = {}): Call =>
+	reactive({
+		id: 'outbound-1',
+		direction: CallDirection.Outbound,
+		answeredAt: 0,
+		hangupAt: 0,
+		...overrides,
+	}) as unknown as Call;
+
+function setup() {
+	const store = useOutboundCallAttemptsStore();
+	store.initialize();
+	return store;
+}
+
+async function ring(call: Call) {
+	callsStore.callList = [
+		...callsStore.callList,
+		call,
+	];
+	await nextTick();
+}
+
+describe('useOutboundCallAttemptsStore', () => {
+	beforeEach(() => {
+		setActivePinia(
+			createTestingPinia({
+				stubActions: false,
+			}),
+		);
+		callsStore.callList = [];
+		callsStore.isOutboundCallRequestPending = false;
+		callsStore.call.mockReset();
+		callsStore.call.mockResolvedValue(true);
+		callsStore.hangup.mockClear();
+		callsStore.toggleMute.mockClear();
+	});
+
+	it('has no attempts by default', () => {
+		const store = setup();
+
+		expect(store.attempts).toEqual([]);
+	});
+
+	it('is dialing until the platform reports the call', async () => {
+		const store = setup();
+
+		await store.start('100');
+
+		expect(callsStore.call).toHaveBeenCalledWith({
+			destination: '100',
+		});
+		expect(store.attempts).toHaveLength(1);
+		expect(store.attempts[0].status).toBe(OutboundCallStatus.Dialing);
+	});
+
+	it('follows the outbound call that appears after dialling', async () => {
+		const store = setup();
+		await store.start('100');
+
+		const call = buildCall();
+		await ring(call);
+
+		expect(store.attempts[0].placedCall).toStrictEqual(call);
+		expect(store.attempts[0].status).toBe(OutboundCallStatus.Ringing);
+	});
+
+	it('ignores calls that existed before dialling and inbound calls', async () => {
+		callsStore.callList = [
+			buildCall({
+				id: 'already-there',
+			}),
+		];
+		const store = setup();
+		await store.start('100');
+
+		await ring(
+			buildCall({
+				id: 'inbound',
+				direction: CallDirection.Inbound,
+			}),
+		);
+
+		expect(store.attempts[0].placedCall).toBeNull();
+	});
+
+	it('follows the call even when it rings before the request resolves', async () => {
+		let resolveRequest: (isPlaced: boolean) => void = () => {};
+		callsStore.call.mockImplementationOnce(
+			() =>
+				new Promise<boolean>((resolve) => {
+					resolveRequest = resolve;
+				}),
+		);
+		const store = setup();
+
+		const dialling = store.start('100');
+		await ring(buildCall());
+		resolveRequest(true);
+		await dialling;
+
+		expect(store.attempts[0].status).toBe(OutboundCallStatus.Ringing);
+	});
+
+	it('drops the attempt when the call could not be placed', async () => {
+		callsStore.call.mockResolvedValue(false);
+		const store = setup();
+
+		await store.start('100');
+
+		expect(store.attempts).toEqual([]);
+	});
+
+	it('ignores dialling while another request is in flight', async () => {
+		callsStore.isOutboundCallRequestPending = true;
+		const store = setup();
+
+		await store.start('100');
+
+		expect(callsStore.call).not.toHaveBeenCalled();
+		expect(store.attempts).toEqual([]);
+	});
+
+	it('closes the attempt without hanging up once the callee picks up', async () => {
+		const store = setup();
+		await store.start('100');
+		const call = buildCall();
+		await ring(call);
+
+		call.answeredAt = 1000;
+		await nextTick();
+
+		expect(store.attempts).toEqual([]);
+		expect(callsStore.hangup).not.toHaveBeenCalled();
+	});
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * The SDK drops the call on `Destroy`; No answer must survive that.
+	 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+	 */
+	it('keeps no answer after the call leaves the call list', async () => {
+		const store = setup();
+		await store.start('100');
+		const call = buildCall();
+		await ring(call);
+
+		call.hangupAt = 2000;
+		callsStore.callList = [];
+		await nextTick();
+
+		expect(store.attempts[0].status).toBe(OutboundCallStatus.NoAnswer);
+		expect(store.attempts[0].destination).toBe('100');
+	});
+
+	it('retries the same number after no answer', async () => {
+		const store = setup();
+		await store.start('100');
+		const call = buildCall();
+		await ring(call);
+		call.hangupAt = 2000;
+		await nextTick();
+
+		await store.retry(store.attempts[0].id);
+
+		expect(callsStore.call).toHaveBeenLastCalledWith({
+			destination: '100',
+		});
+		expect(store.attempts).toHaveLength(1);
+		expect(store.attempts[0].status).toBe(OutboundCallStatus.Dialing);
+	});
+
+	it('does not retry a call that is still ringing', async () => {
+		const store = setup();
+		await store.start('100');
+		await ring(buildCall());
+
+		await store.retry(store.attempts[0].id);
+
+		expect(callsStore.call).toHaveBeenCalledTimes(1);
+	});
+
+	it('hangs up the ringing call and closes the attempt', async () => {
+		const store = setup();
+		await store.start('100');
+		await ring(buildCall());
+
+		await store.hangup(store.attempts[0].id);
+
+		expect(callsStore.hangup).toHaveBeenCalledWith('outbound-1');
+		expect(store.attempts).toEqual([]);
+	});
+
+	it('closes at once when hung up before the call rang', async () => {
+		const store = setup();
+		await store.start('100');
+
+		await store.hangup(store.attempts[0].id);
+
+		expect(store.attempts).toEqual([]);
+	});
+
+	it('hangs up the call that rings after an early hangup instead of following it', async () => {
+		const store = setup();
+		await store.start('100');
+		await store.hangup(store.attempts[0].id);
+
+		await ring(buildCall());
+
+		expect(callsStore.hangup).toHaveBeenCalledWith('outbound-1');
+		expect(store.attempts).toEqual([]);
+	});
+
+	it('previews the typed number until the call rings', async () => {
+		const store = setup();
+
+		await store.start('+1 202 341 7842');
+
+		expect(store.attempts[0].preview).toEqual({
+			name: undefined,
+			number: '+1 202 341 7842',
+		});
+	});
+
+	it('previews what the platform resolved once the call rings', async () => {
+		const store = setup();
+		await store.start('+1 202 341 7842');
+
+		await ring(
+			buildCall({
+				displayName: 'Emily Johnson',
+				displayNumber: '+12023417842',
+			}),
+		);
+
+		expect(store.attempts[0].preview).toEqual({
+			name: 'Emily Johnson',
+			number: '+12023417842',
+		});
+	});
+
+	it('toggles the microphone of the placed call', async () => {
+		const store = setup();
+		await store.start('100');
+		await ring(buildCall());
+
+		await store.toggleMute(store.attempts[0].id);
+
+		expect(callsStore.toggleMute).toHaveBeenCalledWith('outbound-1');
+	});
+
+	it('has nothing to mute before the call rings', async () => {
+		const store = setup();
+		await store.start('100');
+
+		await store.toggleMute(store.attempts[0].id);
+
+		expect(callsStore.toggleMute).not.toHaveBeenCalled();
+		expect(store.attempts[0].isMuted).toBe(false);
+	});
+
+	it('clears a finished attempt', async () => {
+		const store = setup();
+		await store.start('100');
+		const call = buildCall();
+		await ring(call);
+		call.hangupAt = 2000;
+		await nextTick();
+
+		store.clearAttempt(store.attempts[0].id);
+
+		expect(store.attempts).toEqual([]);
+	});
+
+	describe('with several attempts', () => {
+		it('keeps the first attempt when the agent dials again', async () => {
+			const store = setup();
+			await store.start('100');
+			await ring(
+				buildCall({
+					id: 'first-call',
+				}),
+			);
+
+			await store.start('200');
+
+			expect(store.attempts.map(({ destination }) => destination)).toEqual([
+				'100',
+				'200',
+			]);
+			expect(store.attempts[0].placedCall?.id).toBe('first-call');
+			expect(store.attempts[1].status).toBe(OutboundCallStatus.Dialing);
+		});
+
+		it('gives each attempt the call that rang for it, in dialling order', async () => {
+			const store = setup();
+			await store.start('100');
+			await store.start('200');
+
+			await ring(
+				buildCall({
+					id: 'first-call',
+				}),
+			);
+			await ring(
+				buildCall({
+					id: 'second-call',
+				}),
+			);
+
+			expect(store.attempts.map(({ placedCall }) => placedCall?.id)).toEqual([
+				'first-call',
+				'second-call',
+			]);
+		});
+
+		it('does not hand an earlier attempt call to a later attempt', async () => {
+			const store = setup();
+			await store.start('100');
+			const firstCall = buildCall({
+				id: 'first-call',
+			});
+			await ring(firstCall);
+			await store.start('200');
+
+			firstCall.answeredAt = 1000;
+			await nextTick();
+
+			expect(store.attempts).toHaveLength(1);
+			expect(store.attempts[0].destination).toBe('200');
+			expect(store.attempts[0].placedCall).toBeNull();
+		});
+
+		it('hangs up only the attempt it was asked to', async () => {
+			const store = setup();
+			await store.start('100');
+			await ring(
+				buildCall({
+					id: 'first-call',
+				}),
+			);
+			await store.start('200');
+			await ring(
+				buildCall({
+					id: 'second-call',
+				}),
+			);
+
+			await store.hangup(store.attempts[0].id);
+
+			expect(callsStore.hangup).toHaveBeenCalledTimes(1);
+			expect(callsStore.hangup).toHaveBeenCalledWith('first-call');
+			expect(store.attempts.map(({ destination }) => destination)).toEqual([
+				'200',
+			]);
+		});
+
+		it('keeps a later attempt when an earlier one is hung up before it rang', async () => {
+			const store = setup();
+			await store.start('100');
+			await store.start('200');
+			await store.hangup(store.attempts[0].id);
+
+			await ring(
+				buildCall({
+					id: 'first-call',
+				}),
+			);
+			await ring(
+				buildCall({
+					id: 'second-call',
+				}),
+			);
+
+			expect(callsStore.hangup).toHaveBeenCalledTimes(1);
+			expect(callsStore.hangup).toHaveBeenCalledWith('first-call');
+			expect(store.attempts).toHaveLength(1);
+			expect(store.attempts[0].placedCall?.id).toBe('second-call');
+		});
+	});
+});

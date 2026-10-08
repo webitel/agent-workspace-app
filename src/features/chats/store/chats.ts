@@ -5,13 +5,18 @@ import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSo
 import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
-import { disposeProcessing } from '../../processing/store/processing';
 import { useChatsSocket } from '../composables/useChatsSocket';
+import { useChatPreviewsStore } from '../modules/previews/store/chat-previews';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
-import { toIncomingChatPreview } from '../scripts/toIncomingChatPreview';
+import { toChatOfferContent } from '../scripts/toChatOfferContent';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
-import { disposeChatSession, useChatSessionStore } from './chat-session';
+import { useChatAccountStore } from './chat-account';
+import {
+	hasChatSession,
+	retainChatSessions,
+	useChatSessionStore,
+} from './chat-session';
 
 // Singleton coordinator: owns the SDK task feed and window layout. Per-chat
 // history lives in dynamic chat-session stores; this store never holds it.
@@ -23,6 +28,8 @@ export const useChatsStore = defineStore('chats', () => {
 	const { getClient, tasks } = useWebSocketClient();
 	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
 	const offersStore = useOffersStore();
+	const previewsStore = useChatPreviewsStore();
+	const accountStore = useChatAccountStore();
 
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
@@ -36,6 +43,10 @@ export const useChatsStore = defineStore('chats', () => {
 	 */
 	const chatTaskList = computed(() =>
 		allChatTasks.value.filter((task) => !isIncomingChatOffer(task)),
+	);
+
+	const listedThreadIds = computed(() =>
+		chatTaskList.value.flatMap((task) => task.thread?.id ?? []),
 	);
 
 	const incomingOffers = computed(() =>
@@ -66,7 +77,11 @@ export const useChatsStore = defineStore('chats', () => {
 				mode,
 			});
 		setMode(id, mode);
-		useChatSessionStore(id).load();
+		const session = useChatSessionStore(id);
+		// a session kept from an earlier window, or one being switched back to,
+		// has its history current from the socket; only its thread is re-read
+		if (session.initialized) session.refreshThread();
+		else session.load();
 		// main window mirrors the URL; skip the push when already there so a
 		// route-triggered open (deep link, back/forward) doesn't loop back.
 		if (
@@ -90,9 +105,36 @@ export const useChatsStore = defineStore('chats', () => {
 		target.mode = mode;
 	}
 
+	/**
+	 * Ends the chat for the agent by closing its task; the call center then
+	 * moves the task into post-processing, or releases it when the queue has
+	 * none (ADR-0005). This is not `closeChat`, which only drops the window.
+	 */
+	function endChat(task: Task) {
+		return task.close();
+	}
+
+	/**
+	 * Drops the window. The chat's session stays while the chat is listed, so
+	 * reopening it shows the history as it was left (ADR-0007).
+	 */
 	function closeChat(id: string) {
 		openChats.value = openChats.value.filter((chat) => chat.id !== id);
-		disposeChatSession(id);
+		releaseUnusedSessions();
+	}
+
+	/**
+	 * A chat session lives while its chat is listed or has a window
+	 * (ADR-0007): a deep-linked chat that was never listed lives as long as its
+	 * window, and a chat that leaves the list keeps it until its window closes.
+	 */
+	function releaseUnusedSessions() {
+		retainChatSessions(
+			new Set([
+				...listedThreadIds.value,
+				...openChats.value.map((chat) => chat.id),
+			]),
+		);
 	}
 
 	/**
@@ -133,7 +175,7 @@ export const useChatsStore = defineStore('chats', () => {
 							// the task owns the offer's lifecycle; the thread id is only
 							// needed for navigation, and may not be there at all
 							id: String(task.id),
-							preview: () => toIncomingChatPreview(task),
+							content: () => toChatOfferContent(task),
 							onAccept: () => acceptOffer(task),
 							onDecline: () => declineOffer(task),
 							onBodyClick: task.thread?.id
@@ -151,21 +193,9 @@ export const useChatsStore = defineStore('chats', () => {
 		else register();
 	}
 
-	/**
-	 * Each chat attempt's processing store lives exactly as long as its task:
-	 * disposed once the task leaves the feed (the SDK drops it at wrap time),
-	 * never by the window, which may be showing another chat by then.
-	 */
-	function subscribeToProcessingDisposal() {
-		const register = () =>
-			watch(
-				() => allChatTasks.value.map((task) => task.id),
-				(ids, previousIds = []) => {
-					for (const id of previousIds) {
-						if (!ids.includes(id)) disposeProcessing(id);
-					}
-				},
-			);
+	/** A chat that leaves the list loses its session once it has no window either. */
+	function subscribeToSessions() {
+		const register = () => watch(listedThreadIds, releaseUnusedSessions);
 
 		if (storeScope) storeScope.run(register);
 		else register();
@@ -178,11 +208,19 @@ export const useChatsStore = defineStore('chats', () => {
 
 		offersStore.initialize();
 		subscribeToOffers();
-		subscribeToProcessingDisposal();
+		subscribeToSessions();
+
+		// the agent's account does not change within a session, so it is read
+		// once here and every chat store reads it from its own store
+		void accountStore.load();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
-			if (!message.threadId || !isOpen(message.threadId)) return;
+			// every listed chat keeps its last message current, open or not
+			previewsStore.receiveMessage(message);
+			// a session outlives its window while its chat is listed, so it is
+			// kept current whether its window is open or not
+			if (!message.threadId || !hasChatSession(message.threadId)) return;
 			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
 	}
@@ -201,6 +239,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// actions
 		openChat,
 		setMode,
+		endChat,
 		closeChat,
 		initialize,
 	};
