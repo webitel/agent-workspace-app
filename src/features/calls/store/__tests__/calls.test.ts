@@ -454,4 +454,94 @@ describe('useCallsStore', () => {
 			expect(stopRemoteAudio).toHaveBeenCalledWith('call-1');
 		});
 	});
+
+	describe('activeCalls', () => {
+		it('lists answered calls that have not ended', () => {
+			calls.value = [
+				buildCall({
+					id: 'ringing',
+					answeredAt: 0,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'talking',
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'ended',
+					answeredAt: 1,
+					hangupAt: 2,
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(store.activeCalls.map((call) => call.id)).toEqual([
+				'talking',
+			]);
+		});
+	});
+
+	describe('toggleHold', () => {
+		it('toggles hold on the call', async () => {
+			const call = buildCall({
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves a call that cannot be held alone', async () => {
+			const call = buildCall({
+				allowHold: false,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('sendDtmf', () => {
+		it('sends the digit on the call', async () => {
+			const call = buildCall({
+				allowDtmf: true,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(call.sendDTMF).toHaveBeenCalledWith('5');
+		});
+
+		it('sends nothing when the call does not allow DTMF', async () => {
+			const call = buildCall({
+				allowDtmf: false,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(call.sendDTMF).not.toHaveBeenCalled();
+		});
+	});
 });

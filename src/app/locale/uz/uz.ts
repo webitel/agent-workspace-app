@@ -88,6 +88,19 @@ export default {
 				},
 			},
 		},
+		dialer: {
+			activeCall: {
+				inCall: 'Suhbatda',
+				onHold: 'Kutishda',
+			},
+			outboundCall: {
+				ringing: 'Qoʻngʻiroq qilinmoqda',
+				noAnswer: 'Javob yoʻq',
+				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
+				retryCall: 'Qayta qoʻngʻiroq qilish',
+				backToDialpad: 'Raqam terishga qaytish',
+			},
+		},
 	},
 	error: {
 		calls: {
