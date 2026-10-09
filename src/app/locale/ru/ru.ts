@@ -49,6 +49,14 @@ export default {
 				pageTabs: {
 					active: 'Активные',
 				},
+				active: {
+					table: {
+						message: 'Сообщение',
+						source: 'Источник',
+						startedAt: 'Начат',
+						username: 'Имя пользователя',
+					},
+				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Инфо',
