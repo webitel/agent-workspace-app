@@ -9,6 +9,8 @@ import {
 import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
+import { ChatsPageTab } from '../../ui/pages/modules/chats/enums/ChatsPageTab.enum';
+import TheChatsPage from '../../ui/pages/modules/chats/the-chats-page.vue';
 import TheContactsPage from '../../ui/pages/modules/contacts/the-contacts-page.vue';
 import { HistoryPageTab } from '../../ui/pages/modules/history/enums/HistoryPageTab.enum';
 import TheHistoryPage from '../../ui/pages/modules/history/the-history-page.vue';
@@ -37,9 +39,19 @@ const routes: RouteRecordRaw[] = [
 			},
 			{
 				path: '/chats',
-				name: 'chats',
 				component: TheChatsWorkspace,
 				children: [
+					{
+						path: '',
+						component: TheChatsPage,
+						children: [
+							{
+								path: '',
+								name: ChatsPageTab.Active,
+								component: NoopRouteComponent,
+							},
+						],
+					},
 					{
 						path: ':threadId',
 						name: 'chat-window',

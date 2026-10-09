@@ -46,6 +46,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Active',
+				},
 				tabs: {
 					chat: 'Chat',
 					info: 'Informații',
