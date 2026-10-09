@@ -7,6 +7,7 @@
 		<template #main>
 			<component
 				:is="currentTab?.component"
+				:store="currentTab?.store"
 				class="the-chats-page__panel"
 			/>
 		</template>
@@ -21,6 +22,7 @@ import type { PageTab } from '../../types/PageTab.types';
 import ChatsPanelWrapper from './components/chats-panel-wrapper.vue';
 import { ChatsPageTab } from './enums/ChatsPageTab.enum';
 import ChatsActiveTable from './modules/active/active-chats-table.vue';
+import { useActiveChatsTableStore } from './modules/active/store/active-chats-table';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -32,6 +34,7 @@ const tabs = computed<PageTab[]>(() => [
 		value: ChatsPageTab.Active,
 		pathName: ChatsPageTab.Active,
 		component: ChatsActiveTable,
+		store: useActiveChatsTableStore(),
 	},
 ]);
 

@@ -49,6 +49,14 @@ export default {
 				pageTabs: {
 					active: 'Белсенді',
 				},
+				active: {
+					table: {
+						message: 'Хабарлама',
+						source: 'Дереккөз',
+						startedAt: 'Басталды',
+						username: 'Пайдаланушы аты',
+					},
+				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Ақпарат',

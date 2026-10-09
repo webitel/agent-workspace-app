@@ -49,6 +49,14 @@ export default {
 				pageTabs: {
 					active: 'Active',
 				},
+				active: {
+					table: {
+						message: 'Mesaj',
+						source: 'Sursă',
+						startedAt: 'Început la',
+						username: 'Nume de utilizator',
+					},
+				},
 				tabs: {
 					chat: 'Chat',
 					info: 'Informații',

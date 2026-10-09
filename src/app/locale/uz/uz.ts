@@ -49,6 +49,14 @@ export default {
 				pageTabs: {
 					active: 'Faol',
 				},
+				active: {
+					table: {
+						message: 'Xabar',
+						source: 'Manba',
+						startedAt: 'Boshlangan',
+						username: 'Foydalanuvchi nomi',
+					},
+				},
 				tabs: {
 					chat: 'Chat',
 					info: "Ma'lumot",

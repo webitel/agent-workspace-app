@@ -49,6 +49,14 @@ export default {
 				pageTabs: {
 					active: 'Activos',
 				},
+				active: {
+					table: {
+						message: 'Mensaje',
+						source: 'Origen',
+						startedAt: 'Iniciado',
+						username: 'Nombre de usuario',
+					},
+				},
 				tabs: {
 					chat: 'Chat',
 					info: 'Información',

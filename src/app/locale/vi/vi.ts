@@ -49,6 +49,14 @@ export default {
 				pageTabs: {
 					active: 'Đang hoạt động',
 				},
+				active: {
+					table: {
+						message: 'Tin nhắn',
+						source: 'Nguồn',
+						startedAt: 'Bắt đầu lúc',
+						username: 'Tên người dùng',
+					},
+				},
 				tabs: {
 					chat: 'Trò chuyện',
 					info: 'Thông tin',

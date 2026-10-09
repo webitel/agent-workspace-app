@@ -37,6 +37,7 @@ watchEffect(() => {
 .the-chats-workspace {
     display: flex;
     gap: var(--wt-page-body-gap);
+    min-width: 0;
     min-height: 0;
 }
 
