@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'В разговоре',
+				onHold: 'На удержании',
+			},
 			outboundCall: {
 				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',

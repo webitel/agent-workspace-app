@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'În apel',
+				onHold: 'În așteptare',
+			},
 			outboundCall: {
 				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',

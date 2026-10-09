@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'Suhbatda',
+				onHold: 'Kutishda',
+			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',
 				noAnswer: 'Javob yoʻq',

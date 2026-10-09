@@ -2,11 +2,22 @@ import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import WebitelUI from '@webitel/ui-sdk';
 import { eventBus } from '@webitel/ui-sdk/scripts';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ref } from 'vue';
+import type { Call } from 'webitel-sdk';
 
 import { useNumpadStore } from '../../../numpad/store/numpad';
 import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
+
+const calls = ref<Call[]>([]);
+
+vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
+	useWebSocketClient: () => ({
+		calls,
+		getClient: () => ({}),
+	}),
+}));
 
 /**
  * @author Oleksandr Palonnyi
@@ -22,6 +33,21 @@ vi.mock('../../../../app/locale/i18n', () => ({
 		},
 	},
 }));
+
+const buildCall = (overrides: Partial<Call> = {}): Call =>
+	({
+		id: 'call-1',
+		displayName: 'Emily Johnson',
+		displayNumber: '+12023417842',
+		hideContact: false,
+		hideNumber: false,
+		queue: null,
+		answeredAt: Date.now(),
+		hangupAt: 0,
+		isHold: false,
+		muted: false,
+		...overrides,
+	}) as unknown as Call;
 
 function mountCallLane() {
 	return mount(TaskDockCallLane, {
@@ -42,28 +68,39 @@ function mountCallLane() {
 }
 
 describe('task-dock-call-lane', () => {
-	function collapsibleItems(wrapper: ReturnType<typeof mountCallLane>) {
-		return wrapper.findAll('.task-dock-item-wrapper--collapsible');
-	}
+	beforeEach(() => {
+		calls.value = [];
+	});
 
-	it('expands one call at a time when items are clicked', async () => {
+	it('shows a bar for each active call and none for a call still ringing', () => {
+		calls.value = [
+			buildCall({
+				id: 'call-1',
+			}),
+			buildCall({
+				id: 'call-2',
+			}),
+			buildCall({
+				id: 'ringing',
+				answeredAt: 0,
+			}),
+		];
+
+		const wrapper = mountCallLane();
+
+		expect(wrapper.findAll('.active-call-bar')).toHaveLength(2);
+	});
+
+	it('expands the bar that is clicked and collapses it on the next click', async () => {
+		calls.value = [
+			buildCall(),
+		];
 		const wrapper = mountCallLane();
 		const store = useTaskDockStore();
-		const [firstCall, secondCall] = collapsibleItems(wrapper);
 
-		await firstCall.trigger('click');
+		await wrapper.find('.active-call-bar__pill').trigger('click');
 		expect(store.expandedCallId).toBe('call-1');
-		expect(firstCall.classes()).toContain('task-dock-item-wrapper--expanded');
-
-		await secondCall.trigger('click');
-		expect(store.expandedCallId).toBe('call-2');
-		expect(firstCall.classes()).not.toContain(
-			'task-dock-item-wrapper--expanded',
-		);
-		expect(secondCall.classes()).toContain('task-dock-item-wrapper--expanded');
-
-		await secondCall.trigger('click');
-		expect(store.expandedCallId).toBeNull();
+		expect(wrapper.find('.active-call-bar__card').exists()).toBe(true);
 	});
 
 	it('shows the numpad only once the numpad store is opened', async () => {

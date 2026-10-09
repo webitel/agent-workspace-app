@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'Đang gọi',
+				onHold: 'Đang giữ máy',
+			},
 			outboundCall: {
 				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',

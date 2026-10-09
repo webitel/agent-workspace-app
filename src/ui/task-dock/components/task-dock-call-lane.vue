@@ -2,15 +2,18 @@
     <div class="task-dock-call-lane">
         <the-dialer-panel />
 
-        <task-dock-item-wrapper
-            v-for="call in calls"
-            :key="call.id"
-            :label="call.label"
-            :expanded="taskDockStore.expandedCallId === call.id"
-            @click="taskDockStore.toggleCallExpand(call.id)"
-        >
-            Call
-        </task-dock-item-wrapper>
+        <active-call-bar
+            v-for="activeCall in activeCalls"
+            :key="activeCall.id"
+            :preview="activeCall.preview"
+            :expanded="taskDockStore.expandedCallId === activeCall.id"
+            @toggle-expand="taskDockStore.toggleCallExpand(activeCall.id)"
+            @collapse="onCollapse(activeCall.id)"
+            @toggle-mute="callsStore.toggleMute(activeCall.id)"
+            @toggle-hold="callsStore.toggleHold(activeCall.id)"
+            @hangup="callsStore.hangup(activeCall.id)"
+            @send-digit="callsStore.sendDtmf(activeCall.id, $event)"
+        />
     </div>
 </template>
 
@@ -18,22 +21,29 @@
     setup
     lang="ts"
 >
+import { computed } from 'vue';
+
+import { toActiveCallPreview } from '../../../features/calls/scripts/toActiveCallPreview';
+import { useCallsStore } from '../../../features/calls/store/calls';
+import ActiveCallBar from '../../dialer/components/active-call-bar.vue';
 import TheDialerPanel from '../../dialer/components/the-dialer-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
-import TaskDockItemWrapper from './task-dock-item-wrapper.vue';
 
 const taskDockStore = useTaskDockStore();
+const callsStore = useCallsStore();
 
-const calls = [
-	{
-		id: 'call-1',
-		label: 'Call 1',
-	},
-	{
-		id: 'call-2',
-		label: 'Call 2',
-	},
-];
+const activeCalls = computed(() =>
+	callsStore.activeCalls.map((call) => ({
+		id: call.id,
+		preview: toActiveCallPreview(call),
+	})),
+);
+
+function onCollapse(callId: string) {
+	if (taskDockStore.expandedCallId === callId) {
+		taskDockStore.toggleCallExpand(callId);
+	}
+}
 </script>
 
 <style scoped>

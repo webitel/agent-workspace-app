@@ -100,6 +100,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'У розмові',
+				onHold: 'На утриманні',
+			},
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',

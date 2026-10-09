@@ -100,6 +100,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'In call',
+				onHold: 'On hold',
+			},
 			outboundCall: {
 				ringing: 'Ringing',
 				noAnswer: 'No answer',

@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		dialer: {
+			activeCall: {
+				inCall: 'W rozmowie',
+				onHold: 'Wstrzymane',
+			},
 			outboundCall: {
 				ringing: 'Dzwonienie',
 				noAnswer: 'Brak odpowiedzi',
