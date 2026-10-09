@@ -5,21 +5,19 @@ export interface NavBadgeConfig {
 	count: number;
 }
 
-interface NavItemBase {
+export interface NavRailBadge {
+	value: number;
+	severity: NavBadgeVariant;
+}
+
+export interface NavRailItem {
+	id: string;
 	icon: string;
-	wrapperClass?: string;
+	badge?: NavRailBadge | null;
 }
 
-export interface NavLinkItem extends NavItemBase {
-	kind: 'link';
-	to: string;
-	exact?: boolean;
-	badge?: NavBadgeConfig;
+export interface NavRailConfig {
+	topItems: NavRailItem[];
+	bottomItems: NavRailItem[];
+	activeItemId: string;
 }
-
-export interface NavButtonItem extends NavItemBase {
-	kind: 'button';
-	onClick: () => void;
-}
-
-export type NavItemConfig = NavLinkItem | NavButtonItem;
