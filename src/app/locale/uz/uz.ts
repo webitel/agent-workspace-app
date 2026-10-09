@@ -46,6 +46,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Faol',
+				},
 				tabs: {
 					chat: 'Chat',
 					info: "Ma'lumot",

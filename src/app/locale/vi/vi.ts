@@ -46,6 +46,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Đang hoạt động',
+				},
 				tabs: {
 					chat: 'Trò chuyện',
 					info: 'Thông tin',

@@ -46,6 +46,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Белсенді',
+				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Ақпарат',
