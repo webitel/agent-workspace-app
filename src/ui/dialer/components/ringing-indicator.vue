@@ -1,25 +1,23 @@
 <template>
-	<div class="ringing-indicator">
-		<wt-icon
-			icon="wt-ringing-bell"
-			:color="IconColor.SUCCESS"
-		/>
-	</div>
+	<img
+		class="ringing-indicator"
+		:src="ringingAnimation"
+		alt=""
+		aria-hidden="true"
+	/>
 </template>
 
 <script
 	setup
 	lang="ts"
 >
-import { WtIcon } from '@webitel/ui-sdk/components';
-import { IconColor } from '@webitel/ui-sdk/enums';
+import ringingAnimation from '../../../app/assets/wt-ringing-animation.svg';
 </script>
 
 <style scoped>
 .ringing-indicator {
-	display: flex;
-	padding: var(--spacing-sm);
-	border-radius: 50%;
-	background-color: var(--success-light-color);
+	display: block;
+	width: 120px;
+	height: 120px;
 }
 </style>

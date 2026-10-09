@@ -90,7 +90,6 @@ import {
 	WtAvatar,
 	WtButton,
 	WtChip,
-	WtIcon,
 	WtIconBtn,
 } from '@webitel/ui-sdk/components';
 import { ChipColor, IconColor } from '@webitel/ui-sdk/enums';

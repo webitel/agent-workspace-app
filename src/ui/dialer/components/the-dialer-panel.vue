@@ -61,34 +61,6 @@ function getOutboundCardState(
 	}
 }
 
-// TEMP-FIGMA-MOCK start
-const mockedAttempts = [
-	{
-		id: 'mock-ringing',
-		destination: '0671234567',
-		placedCall: {},
-		status: OutboundCallStatus.Ringing,
-		preview: {
-			name: 'John Doe',
-			number: '0671234567',
-		},
-		isMuted: false,
-		cardState: OutboundCallCardState.Ringing,
-	},
-	{
-		id: 'mock-no-answer',
-		destination: '0671234567',
-		placedCall: {},
-		status: OutboundCallStatus.NoAnswer,
-		preview: {
-			number: '0671234567',
-		},
-		isMuted: false,
-		cardState: OutboundCallCardState.NoAnswer,
-	},
-];
-// TEMP-FIGMA-MOCK end
-
 /**
  * @author Oleksandr Palonnyi
  * The numpad and the outbound call cards are variants of one "Dialer" card in
@@ -97,9 +69,8 @@ const mockedAttempts = [
  * answered call leaves its card for the active call window (AC_16.01.06)
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */
-const visibleAttempts = computed(() => [
-	...mockedAttempts,
-	...outboundCallAttemptsStore.attempts.flatMap((attempt) => {
+const visibleAttempts = computed(() =>
+	outboundCallAttemptsStore.attempts.flatMap((attempt) => {
 		const cardState = getOutboundCardState(attempt.status);
 		return cardState
 			? [
@@ -110,7 +81,7 @@ const visibleAttempts = computed(() => [
 				]
 			: [];
 	}),
-]);
+);
 
 /**
  * @author Oleksandr Palonnyi
