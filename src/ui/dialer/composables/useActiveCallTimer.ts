@@ -40,11 +40,13 @@ export function useActiveCallTimer({
 		return Math.max(0, Math.floor((now.value.getTime() - startedAt) / 1000));
 	});
 
-	const formatted = computed(() =>
-		convertDuration(elapsedSec.value, {
-			alwaysShowHours: false,
-		}),
-	);
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the hours segment is always shown (00:05:52, as in the design), which also
+	 * keeps the width fixed as the timer ticks past an hour
+	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+	 */
+	const formatted = computed(() => convertDuration(elapsedSec.value));
 
 	return {
 		elapsedSec,

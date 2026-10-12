@@ -36,14 +36,14 @@ const mountBar = (props: { preview?: ActiveCallPreview; expanded?: boolean }) =>
 					template: '<button class="icon-btn" :data-icon="icon" />',
 				},
 				'wt-input-text': true,
-				'wt-button': true,
-				'task-top-bar': {
+				'wt-button': {
+					template: '<button class="button"><slot /></button>',
+				},
+				'wt-icon': {
 					props: [
-						'name',
-						'subtitle',
+						'icon',
 					],
-					template:
-						'<div class="top-bar">{{ name }} {{ subtitle }}<slot name="status" /></div>',
+					template: '<i class="icon" :data-icon="icon" />',
 				},
 			},
 		},
@@ -86,8 +86,12 @@ describe('active-call-bar', () => {
 			expanded: true,
 		});
 
-		expect(wrapper.find('.top-bar').text()).toContain('Emily Johnson');
-		expect(wrapper.find('.top-bar').text()).toContain('+12023417842');
+		expect(wrapper.find('.active-call-bar__identity').text()).toContain(
+			'Emily Johnson',
+		);
+		expect(wrapper.find('.active-call-bar__identity').text()).toContain(
+			'+12023417842',
+		);
 		expect(wrapper.find('.active-call-bar__queue').text()).toContain('Sales');
 	});
 

@@ -7,26 +7,62 @@
 			v-if="expanded"
 			class="active-call-bar__card"
 		>
-			<task-top-bar
-				:name="preview.name"
-				:subtitle="preview.number"
-			>
-				<template #status>
-					<wt-chip :color="statusChipColor">
-						{{ statusLabel }}
-					</wt-chip>
-					<span class="active-call-bar__timer typo-body-2">
-						{{ timer.formatted.value }}
+			<header class="active-call-bar__identity">
+				<wt-avatar
+					:username="preview.name"
+					size="sm"
+				/>
+
+				<div class="active-call-bar__identity-info">
+					<span class="active-call-bar__identity-name typo-body-2-bold">
+						{{ preview.name || t('ui.notifications.offer.unknownContact') }}
 					</span>
-				</template>
-			</task-top-bar>
+
+					<span
+						v-if="preview.number"
+						class="active-call-bar__identity-number typo-caption"
+					>
+						{{ preview.number }}
+					</span>
+				</div>
+
+				<wt-button
+					size="sm"
+					color="secondary"
+					variant="text"
+					width-by-content
+				>
+					<wt-icon
+						icon="ws-open-full-view"
+						size="sm"
+						:color="IconColor.DEFAULT"
+					/>
+				</wt-button>
+			</header>
 
 			<p
 				v-if="preview.queueName"
 				class="active-call-bar__queue typo-caption"
 			>
-				{{ t('ui.notifications.offer.queue') }}: {{ preview.queueName }}
+				<span class="typo-caption-bold">
+					{{ t('ui.notifications.offer.queue') }}:
+				</span>
+				{{ preview.queueName }}
 			</p>
+
+			<wt-chip
+				class="active-call-bar__status"
+				:color="statusChipColor"
+			>
+				<span>
+					{{ statusLabel }}:
+				</span>
+				<span>
+					{{ timer.formatted.value }}
+				</span>
+			</wt-chip>
+
+			<wt-divider />
 
 			<active-call-numpad
 				v-if="isNumpadOpen"
@@ -34,37 +70,74 @@
 			/>
 
 			<div class="active-call-bar__actions">
-				<wt-icon-btn
-					icon="numpad"
+				<wt-button
 					size="sm"
-					:color="isNumpadOpen ? IconColor.ACTIVE : IconColor.DEFAULT"
+					color="secondary"
+					variant="text"
+					width-by-content
 					@click="isNumpadOpen = !isNumpadOpen"
-				/>
-				<wt-icon-btn
-					:icon="preview.isMuted ? 'mic-muted' : 'mic'"
+				>
+					<wt-icon
+						icon="numpad"
+						size="sm"
+						:color="isNumpadOpen ? IconColor.ACTIVE : IconColor.DEFAULT"
+					/>
+				</wt-button>
+
+				<wt-button
 					size="sm"
+					color="secondary"
+					variant="text"
+					width-by-content
 					@click="emit('toggleMute')"
-				/>
-				<wt-icon-btn
-					icon="hold"
+				>
+					<wt-icon
+						:icon="preview.isMuted ? 'mic-muted' : 'mic'"
+						size="sm"
+						:color="IconColor.DEFAULT"
+					/>
+				</wt-button>
+
+				<wt-button
 					size="sm"
-					:color="preview.isHold ? IconColor.ACTIVE : IconColor.DEFAULT"
+					color="secondary"
+					variant="text"
+					width-by-content
 					@click="emit('toggleHold')"
-				/>
-				<wt-icon-btn
-					icon="expand"
+				>
+					<wt-icon
+						icon="hold"
+						size="sm"
+						:color="preview.isHold ? IconColor.ACTIVE : IconColor.DEFAULT"
+					/>
+				</wt-button>
+
+				<wt-button
 					size="sm"
-				/>
-				<wt-icon-btn
-					icon="call-transfer"
-					size="sm"
-				/>
-				<wt-icon-btn
-					icon="call-end"
+					color="transfer"
+					variant="text"
+					width-by-content
+				>
+					<wt-icon
+						icon="call-transfer"
+						size="sm"
+						:color="IconColor.TRANSFER"
+					/>
+				</wt-button>
+
+				<wt-button
 					size="sm"
 					color="error"
+					variant="text"
+					width-by-content
 					@click="emit('hangup')"
-				/>
+				>
+					<wt-icon
+						icon="call-end"
+						size="sm"
+						:color="IconColor.ERROR"
+					/>
+				</wt-button>
 			</div>
 		</div>
 
@@ -82,19 +155,24 @@
 			<wt-avatar
 				:username="preview.name"
 				size="xs"
+        class="active-call-bar__pill-avatar"
 			/>
-			<span class="active-call-bar__pill-status typo-body-2-bold">
-				{{ statusLabel }}
-			</span>
-			<span class="active-call-bar__timer typo-body-2">
+
+			<span class="active-call-bar__pill-timer typo-body-1">
 				{{ timer.formatted.value }}
 			</span>
-			<wt-icon-btn
-				icon="expand"
+
+			<wt-button
 				size="sm"
-				:color="IconColor.ON_PRIMARY"
-				@click.stop
-			/>
+				:color="pillButtonColor"
+				width-by-content
+			>
+				<wt-icon
+					icon="ws-open-full-view"
+					size="sm"
+					:color="IconColor.ON_DARK"
+				/>
+			</wt-button>
 		</div>
 	</div>
 </template>
@@ -104,12 +182,11 @@
 	lang="ts"
 >
 import { onClickOutside } from '@vueuse/core';
-import { WtAvatar, WtChip, WtIconBtn } from '@webitel/ui-sdk/components';
-import { ChipColor, IconColor } from '@webitel/ui-sdk/enums';
+import { WtAvatar, WtChip, WtDivider } from '@webitel/ui-sdk/components';
+import { ButtonColor, ChipColor, IconColor } from '@webitel/ui-sdk/enums';
 import { computed, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import TaskTopBar from '../../task-top-bar/task-top-bar.vue';
 import { useActiveCallTimer } from '../composables/useActiveCallTimer';
 import type { ActiveCallPreview } from '../types/ActiveCallPreview.types';
 import ActiveCallNumpad from './active-call-numpad.vue';
@@ -159,6 +236,10 @@ const statusLabel = computed(() =>
 const statusChipColor = computed(() =>
 	props.preview.isHold ? ChipColor.WARNING : ChipColor.SUCCESS,
 );
+
+const pillButtonColor = computed(() =>
+	props.preview.isHold ? ButtonColor.WARN : ButtonColor.SUCCESS,
+);
 </script>
 
 <style scoped>
@@ -169,13 +250,39 @@ const statusChipColor = computed(() =>
 .active-call-bar__card {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-xs);
+	gap: var(--spacing-sm);
 	box-sizing: border-box;
 	width: 280px;
 	padding: var(--spacing-sm);
-	border-radius: var(--p-border-radius-lg);
-	background-color: var(--content-wrapper-color);
+	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius) var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;
+	background-color: var(--wt-ws-call-dock-colors-root-background);
 	box-shadow: var(--elevation-10);
+}
+
+.active-call-bar__identity {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wt-ws-client-identity-block-sizes-root-gap-x);
+	padding: var(--wt-ws-client-identity-block-sizes-root-padding-y)
+		var(--wt-ws-client-identity-block-sizes-root-padding-x);
+	border-radius: var(--wt-ws-client-identity-block-sizes-root-border-radius);
+	background: var(--wt-ws-client-identity-block-colors-root-background);
+}
+
+.active-call-bar__identity-info {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: var(--wt-ws-client-identity-block-sizes-root-gap-y);
+	min-width: 0;
+	color: var(--text-main-color);
+}
+
+.active-call-bar__identity-name,
+.active-call-bar__identity-number {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .active-call-bar__queue {
@@ -185,6 +292,10 @@ const statusChipColor = computed(() =>
 	white-space: nowrap;
 }
 
+.active-call-bar__status {
+	align-self: center;
+}
+
 .active-call-bar__actions {
 	display: flex;
 	align-items: center;
@@ -192,18 +303,36 @@ const statusChipColor = computed(() =>
 }
 
 .active-call-bar__pill {
+  height: 40px;
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
-	padding: var(--spacing-2xs) var(--spacing-xs);
+	padding: var(--spacing-2xs);
 	border-radius: var(--p-border-radius-lg);
-	background-color: var(--success-color);
-	color: var(--success-on-color);
+	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-background);
+	color: var(--wt-ws-call-dock-colors-floating-call-widget-active-color);
 	cursor: pointer;
 }
 
+.active-call-bar__pill-avatar {
+  flex: 0 1 auto;
+}
+
+.active-call-bar__pill:hover {
+	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-hover-background);
+}
+
+.active-call-bar__pill-timer {
+	width: 50px;
+  flex: 0 1 auto;
+}
+
 .active-call-bar__pill--hold {
-	background-color: var(--warning-color);
-	color: var(--warning-on-color);
+	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-background);
+	color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-color);
+}
+
+.active-call-bar__pill--hold:hover {
+	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-hover-background);
 }
 </style>

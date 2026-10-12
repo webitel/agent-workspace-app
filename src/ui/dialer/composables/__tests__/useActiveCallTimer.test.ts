@@ -36,7 +36,7 @@ describe('useActiveCallTimer', () => {
 		const { timer, scope } = setup();
 
 		expect(timer.elapsedSec.value).toBe(65);
-		expect(timer.formatted.value).toBe('01:05');
+		expect(timer.formatted.value).toBe('00:01:05');
 		scope.stop();
 	});
 
