@@ -5,33 +5,33 @@ export const NUMPAD_NAV_ITEM_ID = 'numpad';
 export const topNavItems: NavRailItem[] = [
 	{
 		id: '/',
-		icon: 'home-page',
+		icon: 'home--filled',
 	},
 	{
 		id: '/calls',
-		icon: 'calls',
+		icon: 'call-ringing--filled',
 	},
 	{
 		id: '/chats',
-		icon: 'chats',
+		icon: 'chat--filled',
 	},
 	{
 		id: '/tasks',
-		icon: 'tasks',
+		icon: 'job--filled',
 	},
 ];
 
 export const bottomNavItems: NavRailItem[] = [
 	{
 		id: '/contacts',
-		icon: 'ws-contacts',
+		icon: 'contact-book--filled',
 	},
 	{
 		id: '/history',
-		icon: 'ws-history',
+		icon: 'history',
 	},
 	{
 		id: NUMPAD_NAV_ITEM_ID,
-		icon: 'calls',
+		icon: 'call--filled',
 	},
 ];

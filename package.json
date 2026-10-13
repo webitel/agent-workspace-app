@@ -36,7 +36,6 @@
 		"@webitel/styleguide": "~26.8",
 		"@webitel/ui-chats": "~26.8",
 		"@webitel/ui-datalist": "~26.8",
-		"@webitel/ui-sdk": "~26.8",
 		"axios": "^1.17.0",
 		"date-fns": "^4",
 		"dompurify": "^3.4.16",
