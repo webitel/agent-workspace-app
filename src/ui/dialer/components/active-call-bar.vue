@@ -3,146 +3,147 @@
 		ref="root"
 		class="active-call-bar"
 	>
-		<div
-			v-if="expanded"
-			class="active-call-bar__card"
-		>
-			<header class="active-call-bar__identity">
-				<wt-avatar
-					:username="preview.name"
-					size="sm"
+		<transition name="active-call-bar__card">
+			<div
+				v-if="expanded"
+				class="active-call-bar__card"
+			>
+				<header class="active-call-bar__identity">
+					<wt-avatar
+						:username="preview.name"
+						size="sm"
+					/>
+
+					<div class="active-call-bar__identity-info">
+						<span class="active-call-bar__identity-name typo-body-2-bold">
+							{{ preview.name || t('ui.notifications.offer.unknownContact') }}
+						</span>
+
+						<span
+							v-if="preview.number"
+							class="active-call-bar__identity-number typo-caption"
+						>
+							{{ preview.number }}
+						</span>
+					</div>
+
+					<wt-button
+						size="sm"
+						color="secondary"
+						variant="text"
+						width-by-content
+					>
+						<wt-icon
+							icon="ws-open-full-view"
+							size="sm"
+							:color="IconColor.DEFAULT"
+						/>
+					</wt-button>
+				</header>
+
+				<p
+					v-if="preview.queueName"
+					class="active-call-bar__queue typo-caption"
+				>
+					<span class="typo-caption-bold">
+						{{ t('ui.notifications.offer.queue') }}:
+					</span>
+					{{ preview.queueName }}
+				</p>
+
+				<wt-chip
+					class="active-call-bar__status"
+					:color="statusChipColor"
+				>
+					<span>
+						{{ statusLabel }}:
+					</span>
+					<span>
+						{{ timer.formatted.value }}
+					</span>
+				</wt-chip>
+
+				<wt-divider />
+
+				<active-call-numpad
+					v-if="isNumpadOpen"
+					@digit="emit('sendDigit', $event)"
 				/>
 
-				<div class="active-call-bar__identity-info">
-					<span class="active-call-bar__identity-name typo-body-2-bold">
-						{{ preview.name || t('ui.notifications.offer.unknownContact') }}
-					</span>
-
-					<span
-						v-if="preview.number"
-						class="active-call-bar__identity-number typo-caption"
+				<div class="active-call-bar__actions">
+					<wt-button
+						size="sm"
+						color="secondary"
+						variant="text"
+						width-by-content
+						@click="isNumpadOpen = !isNumpadOpen"
 					>
-						{{ preview.number }}
-					</span>
+						<wt-icon
+							icon="numpad"
+							size="sm"
+							:color="isNumpadOpen ? IconColor.ACTIVE : IconColor.DEFAULT"
+						/>
+					</wt-button>
+
+					<wt-button
+						size="sm"
+						color="secondary"
+						variant="text"
+						width-by-content
+						@click="emit('toggleMute')"
+					>
+						<wt-icon
+							:icon="preview.isMuted ? 'mic-muted' : 'mic'"
+							size="sm"
+							:color="preview.isMuted ? IconColor.ACTIVE : IconColor.DEFAULT"
+						/>
+					</wt-button>
+
+					<wt-button
+						size="sm"
+						color="secondary"
+						variant="text"
+						width-by-content
+						@click="emit('toggleHold')"
+					>
+						<wt-icon
+							icon="hold"
+							size="sm"
+							:color="preview.isHold ? IconColor.ACTIVE : IconColor.DEFAULT"
+						/>
+					</wt-button>
+
+					<wt-button
+						size="sm"
+						color="transfer"
+						variant="text"
+						width-by-content
+					>
+						<wt-icon
+							icon="call-transfer--filled"
+							size="sm"
+							:color="IconColor.TRANSFER"
+						/>
+					</wt-button>
+
+					<wt-button
+						size="sm"
+						color="error"
+						variant="text"
+						width-by-content
+						@click="emit('hangup')"
+					>
+						<wt-icon
+							icon="call-end--filled"
+							size="sm"
+							:color="IconColor.ERROR"
+						/>
+					</wt-button>
 				</div>
-
-				<wt-button
-					size="sm"
-					color="secondary"
-					variant="text"
-					width-by-content
-				>
-					<wt-icon
-						icon="ws-open-full-view"
-						size="sm"
-						:color="IconColor.DEFAULT"
-					/>
-				</wt-button>
-			</header>
-
-			<p
-				v-if="preview.queueName"
-				class="active-call-bar__queue typo-caption"
-			>
-				<span class="typo-caption-bold">
-					{{ t('ui.notifications.offer.queue') }}:
-				</span>
-				{{ preview.queueName }}
-			</p>
-
-			<wt-chip
-				class="active-call-bar__status"
-				:color="statusChipColor"
-			>
-				<span>
-					{{ statusLabel }}:
-				</span>
-				<span>
-					{{ timer.formatted.value }}
-				</span>
-			</wt-chip>
-
-			<wt-divider />
-
-			<active-call-numpad
-				v-if="isNumpadOpen"
-				@digit="emit('sendDigit', $event)"
-			/>
-
-			<div class="active-call-bar__actions">
-				<wt-button
-					size="sm"
-					color="secondary"
-					variant="text"
-					width-by-content
-					@click="isNumpadOpen = !isNumpadOpen"
-				>
-					<wt-icon
-						icon="numpad"
-						size="sm"
-						:color="isNumpadOpen ? IconColor.ACTIVE : IconColor.DEFAULT"
-					/>
-				</wt-button>
-
-				<wt-button
-					size="sm"
-					color="secondary"
-					variant="text"
-					width-by-content
-					@click="emit('toggleMute')"
-				>
-					<wt-icon
-						:icon="preview.isMuted ? 'mic-muted' : 'mic'"
-						size="sm"
-						:color="IconColor.DEFAULT"
-					/>
-				</wt-button>
-
-				<wt-button
-					size="sm"
-					color="secondary"
-					variant="text"
-					width-by-content
-					@click="emit('toggleHold')"
-				>
-					<wt-icon
-						icon="hold"
-						size="sm"
-						:color="preview.isHold ? IconColor.ACTIVE : IconColor.DEFAULT"
-					/>
-				</wt-button>
-
-				<wt-button
-					size="sm"
-					color="transfer"
-					variant="text"
-					width-by-content
-				>
-					<wt-icon
-						icon="call-transfer"
-						size="sm"
-						:color="IconColor.TRANSFER"
-					/>
-				</wt-button>
-
-				<wt-button
-					size="sm"
-					color="error"
-					variant="text"
-					width-by-content
-					@click="emit('hangup')"
-				>
-					<wt-icon
-						icon="call-end"
-						size="sm"
-						:color="IconColor.ERROR"
-					/>
-				</wt-button>
 			</div>
-		</div>
+		</transition>
 
 		<div
-			v-else
 			role="button"
 			tabindex="0"
 			class="active-call-bar__pill"
@@ -152,10 +153,10 @@
 			@click="emit('toggleExpand')"
 			@keydown.enter.self="emit('toggleExpand')"
 		>
-			<wt-avatar
+			<padded-avatar
 				:username="preview.name"
 				size="xs"
-        class="active-call-bar__pill-avatar"
+				class="active-call-bar__pill-avatar"
 			/>
 
 			<span class="active-call-bar__pill-timer typo-body-1">
@@ -166,6 +167,7 @@
 				size="sm"
 				:color="pillButtonColor"
 				width-by-content
+				@click.stop
 			>
 				<wt-icon
 					icon="ws-open-full-view"
@@ -182,11 +184,11 @@
 	lang="ts"
 >
 import { onClickOutside } from '@vueuse/core';
-import { WtAvatar, WtChip, WtDivider } from '@webitel/ui-sdk/components';
+import { WtChip, WtDivider } from '@webitel/ui-sdk/components';
 import { ButtonColor, ChipColor, IconColor } from '@webitel/ui-sdk/enums';
 import { computed, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
-
+import PaddedAvatar from '../../components/padded-avatar/padded-avatar.vue';
 import { useActiveCallTimer } from '../composables/useActiveCallTimer';
 import type { ActiveCallPreview } from '../types/ActiveCallPreview.types';
 import ActiveCallNumpad from './active-call-numpad.vue';
@@ -248,15 +250,32 @@ const pillButtonColor = computed(() =>
 }
 
 .active-call-bar__card {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: 1;
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-sm);
 	box-sizing: border-box;
 	width: 280px;
 	padding: var(--spacing-sm);
-	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius) var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;
+	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius);
 	background-color: var(--wt-ws-call-dock-colors-root-background);
 	box-shadow: var(--elevation-10);
+}
+
+.active-call-bar__card-enter-active,
+.active-call-bar__card-leave-active {
+	transition:
+		opacity 0.2s ease,
+		transform 0.2s ease;
+}
+
+.active-call-bar__card-enter-from,
+.active-call-bar__card-leave-to {
+	opacity: 0;
+	transform: translateY(var(--spacing-sm));
 }
 
 .active-call-bar__identity {
@@ -303,7 +322,7 @@ const pillButtonColor = computed(() =>
 }
 
 .active-call-bar__pill {
-  height: 40px;
+	height: 40px;
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
@@ -315,7 +334,7 @@ const pillButtonColor = computed(() =>
 }
 
 .active-call-bar__pill-avatar {
-  flex: 0 1 auto;
+	flex: 0 1 auto;
 }
 
 .active-call-bar__pill:hover {
@@ -324,7 +343,7 @@ const pillButtonColor = computed(() =>
 
 .active-call-bar__pill-timer {
 	width: 50px;
-  flex: 0 1 auto;
+	flex: 0 1 auto;
 }
 
 .active-call-bar__pill--hold {

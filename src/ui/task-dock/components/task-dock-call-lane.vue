@@ -90,6 +90,7 @@ function onCollapse(callId: string) {
 .task-dock-call-lane__container {
     display: flex;
     flex-direction: row;
+    align-items: flex-end;
     gap: var(--spacing-xs);
 }
 </style>

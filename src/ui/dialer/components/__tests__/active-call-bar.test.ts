@@ -53,24 +53,37 @@ const findIconBtn = (wrapper: ReturnType<typeof mountBar>, icon: string) =>
 	wrapper.find(`[data-icon="${icon}"]`);
 
 describe('active-call-bar', () => {
-	it('shows the collapsed pill with the call status', () => {
+	it('shows the collapsed pill with the call timer and no card', () => {
 		const wrapper = mountBar({});
 
-		expect(wrapper.find('.active-call-bar__pill').text()).toContain(
-			'ui.dialer.activeCall.inCall',
+		expect(wrapper.find('.active-call-bar__pill-timer').text()).toMatch(
+			/^\d{2}:\d{2}:\d{2}$/,
 		);
 		expect(wrapper.find('.active-call-bar__card').exists()).toBe(false);
 	});
 
+	it('shows the in-call status in the expanded card', () => {
+		const wrapper = mountBar({
+			expanded: true,
+		});
+
+		expect(wrapper.find('.active-call-bar__status').text()).toContain(
+			'ui.dialer.activeCall.inCall',
+		);
+	});
+
 	it('marks the pill and the status as on hold', () => {
 		const wrapper = mountBar({
+			expanded: true,
 			preview: buildPreview({
 				isHold: true,
 			}),
 		});
 
 		expect(wrapper.find('.active-call-bar__pill--hold').exists()).toBe(true);
-		expect(wrapper.text()).toContain('ui.dialer.activeCall.onHold');
+		expect(wrapper.find('.active-call-bar__status').text()).toContain(
+			'ui.dialer.activeCall.onHold',
+		);
 	});
 
 	it('asks to expand when the pill is clicked', async () => {
@@ -113,7 +126,7 @@ describe('active-call-bar', () => {
 
 		await findIconBtn(wrapper, 'mic').trigger('click');
 		await findIconBtn(wrapper, 'hold').trigger('click');
-		await findIconBtn(wrapper, 'call-end').trigger('click');
+		await findIconBtn(wrapper, 'call-end--filled').trigger('click');
 
 		expect(wrapper.emitted('toggleMute')).toHaveLength(1);
 		expect(wrapper.emitted('toggleHold')).toHaveLength(1);
