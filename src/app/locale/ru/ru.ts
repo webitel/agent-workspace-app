@@ -57,6 +57,13 @@ export default {
 					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
+				active: {
+					table: {
+						startedAt: 'Начало',
+						username: 'Имя пользователя',
+						message: 'Сообщение',
+					},
+				},
 			},
 			history: {
 				tabs: {

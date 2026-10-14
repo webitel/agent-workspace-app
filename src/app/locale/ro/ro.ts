@@ -57,6 +57,13 @@ export default {
 					contact: 'Contact',
 					iframe: 'Iframe',
 				},
+				active: {
+					table: {
+						startedAt: 'Început la',
+						username: 'Nume utilizator',
+						message: 'Mesaj',
+					},
+				},
 			},
 			history: {
 				tabs: {

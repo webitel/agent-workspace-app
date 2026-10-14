@@ -57,6 +57,13 @@ export default {
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
 				},
+				active: {
+					table: {
+						startedAt: 'Bắt đầu lúc',
+						username: 'Tên người dùng',
+						message: 'Tin nhắn',
+					},
+				},
 			},
 			history: {
 				tabs: {

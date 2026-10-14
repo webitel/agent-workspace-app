@@ -68,6 +68,13 @@ export default {
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 				},
+				active: {
+					table: {
+						startedAt: 'Початок',
+						username: "Ім'я користувача",
+						message: 'Повідомлення',
+					},
+				},
 			},
 			history: {
 				tabs: {

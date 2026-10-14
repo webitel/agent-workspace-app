@@ -57,6 +57,13 @@ export default {
 					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
+				active: {
+					table: {
+						startedAt: 'Rozpoczęto',
+						username: 'Nazwa użytkownika',
+						message: 'Wiadomość',
+					},
+				},
 			},
 			history: {
 				tabs: {

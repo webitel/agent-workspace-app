@@ -68,6 +68,13 @@ export default {
 					transfer: 'Transfer chat',
 					end: 'End chat',
 				},
+				active: {
+					table: {
+						startedAt: 'Started at',
+						username: 'Username',
+						message: 'Message',
+					},
+				},
 			},
 			history: {
 				tabs: {

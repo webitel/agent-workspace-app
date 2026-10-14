@@ -57,6 +57,13 @@ export default {
 					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
+				active: {
+					table: {
+						startedAt: 'Boshlangan',
+						username: 'Foydalanuvchi nomi',
+						message: 'Xabar',
+					},
+				},
 			},
 			history: {
 				tabs: {
