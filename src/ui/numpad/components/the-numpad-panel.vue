@@ -104,12 +104,12 @@ function onBackToDialpad(attemptId: string, unansweredNumber: string) {
 	z-index: 101;
 	display: flex;
 	align-items: flex-end;
-	gap: var(--spacing-xs);
+	gap: var(--wt-ws-dialer-sizes-root-gap);
 }
 
 .the-numpad-panel__card {
-	border-radius: var(--p-border-radius-lg);
-	background-color: var(--content-wrapper-color);
+	border-radius: var(--wt-ws-dialer-sizes-root-border-radius);
+	background-color: var(--wt-ws-dialer-colors-root-background);
 	box-shadow: var(--elevation-10);
 }
 </style>

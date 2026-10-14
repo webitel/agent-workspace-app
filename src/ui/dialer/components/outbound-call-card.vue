@@ -3,18 +3,18 @@
 		<div class="outbound-call-card__identity">
 			<wt-avatar
 				:username="preview.name"
-				size="lg"
+				:size="ComponentSize.LG"
 			/>
 			<span
 				v-if="preview.name"
-				class="outbound-call-card__name typo-body-1-bold"
+				class="outbound-call-card__name typo-body-2-bold"
 			>
 				{{ preview.name }}
 			</span>
 		</div>
 
 		<div class="outbound-call-card__destination">
-			<span class="outbound-call-card__number typo-heading-3">
+			<span class="outbound-call-card__number typo-heading-4">
 				{{ preview.number }}
 			</span>
 			<wt-chip :color="statusChipColor">
@@ -50,29 +50,29 @@
 			<wt-icon-btn
 				:icon="isMuted ? 'mic-muted' : 'mic'"
 				:disabled="!canToggleMute"
-				size="sm"
+				:size="ComponentSize.SM"
 				@click="emit('toggleMute')"
 			/>
 			<wt-icon-btn
 				icon="call-end"
-				color="error"
-				size="sm"
+				:color="ButtonColor.ERROR"
+				:size="ComponentSize.SM"
 				@click="emit('hangup')"
 			/>
 		</div>
 		<template v-else>
 			<wt-button
-				color="success"
-				size="sm"
+				:color="ButtonColor.SUCCESS"
+				:size="ComponentSize.SM"
 				wide
 				@click="emit('retry')"
 			>
 				{{ t('ui.call.outboundCall.retryCall') }}
 			</wt-button>
 			<wt-button
-				color="secondary"
-				variant="outlined"
-				size="sm"
+				:color="ButtonColor.SECONDARY"
+				:variant="ButtonVariant.OUTLINED"
+				:size="ComponentSize.SM"
 				wide
 				@click="emit('backToDialpad')"
 			>
@@ -92,7 +92,13 @@ import {
 	WtChip,
 	WtIconBtn,
 } from '@webitel/ui-sdk/components';
-import { ChipColor, IconColor } from '@webitel/ui-sdk/enums';
+import {
+	ButtonColor,
+	ButtonVariant,
+	ChipColor,
+	ComponentSize,
+	IconColor,
+} from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -150,11 +156,14 @@ const statusChipColor = computed(() =>
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--spacing-xs);
+	gap: var(--wt-ws-dialer-sizes-root-gap);
 	box-sizing: border-box;
 	width: 280px;
 	min-height: 436px;
-	padding: var(--spacing-sm);
+	padding: var(--wt-ws-dialer-sizes-root-padding-y)
+		var(--wt-ws-dialer-sizes-root-padding-x);
+	border-radius: var(--wt-ws-dialer-sizes-root-border-radius);
+	background-color: var(--wt-ws-dialer-colors-root-background);
 }
 
 .outbound-call-card__identity,
@@ -162,7 +171,7 @@ const statusChipColor = computed(() =>
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--spacing-2xs);
+	gap: var(--wt-ws-client-identity-block-sizes-root-gap-y);
 	width: 100%;
 	text-align: center;
 }
@@ -176,12 +185,13 @@ const statusChipColor = computed(() =>
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: var(--spacing-sm);
+	gap: var(--wt-ws-dialer-sizes-connection-feedback-block-gap);
 	box-sizing: border-box;
 	width: 100%;
-	padding: var(--spacing-lg);
-	border: 1px solid var(--divider-border-color);
-	border-radius: var(--spacing-xs);
+	padding: var(--wt-ws-dialer-sizes-connection-feedback-block-padding-y)
+		var(--wt-ws-dialer-sizes-connection-feedback-block-padding-x);
+	border: 1px solid var(--wt-ws-dialer-colors-connection-feedback-block-border);
+	border-radius: var(--wt-ws-dialer-sizes-connection-feedback-block-border-radius);
 }
 
 .outbound-call-card__feedback--fill {
@@ -190,9 +200,10 @@ const statusChipColor = computed(() =>
 
 .outbound-call-card__no-answer-icon {
 	display: flex;
-	padding: var(--spacing-sm);
-	border-radius: 50%;
-	background-color: var(--warning-light-color);
+	padding: var(--wt-ws-dialer-sizes-connection-feedback-block-call-status-indicator-padding-y)
+		var(--wt-ws-dialer-sizes-connection-feedback-block-call-status-indicator-padding-x);
+	border-radius: var(--wt-ws-dialer-sizes-connection-feedback-block-call-status-indicator-border-radius);
+	background-color: var(--wt-ws-dialer-colors-connection-feedback-block-call-status-indicator-warning-background);
 }
 
 .outbound-call-card__no-answer-text {
