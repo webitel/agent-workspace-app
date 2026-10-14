@@ -38,7 +38,7 @@
 					/>
 				</div>
 				<p class="outbound-call-card__no-answer-text typo-caption">
-					{{ t('ui.dialer.outboundCall.noAnswerDescription') }}
+					{{ t('ui.call.outboundCall.noAnswerDescription') }}
 				</p>
 			</template>
 		</div>
@@ -67,7 +67,7 @@
 				wide
 				@click="emit('retry')"
 			>
-				{{ t('ui.dialer.outboundCall.retryCall') }}
+				{{ t('ui.call.outboundCall.retryCall') }}
 			</wt-button>
 			<wt-button
 				color="secondary"
@@ -76,7 +76,7 @@
 				wide
 				@click="emit('backToDialpad')"
 			>
-				{{ t('ui.dialer.outboundCall.backToDialpad') }}
+				{{ t('ui.call.outboundCall.backToDialpad') }}
 			</wt-button>
 		</template>
 	</div>
@@ -96,13 +96,13 @@ import { ChipColor, IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { OutboundCallCardState } from '../enums/OutboundCallCardState.enum';
+import { OutboundCallStatus } from '../../../features/calls/enums/OutboundCallStatus.enum';
 import type { OutboundCallPreview } from '../types/OutboundCallPreview.types';
 import RingingIndicator from './ringing-indicator.vue';
 
 const props = defineProps<{
 	preview: OutboundCallPreview;
-	state: OutboundCallCardState;
+	status: OutboundCallStatus;
 	isMuted: boolean;
 	canToggleMute: boolean;
 }>();
@@ -116,12 +116,21 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const isRinging = computed(() => props.state === OutboundCallCardState.Ringing);
+/**
+ * @author Oleksandr Palonnyi
+ * Dialing reads as Ringing to the agent: the card has no separate dialing look
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
+const isRinging = computed(
+	() =>
+		props.status === OutboundCallStatus.Dialing ||
+		props.status === OutboundCallStatus.Ringing,
+);
 
 const statusLabel = computed(() =>
 	isRinging.value
-		? t('ui.dialer.outboundCall.ringing')
-		: t('ui.dialer.outboundCall.noAnswer'),
+		? t('ui.call.outboundCall.ringing')
+		: t('ui.call.outboundCall.noAnswer'),
 );
 
 /**

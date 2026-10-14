@@ -88,7 +88,7 @@ export default {
 				},
 			},
 		},
-		dialer: {
+		call: {
 			outboundCall: {
 				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',

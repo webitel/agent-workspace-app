@@ -99,7 +99,7 @@ export default {
 				},
 			},
 		},
-		dialer: {
+		call: {
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',

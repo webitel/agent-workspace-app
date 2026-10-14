@@ -302,7 +302,7 @@ export function callRingingFrame({
 
 /**
  * @author Oleksandr Palonnyi
- * An outbound `ringing` frame for a manual call: no queue, and the callee in
+ * An outbound `ringing` frame for a manual call: no queue, and the called party in
  * `to`, which is where the SDK reads an outbound call's display name and number
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */

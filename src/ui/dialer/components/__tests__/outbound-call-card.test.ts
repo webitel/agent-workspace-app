@@ -3,7 +3,7 @@ import WebitelUI from '@webitel/ui-sdk';
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { describe, expect, it } from 'vitest';
 
-import { OutboundCallCardState } from '../../enums/OutboundCallCardState.enum';
+import { OutboundCallStatus } from '../../../../features/calls/enums/OutboundCallStatus.enum';
 import OutboundCallCard from '../outbound-call-card.vue';
 
 type CardProps = InstanceType<typeof OutboundCallCard>['$props'];
@@ -15,7 +15,7 @@ function mountCard(props: Partial<CardProps> = {}) {
 				name: 'Emily Johnson',
 				number: '+12023417842',
 			},
-			state: OutboundCallCardState.Ringing,
+			status: OutboundCallStatus.Ringing,
 			isMuted: false,
 			canToggleMute: true,
 			...props,
@@ -58,7 +58,7 @@ describe('outbound-call-card', () => {
 	it('shows the ringing state with call controls', () => {
 		const wrapper = mountCard();
 
-		expect(wrapper.text()).toContain('ui.dialer.outboundCall.ringing');
+		expect(wrapper.text()).toContain('ui.call.outboundCall.ringing');
 		expect(
 			wrapper
 				.findComponent({
@@ -87,21 +87,20 @@ describe('outbound-call-card', () => {
 
 	it('shows the no answer state with retry and back to dialpad', async () => {
 		const wrapper = mountCard({
-			state: OutboundCallCardState.NoAnswer,
+			status: OutboundCallStatus.NoAnswer,
 		});
 
-		expect(wrapper.text()).toContain('ui.dialer.outboundCall.noAnswer');
+		expect(wrapper.text()).toContain('ui.call.outboundCall.noAnswer');
 		expect(wrapper.text()).toContain(
-			'ui.dialer.outboundCall.noAnswerDescription',
+			'ui.call.outboundCall.noAnswerDescription',
 		);
 
+		await findButtonByText(wrapper, 'ui.call.outboundCall.retryCall')?.trigger(
+			'click',
+		);
 		await findButtonByText(
 			wrapper,
-			'ui.dialer.outboundCall.retryCall',
-		)?.trigger('click');
-		await findButtonByText(
-			wrapper,
-			'ui.dialer.outboundCall.backToDialpad',
+			'ui.call.outboundCall.backToDialpad',
 		)?.trigger('click');
 
 		expect(wrapper.emitted('retry')).toHaveLength(1);

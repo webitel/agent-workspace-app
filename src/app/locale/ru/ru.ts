@@ -88,7 +88,7 @@ export default {
 				},
 			},
 		},
-		dialer: {
+		call: {
 			outboundCall: {
 				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',
