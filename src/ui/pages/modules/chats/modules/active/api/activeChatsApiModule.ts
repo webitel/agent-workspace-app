@@ -82,6 +82,9 @@ const toApiSort = (sort?: string) =>
 const getList = async (params: Record<string, unknown> = {}) => {
 	const { page, size, sort, search, userId } = params;
 
+	const listResponseHandler = (items: WebitelImApiGatewayV1Thread[]) =>
+		items.map(toActiveChatRow(String(userId), Date.now()));
+
 	try {
 		const response =
 			await getWebitelImApiGatewayV1Threadmanagement().threadManagementSearch({
@@ -98,7 +101,9 @@ const getList = async (params: Record<string, unknown> = {}) => {
 		]);
 
 		return {
-			items: items.map(toActiveChatRow(String(userId), Date.now())),
+			items: applyTransform(items, [
+				listResponseHandler,
+			]),
 			next,
 		};
 	} catch (err) {

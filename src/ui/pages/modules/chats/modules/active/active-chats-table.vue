@@ -31,7 +31,7 @@
 			<template #actions>
 				<wt-icon-btn
 					icon="ws-chat"
-					size="sm"
+					:size="ComponentSize.SM"
 					color="chat"
 				/>
 			</template>
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { WtTable } from '@webitel/ui-sdk/components';
-import { FormatDateMode } from '@webitel/ui-sdk/enums';
+import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
