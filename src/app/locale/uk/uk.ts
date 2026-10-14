@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
+			startedAt: 'Початок',
+			username: "Ім'я користувача",
+			message: 'Повідомлення',
 		},
 		numpad: {
 			call: 'Зателефонувати',
@@ -67,11 +70,6 @@ export default {
 				topBar: {
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
-				},
-				active: {
-					startedAt: 'Початок',
-					username: "Ім'я користувача",
-					message: 'Повідомлення',
 				},
 			},
 			history: {

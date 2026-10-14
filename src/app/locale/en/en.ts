@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
+			startedAt: 'Started at',
+			username: 'Username',
+			message: 'Message',
 		},
 		numpad: {
 			call: 'Call',
@@ -67,11 +70,6 @@ export default {
 				topBar: {
 					transfer: 'Transfer chat',
 					end: 'End chat',
-				},
-				active: {
-					startedAt: 'Started at',
-					username: 'Username',
-					message: 'Message',
 				},
 			},
 			history: {

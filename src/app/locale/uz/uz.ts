@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
+			startedAt: 'Boshlangan',
+			username: 'Foydalanuvchi nomi',
+			message: 'Xabar',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -56,11 +59,6 @@ export default {
 					interaction: "O'zaro aloqa",
 					contact: 'Kontakt',
 					iframe: 'Iframe',
-				},
-				active: {
-					startedAt: 'Boshlangan',
-					username: 'Foydalanuvchi nomi',
-					message: 'Xabar',
 				},
 			},
 			history: {

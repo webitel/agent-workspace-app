@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Запустить',
 			nothingToShowHere: 'Здесь ничего нет',
+			startedAt: 'Начало',
+			username: 'Имя пользователя',
+			message: 'Сообщение',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -56,11 +59,6 @@ export default {
 					interaction: 'Взаимодействие',
 					contact: 'Контакт',
 					iframe: 'Iframe',
-				},
-				active: {
-					startedAt: 'Начало',
-					username: 'Имя пользователя',
-					message: 'Сообщение',
 				},
 			},
 			history: {

@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 			nothingToShowHere: 'Мұнда ештеңе жоқ',
+			startedAt: 'Басталды',
+			username: 'Пайдаланушы аты',
+			message: 'Хабарлама',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -56,11 +59,6 @@ export default {
 					interaction: 'Өзара әрекет',
 					contact: 'Контакт',
 					iframe: 'Iframe',
-				},
-				active: {
-					startedAt: 'Басталды',
-					username: 'Пайдаланушы аты',
-					message: 'Хабарлама',
 				},
 			},
 			history: {

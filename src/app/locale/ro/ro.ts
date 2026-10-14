@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Rulează',
 			nothingToShowHere: 'Nu există nimic de afișat aici',
+			startedAt: 'Început la',
+			username: 'Nume utilizator',
+			message: 'Mesaj',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -56,11 +59,6 @@ export default {
 					interaction: 'Interacțiune',
 					contact: 'Contact',
 					iframe: 'Iframe',
-				},
-				active: {
-					startedAt: 'Început la',
-					username: 'Nume utilizator',
-					message: 'Mesaj',
 				},
 			},
 			history: {

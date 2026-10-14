@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
+			startedAt: 'Bắt đầu lúc',
+			username: 'Tên người dùng',
+			message: 'Tin nhắn',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -56,11 +59,6 @@ export default {
 					interaction: 'Tương tác',
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
-				},
-				active: {
-					startedAt: 'Bắt đầu lúc',
-					username: 'Tên người dùng',
-					message: 'Tin nhắn',
 				},
 			},
 			history: {

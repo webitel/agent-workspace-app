@@ -25,20 +25,20 @@ export const headers: DatalistTableHeader[] = [
 	},
 	{
 		value: 'startedAt',
-		locale: 'ui.pages.chats.active.startedAt',
+		locale: 'ui.reusable.startedAt',
 		show: true,
 		field: 'created_at',
 		sort: SortSymbols.ASC,
 	},
 	{
 		value: 'username',
-		locale: 'ui.pages.chats.active.username',
+		locale: 'ui.reusable.username',
 		show: true,
 		field: 'username',
 	},
 	{
 		value: 'message',
-		locale: 'ui.pages.chats.active.message',
+		locale: 'ui.reusable.message',
 		show: true,
 		field: 'message',
 	},

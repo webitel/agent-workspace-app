@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Uruchom',
 			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
+			startedAt: 'Rozpoczęto',
+			username: 'Nazwa użytkownika',
+			message: 'Wiadomość',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -56,11 +59,6 @@ export default {
 					interaction: 'Interakcja',
 					contact: 'Kontakt',
 					iframe: 'Iframe',
-				},
-				active: {
-					startedAt: 'Rozpoczęto',
-					username: 'Nazwa użytkownika',
-					message: 'Wiadomość',
 				},
 			},
 			history: {
