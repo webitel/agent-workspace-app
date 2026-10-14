@@ -12,7 +12,7 @@
                 @collapse="onCollapse(activeCall.id)"
                 @toggle-mute="callsStore.toggleMute(activeCall.id)"
                 @toggle-hold="callsStore.toggleHold(activeCall.id)"
-                @hangup="callsStore.hangup(activeCall.id)"
+                @hangup="onHangup(activeCall.id)"
                 @send-digit="callsStore.sendDtmf(activeCall.id, $event)"
             />
         </div>
@@ -34,49 +34,22 @@ import { useTaskDockStore } from '../store/task-dock';
 const taskDockStore = useTaskDockStore();
 const callsStore = useCallsStore();
 
-/**
- * @author Oleksandr Palonnyi
- * TEMPORARY hardcoded calls for visual comparison with the design; remove
- * before merge. their actions do nothing because no SDK call backs them
- * [WS-23](https://webitel.atlassian.net/browse/WS-23)
- */
-const MOCK_ACTIVE_CALLS = [
-	{
-		id: 'mock-active-call',
-		preview: {
-			name: 'John Smith',
-			number: '+380671234678',
-			queueName: 'Support',
-			answeredAt: Date.now() - 65_000,
-			isHold: false,
-			isMuted: false,
-		},
-	},
-	{
-		id: 'mock-hold-call',
-		preview: {
-			name: 'Emily Johnson',
-			number: '+12023417842',
-			queueName: 'Sales',
-			answeredAt: Date.now() - 300_000,
-			isHold: true,
-			isMuted: true,
-		},
-	},
-];
-
-const activeCalls = computed(() => [
-	...callsStore.activeCalls.map((call) => ({
+const activeCalls = computed(() =>
+	callsStore.activeCalls.map((call) => ({
 		id: call.id,
 		preview: toActiveCallPreview(call),
 	})),
-	...MOCK_ACTIVE_CALLS,
-]);
+);
 
 function onCollapse(callId: string) {
 	if (taskDockStore.expandedCallId === callId) {
 		taskDockStore.toggleCallExpand(callId);
 	}
+}
+
+function onHangup(callId: string) {
+	onCollapse(callId);
+	callsStore.hangup(callId);
 }
 </script>
 

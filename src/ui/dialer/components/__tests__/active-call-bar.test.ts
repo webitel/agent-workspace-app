@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { describe, expect, it } from 'vitest';
 
 import type { ActiveCallPreview } from '../../types/ActiveCallPreview.types';
@@ -42,8 +43,9 @@ const mountBar = (props: { preview?: ActiveCallPreview; expanded?: boolean }) =>
 				'wt-icon': {
 					props: [
 						'icon',
+						'color',
 					],
-					template: '<i class="icon" :data-icon="icon" />',
+					template: '<i class="icon" :data-icon="icon" :data-color="color" />',
 				},
 			},
 		},
@@ -162,6 +164,22 @@ describe('active-call-bar', () => {
 				})
 				.exists(),
 		).toBe(false);
+	});
+
+	it('toggles the transfer icon active on each click', async () => {
+		const wrapper = mountBar({
+			expanded: true,
+		});
+		const transferIcon = () =>
+			wrapper.find('[data-icon="call-transfer--filled"]');
+
+		const inactiveColor = transferIcon().attributes('data-color');
+
+		await transferIcon().trigger('click');
+		expect(transferIcon().attributes('data-color')).toBe(IconColor.ACTIVE);
+
+		await transferIcon().trigger('click');
+		expect(transferIcon().attributes('data-color')).toBe(inactiveColor);
 	});
 
 	it('collapses on a click outside the opened card', async () => {

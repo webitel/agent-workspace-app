@@ -2,12 +2,12 @@
 	<div
 		ref="root"
 		class="active-call-bar"
+		:class="{
+			'active-call-bar--expanded': expanded,
+		}"
 	>
-		<transition name="active-call-bar__card">
-			<div
-				v-if="expanded"
-				class="active-call-bar__card"
-			>
+		<slide-up-overlay :is-open="expanded">
+			<div class="active-call-bar__card">
 				<header class="active-call-bar__identity">
 					<wt-avatar
 						:username="preview.name"
@@ -74,7 +74,7 @@
 					<wt-button
 						size="sm"
 						color="secondary"
-						variant="text"
+						:variant="getActionVariant(isNumpadOpen)"
 						width-by-content
 						@click="isNumpadOpen = !isNumpadOpen"
 					>
@@ -88,7 +88,7 @@
 					<wt-button
 						size="sm"
 						color="secondary"
-						variant="text"
+						:variant="getActionVariant(preview.isMuted)"
 						width-by-content
 						@click="emit('toggleMute')"
 					>
@@ -102,7 +102,7 @@
 					<wt-button
 						size="sm"
 						color="secondary"
-						variant="text"
+						:variant="getActionVariant(preview.isHold)"
 						width-by-content
 						@click="emit('toggleHold')"
 					>
@@ -116,13 +116,14 @@
 					<wt-button
 						size="sm"
 						color="transfer"
-						variant="text"
+						:variant="getActionVariant(isTransferActive)"
 						width-by-content
+						@click="isTransferActive = !isTransferActive"
 					>
 						<wt-icon
 							icon="call-transfer--filled"
 							size="sm"
-							:color="IconColor.TRANSFER"
+							:color="isTransferActive ? IconColor.ACTIVE : IconColor.TRANSFER"
 						/>
 					</wt-button>
 
@@ -141,7 +142,7 @@
 					</wt-button>
 				</div>
 			</div>
-		</transition>
+		</slide-up-overlay>
 
 		<div
 			role="button"
@@ -185,10 +186,16 @@
 >
 import { onClickOutside } from '@vueuse/core';
 import { WtChip, WtDivider } from '@webitel/ui-sdk/components';
-import { ButtonColor, ChipColor, IconColor } from '@webitel/ui-sdk/enums';
+import {
+	ButtonColor,
+	ButtonVariant,
+	ChipColor,
+	IconColor,
+} from '@webitel/ui-sdk/enums';
 import { computed, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import PaddedAvatar from '../../components/padded-avatar/padded-avatar.vue';
+import SlideUpOverlay from '../../components/slide-up-overlay/slide-up-overlay.vue';
 import { useActiveCallTimer } from '../composables/useActiveCallTimer';
 import type { ActiveCallPreview } from '../types/ActiveCallPreview.types';
 import ActiveCallNumpad from './active-call-numpad.vue';
@@ -213,6 +220,24 @@ const { t } = useI18n();
 
 const root = useTemplateRef<HTMLElement>('root');
 const isNumpadOpen = ref(false);
+
+/**
+ * @author Oleksandr Palonnyi
+ * transfer has no SDK action yet, so its active state is only this local
+ * toggle; mute and hold are not mirrored here because the preview already
+ * carries their real state
+ * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+ */
+const isTransferActive = ref(false);
+
+/**
+ * @author Oleksandr Palonnyi
+ * wt-button has no active prop, so an active action is marked by switching
+ * the button from the text to the filled (ButtonVariant.ACTIVE) variant
+ * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+ */
+const getActionVariant = (isActive: boolean): ButtonVariant =>
+	isActive ? ButtonVariant.ACTIVE : ButtonVariant.TEXT;
 
 /**
  * @author Oleksandr Palonnyi
@@ -246,36 +271,26 @@ const pillButtonColor = computed(() =>
 
 <style scoped>
 .active-call-bar {
+	--active-call-bar-card-width: 280px;
+
 	position: relative;
 }
 
+.active-call-bar--expanded {
+	width: var(--active-call-bar-card-width);
+}
+
 .active-call-bar__card {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	z-index: 1;
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-sm);
 	box-sizing: border-box;
-	width: 280px;
+	width: var(--active-call-bar-card-width);
 	padding: var(--spacing-sm);
-	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius);
+	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius)
+		var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;
 	background-color: var(--wt-ws-call-dock-colors-root-background);
 	box-shadow: var(--elevation-10);
-}
-
-.active-call-bar__card-enter-active,
-.active-call-bar__card-leave-active {
-	transition:
-		opacity 0.2s ease,
-		transform 0.2s ease;
-}
-
-.active-call-bar__card-enter-from,
-.active-call-bar__card-leave-to {
-	opacity: 0;
-	transform: translateY(var(--spacing-sm));
 }
 
 .active-call-bar__identity {
