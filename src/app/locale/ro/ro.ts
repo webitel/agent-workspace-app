@@ -88,6 +88,15 @@ export default {
 				},
 			},
 		},
+		call: {
+			outboundCall: {
+				ringing: 'Sună',
+				noAnswer: 'Niciun răspuns',
+				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
+				retryCall: 'Reîncearcă apelul',
+				backToDialpad: 'Înapoi la tastatură',
+			},
+		},
 	},
 	error: {
 		calls: {

@@ -88,6 +88,15 @@ export default {
 				},
 			},
 		},
+		call: {
+			outboundCall: {
+				ringing: 'Qoʻngʻiroq qilinmoqda',
+				noAnswer: 'Javob yoʻq',
+				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
+				retryCall: 'Qayta qoʻngʻiroq qilish',
+				backToDialpad: 'Raqam terishga qaytish',
+			},
+		},
 	},
 	error: {
 		calls: {

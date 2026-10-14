@@ -99,6 +99,15 @@ export default {
 				},
 			},
 		},
+		call: {
+			outboundCall: {
+				ringing: 'Виклик',
+				noAnswer: 'Немає відповіді',
+				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
+				retryCall: 'Повторити дзвінок',
+				backToDialpad: 'Назад до набору номера',
+			},
+		},
 	},
 	error: {
 		calls: {
