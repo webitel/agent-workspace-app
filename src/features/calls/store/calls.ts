@@ -11,6 +11,7 @@ import i18n from '../../../app/locale/i18n';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
+import { isActiveCall } from '../scripts/isActiveCall';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
@@ -38,6 +39,8 @@ export const useCallsStore = defineStore('calls', () => {
 	const incomingOffers = computed(() =>
 		callList.value.filter(isIncomingCallOffer),
 	);
+
+	const activeCalls = computed(() => callList.value.filter(isActiveCall));
 
 	// TODO: замінити на реальний підрахунок нових/пропущених дзвінків
 	const newCallsCount = computed(() => 3);
@@ -127,6 +130,28 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	async function toggleHold(callId: string) {
+		const call = getCallById(callId);
+		if (!call?.allowHold) return;
+
+		try {
+			await call.toggleHold();
+		} catch (err) {
+			console.warn('[calls] hold toggle failed', err);
+		}
+	}
+
+	async function sendDtmf(callId: string, digit: string) {
+		const call = getCallById(callId);
+		if (!call?.allowDtmf) return;
+
+		try {
+			await call.sendDTMF(digit);
+		} catch (err) {
+			console.warn('[calls] dtmf failed', err);
+		}
+	}
+
 	/**
 	 * Diffing by id, not by array identity: the SDK mutates `Call` objects in
 	 * place, so unrelated field changes re-run this watcher with the same
@@ -180,6 +205,7 @@ export const useCallsStore = defineStore('calls', () => {
 	return {
 		callList,
 		incomingOffers,
+		activeCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
 
@@ -187,6 +213,8 @@ export const useCallsStore = defineStore('calls', () => {
 		call,
 		answer,
 		toggleMute,
+		toggleHold,
+		sendDtmf,
 		hangup,
 	};
 });

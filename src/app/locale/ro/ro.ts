@@ -88,6 +88,19 @@ export default {
 				},
 			},
 		},
+		dialer: {
+			activeCall: {
+				inCall: 'În apel',
+				onHold: 'În așteptare',
+			},
+			outboundCall: {
+				ringing: 'Sună',
+				noAnswer: 'Niciun răspuns',
+				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
+				retryCall: 'Reîncearcă apelul',
+				backToDialpad: 'Înapoi la tastatură',
+			},
+		},
 	},
 	error: {
 		calls: {

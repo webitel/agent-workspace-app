@@ -99,6 +99,20 @@ export default {
 				},
 			},
 		},
+		dialer: {
+			activeCall: {
+				inCall: 'In call',
+				onHold: 'On hold',
+			},
+			outboundCall: {
+				ringing: 'Ringing',
+				noAnswer: 'No answer',
+				noAnswerDescription:
+					"The recipient's phone did not answer the request.",
+				retryCall: 'Retry call',
+				backToDialpad: 'Back to dialpad',
+			},
+		},
 	},
 	error: {
 		calls: {

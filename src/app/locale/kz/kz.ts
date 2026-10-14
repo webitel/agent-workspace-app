@@ -88,6 +88,19 @@ export default {
 				},
 			},
 		},
+		dialer: {
+			activeCall: {
+				inCall: 'Сөйлесуде',
+				onHold: 'Күтуде',
+			},
+			outboundCall: {
+				ringing: 'Қоңырау шалынуда',
+				noAnswer: 'Жауап жоқ',
+				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
+				retryCall: 'Қайта қоңырау шалу',
+				backToDialpad: 'Нөмір теруге оралу',
+			},
+		},
 	},
 	error: {
 		calls: {

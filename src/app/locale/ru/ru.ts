@@ -88,6 +88,19 @@ export default {
 				},
 			},
 		},
+		dialer: {
+			activeCall: {
+				inCall: 'В разговоре',
+				onHold: 'На удержании',
+			},
+			outboundCall: {
+				ringing: 'Вызов',
+				noAnswer: 'Нет ответа',
+				noAnswerDescription: 'Телефон абонента не ответил на вызов.',
+				retryCall: 'Повторить звонок',
+				backToDialpad: 'Назад к набору номера',
+			},
+		},
 	},
 	error: {
 		calls: {
