@@ -1,3 +1,7 @@
+import type {
+	NavigationRailBadge,
+	NavigationRailItem,
+} from '@webitel/ui-sdk/components/wt-navigation-rail/types/WtNavigationRail';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -8,11 +12,7 @@ import {
 	topNavItems,
 } from '../config/navItems.config';
 import { getActiveNavItemId } from '../scripts/getActiveNavItemId';
-import type {
-	NavBadgeConfig,
-	NavRailConfig,
-	NavRailItem,
-} from '../types/NavItem.types';
+import type { NavBadgeConfig, NavRailConfig } from '../types/NavItem.types';
 import { useNavBadges } from './useNavBadges';
 
 const routeItemIds = [
@@ -22,7 +22,9 @@ const routeItemIds = [
 	.map(({ id }) => id)
 	.filter((id) => id !== NUMPAD_NAV_ITEM_ID);
 
-const toRailBadge = (badge?: NavBadgeConfig): NavRailItem['badge'] =>
+const toRailBadge = (
+	badge?: NavBadgeConfig,
+): NavigationRailBadge | undefined =>
 	badge?.count
 		? {
 				value: badge.count,
@@ -35,7 +37,7 @@ export function useWorkspaceNavRail() {
 	const router = useRouter();
 	const { badgesByRoute } = useNavBadges();
 
-	const withBadges = (items: NavRailItem[]): NavRailItem[] =>
+	const withBadges = (items: NavigationRailItem[]): NavigationRailItem[] =>
 		items.map((item) => ({
 			...item,
 			badge: toRailBadge(badgesByRoute.value[item.id]),
@@ -47,7 +49,7 @@ export function useWorkspaceNavRail() {
 		activeItemId: getActiveNavItemId(route.path, routeItemIds),
 	}));
 
-	const onNavSelect = ({ id }: Pick<NavRailItem, 'id'>): void => {
+	const onNavSelect = ({ id }: Pick<NavigationRailItem, 'id'>): void => {
 		if (id === NUMPAD_NAV_ITEM_ID) {
 			useNumpadStore().toggle();
 			return;

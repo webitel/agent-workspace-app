@@ -1,8 +1,8 @@
-import type { NavRailItem } from '../types/NavItem.types';
+import type { NavigationRailItem } from '@webitel/ui-sdk/components/wt-navigation-rail/types/WtNavigationRail';
 
 export const NUMPAD_NAV_ITEM_ID = 'numpad';
 
-export const topNavItems: NavRailItem[] = [
+export const topNavItems: NavigationRailItem[] = [
 	{
 		id: '/',
 		icon: 'home--filled',
@@ -21,7 +21,7 @@ export const topNavItems: NavRailItem[] = [
 	},
 ];
 
-export const bottomNavItems: NavRailItem[] = [
+export const bottomNavItems: NavigationRailItem[] = [
 	{
 		id: '/contacts',
 		icon: 'contact-book--filled',
