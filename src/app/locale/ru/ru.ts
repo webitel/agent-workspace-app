@@ -58,11 +58,9 @@ export default {
 					iframe: 'Iframe',
 				},
 				active: {
-					table: {
-						startedAt: 'Начало',
-						username: 'Имя пользователя',
-						message: 'Сообщение',
-					},
+					startedAt: 'Начало',
+					username: 'Имя пользователя',
+					message: 'Сообщение',
 				},
 			},
 			history: {

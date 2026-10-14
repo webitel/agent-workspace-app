@@ -58,11 +58,9 @@ export default {
 					iframe: 'Iframe',
 				},
 				active: {
-					table: {
-						startedAt: 'Iniciado',
-						username: 'Nombre de usuario',
-						message: 'Mensaje',
-					},
+					startedAt: 'Iniciado',
+					username: 'Nombre de usuario',
+					message: 'Mensaje',
 				},
 			},
 			history: {

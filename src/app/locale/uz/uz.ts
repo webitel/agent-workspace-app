@@ -58,11 +58,9 @@ export default {
 					iframe: 'Iframe',
 				},
 				active: {
-					table: {
-						startedAt: 'Boshlangan',
-						username: 'Foydalanuvchi nomi',
-						message: 'Xabar',
-					},
+					startedAt: 'Boshlangan',
+					username: 'Foydalanuvchi nomi',
+					message: 'Xabar',
 				},
 			},
 			history: {

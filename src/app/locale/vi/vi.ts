@@ -58,11 +58,9 @@ export default {
 					iframe: 'Iframe',
 				},
 				active: {
-					table: {
-						startedAt: 'Bắt đầu lúc',
-						username: 'Tên người dùng',
-						message: 'Tin nhắn',
-					},
+					startedAt: 'Bắt đầu lúc',
+					username: 'Tên người dùng',
+					message: 'Tin nhắn',
 				},
 			},
 			history: {

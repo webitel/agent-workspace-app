@@ -69,11 +69,9 @@ export default {
 					end: 'Завершити чат',
 				},
 				active: {
-					table: {
-						startedAt: 'Початок',
-						username: "Ім'я користувача",
-						message: 'Повідомлення',
-					},
+					startedAt: 'Початок',
+					username: "Ім'я користувача",
+					message: 'Повідомлення',
 				},
 			},
 			history: {

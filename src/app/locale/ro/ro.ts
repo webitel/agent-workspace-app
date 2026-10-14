@@ -58,11 +58,9 @@ export default {
 					iframe: 'Iframe',
 				},
 				active: {
-					table: {
-						startedAt: 'Început la',
-						username: 'Nume utilizator',
-						message: 'Mesaj',
-					},
+					startedAt: 'Început la',
+					username: 'Nume utilizator',
+					message: 'Mesaj',
 				},
 			},
 			history: {

@@ -69,11 +69,9 @@ export default {
 					end: 'End chat',
 				},
 				active: {
-					table: {
-						startedAt: 'Started at',
-						username: 'Username',
-						message: 'Message',
-					},
+					startedAt: 'Started at',
+					username: 'Username',
+					message: 'Message',
 				},
 			},
 			history: {

@@ -58,11 +58,9 @@ export default {
 					iframe: 'Iframe',
 				},
 				active: {
-					table: {
-						startedAt: 'Басталды',
-						username: 'Пайдаланушы аты',
-						message: 'Хабарлама',
-					},
+					startedAt: 'Басталды',
+					username: 'Пайдаланушы аты',
+					message: 'Хабарлама',
 				},
 			},
 			history: {
