@@ -3,7 +3,7 @@
 		<wt-button
 			variant="text"
 			class="calls-history-phone-cell__button"
-			icon="ws-navigation-calls"
+			icon="calls"
 			:disabled="!phoneNumber || isCalling"
 			@click="startCall"
 		/>

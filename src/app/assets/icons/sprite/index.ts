@@ -13,6 +13,7 @@ import wsOutboundCall from './ws-outbound-call.svg?raw';
 import wsPlayVideo from './ws-play-video.svg?raw';
 import wsSidebarClose from './ws-sidebar-close.svg?raw';
 import wsSidebarOpen from './ws-sidebar-open.svg?raw';
+import wtCallNoAnswer from './wt-call-no-answer.svg?raw';
 
 const icons = {
 	'ws-sidebar-open': wsSidebarOpen,
@@ -29,6 +30,7 @@ const icons = {
 	'ws-outbound-call': wsOutboundCall,
 	'ws-play-video': wsPlayVideo,
 	'ws-chat': wsChat,
+	'wt-call-no-answer': wtCallNoAnswer,
 };
 
 fillIconsRepository({

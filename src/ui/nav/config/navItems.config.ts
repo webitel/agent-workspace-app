@@ -1,45 +1,37 @@
-import { useNumpadStore } from '../../numpad/store/numpad';
-import type { NavItemConfig } from '../types/NavItem.types';
+import type { NavigationRailItem } from '@webitel/ui-sdk/components/wt-navigation-rail/types/WtNavigationRail';
 
-export const navItems: NavItemConfig[] = [
+export const NUMPAD_NAV_ITEM_ID = 'numpad';
+
+export const topNavItems: NavigationRailItem[] = [
 	{
-		kind: 'link',
-		to: '/',
-		icon: 'ws-navigation-home-page',
-		exact: true,
+		id: '/',
+		icon: 'home--filled',
 	},
 	{
-		kind: 'link',
-		to: '/calls',
-		icon: 'ws-navigation-calls',
+		id: '/calls',
+		icon: 'call-ringing--filled',
 	},
 	{
-		kind: 'link',
-		to: '/chats',
-		icon: 'ws-navigation-chats',
-	},
-	// { kind: 'link', to: '/', icon: 'ws-navigation-mentions' },
-	// { kind: 'link', to: '/', icon: 'ws-navigation-email' },
-	{
-		kind: 'link',
-		to: '/tasks',
-		icon: 'ws-navigation-tasks',
-		wrapperClass: 'the-workspace-nav-list__tasks',
-	},
-	// { kind: 'link', to: '/chats', icon: 'ws-navigation-knowledge-base' },
-	{
-		kind: 'link',
-		to: '/contacts',
-		icon: 'ws-navigation-contacts',
+		id: '/chats',
+		icon: 'chat--filled',
 	},
 	{
-		kind: 'link',
-		to: '/history',
-		icon: 'ws-navigation-history',
+		id: '/tasks',
+		icon: 'job--filled',
+	},
+];
+
+export const bottomNavItems: NavigationRailItem[] = [
+	{
+		id: '/contacts',
+		icon: 'contact-book--filled',
 	},
 	{
-		kind: 'button',
-		icon: 'ws-navigation-calls',
-		onClick: () => useNumpadStore().toggle(),
+		id: '/history',
+		icon: 'history',
+	},
+	{
+		id: NUMPAD_NAV_ITEM_ID,
+		icon: 'call--filled',
 	},
 ];
