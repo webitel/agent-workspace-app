@@ -2,15 +2,13 @@
     <div class="task-dock-call-lane">
         <the-numpad-panel />
 
-        <task-dock-item-wrapper
-            v-for="call in calls"
-            :key="call.id"
-            :label="call.label"
-            :expanded="taskDockStore.expandedCallId === call.id"
-            @click="taskDockStore.toggleCallExpand(call.id)"
-        >
-            Call
-        </task-dock-item-wrapper>
+        <div class="task-dock-call-lane__container">
+            <active-call-bar
+                v-for="activeCall in activeCalls"
+                :key="activeCall.id"
+                :preview="activeCall.preview"
+            />
+        </div>
     </div>
 </template>
 
@@ -18,22 +16,46 @@
     setup
     lang="ts"
 >
+import { computed } from 'vue';
+
+import { toActiveCallPreview } from '../../../features/calls/scripts/toActiveCallPreview';
+import { useCallsStore } from '../../../features/calls/store/calls';
+import ActiveCallBar from '../../dialer/components/active-call-bar.vue';
+import type { ActiveCallPreview } from '../../dialer/types/ActiveCallPreview.types';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
-import { useTaskDockStore } from '../store/task-dock';
-import TaskDockItemWrapper from './task-dock-item-wrapper.vue';
 
-const taskDockStore = useTaskDockStore();
+const callsStore = useCallsStore();
 
-const calls = [
-	{
-		id: 'call-1',
-		label: 'Call 1',
-	},
-	{
-		id: 'call-2',
-		label: 'Call 2',
-	},
-];
+/**
+ * @author Oleksandr Palonnyi
+ * temporary hardcode for visual checks: shows one pill while there is no real
+ * active call, remove it together with the fallback in `activeCalls` below
+ * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+ */
+const STUB_ACTIVE_CALL = {
+	id: 'stub-active-call',
+	preview: {
+		name: 'Emily Johnson',
+		number: '+12023417842',
+		queueName: 'Sales',
+		answeredAt: Date.now(),
+		isHold: false,
+		isMuted: false,
+	} satisfies ActiveCallPreview,
+};
+
+const activeCalls = computed(() => {
+	const realActiveCalls = callsStore.activeCalls.map((call) => ({
+		id: call.id,
+		preview: toActiveCallPreview(call),
+	}));
+
+	return realActiveCalls.length
+		? realActiveCalls
+		: [
+				STUB_ACTIVE_CALL,
+			];
+});
 </script>
 
 <style scoped>
@@ -41,5 +63,12 @@ const calls = [
     display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
+}
+
+.task-dock-call-lane__container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--spacing-xs);
 }
 </style>

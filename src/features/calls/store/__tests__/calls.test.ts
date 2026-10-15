@@ -454,4 +454,31 @@ describe('useCallsStore', () => {
 			expect(stopRemoteAudio).toHaveBeenCalledWith('call-1');
 		});
 	});
+
+	describe('activeCalls', () => {
+		it('lists answered calls that have not ended', () => {
+			calls.value = [
+				buildCall({
+					id: 'ringing',
+					answeredAt: 0,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'talking',
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'ended',
+					answeredAt: 1,
+					hangupAt: 2,
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(store.activeCalls.map((call) => call.id)).toEqual([
+				'talking',
+			]);
+		});
+	});
 });
