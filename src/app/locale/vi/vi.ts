@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
+			startedAt: 'Bắt đầu lúc',
+			username: 'Tên người dùng',
+			message: 'Tin nhắn',
 		},
 		numpad: {
 			call: 'Gọi',

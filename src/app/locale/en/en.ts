@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
+			startedAt: 'Started at',
+			username: 'Username',
+			message: 'Message',
 		},
 		numpad: {
 			call: 'Call',

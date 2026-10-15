@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
+			startedAt: 'Boshlangan',
+			username: 'Foydalanuvchi nomi',
+			message: 'Xabar',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',

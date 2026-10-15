@@ -4,6 +4,13 @@
 		:current="currentTab"
 		@change="changeTab"
 	>
+		<template #actions-panel>
+			<chats-page-action-panel
+				v-if="currentTab?.store"
+				:key="currentTab.value"
+				:store="currentTab.store"
+			/>
+		</template>
 		<template #main>
 			<component
 				:is="currentTab?.component"
@@ -18,20 +25,25 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import type { PageTab } from '../../types/PageTab.types';
+import ChatsPageActionPanel from './chats-page-action-panel.vue';
 import ChatsPanelWrapper from './components/chats-panel-wrapper.vue';
 import { ChatsPageTab } from './enums/ChatsPageTab.enum';
 import ChatsActiveTable from './modules/active/active-chats-table.vue';
+import { useActiveChatsDataListStore } from './modules/active/store/active-chats';
+
+type ChatsPageStore = ReturnType<typeof useActiveChatsDataListStore>;
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const tabs = computed<PageTab[]>(() => [
+const tabs = computed<PageTab<ChatsPageStore>[]>(() => [
 	{
 		text: t('ui.pages.chats.pageTabs.active'),
 		value: ChatsPageTab.Active,
 		pathName: ChatsPageTab.Active,
 		component: ChatsActiveTable,
+		store: useActiveChatsDataListStore(),
 	},
 ]);
 
@@ -39,7 +51,7 @@ const currentTab = computed(() =>
 	tabs.value.find((tab) => tab.pathName === route.name),
 );
 
-function changeTab(tab: PageTab) {
+function changeTab(tab: PageTab<ChatsPageStore>) {
 	if (tab.pathName === route.name) return;
 	router.push({
 		name: tab.pathName,

@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Запустить',
 			nothingToShowHere: 'Здесь ничего нет',
+			startedAt: 'Начало',
+			username: 'Имя пользователя',
+			message: 'Сообщение',
 		},
 		numpad: {
 			call: 'Позвонить',
