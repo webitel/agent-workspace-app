@@ -29,7 +29,7 @@
 			</template>
 
 			<template #phone="{ item }">
-				<calls-history-phone-cell :item="item" />
+				<phone-call-table-cell :phone-number="getCallPhoneNumber(item)" />
 			</template>
 
 			<template #metrics="{ item }">
@@ -122,11 +122,12 @@ import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useThemedImage } from '../../../../../../app/composables/useThemedImage';
+import PhoneCallTableCell from '../../../../../components/phone-call-table-cell.vue';
 import CallsHistoryInfoPopup from './calls-history-info-popup.vue';
 import CallsHistoryNameCell from './calls-history-name-cell.vue';
-import CallsHistoryPhoneCell from './calls-history-phone-cell.vue';
 import CallsHistoryRowActions from './calls-history-row-actions.vue';
 import { usePlayCallRecording } from './composables/usePlayCallRecording';
+import { getCallPhoneNumber } from './scripts/getCallPhoneNumber';
 import { useCallsHistoryDataListStore } from './store/calls-history';
 
 const { t } = useI18n();

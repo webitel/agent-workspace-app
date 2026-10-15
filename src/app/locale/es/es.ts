@@ -39,6 +39,7 @@ export default {
 			startedAt: 'Iniciado',
 			username: 'Nombre de usuario',
 			message: 'Mensaje',
+			phoneNumber: 'Número de teléfono',
 		},
 		numpad: {
 			call: 'Llamar',
@@ -48,6 +49,11 @@ export default {
 			loadError: 'No se pudieron cargar las variables',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Perdidas',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Activos',
@@ -68,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Número de teléfono',
 					},
 					recordings: {
 						unavailable: 'Grabación no disponible',

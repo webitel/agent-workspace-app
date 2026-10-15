@@ -39,6 +39,7 @@ export default {
 			startedAt: 'Started at',
 			username: 'Username',
 			message: 'Message',
+			phoneNumber: 'Phone number',
 		},
 		numpad: {
 			call: 'Call',
@@ -55,6 +56,11 @@ export default {
 			loadError: "Couldn't load the variables",
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Missed',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Active',
@@ -79,7 +85,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Phone number',
 					},
 					recordings: {
 						unavailable: 'Recording unavailable',
