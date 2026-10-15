@@ -66,6 +66,10 @@ const buttonColor = computed(() =>
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-active-color);
 }
 
+.active-call-bar:hover {
+	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-hover-background);
+}
+
 .active-call-bar__avatar {
 	flex: 0 1 auto;
 }
@@ -78,5 +82,9 @@ const buttonColor = computed(() =>
 .active-call-bar--hold {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-background);
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-color);
+}
+
+.active-call-bar--hold:hover {
+	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-hover-background);
 }
 </style>
