@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'En llamada',
+				onHold: 'En espera',
+			},
 			outboundCall: {
 				ringing: 'Sonando',
 				noAnswer: 'Sin respuesta',

@@ -20,12 +20,6 @@ import TaskDockChatLane from './task-dock-chat-lane.vue';
 
 <style scoped>
 
-.the-task-dock-panel {
-  background: var(--wt-ws-conversation-tray-colors-root-background);
-  border-radius: var(--wt-ws-conversation-tray-sizes-root-border-radius);
-  padding: var(--wt-ws-conversation-tray-sizes-root-padding-y) var(--wt-ws-conversation-tray-sizes-root-padding-x);
-}
-
 .the-task-dock-panel__lanes {
     display: flex;
     flex-direction: row;

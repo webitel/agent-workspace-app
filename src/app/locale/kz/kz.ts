@@ -89,6 +89,10 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Сөйлесуде',
+				onHold: 'Күтуде',
+			},
 			outboundCall: {
 				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',

@@ -13,7 +13,7 @@
 				class="active-call-numpad__key"
 				color="secondary"
 				variant="outlined"
-				size="sm"
+				:size="ComponentSize.SM"
 				@click="onKeyClick(key)"
 			>
 				{{ key }}
@@ -27,6 +27,7 @@
 	lang="ts"
 >
 import { WtButton, WtInputText } from '@webitel/ui-sdk/components';
+import { ComponentSize } from '@webitel/ui-sdk/enums';
 import { ref } from 'vue';
 
 import { NUMPAD_KEYS } from '../../numpad/constants/numpadKeys';

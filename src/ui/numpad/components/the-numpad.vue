@@ -9,7 +9,7 @@
 
 		<div class="the-numpad__keys">
 			<wt-button
-				v-for="key in keys"
+				v-for="key in NUMPAD_KEYS"
 				:key="key"
 				class="the-numpad__key"
 				:color="ButtonColor.SECONDARY"
@@ -46,6 +46,8 @@ import {
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { NUMPAD_KEYS } from '../constants/numpadKeys';
+
 const props = withDefaults(
 	defineProps<{
 		initialNumber?: string;
@@ -60,22 +62,6 @@ const emit = defineEmits<{
 		destination: string,
 	];
 }>();
-
-const keys = [
-	'1',
-	'2',
-	'3',
-	'4',
-	'5',
-	'6',
-	'7',
-	'8',
-	'9',
-	'*',
-	'0',
-	'#',
-	'+',
-];
 
 const { t } = useI18n();
 

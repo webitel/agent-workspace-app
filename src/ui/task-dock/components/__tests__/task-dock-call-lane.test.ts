@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 import { useNumpadStore } from '../../../numpad/store/numpad';
+import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
 
 const calls = ref<Call[]>([]);
@@ -88,6 +89,18 @@ describe('task-dock-call-lane', () => {
 		const wrapper = mountCallLane();
 
 		expect(wrapper.findAll('.active-call-bar')).toHaveLength(2);
+	});
+
+	it('expands the bar that is clicked and collapses it on the next click', async () => {
+		calls.value = [
+			buildCall(),
+		];
+		const wrapper = mountCallLane();
+		const store = useTaskDockStore();
+
+		await wrapper.find('.active-call-bar__pill').trigger('click');
+		expect(store.expandedCallId).toBe('call-1');
+		expect(wrapper.find('.active-call-bar__card').exists()).toBe(true);
 	});
 
 	it('shows the numpad only once the numpad store is opened', async () => {

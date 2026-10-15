@@ -130,6 +130,28 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	async function toggleHold(callId: string) {
+		const call = getCallById(callId);
+		if (!call?.allowHold) return;
+
+		try {
+			await call.toggleHold();
+		} catch (err) {
+			console.warn('[calls] hold toggle failed', err);
+		}
+	}
+
+	async function sendDtmf(callId: string, digit: string) {
+		const call = getCallById(callId);
+		if (!call?.allowDtmf) return;
+
+		try {
+			await call.sendDTMF(digit);
+		} catch (err) {
+			console.warn('[calls] dtmf failed', err);
+		}
+	}
+
 	/**
 	 * Diffing by id, not by array identity: the SDK mutates `Call` objects in
 	 * place, so unrelated field changes re-run this watcher with the same
@@ -191,6 +213,8 @@ export const useCallsStore = defineStore('calls', () => {
 		call,
 		answer,
 		toggleMute,
+		toggleHold,
+		sendDtmf,
 		hangup,
 	};
 });
