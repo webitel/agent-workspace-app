@@ -219,7 +219,16 @@ async function openChat(page: Page, socket: MockedSocket) {
 async function scrollUpUntil(page: Page, expected: () => Promise<void>) {
 	const scroller = page.locator('.chat-history__scroll');
 	await expect(async () => {
-		await scroller.evaluate((el) => {
+		/**
+		 * @author Oleksandr Palonnyi
+		 * a single jump to the top fires one scroll event, and ui-chats handles it before
+		 * vueuse has cleared arrivedState.bottom, so the button is reset and never shown;
+		 * a second event one frame later sees the fresh state, as a real wheel scroll would
+		 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+		 */
+		await scroller.evaluate(async (el) => {
+			el.scrollTop = 1;
+			await new Promise(requestAnimationFrame);
 			el.scrollTop = 0;
 		});
 		await expected();

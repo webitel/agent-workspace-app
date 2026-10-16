@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Uruchom',
 			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
+			startedAt: 'Rozpoczęto',
+			username: 'Nazwa użytkownika',
+			message: 'Wiadomość',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -46,6 +49,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Aktywne',
+				},
 				tabs: {
 					chat: 'Czat',
 					info: 'Informacje',
@@ -83,6 +89,15 @@ export default {
 				variableColumnSelect: {
 					title: 'Wybierz kolumny zmiennych',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Dzwonienie',
+				noAnswer: 'Brak odpowiedzi',
+				noAnswerDescription: 'Telefon odbiorcy nie odpowiedział na połączenie.',
+				retryCall: 'Ponów połączenie',
+				backToDialpad: 'Wróć do klawiatury',
 			},
 		},
 	},

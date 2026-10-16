@@ -116,6 +116,17 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	async function toggleMute(callId: string) {
+		const call = getCallById(callId);
+		if (!call?.allowHangup) return;
+
+		try {
+			await call.mute(!call.muted);
+		} catch (err) {
+			console.warn('[calls] mute toggle failed', err);
+		}
+	}
+
 	/**
 	 * Diffing by id, not by array identity: the SDK mutates `Call` objects in
 	 * place, so unrelated field changes re-run this watcher with the same
@@ -175,6 +186,7 @@ export const useCallsStore = defineStore('calls', () => {
 		initialize,
 		call,
 		answer,
+		toggleMute,
 		hangup,
 	};
 });

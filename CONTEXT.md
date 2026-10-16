@@ -81,6 +81,15 @@ when the queue has no post-processing.
 **Close window** — dropping a chat from the workspace's open windows. Purely a
 view concern: the thread and task carry on. Never a substitute for **End chat**.
 
+**Outbound attempt** — one manual dial by the agent, from the request until the
+callee answers or the agent closes it. Ringing and No answer are states of an
+attempt. Several can run at once. It is not an **Active call**: when the callee
+answers, the attempt ends and the call carries on in the active-call window.
+
+**Active call** — a call that is connected, whichever side started it. Any number
+can exist at once, one live and the rest on hold. Derived from the SDK's call
+list; no store of its own.
+
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
 yet and the agent is not a member of its thread. It joins the list once

@@ -18,7 +18,6 @@ export const headers: DatalistTableHeader[] = [
 		width: '170px',
 		filter: createFilterConfig({
 			name: FilterOption.CreatedAt,
-			notDeletable: true,
 		}),
 	},
 	{

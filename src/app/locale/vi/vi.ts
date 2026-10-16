@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
+			startedAt: 'Bắt đầu lúc',
+			username: 'Tên người dùng',
+			message: 'Tin nhắn',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -46,6 +49,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Đang hoạt động',
+				},
 				tabs: {
 					chat: 'Trò chuyện',
 					info: 'Thông tin',
@@ -83,6 +89,15 @@ export default {
 				variableColumnSelect: {
 					title: 'Chọn cột biến',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Đang đổ chuông',
+				noAnswer: 'Không trả lời',
+				noAnswerDescription: 'Điện thoại người nhận không trả lời cuộc gọi.',
+				retryCall: 'Gọi lại',
+				backToDialpad: 'Quay lại bàn phím',
 			},
 		},
 	},

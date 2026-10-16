@@ -107,16 +107,9 @@
 <script setup lang="ts">
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
-import {
-	ColumnFilterComponent as ColumnFilter,
-	FilterOption,
-} from '@webitel/ui-datalist/filters';
+import { ColumnFilterComponent as ColumnFilter } from '@webitel/ui-datalist/filters';
 import { WtPlayer, WtTable } from '@webitel/ui-sdk/components';
-import {
-	ComponentSize,
-	FormatDateMode,
-	RelativeDatetimeValue,
-} from '@webitel/ui-sdk/enums';
+import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
 import {
 	isVariableHeader,
 	VARIABLE_FIELD_PREFIX,
@@ -205,17 +198,6 @@ const getVariableValue = (slotProps: unknown, headerValue: string) => {
 	};
 	return item?.variables?.[headerValue?.slice(VARIABLE_FIELD_PREFIX.length)];
 };
-
-const initializeDefaultCreatedAtFilter = () => {
-	if (filtersManager.value.hasFilter(FilterOption.CreatedAt)) return;
-
-	addFilter({
-		name: FilterOption.CreatedAt,
-		value: RelativeDatetimeValue.Today,
-	});
-};
-
-initializeDefaultCreatedAtFilter();
 
 initialize().finally(() => {
 	isInitializing.value = false;

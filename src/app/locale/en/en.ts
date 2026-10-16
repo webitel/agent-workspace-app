@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
+			startedAt: 'Started at',
+			username: 'Username',
+			message: 'Message',
 		},
 		numpad: {
 			call: 'Call',
@@ -53,6 +56,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Active',
+				},
 				tabs: {
 					chat: 'Chat',
 					info: 'Info',
@@ -94,6 +100,16 @@ export default {
 				variableColumnSelect: {
 					title: 'Select variables columns',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Ringing',
+				noAnswer: 'No answer',
+				noAnswerDescription:
+					"The recipient's phone did not answer the request.",
+				retryCall: 'Retry call',
+				backToDialpad: 'Back to dialpad',
 			},
 		},
 	},

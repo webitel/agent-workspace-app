@@ -1,10 +1,12 @@
 <template>
     <main class="the-agent-workspace">
-        <wt-page>
+        <wt-page
+            :navigation-rail="navRail"
+            @navigation-select="onNavSelect"
+        >
             <template #header>
                 <the-workspace-header />
             </template>
-            <the-workspace-nav />
             <section class="workspace-content-wrapper">
                 <div class="workspace-content-row">
                     <router-view class="workspace-content" />
@@ -24,12 +26,13 @@
 import { WtPage } from '@webitel/ui-sdk/components';
 
 import TheWorkspaceHeader from '../../ui/header/components/the-workspace-header.vue';
-import TheWorkspaceNav from '../../ui/nav/components/the-workspace-nav.vue';
+import { useWorkspaceNavRail } from '../../ui/nav/composables/useWorkspaceNavRail';
 import TheNotificationsLayer from '../../ui/notifications/components/the-notifications-layer.vue';
 import { useSocketNotifications } from '../../ui/notifications/composables/useSocketNotifications';
 import TheWorkspaceSidebar from '../../ui/sidebar/components/the-workspace-sidebar.vue';
 import TheTaskDockPanel from '../../ui/task-dock/components/the-task-dock-panel.vue';
 
+const { navRail, onNavSelect } = useWorkspaceNavRail();
 const { subscribeToWebSocketEvents } = useSocketNotifications();
 
 subscribeToWebSocketEvents();

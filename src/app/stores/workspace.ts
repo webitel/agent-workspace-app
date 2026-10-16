@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { useAgentStore } from '../../features/agent/store/agent';
 import { useCallsStore } from '../../features/calls/store/calls';
+import { useOutboundCallAttemptsStore } from '../../features/calls/store/outboundCallAttempts';
 import { useChatsStore } from '../../features/chats/store/chats';
 import { useGlobalHandlersStore } from '../../features/global-handlers/store/globalHandlers';
 import { watchProcessingDisposal } from '../../features/processing/store/processing';
@@ -43,6 +44,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		// Chats coordinator (task feed + chats socket) needs the app socket up first.
 		useChatsStore().initialize();
 		useCallsStore().initialize();
+		useOutboundCallAttemptsStore().initialize();
 		useGlobalHandlersStore().initialize();
 		await useUserStatusStore().initialize();
 	}

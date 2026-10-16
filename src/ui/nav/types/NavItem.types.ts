@@ -1,3 +1,5 @@
+import type { NavigationRailItem } from '@webitel/ui-sdk/components/wt-navigation-rail/types/WtNavigationRail';
+
 export type NavBadgeVariant = 'error' | 'success';
 
 export interface NavBadgeConfig {
@@ -5,21 +7,8 @@ export interface NavBadgeConfig {
 	count: number;
 }
 
-interface NavItemBase {
-	icon: string;
-	wrapperClass?: string;
+export interface NavRailConfig {
+	topItems: NavigationRailItem[];
+	bottomItems: NavigationRailItem[];
+	activeItemId: string;
 }
-
-export interface NavLinkItem extends NavItemBase {
-	kind: 'link';
-	to: string;
-	exact?: boolean;
-	badge?: NavBadgeConfig;
-}
-
-export interface NavButtonItem extends NavItemBase {
-	kind: 'button';
-	onClick: () => void;
-}
-
-export type NavItemConfig = NavLinkItem | NavButtonItem;
