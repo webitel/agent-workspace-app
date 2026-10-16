@@ -1,7 +1,7 @@
 <template>
 	<div class="phone-call-table-cell">
 		<wt-button
-			variant="text"
+			:variant="ButtonVariant.TEXT"
 			class="phone-call-table-cell__button"
 			icon="calls"
 			:disabled="!phoneNumber || isCalling"
@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+import { ButtonVariant } from '@webitel/ui-sdk/enums';
 import { ref } from 'vue';
 import { useCallsStore } from '../../features/calls/store/calls';
 
