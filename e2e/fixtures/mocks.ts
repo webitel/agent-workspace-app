@@ -118,6 +118,20 @@ export async function mockAppApis(page: Page) {
 			body: '{}',
 		});
 	});
+	// the chats page's Active table lists threads; unmocked, the request reaches
+	// the real instance, which answers 401, and the app redirects to its login
+	await page.route(
+		(url) => url.pathname.endsWith('/api/v1/threads'),
+		async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					items: [],
+				}),
+			});
+		},
+	);
 }
 
 /** Per-action reply bodies; everything unmodelled still gets an empty object. */
