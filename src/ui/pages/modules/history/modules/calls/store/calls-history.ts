@@ -1,7 +1,7 @@
 import { createTableStore } from '@webitel/ui-datalist';
 
+import { callsHistoryApiModule } from '../../../../../../../features/calls/api/callsHistoryApiModule';
 import { useUserinfoStore } from '../../../../../../../features/userinfo/stores/userinfoStore';
-import { callsHistoryApiModule } from '../api/callsHistoryApiModule';
 import { headers } from './_internals/headers';
 
 export const useCallsHistoryDataListStore = createTableStore(

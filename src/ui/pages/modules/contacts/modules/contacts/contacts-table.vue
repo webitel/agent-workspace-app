@@ -45,8 +45,8 @@ import { WtTable } from '@webitel/ui-sdk/components';
 import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import TableCellInfo from '../../../../../components/table-cell-info.vue';
-import UsernameTableCell from '../../../../../components/username-table-cell.vue';
+import TableCellInfo from '../../../../components/table-cell-info.vue';
+import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import type { useContactsDataListStore } from './store/contacts';
 
 const props = defineProps<{

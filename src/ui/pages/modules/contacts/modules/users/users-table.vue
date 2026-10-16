@@ -49,8 +49,8 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { UserStatusColorMappings } from '../../../../../../features/user-status/enums/UserStatusColorMappings';
 import { getUserStatusByPriority } from '../../../../../../features/user-status/scripts/getUserStatusByPriority';
-import TableCellInfo from '../../../../../components/table-cell-info.vue';
-import UsernameTableCell from '../../../../../components/username-table-cell.vue';
+import TableCellInfo from '../../../../components/table-cell-info.vue';
+import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import type { useUsersDataListStore } from './store/users';
 
 const props = defineProps<{

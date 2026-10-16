@@ -106,6 +106,13 @@ import { OutboundCallStatus } from '../../../features/calls/enums/OutboundCallSt
 import type { OutboundCallPreview } from '../types/OutboundCallPreview.types';
 import RingingIndicator from './ringing-indicator.vue';
 
+/**
+ * @author Oleksandr Palonnyi
+ * Presentational and independent of the numpad, so a host without one (the calls
+ * history table later) can show it. Its tokens are named `--wt-ws-dialer-*` after
+ * the design, not after this module
+ * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ */
 const props = defineProps<{
 	preview: OutboundCallPreview;
 	status: OutboundCallStatus;

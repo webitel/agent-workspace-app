@@ -29,7 +29,7 @@ export const headers: DatalistTableHeader[] = [
 	},
 	{
 		value: 'phone',
-		locale: 'ui.pages.history.calls.table.phoneNumber',
+		locale: 'ui.reusable.phoneNumber',
 		show: true,
 		// virtual field, expanded to API fields in callsHistoryApiModule
 		field: 'phone',

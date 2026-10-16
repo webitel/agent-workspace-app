@@ -36,6 +36,10 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 			nothingToShowHere: 'Мұнда ештеңе жоқ',
+			startedAt: 'Басталды',
+			username: 'Пайдаланушы аты',
+			message: 'Хабарлама',
+			phoneNumber: 'Телефон нөмірі',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -45,6 +49,11 @@ export default {
 			loadError: 'Айнымалыларды жүктеу мүмкін болмады',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Қабылданбаған',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Белсенді',
@@ -65,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Телефон нөмірі',
 					},
 					recordings: {
 						unavailable: 'Жазба қолжетімсіз',

@@ -36,6 +36,10 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
+			startedAt: 'Bắt đầu lúc',
+			username: 'Tên người dùng',
+			message: 'Tin nhắn',
+			phoneNumber: 'Số điện thoại',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -45,6 +49,11 @@ export default {
 			loadError: 'Không thể tải các biến',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Cuộc gọi nhỡ',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Đang hoạt động',
@@ -65,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Số điện thoại',
 					},
 					recordings: {
 						unavailable: 'Bản ghi không khả dụng',

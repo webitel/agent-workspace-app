@@ -36,6 +36,10 @@ export default {
 		reusable: {
 			run: 'Запустить',
 			nothingToShowHere: 'Здесь ничего нет',
+			startedAt: 'Начало',
+			username: 'Имя пользователя',
+			message: 'Сообщение',
+			phoneNumber: 'Номер телефона',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -45,6 +49,11 @@ export default {
 			loadError: 'Не удалось загрузить переменные',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Пропущенные',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Активные',
@@ -65,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Номер телефона',
 					},
 					recordings: {
 						unavailable: 'Запись недоступна',

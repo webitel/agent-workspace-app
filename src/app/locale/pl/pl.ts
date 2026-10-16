@@ -36,6 +36,10 @@ export default {
 		reusable: {
 			run: 'Uruchom',
 			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
+			startedAt: 'Rozpoczęto',
+			username: 'Nazwa użytkownika',
+			message: 'Wiadomość',
+			phoneNumber: 'Numer telefonu',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -45,6 +49,11 @@ export default {
 			loadError: 'Nie udało się wczytać zmiennych',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Nieodebrane',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Aktywne',
@@ -65,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Numer telefonu',
 					},
 					recordings: {
 						unavailable: 'Nagranie niedostępne',
