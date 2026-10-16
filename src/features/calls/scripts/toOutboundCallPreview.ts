@@ -1,6 +1,6 @@
 import type { Call } from 'webitel-sdk';
 
-import type { OutboundCallPreview } from '../../../ui/dialer/types/OutboundCallPreview.types';
+import type { OutboundCallPreview } from '../../../ui/call/types/OutboundCallPreview.types';
 
 /**
  * @author Oleksandr Palonnyi
