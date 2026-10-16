@@ -5,6 +5,7 @@
 			:headers="shownHeaders"
 			:lazy="true"
 			:selectable="false"
+			:grid-actions="false"
 			:on-loading="onLoading"
 			data-key="id"
 			sortable
