@@ -251,9 +251,7 @@ test.describe('chat preview', () => {
 					message('msg-1', CLIENT, 'Can you help me?', todayAt(9, 5)),
 				],
 			});
-			// the server's greeting is what completes a connect; it is held until
-			// the app connects again
-			socket.sendChatEvent('connected_event', {});
+			// the SDK reconnects on its own and the mock greets the new socket
 
 			await expect(lastMessageText(page)).toHaveText('Sorry, we were offline');
 			await expect(

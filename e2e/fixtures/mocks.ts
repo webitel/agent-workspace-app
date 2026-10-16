@@ -211,11 +211,22 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 			);
 		});
 
+		// each socket is greeted the way its server does it. The chat socket's
+		// `connected_event` is what completes the chat SDK's connect: without it
+		// the SDK times the attempt out and reconnects in the middle of a spec.
 		ws.send(
-			JSON.stringify({
-				event: 'hello',
-				data: helloPayload,
-			}),
+			JSON.stringify(
+				channel === 'chat'
+					? {
+							payload: {
+								connected_event: {},
+							},
+						}
+					: {
+							event: 'hello',
+							data: helloPayload,
+						},
+			),
 		);
 
 		for (const frame of queued[channel]?.splice(0) ?? []) {
