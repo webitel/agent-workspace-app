@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
+			startedAt: 'Boshlangan',
+			username: 'Foydalanuvchi nomi',
+			message: 'Xabar',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -46,6 +49,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Faol',
+				},
 				tabs: {
 					chat: 'Chat',
 					info: "Ma'lumot",
@@ -83,6 +89,15 @@ export default {
 				variableColumnSelect: {
 					title: 'O‘zgaruvchilar ustunini tanlash',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Qoʻngʻiroq qilinmoqda',
+				noAnswer: 'Javob yoʻq',
+				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
+				retryCall: 'Qayta qoʻngʻiroq qilish',
+				backToDialpad: 'Raqam terishga qaytish',
 			},
 		},
 	},

@@ -1,4 +1,5 @@
 import { fillIconsRepository } from '@webitel/ui-sdk';
+import wsChat from './ws-chat.svg?raw';
 import wsChatClock from './ws-chat-clock.svg?raw';
 import wsInboundCall from './ws-inbound-call.svg?raw';
 import wsMissedCall from './ws-missed-call.svg?raw';
@@ -12,6 +13,7 @@ import wsOutboundCall from './ws-outbound-call.svg?raw';
 import wsPlayVideo from './ws-play-video.svg?raw';
 import wsSidebarClose from './ws-sidebar-close.svg?raw';
 import wsSidebarOpen from './ws-sidebar-open.svg?raw';
+import wtCallNoAnswer from './wt-call-no-answer.svg?raw';
 
 const icons = {
 	'ws-sidebar-open': wsSidebarOpen,
@@ -27,6 +29,8 @@ const icons = {
 	'ws-missed-call': wsMissedCall,
 	'ws-outbound-call': wsOutboundCall,
 	'ws-play-video': wsPlayVideo,
+	'ws-chat': wsChat,
+	'wt-call-no-answer': wtCallNoAnswer,
 };
 
 fillIconsRepository({

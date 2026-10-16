@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 			nothingToShowHere: 'Мұнда ештеңе жоқ',
+			startedAt: 'Басталды',
+			username: 'Пайдаланушы аты',
+			message: 'Хабарлама',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -46,6 +49,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Белсенді',
+				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Ақпарат',
@@ -83,6 +89,15 @@ export default {
 				variableColumnSelect: {
 					title: 'Айнымалылар бағандарын таңдау',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Қоңырау шалынуда',
+				noAnswer: 'Жауап жоқ',
+				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
+				retryCall: 'Қайта қоңырау шалу',
+				backToDialpad: 'Нөмір теруге оралу',
 			},
 		},
 	},

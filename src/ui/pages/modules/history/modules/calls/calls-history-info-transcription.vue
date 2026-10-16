@@ -84,7 +84,7 @@ const loadPhrases = (id?: string) => {
 			const loadedPhrases = await getTranscriptPhrases(id);
 			if (id === selectedTranscriptId.value) phrases.value = loadedPhrases;
 		} catch {
-			phrases.value = [];
+			if (id === selectedTranscriptId.value) phrases.value = [];
 		}
 	});
 };

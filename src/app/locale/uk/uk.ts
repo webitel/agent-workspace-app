@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
+			startedAt: 'Початок',
+			username: "Ім'я користувача",
+			message: 'Повідомлення',
 		},
 		numpad: {
 			call: 'Зателефонувати',
@@ -53,6 +56,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Активні',
+				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Інфо',
@@ -94,6 +100,15 @@ export default {
 				variableColumnSelect: {
 					title: 'Вибрати колонки зі змінними',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Виклик',
+				noAnswer: 'Немає відповіді',
+				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
+				retryCall: 'Повторити дзвінок',
+				backToDialpad: 'Назад до набору номера',
 			},
 		},
 	},

@@ -36,6 +36,9 @@ export default {
 		reusable: {
 			run: 'Rulează',
 			nothingToShowHere: 'Nu există nimic de afișat aici',
+			startedAt: 'Început la',
+			username: 'Nume utilizator',
+			message: 'Mesaj',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -46,6 +49,9 @@ export default {
 		},
 		pages: {
 			chats: {
+				pageTabs: {
+					active: 'Active',
+				},
 				tabs: {
 					chat: 'Chat',
 					info: 'Informații',
@@ -83,6 +89,15 @@ export default {
 				variableColumnSelect: {
 					title: 'Selectează coloanele variabile',
 				},
+			},
+		},
+		call: {
+			outboundCall: {
+				ringing: 'Sună',
+				noAnswer: 'Niciun răspuns',
+				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
+				retryCall: 'Reîncearcă apelul',
+				backToDialpad: 'Înapoi la tastatură',
 			},
 		},
 	},

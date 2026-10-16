@@ -82,11 +82,7 @@ const getList = async (params: Record<string, unknown> = {}) => {
 		fields: toApiFields(fields as string[] | undefined),
 		sort: sort || DEFAULT_SORT,
 		createdAt: {
-			from:
-				createdAtRange?.from ??
-				normalizeToTimestamp(RelativeDatetimeValue.Today, {
-					round: 'start',
-				}),
+			from: createdAtRange?.from ?? 0,
 			to:
 				createdAtRange?.to ??
 				normalizeToTimestamp(RelativeDatetimeValue.Today, {

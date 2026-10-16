@@ -12,9 +12,9 @@
 				v-for="key in keys"
 				:key="key"
 				class="the-numpad__key"
-				color="secondary"
-				variant="outlined"
-				size="sm"
+				:color="ButtonColor.SECONDARY"
+				:variant="ButtonVariant.OUTLINED"
+				:size="ComponentSize.SM"
 				@click="appendDigit(key)"
 			>
 				{{ key }}
@@ -22,8 +22,8 @@
 		</div>
 
 		<wt-button
-			color="success"
-			size="sm"
+			:color="ButtonColor.SUCCESS"
+			:size="ComponentSize.SM"
 			wide
 			:disabled="!canCall"
 			@click="onCall"
@@ -38,6 +38,11 @@
 	lang="ts"
 >
 import { WtButton, WtInputText } from '@webitel/ui-sdk/components';
+import {
+	ButtonColor,
+	ButtonVariant,
+	ComponentSize,
+} from '@webitel/ui-sdk/enums';
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
