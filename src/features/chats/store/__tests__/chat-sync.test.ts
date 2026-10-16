@@ -74,6 +74,8 @@ vi.mock('../../api/chatSdk', () => ({
 // --- SDK socket client -------------------------------------------------------
 
 let sdkMessageHandler: ((data: unknown) => void) | null = null;
+let sdkReconnectedHandler: ((payload: { attempt: number }) => void) | null =
+	null;
 const socketConnectMock = vi.fn();
 
 vi.mock('@webitel/chat-web-sdk', () => ({
@@ -84,13 +86,6 @@ vi.mock('@webitel/chat-web-sdk', () => ({
 	ChatsSocketMessage: {
 		ThreadMessage: 'messageEvent',
 	},
-	ChatsSocketConnectionStatus: {
-		Idle: 'idle',
-		Connecting: 'connecting',
-		Connected: 'connected',
-		Disconnected: 'disconnected',
-		Error: 'error',
-	},
 	createSocketConfig: (config: unknown) => config,
 	createChatsSocketClient: () => ({
 		connect: socketConnectMock,
@@ -98,12 +93,19 @@ vi.mock('@webitel/chat-web-sdk', () => ({
 		onMessage: (_event: string, callback: (data: unknown) => void) => {
 			sdkMessageHandler = callback;
 		},
-		onReconnected: vi.fn(),
+		onReconnected: (callback: (payload: { attempt: number }) => void) => {
+			sdkReconnectedHandler = callback;
+		},
 	}),
 }));
 
 /** The server pushes a message over the chats socket. */
 const pushMessage = (pushed: FakeMessage) => sdkMessageHandler?.(pushed);
+/** The SDK reports that the server answers again after a drop. */
+const reportReconnected = () =>
+	sdkReconnectedHandler?.({
+		attempt: 2,
+	});
 
 // --- app singletons ----------------------------------------------------------
 
@@ -139,6 +141,8 @@ vi.mock('../../../../app/router', () => ({
 }));
 
 import { useChatsSocket } from '../../composables/useChatsSocket';
+import { useChatListStore } from '../../modules/previews/store/chat-list';
+import { useChatPreviewsStore } from '../../modules/previews/store/chat-previews';
 import { retainChatSessions, useChatSessionStore } from '../chat-session';
 import { useChatVariablesStore } from '../chat-variables';
 import { useChatsStore } from '../chats';
@@ -173,6 +177,7 @@ describe('chat session and chat previews, together', () => {
 		olderPages.clear();
 		holdSessionHistory = null;
 		sdkMessageHandler = null;
+		sdkReconnectedHandler = null;
 
 		socketConnectMock.mockResolvedValue(undefined);
 		previewHistoryMock.mockImplementation(async (threadId: string) => ({
@@ -346,6 +351,40 @@ describe('chat session and chat previews, together', () => {
 			releaseHistory();
 			await flushPromises();
 
+			expect(messageIds('t1')).toEqual([
+				'm1',
+				'm2',
+			]);
+		});
+	});
+
+	// reconnecting itself is chat-web-sdk's job; what the app owns is catching
+	// up once the SDK says the socket is back
+	describe('a dropped chats socket', () => {
+		it('catches up the list and a closed window’s retained session', async () => {
+			histories.set('t1', [
+				message('m1', 1000),
+			]);
+			tasks.value = [
+				listedTask('t1'),
+			];
+			const chats = useChatsStore();
+			chats.initialize();
+			// the list store is what hands the listed chats to the previews
+			useChatListStore();
+			chats.openChat('t1');
+			await flushPromises();
+			chats.closeChat('t1');
+
+			// m2 is written while the socket is down, so it is never pushed
+			histories.set('t1', [
+				message('m2', 2000),
+				message('m1', 1000),
+			]);
+			reportReconnected();
+			await flushPromises();
+
+			expect(useChatPreviewsStore().lastMessages.t1?.id).toBe('m2');
 			expect(messageIds('t1')).toEqual([
 				'm1',
 				'm2',
