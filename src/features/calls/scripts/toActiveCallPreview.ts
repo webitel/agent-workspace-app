@@ -1,6 +1,6 @@
 import type { Call } from 'webitel-sdk';
 
-import type { ActiveCallPreview } from '../../../ui/dialer/types/ActiveCallPreview.types';
+import type { ActiveCallPreview } from '../../../ui/call/types/ActiveCallPreview.types';
 import { getConnectedAt } from './getConnectedAt';
 import { maskNumber } from './toCallOfferContent';
 
