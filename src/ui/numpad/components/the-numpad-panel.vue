@@ -39,7 +39,7 @@ import { computed } from 'vue';
 
 import { OutboundCallStatus } from '../../../features/calls/enums/OutboundCallStatus.enum';
 import { useOutboundCallAttemptsStore } from '../../../features/calls/store/outboundCallAttempts';
-import OutboundCallCard from '../../dialer/components/outbound-call-card.vue';
+import OutboundCallCard from '../../call/components/outbound-call-card.vue';
 import { useNumpadStore } from '../store/numpad';
 import TheNumpad from './the-numpad.vue';
 
@@ -54,9 +54,9 @@ const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
 
 /**
  * @author Oleksandr Palonnyi
- * The numpad and the outbound call cards are variants of one "Dialer" card in
- * the design, so they share this panel. The numpad stays open beside the cards,
- * since the agent may dial again before the first attempt is answered; an
+ * The numpad and the outbound call cards are variants of one card in the design
+ * (hence the `--wt-ws-dialer-*` tokens), so they share this panel. The numpad stays
+ * open beside the cards, since the agent may dial again before the first attempt is answered; an
  * answered call leaves its card for the active call window (AC_16.01.06)
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */
