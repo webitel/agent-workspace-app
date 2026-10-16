@@ -32,7 +32,7 @@
 	"dependencies": {
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.8",
-		"@webitel/chat-web-sdk": "^0.0.19",
+		"@webitel/chat-web-sdk": "^0.0.20",
 		"@webitel/styleguide": "~26.8",
 		"@webitel/ui-chats": "~26.8",
 		"@webitel/ui-datalist": "~26.8",
