@@ -122,7 +122,7 @@ import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useThemedImage } from '../../../../../../app/composables/useThemedImage';
-import PhoneCallTableCell from '../../../../../components/phone-call-table-cell.vue';
+import PhoneCallTableCell from '../../../../components/phone-call-table-cell.vue';
 import CallsHistoryInfoPopup from './calls-history-info-popup.vue';
 import CallsHistoryNameCell from './calls-history-name-cell.vue';
 import CallsHistoryRowActions from './calls-history-row-actions.vue';

@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { ButtonVariant } from '@webitel/ui-sdk/enums';
 import { ref } from 'vue';
-import { useCallsStore } from '../../features/calls/store/calls';
+import { useCallsStore } from '../../../features/calls/store/calls';
 
 const props = defineProps<{
 	phoneNumber?: string;
