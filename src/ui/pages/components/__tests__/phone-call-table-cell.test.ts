@@ -7,7 +7,7 @@ const callsStore = {
 	call: vi.fn(),
 };
 
-vi.mock('../../../features/calls/store/calls', () => ({
+vi.mock('../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => callsStore,
 }));
 
