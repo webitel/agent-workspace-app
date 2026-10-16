@@ -98,7 +98,7 @@ vi.mock('@webitel/chat-web-sdk', () => ({
 		onMessage: (_event: string, callback: (data: unknown) => void) => {
 			sdkMessageHandler = callback;
 		},
-		onState: vi.fn(),
+		onReconnected: vi.fn(),
 	}),
 }));
 
