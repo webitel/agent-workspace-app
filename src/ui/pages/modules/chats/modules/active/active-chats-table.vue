@@ -46,7 +46,7 @@ import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import UsernameTableCell from '../../../../../components/username-table-cell.vue';
+import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import { useActiveChatsDataListStore } from './store/active-chats';
 
 const store = useActiveChatsDataListStore();

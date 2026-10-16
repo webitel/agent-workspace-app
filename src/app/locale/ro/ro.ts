@@ -39,6 +39,7 @@ export default {
 			startedAt: 'Început la',
 			username: 'Nume utilizator',
 			message: 'Mesaj',
+			phoneNumber: 'Număr de telefon',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -48,6 +49,11 @@ export default {
 			loadError: 'Nu s-au putut încărca variabilele',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Pierdute',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Active',
@@ -68,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Număr de telefon',
 					},
 					recordings: {
 						unavailable: 'Înregistrare indisponibilă',

@@ -39,6 +39,7 @@ export default {
 			startedAt: 'Початок',
 			username: "Ім'я користувача",
 			message: 'Повідомлення',
+			phoneNumber: 'Номер телефону',
 		},
 		numpad: {
 			call: 'Зателефонувати',
@@ -55,6 +56,11 @@ export default {
 			loadError: 'Не вдалося завантажити змінні',
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Пропущені',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Активні',
@@ -79,7 +85,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Номер телефону',
 					},
 					recordings: {
 						unavailable: 'Запис недоступний',
