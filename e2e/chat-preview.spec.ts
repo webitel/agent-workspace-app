@@ -227,4 +227,36 @@ test.describe('chat preview', () => {
 			await expect(lastMessage(page)).toHaveClass(/chat-preview-body--agent/);
 		});
 	});
+
+	test.describe('after the chats socket drops', () => {
+		test('catches up the row and the open window with what was written meanwhile', async ({
+			page,
+			socket,
+		}) => {
+			await acceptChat(page, socket, {
+				messages: [
+					message('msg-1', CLIENT, 'Can you help me?', todayAt(9, 5)),
+				],
+			});
+			await page.locator('.chat-preview').click();
+			await expect(
+				page.locator('.chat-history').getByText('Can you help me?'),
+			).toBeVisible();
+
+			await socket.dropChatSocket();
+			await mockChatThread(page, {
+				...THREAD,
+				messages: [
+					message('msg-2', AGENT, 'Sorry, we were offline', todayAt(9, 9)),
+					message('msg-1', CLIENT, 'Can you help me?', todayAt(9, 5)),
+				],
+			});
+			// the SDK reconnects on its own and the mock greets the new socket
+
+			await expect(lastMessageText(page)).toHaveText('Sorry, we were offline');
+			await expect(
+				page.locator('.chat-history').getByText('Sorry, we were offline'),
+			).toBeVisible();
+		});
+	});
 });
