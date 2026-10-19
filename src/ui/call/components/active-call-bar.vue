@@ -59,9 +59,9 @@ const buttonColor = computed(() =>
 	height: 40px;
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-xs);
-	padding: var(--spacing-2xs);
-	border-radius: var(--p-border-radius-lg);
+	gap: var(--wt-ws-call-dock-sizes-floating-call-widget-gap);
+	padding: var(--wt-ws-call-dock-sizes-floating-call-widget-padding-x);
+	border-radius: var(--wt-ws-call-dock-sizes-floating-call-widget-border-radius);
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-background);
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-active-color);
 }

@@ -25,12 +25,30 @@ import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 
 const callsStore = useCallsStore();
 
-const activeCalls = computed(() =>
-	callsStore.activeCalls.map((call) => ({
+/**
+ * @author Oleksandr Palonnyi
+ * temporary hardcoded call so the bar is visible without a real call, remove
+ * together with the concat in `activeCalls`
+ * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+ */
+const MOCK_ACTIVE_CALL = {
+	id: 'mock-active-call',
+	preview: {
+		name: 'John Doe',
+		number: '+380501234567',
+		queueName: 'Support',
+		answeredAt: Date.now(),
+		isHold: false,
+	},
+};
+
+const activeCalls = computed(() => [
+	...callsStore.activeCalls.map((call) => ({
 		id: call.id,
 		preview: toActiveCallPreview(call),
 	})),
-);
+	MOCK_ACTIVE_CALL,
+]);
 </script>
 
 <style scoped>
