@@ -18,6 +18,5 @@ export function toActiveCallPreview(call: Call): ActiveCallPreview {
 		queueName: call.queue?.queue_name || undefined,
 		answeredAt: call.answeredAt,
 		isHold: call.isHold,
-		isMuted: call.muted,
 	};
 }

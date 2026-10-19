@@ -12,7 +12,6 @@ const buildPreview = (
 	queueName: 'Sales',
 	answeredAt: Date.now(),
 	isHold: false,
-	isMuted: false,
 	...overrides,
 });
 
