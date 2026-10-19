@@ -255,7 +255,7 @@ describe('missed-calls-table', () => {
 
 			const wrapper = mountTable();
 
-			expect(wrapper.find('.cell-duration').text()).toBe('00.01.05');
+			expect(wrapper.find('.cell-duration').text()).toBe('00:01:05');
 		});
 
 		describe('queue', () => {
