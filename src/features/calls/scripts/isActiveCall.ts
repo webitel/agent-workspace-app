@@ -1,7 +1,5 @@
 import type { Call } from 'webitel-sdk';
 
-import { getConnectedAt } from './getConnectedAt';
-
 /**
  * @author Oleksandr Palonnyi
  * connected means the callee or the agent answered (`answeredAt`, the same
@@ -13,5 +11,5 @@ import { getConnectedAt } from './getConnectedAt';
 export function isActiveCall(call: Call | null | undefined): boolean {
 	if (!call) return false;
 
-	return getConnectedAt(call) > 0 && !call.hangupAt;
+	return call.answeredAt > 0 && !call.hangupAt;
 }

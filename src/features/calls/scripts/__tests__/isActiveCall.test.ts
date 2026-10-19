@@ -15,17 +15,6 @@ describe('isActiveCall', () => {
 		expect(isActiveCall(buildCall())).toBe(true);
 	});
 
-	it('is true for a bridged call whose answeredAt is still 0', () => {
-		expect(
-			isActiveCall(
-				buildCall({
-					answeredAt: 0,
-					bridgedAt: 1_700_000_000_000,
-				}),
-			),
-		).toBe(true);
-	});
-
 	it('is false for a call nobody answered yet', () => {
 		expect(
 			isActiveCall(

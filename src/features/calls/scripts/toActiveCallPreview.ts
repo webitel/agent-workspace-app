@@ -1,7 +1,6 @@
 import type { Call } from 'webitel-sdk';
 
 import type { ActiveCallPreview } from '../../../ui/call/types/ActiveCallPreview.types';
-import { getConnectedAt } from './getConnectedAt';
 import { maskNumber } from './toCallOfferContent';
 
 /**
@@ -17,7 +16,7 @@ export function toActiveCallPreview(call: Call): ActiveCallPreview {
 		name: call.hideContact ? undefined : call.displayName || undefined,
 		number: call.hideNumber ? maskNumber(number) : number,
 		queueName: call.queue?.queue_name || undefined,
-		answeredAt: getConnectedAt(call),
+		answeredAt: call.answeredAt,
 		isHold: call.isHold,
 		isMuted: call.muted,
 	};
