@@ -23,8 +23,12 @@ import CallsPageActionPanel from './calls-page-action-panel.vue';
 import { CallsPageTab } from './enums/CallsPageTab.enum';
 import MissedCallsTable from './modules/missed/missed-calls-table.vue';
 import { useMissedCallsDataListStore } from './modules/missed/store/missed-calls';
+import OfflineCallsTable from './modules/offline/offline-calls-table.vue';
+import { useOfflineCallsDataListStore } from './modules/offline/store/offline-calls';
 
-type CallsPageStore = ReturnType<typeof useMissedCallsDataListStore>;
+type CallsPageStore =
+	| ReturnType<typeof useMissedCallsDataListStore>
+	| ReturnType<typeof useOfflineCallsDataListStore>;
 
 const { t } = useI18n();
 const route = useRoute();
@@ -36,6 +40,13 @@ const tabs = computed<PageTab<CallsPageStore>[]>(() => [
 		pathName: CallsPageTab.Missed,
 		component: MissedCallsTable,
 		store: useMissedCallsDataListStore(),
+	},
+	{
+		text: t('ui.pages.calls.pageTabs.offline'),
+		value: CallsPageTab.Offline,
+		pathName: CallsPageTab.Offline,
+		component: OfflineCallsTable,
+		store: useOfflineCallsDataListStore(),
 	},
 ]);
 

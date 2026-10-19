@@ -52,6 +52,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Cuộc gọi nhỡ',
+					offline: 'Ngoại tuyến',
 				},
 			},
 			chats: {

@@ -52,6 +52,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Pierdute',
+					offline: 'Offline',
 				},
 			},
 			chats: {

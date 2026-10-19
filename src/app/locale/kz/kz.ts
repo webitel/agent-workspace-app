@@ -52,6 +52,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Қабылданбаған',
+					offline: 'Офлайн',
 				},
 			},
 			chats: {
