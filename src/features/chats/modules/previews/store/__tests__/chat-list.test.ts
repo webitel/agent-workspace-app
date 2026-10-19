@@ -30,6 +30,23 @@ vi.mock('../chat-previews', () => ({
 	}),
 }));
 
+const snoozedTasks = ref<
+	{
+		id: number;
+	}[]
+>([]);
+vi.mock('../chat-snoozed', () => ({
+	useChatSnoozedStore: () => ({
+		get tasks() {
+			return snoozedTasks.value;
+		},
+		get count() {
+			return snoozedTasks.value.length;
+		},
+	}),
+}));
+
+import { ChatListTab } from '../../enums/ChatListTab.enum';
 import { useChatListStore } from '../chat-list';
 
 // `null`, not `undefined`: passing undefined would re-apply the default
@@ -51,6 +68,7 @@ describe('chat-list store', () => {
 		syncMock.mockReset();
 		chatTaskList.value = [];
 		unreadByThread.value = {};
+		snoozedTasks.value = [];
 		setActivePinia(createPinia());
 	});
 
@@ -177,6 +195,116 @@ describe('chat-list store', () => {
 			store.toggleOnlyUnread();
 
 			expect(store.tasks).toHaveLength(4);
+		});
+	});
+
+	describe('tabs', () => {
+		it('opens on the Active tab', () => {
+			const store = useChatListStore();
+
+			expect(store.currentTab).toBe(ChatListTab.Active);
+		});
+
+		it('shows the active chats on the Active tab', () => {
+			chatTaskList.value = buildChats(2);
+			snoozedTasks.value = [
+				{
+					id: 9,
+				},
+			];
+			const store = useChatListStore();
+
+			expect(store.currentTasks.map((task) => task.id)).toEqual([
+				1,
+				2,
+			]);
+		});
+
+		it('shows the snoozed chats on the Snoozed tab', () => {
+			chatTaskList.value = buildChats(2);
+			snoozedTasks.value = [
+				{
+					id: 9,
+				},
+			];
+			const store = useChatListStore();
+
+			store.setTab(ChatListTab.Snoozed);
+
+			expect(store.currentTasks.map((task) => task.id)).toEqual([
+				9,
+			]);
+		});
+
+		it('does not apply the unread filter to the Snoozed tab', () => {
+			unreadByThread.value = {
+				t1: 1,
+			};
+			snoozedTasks.value = [
+				{
+					id: 9,
+				},
+				{
+					id: 10,
+				},
+			];
+			const store = useChatListStore();
+
+			store.toggleOnlyUnread();
+			store.setTab(ChatListTab.Snoozed);
+
+			expect(store.currentTasks).toHaveLength(2);
+		});
+	});
+
+	describe('tab indicators', () => {
+		it('counts every chat on the Active tab, whatever the unread filter shows', () => {
+			chatTaskList.value = buildChats(4);
+			unreadByThread.value = {
+				t2: 1,
+			};
+			const store = useChatListStore();
+
+			store.toggleOnlyUnread();
+
+			expect(store.activeCount).toBe(4);
+		});
+
+		it('counts the snoozed chats on the Snoozed tab', () => {
+			snoozedTasks.value = [
+				{
+					id: 9,
+				},
+				{
+					id: 10,
+				},
+			];
+			const store = useChatListStore();
+
+			expect(store.snoozedCount).toBe(2);
+		});
+
+		// the backend sends no unread data yet, and a count worked out on the client
+		// would read as fact (ADR-0001)
+		it('has no unread count while there is no unread data', () => {
+			chatTaskList.value = buildChats(3);
+			const store = useChatListStore();
+
+			expect(store.unreadCount).toBe(0);
+		});
+
+		it('counts the listed chats with unread messages', () => {
+			chatTaskList.value = buildChats(4);
+			unreadByThread.value = {
+				t2: 1,
+				t3: 0,
+				t4: 7,
+				// a chat that has left the list does not count
+				t99: 3,
+			};
+			const store = useChatListStore();
+
+			expect(store.unreadCount).toBe(2);
 		});
 	});
 });

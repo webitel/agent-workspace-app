@@ -15,6 +15,12 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
 		},
+		chatList: {
+			tabs: {
+				active: 'Đang hoạt động',
+				snoozed: 'Đã tạm hoãn',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
