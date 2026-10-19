@@ -13,6 +13,7 @@ import { toChatOfferContent } from '../scripts/toChatOfferContent';
 import type { ChatWindowMode, OpenChat } from '../types/ChatSession.types';
 import { useChatAccountStore } from './chat-account';
 import {
+	chatSessionIds,
 	hasChatSession,
 	retainChatSessions,
 	useChatSessionStore,
@@ -26,7 +27,11 @@ export const useChatsStore = defineStore('chats', () => {
 	const storeScope = getCurrentScope();
 
 	const { getClient, tasks } = useWebSocketClient();
-	const { connect: connectChatsSocket, onThreadMessage } = useChatsSocket();
+	const {
+		connect: connectChatsSocket,
+		onThreadMessage,
+		onReconnected,
+	} = useChatsSocket();
 	const offersStore = useOffersStore();
 	const previewsStore = useChatPreviewsStore();
 	const accountStore = useChatAccountStore();
@@ -222,6 +227,14 @@ export const useChatsStore = defineStore('chats', () => {
 			// kept current whether its window is open or not
 			if (!message.threadId || !hasChatSession(message.threadId)) return;
 			useChatSessionStore(message.threadId).receiveMessage(message);
+		});
+		onReconnected(() => {
+			// the socket was down, so anything written meanwhile was never pushed:
+			// read the list's last messages and every session's newest page again
+			previewsStore.reseed();
+			for (const threadId of chatSessionIds()) {
+				useChatSessionStore(threadId).catchUp();
+			}
 		});
 	}
 

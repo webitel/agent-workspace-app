@@ -36,6 +36,10 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
+			startedAt: 'Boshlangan',
+			username: 'Foydalanuvchi nomi',
+			message: 'Xabar',
+			phoneNumber: 'Telefon raqami',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -45,6 +49,11 @@ export default {
 			loadError: "O'zgaruvchilarni yuklab bo'lmadi",
 		},
 		pages: {
+			calls: {
+				pageTabs: {
+					missed: 'Oʼtkazib yuborilgan',
+				},
+			},
 			chats: {
 				pageTabs: {
 					active: 'Faol',
@@ -65,7 +74,6 @@ export default {
 				calls: {
 					table: {
 						mos: 'MOS',
-						phoneNumber: 'Telefon raqami',
 					},
 					recordings: {
 						unavailable: 'Yozuv mavjud emas',

@@ -1,8 +1,8 @@
 <template>
-	<div class="calls-history-phone-cell">
+	<div class="phone-call-table-cell">
 		<wt-button
-			variant="text"
-			class="calls-history-phone-cell__button"
+			:variant="ButtonVariant.TEXT"
+			class="phone-call-table-cell__button"
 			icon="calls"
 			:disabled="!phoneNumber || isCalling"
 			@click="startCall"
@@ -12,32 +12,23 @@
 </template>
 
 <script setup lang="ts">
-import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
-import { computed, ref } from 'vue';
-import { CallDirection } from 'webitel-sdk';
-import { useCallsStore } from '../../../../../../features/calls/store/calls';
+import { ButtonVariant } from '@webitel/ui-sdk/enums';
+import { ref } from 'vue';
+import { useCallsStore } from '../../../features/calls/store/calls';
 
 const props = defineProps<{
-	item: EngineHistoryCall;
+	phoneNumber?: string;
 }>();
 
 const callsStore = useCallsStore();
 
 const isCalling = ref(false);
 
-const phoneNumber = computed(() => {
-	const { direction, to, from, destination } = props.item;
-
-	return direction === CallDirection.Outbound
-		? to?.number || destination
-		: from?.number;
-});
-
 async function startCall() {
 	isCalling.value = true;
 	try {
 		await callsStore.call({
-			destination: phoneNumber.value,
+			destination: props.phoneNumber,
 		});
 	} finally {
 		isCalling.value = false;
@@ -46,18 +37,18 @@ async function startCall() {
 </script>
 
 <style scoped>
-.calls-history-phone-cell {
+.phone-call-table-cell {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
 }
 
-.calls-history-phone-cell__button {
+.phone-call-table-cell__button {
 	flex-shrink: 0;
 	--icon-color: var(--wt-ws-dialer-colors-connection-feedback-block-call-status-indicator-success-color);
 }
 
-.calls-history-phone-cell__button:hover {
+.phone-call-table-cell__button:hover {
 	background: var(--wt-ws-dialer-colors-connection-feedback-block-call-status-indicator-success-background);
 }
 </style>

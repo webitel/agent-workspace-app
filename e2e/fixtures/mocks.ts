@@ -146,6 +146,11 @@ export interface MockedSocket {
 	 * so `data` is written in snake_case like the backend does.
 	 */
 	sendChatEvent(event: string, data: unknown): void;
+	/**
+	 * Drops the chat socket the way a network blip does. Frames pushed until
+	 * the app connects again are held and delivered to the new socket.
+	 */
+	dropChatSocket(): Promise<void>;
 	/** Every request the app sent over a socket, oldest first. */
 	requests: MockedSocketRequest[];
 }
@@ -206,11 +211,22 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 			);
 		});
 
+		// each socket is greeted the way its server does it. The chat socket's
+		// `connected_event` is what completes the chat SDK's connect: without it
+		// the SDK times the attempt out and reconnects in the middle of a spec.
 		ws.send(
-			JSON.stringify({
-				event: 'hello',
-				data: helloPayload,
-			}),
+			JSON.stringify(
+				channel === 'chat'
+					? {
+							payload: {
+								connected_event: {},
+							},
+						}
+					: {
+							event: 'hello',
+							data: helloPayload,
+						},
+			),
 		);
 
 		for (const frame of queued[channel]?.splice(0) ?? []) {
@@ -248,6 +264,11 @@ export async function mockAppWebSocket(page: Page): Promise<MockedSocket> {
 					},
 				}),
 			);
+		},
+		async dropChatSocket() {
+			const target = sockets.chat;
+			sockets.chat = undefined;
+			await target?.close();
 		},
 	};
 }

@@ -27,7 +27,7 @@ import { computed } from 'vue';
 
 import { toActiveCallPreview } from '../../../features/calls/scripts/toActiveCallPreview';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import ActiveCallBar from '../../dialer/components/active-call-bar.vue';
+import ActiveCallBar from '../../call/components/active-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
 
