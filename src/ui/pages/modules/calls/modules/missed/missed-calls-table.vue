@@ -20,11 +20,11 @@
 			</template>
 
 			<template #createdAt="{ item }">
-				{{ formatCreatedAt(item.createdAt) }}
+				{{ formatDate(item.createdAt, FormatDateMode.DATETIME) }}
 			</template>
 
 			<template #duration="{ item }">
-				{{ formatDuration(item.duration) }}
+				{{ convertDuration(item.duration) }}
 			</template>
 
 			<template #queue="{ item }">
@@ -70,12 +70,6 @@ const onLoading = async () => {
 
 const getName = ({ contact, from }: EngineHistoryCall) =>
 	contact?.name || from?.name || from?.number;
-
-const formatCreatedAt = (createdAt?: string) =>
-	createdAt ? formatDate(+createdAt, FormatDateMode.DATETIME) : '';
-
-const formatDuration = (duration?: number) =>
-	convertDuration(duration ?? 0).replaceAll(':', '.');
 
 initialize().finally(() => {
 	isInitializing.value = false;
