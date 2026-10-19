@@ -289,11 +289,11 @@ describe('calls-history-table', () => {
 		it.each([
 			[
 				65,
-				'00.01.05',
+				'00:01:05',
 			],
 			[
 				undefined,
-				'00.00.00',
+				'00:00:00',
 			],
 		])('shows duration %s as %s', (duration, text) => {
 			mockStore.dataList = [

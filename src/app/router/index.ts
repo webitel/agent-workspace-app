@@ -6,7 +6,8 @@ import {
 	type NavigationGuard,
 	type RouteRecordRaw,
 } from 'vue-router';
-import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
+import { CallsPageTab } from '../../ui/pages/modules/calls/enums/CallsPageTab.enum';
+import TheCallsPage from '../../ui/pages/modules/calls/the-calls-page.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import { ChatsPageTab } from '../../ui/pages/modules/chats/enums/ChatsPageTab.enum';
@@ -34,8 +35,14 @@ const routes: RouteRecordRaw[] = [
 		children: [
 			{
 				path: '/calls',
-				name: 'calls',
-				component: TheCallsWorkspace,
+				component: TheCallsPage,
+				children: [
+					{
+						path: '',
+						name: CallsPageTab.Missed,
+						component: NoopRouteComponent,
+					},
+				],
 			},
 			{
 				path: '/chats',
