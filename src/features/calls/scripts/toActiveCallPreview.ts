@@ -3,6 +3,11 @@ import type { Call } from 'webitel-sdk';
 import type { ActiveCallPreview } from '../../../ui/call/types/ActiveCallPreview.types';
 import { maskNumber } from './toCallOfferContent';
 
+function resolveName(call: Call): string | undefined {
+	if (call.hideContact) return undefined;
+	return call.displayName || undefined;
+}
+
 /**
  * @author Oleksandr Palonnyi
  * identity follows the offer card: an empty `displayName` means the contact
@@ -13,7 +18,7 @@ export function toActiveCallPreview(call: Call): ActiveCallPreview {
 	const number = call.displayNumber;
 
 	return {
-		name: call.hideContact ? undefined : call.displayName || undefined,
+		name: resolveName(call),
 		number: call.hideNumber ? maskNumber(number) : number,
 		queueName: call.queue?.queue_name || undefined,
 		answeredAt: call.answeredAt,
