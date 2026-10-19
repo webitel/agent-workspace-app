@@ -3,73 +3,35 @@ import { computed, ref, watch } from 'vue';
 
 import { useChatsStore } from '../../../store/chats';
 import { ChatListTab } from '../enums/ChatListTab.enum';
+import { useChatActiveStore } from './chat-active';
 import { useChatPreviewsStore } from './chat-previews';
 import { useChatSnoozedStore } from './chat-snoozed';
 
 /**
- * What the chat list shows: the Active tab's chats, all of them or the unread
- * ones when the filter is on (AC_02.01.04), or the Snoozed tab's. Also counts
- * each tab for its indicator (US_02.12). Also hands the agent's chats to the
- * previews, which keep a last message for each.
- *
- * Paging on scroll (AC_02.01.02) is deliberately not here yet; the list is every
- * active chat the task feed carries.
+ * Which tab of the chat list is open and what it shows, with each tab's count
+ * for its indicator (US_02.12). Also hands the agent's chats to the previews,
+ * which keep a last message for each.
  */
 export const useChatListStore = defineStore('chat-list', () => {
 	const chatsStore = useChatsStore();
 	const previewsStore = useChatPreviewsStore();
+	const activeStore = useChatActiveStore();
 	const snoozedStore = useChatSnoozedStore();
 
 	const currentTab = ref<ChatListTab>(ChatListTab.Active);
-	const onlyUnread = ref(false);
 
-	/**
-	 * The toggle exists only while there is unread data behind it; the backend
-	 * does not supply any yet (see `chat-previews`). Gating on the data rather
-	 * than on a flag means nothing changes here the day it arrives.
-	 */
-	const isUnreadFilterAvailable = computed(() => previewsStore.hasUnreadData);
-
-	// a chosen filter without data would empty the list for no reason
-	const isFilteringUnread = computed(
-		() => onlyUnread.value && isUnreadFilterAvailable.value,
-	);
-
-	const tasks = computed(() =>
-		isFilteringUnread.value
-			? chatsStore.chatTaskList.filter((task) =>
-					previewsStore.isUnread(task.thread?.id ?? ''),
-				)
-			: chatsStore.chatTaskList,
-	);
-
-	// the unread filter narrows the Active tab only
 	const currentTasks = computed(() =>
-		currentTab.value === ChatListTab.Snoozed ? snoozedStore.tasks : tasks.value,
+		currentTab.value === ChatListTab.Snoozed
+			? snoozedStore.tasks
+			: activeStore.tasks,
 	);
 
-	// the tab indicators count the tab's chats, not what the unread filter leaves
-	const activeCount = computed(() => chatsStore.chatTaskList.length);
+	const activeCount = computed(() => activeStore.count);
 	const snoozedCount = computed(() => snoozedStore.count);
-
-	/**
-	 * Zero while there is no unread data, so the indicator stays out of sight
-	 * rather than claiming nothing is unread.
-	 */
-	const unreadCount = computed(() =>
-		isUnreadFilterAvailable.value
-			? chatsStore.chatTaskList.filter((task) =>
-					previewsStore.isUnread(task.thread?.id ?? ''),
-				).length
-			: 0,
-	);
+	const unreadCount = computed(() => activeStore.unreadCount);
 
 	function setTab(tab: ChatListTab) {
 		currentTab.value = tab;
-	}
-
-	function toggleOnlyUnread() {
-		onlyUnread.value = !onlyUnread.value;
 	}
 
 	/**
@@ -90,12 +52,8 @@ export const useChatListStore = defineStore('chat-list', () => {
 	return {
 		// state
 		currentTab,
-		onlyUnread,
 
 		// getters
-		isUnreadFilterAvailable,
-		isFilteringUnread,
-		tasks,
 		currentTasks,
 		activeCount,
 		snoozedCount,
@@ -103,7 +61,6 @@ export const useChatListStore = defineStore('chat-list', () => {
 
 		// actions
 		setTab,
-		toggleOnlyUnread,
 	};
 });
 

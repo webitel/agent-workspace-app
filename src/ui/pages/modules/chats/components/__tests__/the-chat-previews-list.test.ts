@@ -6,12 +6,21 @@ const chatListStore = reactive({
 	currentTasks: [] as {
 		id: number;
 	}[],
+});
+const chatActiveStore = reactive({
 	isUnreadFilterAvailable: false,
 });
 vi.mock(
 	'../../../../../../features/chats/modules/previews/store/chat-list',
 	() => ({
 		useChatListStore: () => chatListStore,
+	}),
+);
+
+vi.mock(
+	'../../../../../../features/chats/modules/previews/store/chat-active',
+	() => ({
+		useChatActiveStore: () => chatActiveStore,
 	}),
 );
 
@@ -57,7 +66,7 @@ const mountList = () =>
 describe('the-chat-previews-list', () => {
 	beforeEach(() => {
 		chatListStore.currentTasks = [];
-		chatListStore.isUnreadFilterAvailable = false;
+		chatActiveStore.isUnreadFilterAvailable = false;
 	});
 
 	it('renders a row for every chat', () => {
@@ -90,7 +99,7 @@ describe('the-chat-previews-list', () => {
 	});
 
 	it('shows the unread filter once it is available', () => {
-		chatListStore.isUnreadFilterAvailable = true;
+		chatActiveStore.isUnreadFilterAvailable = true;
 
 		const wrapper = mountList();
 
