@@ -2,15 +2,13 @@
     <div class="task-dock-call-lane">
         <the-numpad-panel />
 
-        <task-dock-item-wrapper
-            v-for="call in calls"
-            :key="call.id"
-            :label="call.label"
-            :expanded="taskDockStore.expandedCallId === call.id"
-            @click="taskDockStore.toggleCallExpand(call.id)"
-        >
-            Call
-        </task-dock-item-wrapper>
+        <div class="task-dock-call-lane__container">
+            <floating-call-widget
+                v-for="activeCall in activeCalls"
+                :key="activeCall.id"
+                :preview="activeCall.preview"
+            />
+        </div>
     </div>
 </template>
 
@@ -18,22 +16,21 @@
     setup
     lang="ts"
 >
+import { computed } from 'vue';
+
+import { toActiveCallPreview } from '../../../features/calls/scripts/toActiveCallPreview';
+import { useCallsStore } from '../../../features/calls/store/calls';
+import FloatingCallWidget from '../../call/components/floating-call-widget.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
-import { useTaskDockStore } from '../store/task-dock';
-import TaskDockItemWrapper from './task-dock-item-wrapper.vue';
 
-const taskDockStore = useTaskDockStore();
+const callsStore = useCallsStore();
 
-const calls = [
-	{
-		id: 'call-1',
-		label: 'Call 1',
-	},
-	{
-		id: 'call-2',
-		label: 'Call 2',
-	},
-];
+const activeCalls = computed(() =>
+	callsStore.activeCalls.map((call) => ({
+		id: call.id,
+		preview: toActiveCallPreview(call),
+	})),
+);
 </script>
 
 <style scoped>
@@ -41,5 +38,12 @@ const calls = [
     display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
+}
+
+.task-dock-call-lane__container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--spacing-xs);
 }
 </style>
