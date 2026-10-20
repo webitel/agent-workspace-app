@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import type { ActiveCallPreview } from '../../types/ActiveCallPreview.types';
-import ActiveCallBar from '../active-call-bar.vue';
+import FloatingCallWidget from '../floating-call-widget.vue';
 
 const buildPreview = (
 	overrides: Partial<ActiveCallPreview> = {},
@@ -16,7 +16,7 @@ const buildPreview = (
 });
 
 const mountBar = (preview: ActiveCallPreview = buildPreview()) =>
-	mount(ActiveCallBar, {
+	mount(FloatingCallWidget, {
 		props: {
 			preview,
 		},
@@ -36,11 +36,11 @@ const mountBar = (preview: ActiveCallPreview = buildPreview()) =>
 		},
 	});
 
-describe('active-call-bar', () => {
+describe('floating-call-widget', () => {
 	it('shows the call timer', () => {
 		const wrapper = mountBar();
 
-		expect(wrapper.find('.active-call-bar__timer').text()).toMatch(
+		expect(wrapper.find('.floating-call-widget__timer').text()).toMatch(
 			/^\d{2}:\d{2}:\d{2}$/,
 		);
 	});
@@ -48,7 +48,7 @@ describe('active-call-bar', () => {
 	it('is not marked as on hold while the call is live', () => {
 		const wrapper = mountBar();
 
-		expect(wrapper.classes()).not.toContain('active-call-bar--hold');
+		expect(wrapper.classes()).not.toContain('floating-call-widget--hold');
 	});
 
 	it('is marked as on hold when the call is held', () => {
@@ -58,6 +58,6 @@ describe('active-call-bar', () => {
 			}),
 		);
 
-		expect(wrapper.classes()).toContain('active-call-bar--hold');
+		expect(wrapper.classes()).toContain('floating-call-widget--hold');
 	});
 });

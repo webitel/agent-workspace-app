@@ -1,17 +1,17 @@
 <template>
 	<div
-		class="active-call-bar"
+		class="floating-call-widget"
 		:class="{
-			'active-call-bar--hold': preview.isHold,
+			'floating-call-widget--hold': preview.isHold,
 		}"
 	>
 		<padded-avatar
 			:username="preview.name"
 			:size="ComponentSize.XS"
-			class="active-call-bar__avatar"
+			class="floating-call-widget__avatar"
 		/>
 
-		<span class="active-call-bar__timer typo-body-1">
+		<span class="floating-call-widget__timer typo-body-1">
 			{{ timer.formatted.value }}
 		</span>
 
@@ -55,7 +55,7 @@ const buttonColor = computed(() =>
 </script>
 
 <style scoped>
-.active-call-bar {
+.floating-call-widget {
 	height: 40px;
 	display: flex;
 	align-items: center;
@@ -66,25 +66,25 @@ const buttonColor = computed(() =>
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-active-color);
 }
 
-.active-call-bar:hover {
+.floating-call-widget:hover {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-hover-background);
 }
 
-.active-call-bar__avatar {
+.floating-call-widget__avatar {
 	flex: 0 1 auto;
 }
 
-.active-call-bar__timer {
+.floating-call-widget__timer {
 	width: 50px;
 	flex: 0 1 auto;
 }
 
-.active-call-bar--hold {
+.floating-call-widget--hold {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-background);
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-color);
 }
 
-.active-call-bar--hold:hover {
+.floating-call-widget--hold:hover {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-hover-background);
 }
 </style>

@@ -87,7 +87,7 @@ describe('task-dock-call-lane', () => {
 
 		const wrapper = mountCallLane();
 
-		expect(wrapper.findAll('.active-call-bar')).toHaveLength(2);
+		expect(wrapper.findAll('.floating-call-widget')).toHaveLength(2);
 	});
 
 	it('shows the numpad only once the numpad store is opened', async () => {
