@@ -23,6 +23,7 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 		},
 		answeredAt: 1_700_000_000_000,
 		isHold: false,
+		muted: false,
 		...overrides,
 	}) as unknown as Call;
 
@@ -34,6 +35,7 @@ describe('toActiveCallPreview', () => {
 			queueName: 'Sales',
 			answeredAt: 1_700_000_000_000,
 			isHold: false,
+			isMuted: false,
 		});
 	});
 
@@ -85,5 +87,25 @@ describe('toActiveCallPreview', () => {
 				}),
 			).isHold,
 		).toBe(true);
+	});
+
+	it('carries the mute state', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					muted: true,
+				}),
+			).isMuted,
+		).toBe(true);
+	});
+
+	it('is not muted when the call carries no mute state', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					muted: undefined,
+				}),
+			).isMuted,
+		).toBe(false);
 	});
 });

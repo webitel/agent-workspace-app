@@ -257,8 +257,8 @@ const timer = useActiveCallTimer({
 
 const statusLabel = computed(() =>
 	props.preview.isHold
-		? t('ui.dialer.activeCall.onHold')
-		: t('ui.dialer.activeCall.inCall'),
+		? t('ui.call.activeCall.onHold')
+		: t('ui.call.activeCall.inCall'),
 );
 
 const statusChipColor = computed(() =>

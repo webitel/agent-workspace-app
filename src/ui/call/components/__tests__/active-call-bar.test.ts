@@ -13,6 +13,7 @@ const buildPreview = (
 	queueName: 'Sales',
 	answeredAt: Date.now(),
 	isHold: false,
+	isMuted: false,
 	...overrides,
 });
 
@@ -69,7 +70,7 @@ describe('active-call-bar', () => {
 		});
 
 		expect(wrapper.find('.active-call-bar__status').text()).toContain(
-			'ui.dialer.activeCall.inCall',
+			'ui.call.activeCall.inCall',
 		);
 	});
 
@@ -83,7 +84,7 @@ describe('active-call-bar', () => {
 
 		expect(wrapper.find('.active-call-bar__pill--hold').exists()).toBe(true);
 		expect(wrapper.find('.active-call-bar__status').text()).toContain(
-			'ui.dialer.activeCall.onHold',
+			'ui.call.activeCall.onHold',
 		);
 	});
 
