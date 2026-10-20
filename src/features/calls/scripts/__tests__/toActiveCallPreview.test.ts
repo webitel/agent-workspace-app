@@ -51,6 +51,16 @@ describe('toActiveCallPreview', () => {
 		).toBe(false);
 	});
 
+	it('treats a missing post-processing flag as not allowed', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					allowReporting: undefined,
+				}),
+			).isPostProcessingEnabled,
+		).toBe(false);
+	});
+
 	it('leaves the name out when the contact was not identified', () => {
 		expect(
 			toActiveCallPreview(

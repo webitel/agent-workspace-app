@@ -19,6 +19,13 @@ defineProps<{
 </script>
 
 <style scoped>
+/**
+ * @author Oleksandr Palonnyi
+ * the overlay is pinned to the bottom-left corner of the nearest positioned
+ * ancestor, so the parent must be `position: relative` and is the element the
+ * panel slides up from
+ * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+ */
 .slide-up-overlay {
 	position: absolute;
 	bottom: 0;

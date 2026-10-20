@@ -106,6 +106,14 @@ export default {
 			activeCall: {
 				inCall: 'Suhbatda',
 				onHold: 'Kutishda',
+				actions: {
+					numpad: 'Klaviatura',
+					mute: 'Mikrofonni oʻchirish',
+					hold: 'Kutishga qoʻyish',
+					transfer: 'Yoʻnaltirish',
+					hangup: 'Qoʻngʻiroqni tugatish',
+					openFullView: 'Toʻliq koʻrinishni ochish',
+				},
 			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',
@@ -119,6 +127,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Qoʻngʻiroq qilib boʻlmadi. Qaytadan urinib koʻring.',
+			holdToggleFailed:
+				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
+			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

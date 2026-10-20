@@ -531,6 +531,41 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('call action failures', () => {
+		it('notifies when toggling hold fails', async () => {
+			calls.value = [
+				buildCall({
+					toggleHold: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
+		});
+
+		it('notifies when sending a digit fails', async () => {
+			calls.value = [
+				buildCall({
+					allowDtmf: true,
+					sendDTMF: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.dtmfFailed',
+			});
+		});
+	});
+
 	describe('sendDtmf', () => {
 		it('sends the digit on the call', async () => {
 			const call = buildCall({

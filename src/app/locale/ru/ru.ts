@@ -106,6 +106,14 @@ export default {
 			activeCall: {
 				inCall: 'В разговоре',
 				onHold: 'На удержании',
+				actions: {
+					numpad: 'Клавиатура',
+					mute: 'Выключить микрофон',
+					hold: 'Удержание',
+					transfer: 'Переадресация',
+					hangup: 'Завершить звонок',
+					openFullView: 'Открыть полный вид',
+				},
 			},
 			outboundCall: {
 				ringing: 'Вызов',
@@ -119,6 +127,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Не удалось совершить звонок. Попробуйте ещё раз.',
+			holdToggleFailed:
+				'Не удалось поставить звонок на удержание или снять с него. Попробуйте ещё раз.',
+			dtmfFailed: 'Не удалось отправить цифру. Попробуйте ещё раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

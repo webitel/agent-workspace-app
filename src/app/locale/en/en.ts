@@ -117,6 +117,14 @@ export default {
 			activeCall: {
 				inCall: 'In call',
 				onHold: 'On hold',
+				actions: {
+					numpad: 'Numpad',
+					mute: 'Mute',
+					hold: 'Hold',
+					transfer: 'Transfer',
+					hangup: 'End call',
+					openFullView: 'Open full view',
+				},
 			},
 			outboundCall: {
 				ringing: 'Ringing',
@@ -131,6 +139,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'The call could not be placed. Please try again.',
+			holdToggleFailed:
+				'The call could not be put on hold or resumed. Please try again.',
+			dtmfFailed: 'The digit could not be sent. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

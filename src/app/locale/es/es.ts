@@ -106,6 +106,14 @@ export default {
 			activeCall: {
 				inCall: 'En llamada',
 				onHold: 'En espera',
+				actions: {
+					numpad: 'Teclado',
+					mute: 'Silenciar',
+					hold: 'Poner en espera',
+					transfer: 'Transferir',
+					hangup: 'Finalizar llamada',
+					openFullView: 'Abrir vista completa',
+				},
 			},
 			outboundCall: {
 				ringing: 'Sonando',
@@ -120,6 +128,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'No se pudo realizar la llamada. Inténtalo de nuevo.',
+			holdToggleFailed:
+				'No se pudo poner la llamada en espera ni reanudarla. Inténtalo de nuevo.',
+			dtmfFailed: 'No se pudo enviar el dígito. Inténtalo de nuevo.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

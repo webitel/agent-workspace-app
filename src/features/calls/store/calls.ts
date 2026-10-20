@@ -143,8 +143,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 		try {
 			await call.toggleHold();
-		} catch (err) {
-			console.warn('[calls] hold toggle failed', err);
+		} catch {
+			notifyCallError('holdToggleFailed');
 		}
 	}
 
@@ -154,8 +154,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 		try {
 			await call.sendDTMF(digit);
-		} catch (err) {
-			console.warn('[calls] dtmf failed', err);
+		} catch {
+			notifyCallError('dtmfFailed');
 		}
 	}
 
@@ -225,6 +225,13 @@ export const useCallsStore = defineStore('calls', () => {
 		hangup,
 	};
 });
+
+function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
+	eventBus.$emit('notification', {
+		type: 'error',
+		text: i18n.global.t(`error.calls.${errorKey}`),
+	});
+}
 
 async function ensureMicrophoneAllowed(): Promise<boolean> {
 	if (await isMicrophoneAllowed()) return true;
