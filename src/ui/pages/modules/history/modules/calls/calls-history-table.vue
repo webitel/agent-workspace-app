@@ -21,11 +21,11 @@
 			</template>
 
 			<template #createdAt="{ item }">
-				{{ formatCreatedAt(item.createdAt) }}
+				{{ formatDate(item.createdAt, FormatDateMode.DATETIME) }}
 			</template>
 
 			<template #duration="{ item }">
-				{{ formatDuration(item.duration) }}
+				{{ convertDuration(item.duration) }}
 			</template>
 
 			<template #phone="{ item }">
@@ -177,12 +177,6 @@ const onLoading = async () => {
 	if (isInitializing.value || isLoading.value || !next.value) return;
 	await appendToDataList();
 };
-
-const formatCreatedAt = (createdAt?: string) =>
-	createdAt ? formatDate(+createdAt, FormatDateMode.DATETIME) : '';
-
-const formatDuration = (duration?: number) =>
-	convertDuration(duration ?? 0).replaceAll(':', '.');
 
 const openCallInfo = (item: EngineHistoryCall) => {
 	callInfoItem.value = item;

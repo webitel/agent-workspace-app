@@ -6,7 +6,8 @@ import {
 	type NavigationGuard,
 	type RouteRecordRaw,
 } from 'vue-router';
-import TheCallsWorkspace from '../../ui/pages/modules/calls/components/the-calls-workspace.vue';
+import { CallsPageTab } from '../../ui/pages/modules/calls/enums/CallsPageTab.enum';
+import TheCallsPage from '../../ui/pages/modules/calls/the-calls-page.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import { ChatsPageTab } from '../../ui/pages/modules/chats/enums/ChatsPageTab.enum';
@@ -16,6 +17,7 @@ import { HistoryPageTab } from '../../ui/pages/modules/history/enums/HistoryPage
 import TheHistoryPage from '../../ui/pages/modules/history/the-history-page.vue';
 import TheTasksWorkspace from '../../ui/pages/modules/tasks/components/the-tasks-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
+import { createAuthGuard } from './authGuard';
 
 // Contacts tabs render entirely inside TheContactsPage (no <router-view>),
 // so these child routes only need to exist for route.name matching/navigation.
@@ -34,8 +36,14 @@ const routes: RouteRecordRaw[] = [
 		children: [
 			{
 				path: '/calls',
-				name: 'calls',
-				component: TheCallsWorkspace,
+				component: TheCallsPage,
+				children: [
+					{
+						path: '',
+						name: CallsPageTab.Missed,
+						component: NoopRouteComponent,
+					},
+				],
 			},
 			{
 				path: '/chats',
@@ -115,30 +123,11 @@ export const initRouter = async ({
 		},
 	});
 
-	router.beforeEach((to, _, next) => {
-		if (!localStorage.getItem('access-token') && !to.query.accessToken) {
-			// @author @Lear24
-			// remove flag about shown notifications from localStorage
-			onUnauthorized();
-			const desiredUrl = encodeURIComponent(window.location.href);
-			const authUrl = import.meta.env.VITE_AUTH_URL;
-			window.location.href = `${authUrl}?redirectTo=${desiredUrl}`;
-			return;
-		}
-		if (to.query.accessToken) {
-			// assume that access token was set from query before app initialization in main.js
-			const newQuery = {
-				...to.query,
-			};
-			delete newQuery.accessToken;
-			return next({
-				...to,
-				query: newQuery,
-			});
-		}
-
-		next();
-	});
+	router.beforeEach(
+		createAuthGuard({
+			onUnauthorized,
+		}),
+	);
 
 	beforeEach.forEach((guard) => {
 		router.beforeEach(guard);
