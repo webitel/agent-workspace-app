@@ -3,7 +3,7 @@ import { IconColor } from '@webitel/ui-sdk/enums';
 import { describe, expect, it } from 'vitest';
 
 import type { ActiveCallPreview } from '../../types/ActiveCallPreview.types';
-import ActiveCallBar from '../active-call-bar.vue';
+import FloatingCallWidget from '../floating-call-widget.vue';
 
 const buildPreview = (
 	overrides: Partial<ActiveCallPreview> = {},
@@ -18,7 +18,7 @@ const buildPreview = (
 });
 
 const mountBar = (props: { preview?: ActiveCallPreview; expanded?: boolean }) =>
-	mount(ActiveCallBar, {
+	mount(FloatingCallWidget, {
 		props: {
 			preview: buildPreview(),
 			expanded: false,
@@ -54,14 +54,14 @@ const mountBar = (props: { preview?: ActiveCallPreview; expanded?: boolean }) =>
 const findIconBtn = (wrapper: ReturnType<typeof mountBar>, icon: string) =>
 	wrapper.find(`[data-icon="${icon}"]`);
 
-describe('active-call-bar', () => {
+describe('floating-call-widget', () => {
 	it('shows the collapsed pill with the call timer and no card', () => {
 		const wrapper = mountBar({});
 
-		expect(wrapper.find('.active-call-bar__pill-timer').text()).toMatch(
+		expect(wrapper.find('.floating-call-widget__pill-timer').text()).toMatch(
 			/^\d{2}:\d{2}:\d{2}$/,
 		);
-		expect(wrapper.find('.active-call-bar__card').exists()).toBe(false);
+		expect(wrapper.find('.floating-call-widget__card').exists()).toBe(false);
 	});
 
 	it('shows the in-call status in the expanded card', () => {
@@ -69,7 +69,7 @@ describe('active-call-bar', () => {
 			expanded: true,
 		});
 
-		expect(wrapper.find('.active-call-bar__status').text()).toContain(
+		expect(wrapper.find('.floating-call-widget__status').text()).toContain(
 			'ui.call.activeCall.inCall',
 		);
 	});
@@ -82,8 +82,10 @@ describe('active-call-bar', () => {
 			}),
 		});
 
-		expect(wrapper.find('.active-call-bar__pill--hold').exists()).toBe(true);
-		expect(wrapper.find('.active-call-bar__status').text()).toContain(
+		expect(wrapper.find('.floating-call-widget__pill--hold').exists()).toBe(
+			true,
+		);
+		expect(wrapper.find('.floating-call-widget__status').text()).toContain(
 			'ui.call.activeCall.onHold',
 		);
 	});
@@ -91,7 +93,7 @@ describe('active-call-bar', () => {
 	it('asks to expand when the pill is clicked', async () => {
 		const wrapper = mountBar({});
 
-		await wrapper.find('.active-call-bar__pill').trigger('click');
+		await wrapper.find('.floating-call-widget__pill').trigger('click');
 
 		expect(wrapper.emitted('toggleExpand')).toHaveLength(1);
 	});
@@ -101,13 +103,15 @@ describe('active-call-bar', () => {
 			expanded: true,
 		});
 
-		expect(wrapper.find('.active-call-bar__identity').text()).toContain(
+		expect(wrapper.find('.floating-call-widget__identity').text()).toContain(
 			'Emily Johnson',
 		);
-		expect(wrapper.find('.active-call-bar__identity').text()).toContain(
+		expect(wrapper.find('.floating-call-widget__identity').text()).toContain(
 			'+12023417842',
 		);
-		expect(wrapper.find('.active-call-bar__queue').text()).toContain('Sales');
+		expect(wrapper.find('.floating-call-widget__queue').text()).toContain(
+			'Sales',
+		);
 	});
 
 	it('hides the queue line for a call outside a queue', () => {
@@ -118,7 +122,7 @@ describe('active-call-bar', () => {
 			}),
 		});
 
-		expect(wrapper.find('.active-call-bar__queue').exists()).toBe(false);
+		expect(wrapper.find('.floating-call-widget__queue').exists()).toBe(false);
 	});
 
 	it('emits the call actions from the icon row', async () => {

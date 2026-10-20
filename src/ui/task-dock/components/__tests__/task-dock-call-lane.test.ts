@@ -88,7 +88,7 @@ describe('task-dock-call-lane', () => {
 
 		const wrapper = mountCallLane();
 
-		expect(wrapper.findAll('.active-call-bar')).toHaveLength(2);
+		expect(wrapper.findAll('.floating-call-widget')).toHaveLength(2);
 	});
 
 	it('expands the bar that is clicked and collapses it on the next click', async () => {
@@ -98,9 +98,9 @@ describe('task-dock-call-lane', () => {
 		const wrapper = mountCallLane();
 		const store = useTaskDockStore();
 
-		await wrapper.find('.active-call-bar__pill').trigger('click');
+		await wrapper.find('.floating-call-widget__pill').trigger('click');
 		expect(store.expandedCallId).toBe('call-1');
-		expect(wrapper.find('.active-call-bar__card').exists()).toBe(true);
+		expect(wrapper.find('.floating-call-widget__card').exists()).toBe(true);
 	});
 
 	it('shows the numpad only once the numpad store is opened', async () => {

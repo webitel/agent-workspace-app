@@ -3,7 +3,7 @@
         <the-numpad-panel />
 
         <div class="task-dock-call-lane__container">
-            <active-call-bar
+            <floating-call-widget
                 v-for="activeCall in activeCalls"
                 :key="activeCall.id"
                 :preview="activeCall.preview"
@@ -27,7 +27,7 @@ import { computed } from 'vue';
 
 import { toActiveCallPreview } from '../../../features/calls/scripts/toActiveCallPreview';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import ActiveCallBar from '../../call/components/active-call-bar.vue';
+import FloatingCallWidget from '../../call/components/floating-call-widget.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
 

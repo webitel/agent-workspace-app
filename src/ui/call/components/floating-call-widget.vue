@@ -1,27 +1,27 @@
 <template>
 	<div
 		ref="root"
-		class="active-call-bar"
+		class="floating-call-widget"
 		:class="{
-			'active-call-bar--expanded': expanded,
+			'floating-call-widget--expanded': expanded,
 		}"
 	>
 		<slide-up-overlay :is-open="expanded">
-			<div class="active-call-bar__card">
-				<header class="active-call-bar__identity">
+			<div class="floating-call-widget__card">
+				<header class="floating-call-widget__identity">
 					<wt-avatar
 						:username="preview.name"
 						:size="ComponentSize.SM"
 					/>
 
-					<div class="active-call-bar__identity-info">
-						<span class="active-call-bar__identity-name typo-body-2-bold">
+					<div class="floating-call-widget__identity-info">
+						<span class="floating-call-widget__identity-name typo-body-2-bold">
 							{{ preview.name || t('ui.notifications.offer.unknownContact') }}
 						</span>
 
 						<span
 							v-if="preview.number"
-							class="active-call-bar__identity-number typo-caption"
+							class="floating-call-widget__identity-number typo-caption"
 						>
 							{{ preview.number }}
 						</span>
@@ -43,7 +43,7 @@
 
 				<p
 					v-if="preview.queueName"
-					class="active-call-bar__queue typo-caption"
+					class="floating-call-widget__queue typo-caption"
 				>
 					<span class="typo-caption-bold">
 						{{ t('ui.notifications.offer.queue') }}:
@@ -52,7 +52,7 @@
 				</p>
 
 				<wt-chip
-					class="active-call-bar__status"
+					class="floating-call-widget__status"
 					:color="statusChipColor"
 				>
 					<span>
@@ -70,7 +70,7 @@
 					@digit="emit('sendDigit', $event)"
 				/>
 
-				<div class="active-call-bar__actions">
+				<div class="floating-call-widget__actions">
 					<wt-button
 						:size="ComponentSize.SM"
 						color="secondary"
@@ -147,9 +147,9 @@
 		<div
 			role="button"
 			tabindex="0"
-			class="active-call-bar__pill"
+			class="floating-call-widget__pill"
 			:class="{
-				'active-call-bar__pill--hold': preview.isHold,
+				'floating-call-widget__pill--hold': preview.isHold,
 			}"
 			@click="emit('toggleExpand')"
 			@keydown.enter.self="emit('toggleExpand')"
@@ -157,10 +157,10 @@
 			<padded-avatar
 				:username="preview.name"
 				:size="ComponentSize.XS"
-				class="active-call-bar__pill-avatar"
+				class="floating-call-widget__pill-avatar"
 			/>
 
-			<span class="active-call-bar__pill-timer typo-body-1">
+			<span class="floating-call-widget__pill-timer typo-body-1">
 				{{ timer.formatted.value }}
 			</span>
 
@@ -271,22 +271,22 @@ const pillButtonColor = computed(() =>
 </script>
 
 <style scoped>
-.active-call-bar {
-	--active-call-bar-card-width: 280px;
+.floating-call-widget {
+	--floating-call-widget-card-width: 280px;
 
 	position: relative;
 }
 
-.active-call-bar--expanded {
-	width: var(--active-call-bar-card-width);
+.floating-call-widget--expanded {
+	width: var(--floating-call-widget-card-width);
 }
 
-.active-call-bar__card {
+.floating-call-widget__card {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-sm);
 	box-sizing: border-box;
-	width: var(--active-call-bar-card-width);
+	width: var(--floating-call-widget-card-width);
 	padding: var(--spacing-sm);
 	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius)
 		var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;
@@ -294,7 +294,7 @@ const pillButtonColor = computed(() =>
 	box-shadow: var(--elevation-10);
 }
 
-.active-call-bar__identity {
+.floating-call-widget__identity {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wt-ws-client-identity-block-sizes-root-gap-x);
@@ -304,7 +304,7 @@ const pillButtonColor = computed(() =>
 	background: var(--wt-ws-client-identity-block-colors-root-background);
 }
 
-.active-call-bar__identity-info {
+.floating-call-widget__identity-info {
 	display: flex;
 	flex: 1;
 	flex-direction: column;
@@ -313,31 +313,31 @@ const pillButtonColor = computed(() =>
 	color: var(--text-main-color);
 }
 
-.active-call-bar__identity-name,
-.active-call-bar__identity-number {
+.floating-call-widget__identity-name,
+.floating-call-widget__identity-number {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.active-call-bar__queue {
+.floating-call-widget__queue {
 	overflow: hidden;
 	margin: 0;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.active-call-bar__status {
+.floating-call-widget__status {
 	align-self: center;
 }
 
-.active-call-bar__actions {
+.floating-call-widget__actions {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
 
-.active-call-bar__pill {
+.floating-call-widget__pill {
 	height: 40px;
 	display: flex;
 	align-items: center;
@@ -349,25 +349,25 @@ const pillButtonColor = computed(() =>
 	cursor: pointer;
 }
 
-.active-call-bar__pill-avatar {
+.floating-call-widget__pill-avatar {
 	flex: 0 1 auto;
 }
 
-.active-call-bar__pill:hover {
+.floating-call-widget__pill:hover {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-hover-background);
 }
 
-.active-call-bar__pill-timer {
+.floating-call-widget__pill-timer {
 	width: 50px;
 	flex: 0 1 auto;
 }
 
-.active-call-bar__pill--hold {
+.floating-call-widget__pill--hold {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-background);
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-color);
 }
 
-.active-call-bar__pill--hold:hover {
+.floating-call-widget__pill--hold:hover {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-hold-hover-background);
 }
 </style>
