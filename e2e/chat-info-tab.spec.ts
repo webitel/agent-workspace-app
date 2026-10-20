@@ -395,16 +395,16 @@ test.describe('chat info tab', () => {
 	}) => {
 		await openActiveChat(page, socket);
 
-		await expect(page.locator('.wt-tabs .wt-tab')).toHaveText([
+		// the chat window's strip, not the chat list's Active / Snoozed one
+		const windowTabs = page.locator('.wt-tabs:not(.chat-list-tabs)');
+		await expect(windowTabs.locator('.wt-tab')).toHaveText([
 			'Chat',
 			'Info',
 			'Interaction',
 			'Contact',
 			'Iframe',
 		]);
-		await expect(page.locator('.wt-tabs [aria-disabled="true"]')).toHaveCount(
-			3,
-		);
+		await expect(windowTabs.locator('[aria-disabled="true"]')).toHaveCount(3);
 
 		for (const name of [
 			'Interaction',

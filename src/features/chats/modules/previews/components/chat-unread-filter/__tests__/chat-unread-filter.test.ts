@@ -2,12 +2,12 @@ import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
-const chatListStore = reactive({
+const chatActiveStore = reactive({
 	onlyUnread: false,
 	toggleOnlyUnread: vi.fn(),
 });
-vi.mock('../../../store/chat-list', () => ({
-	useChatListStore: () => chatListStore,
+vi.mock('../../../store/chat-active', () => ({
+	useChatActiveStore: () => chatActiveStore,
 }));
 
 import ChatUnreadFilter from '../chat-unread-filter.vue';
@@ -33,8 +33,8 @@ const mountFilter = () =>
 
 describe('chat-unread-filter', () => {
 	beforeEach(() => {
-		chatListStore.onlyUnread = false;
-		chatListStore.toggleOnlyUnread.mockClear();
+		chatActiveStore.onlyUnread = false;
+		chatActiveStore.toggleOnlyUnread.mockClear();
 	});
 
 	it('reports being off', () => {
@@ -46,7 +46,7 @@ describe('chat-unread-filter', () => {
 	});
 
 	it('reports being on', () => {
-		chatListStore.onlyUnread = true;
+		chatActiveStore.onlyUnread = true;
 
 		const wrapper = mountFilter();
 
@@ -60,7 +60,7 @@ describe('chat-unread-filter', () => {
 
 		await wrapper.trigger('click');
 
-		expect(chatListStore.toggleOnlyUnread).toHaveBeenCalledOnce();
+		expect(chatActiveStore.toggleOnlyUnread).toHaveBeenCalledOnce();
 	});
 
 	it('is named for what it does', () => {

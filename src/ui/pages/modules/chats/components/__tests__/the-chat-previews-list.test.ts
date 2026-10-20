@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
 const chatListStore = reactive({
-	tasks: [] as {
+	currentTasks: [] as {
 		id: number;
 	}[],
+});
+const chatActiveStore = reactive({
 	isUnreadFilterAvailable: false,
 });
 vi.mock(
@@ -16,11 +18,27 @@ vi.mock(
 );
 
 vi.mock(
+	'../../../../../../features/chats/modules/previews/store/chat-active',
+	() => ({
+		useChatActiveStore: () => chatActiveStore,
+	}),
+);
+
+vi.mock(
 	'../../../../../../features/chats/modules/previews/components/chat-preview/chat-preview.vue',
 	() => ({
 		default: {
 			name: 'ChatPreview',
 			template: '<div class="chat-preview-stub" />',
+		},
+	}),
+);
+vi.mock(
+	'../../../../../../features/chats/modules/previews/components/chat-list-tabs/chat-list-tabs.vue',
+	() => ({
+		default: {
+			name: 'ChatListTabs',
+			template: '<div class="chat-list-tabs-stub" />',
 		},
 	}),
 );
@@ -47,12 +65,12 @@ const mountList = () =>
 
 describe('the-chat-previews-list', () => {
 	beforeEach(() => {
-		chatListStore.tasks = [];
-		chatListStore.isUnreadFilterAvailable = false;
+		chatListStore.currentTasks = [];
+		chatActiveStore.isUnreadFilterAvailable = false;
 	});
 
 	it('renders a row for every chat', () => {
-		chatListStore.tasks = [
+		chatListStore.currentTasks = [
 			{
 				id: 1,
 			},
@@ -66,19 +84,22 @@ describe('the-chat-previews-list', () => {
 		expect(wrapper.findAll('.chat-preview-stub')).toHaveLength(2);
 	});
 
-	// the unread data is not there yet, and a control with nothing behind it would
-	// read as a broken feature
-	it('has no toolbar while the unread filter is unavailable', () => {
+	it('shows the tabs whatever the unread data', () => {
 		const wrapper = mountList();
 
-		expect(wrapper.find('.the-chat-previews-list__toolbar').exists()).toBe(
-			false,
-		);
+		expect(wrapper.find('.chat-list-tabs-stub').exists()).toBe(true);
+	});
+
+	// the unread data is not there yet, and a control with nothing behind it would
+	// read as a broken feature
+	it('has no unread filter while it is unavailable', () => {
+		const wrapper = mountList();
+
 		expect(wrapper.find('.chat-unread-filter-stub').exists()).toBe(false);
 	});
 
 	it('shows the unread filter once it is available', () => {
-		chatListStore.isUnreadFilterAvailable = true;
+		chatActiveStore.isUnreadFilterAvailable = true;
 
 		const wrapper = mountList();
 

@@ -15,6 +15,12 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Faqat o‘qilmagan chatlar',
 		},
+		chatList: {
+			tabs: {
+				active: 'Faol',
+				snoozed: 'Kechiktirilgan',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
