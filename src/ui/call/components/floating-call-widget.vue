@@ -28,6 +28,7 @@
 					</div>
 
 					<wt-button
+						v-if="preview.isPostProcessingEnabled"
 						:size="ComponentSize.SM"
 						color="secondary"
 						variant="text"
@@ -114,7 +115,7 @@
 					</wt-button>
 
 					<wt-button
-						:size="ComponentSize.SM"
+						:size="ComponentSize.MD"
 						color="transfer"
 						:variant="getActionVariant(isTransferActive)"
 						width-by-content
@@ -165,6 +166,7 @@
 			</span>
 
 			<wt-button
+				v-if="preview.isPostProcessingEnabled"
 				:size="ComponentSize.SM"
 				:color="pillButtonColor"
 				width-by-content

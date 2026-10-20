@@ -14,6 +14,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	isPostProcessingEnabled: true,
 	...overrides,
 });
 
@@ -123,6 +124,27 @@ describe('floating-call-widget', () => {
 		});
 
 		expect(wrapper.find('.floating-call-widget__queue').exists()).toBe(false);
+	});
+
+	it('shows the open-full-view buttons when post-processing is enabled', () => {
+		const wrapper = mountBar({
+			expanded: true,
+		});
+
+		expect(wrapper.findAll('[data-icon="ws-open-full-view"]')).toHaveLength(2);
+	});
+
+	it('hides the open-full-view buttons when post-processing is disabled', () => {
+		const wrapper = mountBar({
+			expanded: true,
+			preview: buildPreview({
+				isPostProcessingEnabled: false,
+			}),
+		});
+
+		expect(wrapper.find('[data-icon="ws-open-full-view"]').exists()).toBe(
+			false,
+		);
 	});
 
 	it('emits the call actions from the icon row', async () => {

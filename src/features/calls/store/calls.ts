@@ -132,7 +132,14 @@ export const useCallsStore = defineStore('calls', () => {
 
 	async function toggleHold(callId: string) {
 		const call = getCallById(callId);
-		if (!call?.allowHold) return;
+		/**
+		 * @author Oleksandr Palonnyi
+		 * the SDK splits the permission: `allowHold` is false once the call is on
+		 * hold, and releasing it is gated by `allowUnHold`, so checking only
+		 * `allowHold` made a held call impossible to resume
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (!call?.allowHold && !call?.allowUnHold) return;
 
 		try {
 			await call.toggleHold();

@@ -497,9 +497,27 @@ describe('useCallsStore', () => {
 			expect(call.toggleHold).toHaveBeenCalledTimes(1);
 		});
 
-		it('leaves a call that cannot be held alone', async () => {
+		it('resumes a call that is on hold', async () => {
 			const call = buildCall({
 				allowHold: false,
+				allowUnHold: true,
+				isHold: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves a call that can be neither held nor resumed alone', async () => {
+			const call = buildCall({
+				allowHold: false,
+				allowUnHold: false,
 				toggleHold: vi.fn(),
 			} as Partial<Call>);
 			calls.value = [
