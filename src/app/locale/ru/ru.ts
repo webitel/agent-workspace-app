@@ -15,6 +15,12 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Только непрочитанные чаты',
 		},
+		chatList: {
+			tabs: {
+				active: 'Активные',
+				snoozed: 'Отложенные',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {

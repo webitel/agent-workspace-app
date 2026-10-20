@@ -15,6 +15,12 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Solo chats no leídos',
 		},
+		chatList: {
+			tabs: {
+				active: 'Activos',
+				snoozed: 'Pospuestos',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {

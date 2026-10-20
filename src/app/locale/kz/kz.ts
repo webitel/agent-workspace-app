@@ -15,6 +15,12 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Тек оқылмаған чаттар',
 		},
+		chatList: {
+			tabs: {
+				active: 'Белсенді',
+				snoozed: 'Кейінге қалдырылған',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {

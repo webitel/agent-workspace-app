@@ -15,6 +15,12 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Doar conversațiile necitite',
 		},
+		chatList: {
+			tabs: {
+				active: 'Active',
+				snoozed: 'Amânate',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {

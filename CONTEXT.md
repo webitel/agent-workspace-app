@@ -124,6 +124,19 @@ chat is unread as far as the app can tell and the narrowing control stays out of
 sight until it does — an unread state worked out on the client would read as
 fact.
 
+**Snoozed chat** — a chat the agent has set aside to wait for the client or for
+themselves. Not closed: it carries on, and a new client message brings it back to
+the Active tab (AC_02.02.05). The chat list has an Active tab and a Snoozed tab,
+and a chat is on exactly one of them. Nothing says which chats are snoozed yet —
+no design for the action and no backend state — so the Snoozed tab exists but
+stays empty, and no chat is snoozed as far as the app can tell.
+
+**Tab indicator** — the badge beside a chat list tab's name. The grey one is the
+number of chats on that tab. The green one, on Active only, is the number of
+**Unread chats**, so it is hidden whenever the unread count is (AC_02.12.02). The
+spec also has it vanish when the agent returns to the Active tab (AC_02.12.03);
+that would be "new activity", not unread, and is deliberately not built.
+
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.
 
