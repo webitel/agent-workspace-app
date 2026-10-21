@@ -12,6 +12,7 @@ import { useOffersStore } from '../../../ui/notifications/modules/offers/store/o
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
 import { isActiveCall } from '../scripts/isActiveCall';
+import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
@@ -41,6 +42,8 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const isCallInProgress = computed(() => callList.value.some(isCallAudible));
 
 	// TODO: замінити на реальний підрахунок нових/пропущених дзвінків
 	const newCallsCount = computed(() => 3);
@@ -160,6 +163,21 @@ export const useCallsStore = defineStore('calls', () => {
 		);
 	}
 
+	/**
+	 * Registered before the offers watcher so that, when a feed update brings an
+	 * audible call and a new offer at once, the offer already finds the ring muted.
+	 * [WS-133](https://webitel.atlassian.net/browse/WS-133)
+	 */
+	function subscribeToCallInProgress() {
+		watch(
+			isCallInProgress,
+			(inProgress) => offersStore.setCallInProgress(inProgress),
+			{
+				immediate: true,
+			},
+		);
+	}
+
 	function onCallEvent(action: CallActions, changedCall: Call) {
 		switch (action) {
 			case CallActions.PeerStream:
@@ -177,6 +195,7 @@ export const useCallsStore = defineStore('calls', () => {
 		client.subscribeCall(onCallEvent, null);
 
 		offersStore.initialize();
+		subscribeToCallInProgress();
 		subscribeToOffers();
 	}
 
