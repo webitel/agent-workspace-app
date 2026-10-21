@@ -4,6 +4,7 @@ export const WebSocketClientEvent = {
 	CallMediaMetric: 'call_media_metric',
 	Disconnected: 'disconnected',
 	PhoneRegistered: 'phone_registered',
+	SystemSettingsChanged: 'system_settings_changed',
 } as const;
 
 export type WebSocketClientEvent =

@@ -227,6 +227,23 @@ describe('useWebSocketClient', () => {
 			});
 		});
 
+		it('forwards the SDK system_settings_changed event to registered listeners', async () => {
+			const api = await loadModule();
+			const onSystemSettingsChanged = vi.fn();
+			api.on(api.Event.SystemSettingsChanged, onSystemSettingsChanged);
+
+			const cli = await connectCli(api);
+			cli.fire('system_settings_changed', {
+				name: 'show_full_contact',
+				value: true,
+			});
+
+			expect(onSystemSettingsChanged).toHaveBeenCalledWith({
+				name: 'show_full_contact',
+				value: true,
+			});
+		});
+
 		it('emits a notification on the SDK show_message event', async () => {
 			const api = await loadModule();
 			const cli = await connectCli(api);
