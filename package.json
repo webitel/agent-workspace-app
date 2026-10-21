@@ -72,6 +72,7 @@
 	},
 	"overrides": {
 		"vue-router": "^5.1.x",
-		"axios": "^1.17.0"
+		"axios": "^1.17.0",
+		"@webitel/chat-web-sdk": "^0.0.20"
 	}
 }
