@@ -103,6 +103,18 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'În apel',
+				onHold: 'În așteptare',
+				actions: {
+					numpad: 'Tastatură',
+					mute: 'Dezactivează microfonul',
+					hold: 'Pune în așteptare',
+					transfer: 'Transferă',
+					hangup: 'Închide apelul',
+					openFullView: 'Deschide vizualizarea completă',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',
@@ -115,6 +127,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Apelul nu a putut fi efectuat. Încearcă din nou.',
+			holdToggleFailed:
+				'Apelul nu a putut fi pus în așteptare sau reluat. Încearcă din nou.',
+			dtmfFailed: 'Cifra nu a putut fi trimisă. Încearcă din nou.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

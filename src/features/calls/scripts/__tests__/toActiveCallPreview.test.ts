@@ -23,6 +23,8 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 		},
 		answeredAt: 1_700_000_000_000,
 		isHold: false,
+		muted: false,
+		allowReporting: true,
 		...overrides,
 	}) as unknown as Call;
 
@@ -34,7 +36,29 @@ describe('toActiveCallPreview', () => {
 			queueName: 'Sales',
 			answeredAt: 1_700_000_000_000,
 			isHold: false,
+			isMuted: false,
+			isPostProcessingEnabled: true,
 		});
+	});
+
+	it('carries whether the call allows post-processing', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					allowReporting: false,
+				}),
+			).isPostProcessingEnabled,
+		).toBe(false);
+	});
+
+	it('treats a missing post-processing flag as not allowed', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					allowReporting: undefined,
+				}),
+			).isPostProcessingEnabled,
+		).toBe(false);
 	});
 
 	it('leaves the name out when the contact was not identified', () => {
@@ -85,5 +109,25 @@ describe('toActiveCallPreview', () => {
 				}),
 			).isHold,
 		).toBe(true);
+	});
+
+	it('carries the mute state', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					muted: true,
+				}),
+			).isMuted,
+		).toBe(true);
+	});
+
+	it('is not muted when the call carries no mute state', () => {
+		expect(
+			toActiveCallPreview(
+				buildCall({
+					muted: undefined,
+				}),
+			).isMuted,
+		).toBe(false);
 	});
 });

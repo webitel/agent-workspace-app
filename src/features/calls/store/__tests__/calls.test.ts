@@ -481,4 +481,120 @@ describe('useCallsStore', () => {
 			]);
 		});
 	});
+
+	describe('toggleHold', () => {
+		it('toggles hold on the call', async () => {
+			const call = buildCall({
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('resumes a call that is on hold', async () => {
+			const call = buildCall({
+				allowHold: false,
+				allowUnHold: true,
+				isHold: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves a call that can be neither held nor resumed alone', async () => {
+			const call = buildCall({
+				allowHold: false,
+				allowUnHold: false,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('call action failures', () => {
+		it('notifies when toggling hold fails', async () => {
+			calls.value = [
+				buildCall({
+					toggleHold: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
+		});
+
+		it('notifies when sending a digit fails', async () => {
+			calls.value = [
+				buildCall({
+					allowDtmf: true,
+					sendDTMF: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.dtmfFailed',
+			});
+		});
+	});
+
+	describe('sendDtmf', () => {
+		it('sends the digit on the call', async () => {
+			const call = buildCall({
+				allowDtmf: true,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(call.sendDTMF).toHaveBeenCalledWith('5');
+		});
+
+		it('sends nothing when the call does not allow DTMF', async () => {
+			const call = buildCall({
+				allowDtmf: false,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(call.sendDTMF).not.toHaveBeenCalled();
+		});
+	});
 });

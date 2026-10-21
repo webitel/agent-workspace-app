@@ -130,6 +130,37 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	async function toggleHold(callId: string) {
+		const call = getCallById(callId);
+		/**
+		 * @author Oleksandr Palonnyi
+		 * the SDK splits the permission: `allowHold` is false once the call is on
+		 * hold, and releasing it is gated by `allowUnHold`, so checking only
+		 * `allowHold` made a held call impossible to resume
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (!call?.allowHold && !call?.allowUnHold) return;
+
+		try {
+			await call.toggleHold();
+		} catch (err) {
+			console.warn('[calls] hold toggle failed', err);
+			notifyCallError('holdToggleFailed');
+		}
+	}
+
+	async function sendDtmf(callId: string, digit: string) {
+		const call = getCallById(callId);
+		if (!call?.allowDtmf) return;
+
+		try {
+			await call.sendDTMF(digit);
+		} catch (err) {
+			console.warn('[calls] dtmf failed', err);
+			notifyCallError('dtmfFailed');
+		}
+	}
+
 	/**
 	 * Diffing by id, not by array identity: the SDK mutates `Call` objects in
 	 * place, so unrelated field changes re-run this watcher with the same
@@ -191,9 +222,18 @@ export const useCallsStore = defineStore('calls', () => {
 		call,
 		answer,
 		toggleMute,
+		toggleHold,
+		sendDtmf,
 		hangup,
 	};
 });
+
+function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
+	eventBus.$emit('notification', {
+		type: 'error',
+		text: i18n.global.t(`error.calls.${errorKey}`),
+	});
+}
 
 async function ensureMicrophoneAllowed(): Promise<boolean> {
 	if (await isMicrophoneAllowed()) return true;

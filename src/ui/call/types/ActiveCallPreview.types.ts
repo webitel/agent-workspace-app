@@ -6,4 +6,7 @@ export interface ActiveCallPreview {
 	/** Epoch ms the call was answered at, the start of the call timer. */
 	answeredAt: number;
 	isHold: boolean;
+	isMuted: boolean;
+	/** The queue allows post-processing, so the call has a full view to open. */
+	isPostProcessingEnabled: boolean;
 }

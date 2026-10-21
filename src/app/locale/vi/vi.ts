@@ -103,6 +103,18 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Đang gọi',
+				onHold: 'Đang giữ máy',
+				actions: {
+					numpad: 'Bàn phím',
+					mute: 'Tắt micrô',
+					hold: 'Giữ máy',
+					transfer: 'Chuyển cuộc gọi',
+					hangup: 'Kết thúc cuộc gọi',
+					openFullView: 'Mở chế độ xem đầy đủ',
+				},
+			},
 			outboundCall: {
 				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',
@@ -115,6 +127,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Không thể thực hiện cuộc gọi. Vui lòng thử lại.',
+			holdToggleFailed:
+				'Không thể giữ máy hoặc tiếp tục cuộc gọi. Vui lòng thử lại.',
+			dtmfFailed: 'Không thể gửi chữ số. Vui lòng thử lại.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

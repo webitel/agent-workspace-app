@@ -103,6 +103,18 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Сөйлесуде',
+				onHold: 'Күтуде',
+				actions: {
+					numpad: 'Пернетақта',
+					mute: 'Микрофонды өшіру',
+					hold: 'Күтуге қою',
+					transfer: 'Қайта бағыттау',
+					hangup: 'Қоңырауды аяқтау',
+					openFullView: 'Толық көріністі ашу',
+				},
+			},
 			outboundCall: {
 				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',
@@ -115,6 +127,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Қоңырау шалу мүмкін болмады. Қайталап көріңіз.',
+			holdToggleFailed:
+				'Қоңырауды күтуге қою немесе жалғастыру мүмкін болмады. Қайталап көріңіз.',
+			dtmfFailed: 'Санды жіберу мүмкін болмады. Қайталап көріңіз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
