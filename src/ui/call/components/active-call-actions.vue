@@ -3,20 +3,16 @@
 		<wt-button
 			v-for="action in actions"
 			:key="action.id"
-			:size="action.size"
+      :icon="action.icon"
+      :size="ComponentSize.SM"
+      :icon-color="action.isActive ? IconColor.ACTIVE : action.iconColor"
 			:color="action.buttonColor"
 			:variant="getActionVariant(action.isActive)"
 			:aria-label="action.label"
 			:aria-pressed="action.isToggle ? action.isActive : undefined"
 			width-by-content
 			@click="action.onClick"
-		>
-			<wt-icon
-				:icon="action.icon"
-				:size="ComponentSize.SM"
-				:color="action.isActive ? IconColor.ACTIVE : action.iconColor"
-			/>
-		</wt-button>
+		/>
 	</div>
 </template>
 

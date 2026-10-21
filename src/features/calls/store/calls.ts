@@ -143,7 +143,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 		try {
 			await call.toggleHold();
-		} catch {
+		} catch (err) {
+			console.warn('[calls] hold toggle failed', err);
 			notifyCallError('holdToggleFailed');
 		}
 	}
@@ -154,7 +155,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 		try {
 			await call.sendDTMF(digit);
-		} catch {
+		} catch (err) {
+			console.warn('[calls] dtmf failed', err);
 			notifyCallError('dtmfFailed');
 		}
 	}
