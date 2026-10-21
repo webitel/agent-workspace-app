@@ -197,6 +197,27 @@ describe('useOfflineCallsAutoRefresh', () => {
 		});
 	});
 
+	it('skips the tick while the previous request is still pending', async () => {
+		getList.mockReturnValue(new Promise(() => {}));
+		startRefresh();
+
+		await tick();
+		await tick();
+
+		expect(getList).toHaveBeenCalledTimes(1);
+	});
+
+	it('refreshes again on the next tick after a request fails', async () => {
+		getList.mockRejectedValueOnce(new Error('socket error'));
+		startRefresh();
+
+		await tick();
+		await tick();
+
+		expect(getList).toHaveBeenCalledTimes(2);
+		expect(store.dataList).toEqual(freshItems);
+	});
+
 	it('keeps the list when the request fails', async () => {
 		getList.mockRejectedValue(new Error('socket error'));
 		startRefresh();

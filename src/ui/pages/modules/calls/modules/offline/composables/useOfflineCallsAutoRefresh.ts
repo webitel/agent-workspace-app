@@ -17,9 +17,13 @@ export const useOfflineCallsAutoRefresh = (
 	const { dataList, isLoading, filtersManager, sort, size, next } =
 		storeToRefs(store);
 
-	const refresh = async () => {
-		if (document.hidden || isLoading.value) return;
+	// a slow reply must not let the next tick send one more request
+	let isRefreshing = false;
 
+	const refresh = async () => {
+		if (document.hidden || isLoading.value || isRefreshing) return;
+
+		isRefreshing = true;
 		const listAtStart = dataList.value;
 		const lengthAtStart = listAtStart.length;
 
@@ -42,6 +46,8 @@ export const useOfflineCallsAutoRefresh = (
 			next.value = response.next;
 		} catch {
 			// background refresh only: the next tick retries
+		} finally {
+			isRefreshing = false;
 		}
 	};
 
