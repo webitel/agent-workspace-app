@@ -54,6 +54,14 @@ export default {
 			empty: 'Айнымалылар жоқ',
 			loadError: 'Айнымалыларды жүктеу мүмкін болмады',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Контактіні таңдаңыз',
+					text: 'Контакт деректерін көру үшін тарих тізімінен жазбаны таңдаңыз',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {

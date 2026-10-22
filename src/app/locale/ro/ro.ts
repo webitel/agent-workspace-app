@@ -54,6 +54,14 @@ export default {
 			empty: 'Nu există variabile',
 			loadError: 'Nu s-au putut încărca variabilele',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Selectați un contact',
+					text: 'Alegeți o înregistrare din lista istoricului pentru a vedea detaliile contactului',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {

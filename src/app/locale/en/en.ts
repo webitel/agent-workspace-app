@@ -61,6 +61,14 @@ export default {
 			empty: 'No variables',
 			loadError: "Couldn't load the variables",
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Select a contact',
+					text: "Choose a record from the history list to view the contact's details",
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
