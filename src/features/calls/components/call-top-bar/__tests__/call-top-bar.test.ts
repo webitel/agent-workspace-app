@@ -11,6 +11,12 @@ vi.mock('vue-i18n', () => ({
 }));
 
 // the shared i18n instance can't be constructed under the global vue-i18n mock
+// the calls store takes the agent to a call's window; the app's routes would
+// pull every page in
+vi.mock('../../../../../app/router', () => ({
+	router: null,
+}));
+
 vi.mock('../../../../../app/locale/i18n', () => ({
 	default: {
 		global: {
