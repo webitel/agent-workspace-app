@@ -67,6 +67,12 @@ export default {
 				pageTabs: {
 					missed: 'Perdidas',
 				},
+				tabs: {
+					info: 'Información',
+					postProcessing: 'Posprocesamiento',
+					interaction: 'Interacción',
+					contact: 'Contacto',
+				},
 			},
 			chats: {
 				pageTabs: {

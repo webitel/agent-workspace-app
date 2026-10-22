@@ -271,6 +271,7 @@ export const useCallsStore = defineStore('calls', () => {
 		isOutboundCallRequestPending,
 
 		initialize,
+		getCallById,
 		call,
 		answer,
 		toggleMute,
