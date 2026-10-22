@@ -20,12 +20,12 @@
 			</div>
 
 			<wt-button
-				v-if="preview.isPostProcessingEnabled"
 				:size="ComponentSize.SM"
 				color="secondary"
 				variant="text"
 				:aria-label="t('ui.call.activeCall.actions.openFullView')"
 				width-by-content
+				@click="emit('openFullView')"
 			>
 				<wt-icon
 					icon="ws-open-full-view"
@@ -97,6 +97,7 @@ const emit = defineEmits<{
 	toggleMute: [];
 	toggleHold: [];
 	hangup: [];
+	openFullView: [];
 	sendDigit: [
 		digit: string,
 	];

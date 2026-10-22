@@ -7,6 +7,4 @@ export interface ActiveCallPreview {
 	answeredAt: number;
 	isHold: boolean;
 	isMuted: boolean;
-	/** The queue allows post-processing, so the call has a full view to open. */
-	isPostProcessingEnabled: boolean;
 }

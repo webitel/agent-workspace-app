@@ -24,6 +24,5 @@ export function toActiveCallPreview(call: Call): ActiveCallPreview {
 		answeredAt: call.answeredAt,
 		isHold: call.isHold,
 		isMuted: Boolean(call.muted),
-		isPostProcessingEnabled: Boolean(call.allowReporting),
 	};
 }

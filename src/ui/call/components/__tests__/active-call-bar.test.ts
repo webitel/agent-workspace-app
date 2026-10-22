@@ -13,7 +13,6 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
-	isPostProcessingEnabled: true,
 	...overrides,
 });
 
