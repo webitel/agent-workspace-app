@@ -32,6 +32,8 @@ and should not be carried over wholesale.
 - [ADR-0007](docs/adr/0007-chat-session-lifetime.md) — a chat session lives
   while its chat is listed or has a window, and why the chat preview's history
   read is not deduplicated against it.
+- [ADR-0008](docs/adr/0008-call-info-tab-variables.md) — a call's Info tab
+  shows the call's own variables only, and why it does not merge like a chat's.
 
 ## Language
 
@@ -54,8 +56,16 @@ either brings the next form or releases the task.
 agent finishes the processing form before the task is released. It has a
 deadline the agent may renew a limited number of times.
 
-A processing form can exist without post-processing (it arrived mid-chat), and
-post-processing without a form falls back to plain reporting. The chat window's
+A processing form can exist without post-processing (it arrived mid-chat).
+
+**Reporting** — post-processing without a processing form: the agent marks the
+interaction successful or not, and for a failure may set when the client is
+tried next. It is how a queue with post-processing but no form schema lets the
+agent finish before the deadline. Not built yet, for any channel: such an
+interaction shows no Post-processing tab, and its task is released when the
+deadline passes.
+
+The chat window's
 tab is labelled "Post-processing" by design, but it hosts the processing form
 whenever one exists.
 
@@ -74,6 +84,11 @@ distributes the chat and live on the `Task`. Thread variables are set by bots an
 flows during the chat and live behind REST on the thread. The Info tab shows both
 (ADR-0006).
 
+**Call variables** — the variables a flow exports onto a call, carried by the
+call itself. Every call has them, task or not. A queue call's task also carries
+the queue's distribution variables, but the Call window's Info tab shows only
+the call variables (ADR-0008).
+
 **End chat** — the agent's request to the backend to finish the task. It is
 answered by post-processing starting, or by the task being released outright
 when the queue has no post-processing.
@@ -89,6 +104,15 @@ answers, the attempt ends and the call carries on in the active-call window.
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
+
+**Call window** — the central-area card for one call, the call's counterpart of
+the chat window. It hosts the call while it is an **Active call** and stays on
+through the call's **Post-processing** after hangup, until the agent leaves it or
+the call's task is released (form submitted, deadline passed, or no
+post-processing configured). A Call window is not an Active call: once the call
+has hung up it is still a Call window, but no longer an Active call.
+There is one per call, not per task: a call with no task (a manual dial, an
+internal call) still has a Call window, just never a Post-processing phase.
 
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
