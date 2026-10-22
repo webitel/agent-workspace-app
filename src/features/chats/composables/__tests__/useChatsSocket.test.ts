@@ -4,8 +4,10 @@ const connectMock = vi.fn();
 const disconnectMock = vi.fn();
 // Captures the SDK-level ThreadMessage callback so tests can emit an event.
 let sdkMessageHandler: ((data: unknown) => void) | null = null;
-const onMessageMock = vi.fn((_event: string, cb: (data: unknown) => void) => {
-	sdkMessageHandler = cb;
+let sdkTagsChangedHandler: ((data: unknown) => void) | null = null;
+const onMessageMock = vi.fn((event: string, cb: (data: unknown) => void) => {
+	if (event === 'messageEvent') sdkMessageHandler = cb;
+	if (event === 'threadTagsChangedEvent') sdkTagsChangedHandler = cb;
 });
 // Captures the SDK's reconnected callback so tests can report a recovery.
 let sdkReconnectedHandler: ((payload: { attempt: number }) => void) | null =
@@ -27,6 +29,7 @@ const createSocketConfigMock = vi.fn((...args: unknown[]) => args[0]);
 vi.mock('@webitel/chat-web-sdk', () => ({
 	ChatsSocketMessage: {
 		ThreadMessage: 'messageEvent',
+		ThreadTagsChanged: 'threadTagsChangedEvent',
 	},
 	createChatsSocketClient: (...args: unknown[]) =>
 		createChatsSocketClientMock(...args),
@@ -45,6 +48,7 @@ describe('useChatsSocket', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		sdkMessageHandler = null;
+		sdkTagsChangedHandler = null;
 		sdkReconnectedHandler = null;
 		// clearAllMocks keeps queued once-answers; a test that leaves one unused
 		// must not hand it to the next test's connect
@@ -146,6 +150,27 @@ describe('useChatsSocket', () => {
 		});
 
 		expect(handler).not.toHaveBeenCalled();
+	});
+
+	it('hands a thread tags change to every registered handler', async () => {
+		const { connect, onThreadTagsChanged } = useChatsSocket();
+		await connect();
+		const handler = vi.fn();
+		const stop = onThreadTagsChanged(handler);
+
+		const changed = {
+			threadId: 'chat-1',
+			tags: [
+				'snoozed',
+			],
+			updatesCursor: 'c1',
+		};
+		sdkTagsChangedHandler?.(changed);
+		stop();
+		sdkTagsChangedHandler?.(changed);
+
+		expect(handler).toHaveBeenCalledOnce();
+		expect(handler).toHaveBeenCalledWith(changed);
 	});
 
 	it('tells reconnect listeners once the SDK reports the socket is back', async () => {

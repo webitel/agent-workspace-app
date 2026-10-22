@@ -62,6 +62,11 @@ vi.mock('../../api/chatSdk', () => ({
 	},
 	threadsService: {
 		fetchThread: (...args: unknown[]) => fetchThreadMock(...args),
+		// no chat is snoozed here
+		fetchThreads: vi.fn().mockResolvedValue({
+			items: [],
+			next: false,
+		}),
 		locateVariables: vi.fn().mockResolvedValue({
 			variables: {},
 		}),
@@ -85,13 +90,17 @@ vi.mock('@webitel/chat-web-sdk', () => ({
 	},
 	ChatsSocketMessage: {
 		ThreadMessage: 'messageEvent',
+		ThreadTagsChanged: 'threadTagsChangedEvent',
+	},
+	ThreadTag: {
+		Snoozed: 'snoozed',
 	},
 	createSocketConfig: (config: unknown) => config,
 	createChatsSocketClient: () => ({
 		connect: socketConnectMock,
 		disconnect: vi.fn(),
-		onMessage: (_event: string, callback: (data: unknown) => void) => {
-			sdkMessageHandler = callback;
+		onMessage: (event: string, callback: (data: unknown) => void) => {
+			if (event === 'messageEvent') sdkMessageHandler = callback;
 		},
 		onReconnected: (callback: (payload: { attempt: number }) => void) => {
 			sdkReconnectedHandler = callback;
