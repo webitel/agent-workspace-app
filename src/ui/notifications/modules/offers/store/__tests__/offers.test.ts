@@ -313,6 +313,78 @@ describe('useOffersStore', () => {
 		});
 	});
 
+	/** The conversation is the only sound while the agent hears a call. */
+	describe('during a call in progress', () => {
+		const buildChatInteraction = (id = 'chat-1') => ({
+			...buildOffer(id),
+			content: buildContent({
+				kind: OfferKind.Chat,
+			}),
+		});
+
+		it('does not ring for a call offer, but still shows it', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+
+			store.notify(buildOffer('call-1'));
+
+			expect(ringtone.start).not.toHaveBeenCalled();
+			expect(store.offers).toHaveLength(1);
+			expect(osNotifications.show).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not chirp for a chat offer', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+
+			store.notify(buildChatInteraction());
+
+			expect(chirp.play).not.toHaveBeenCalled();
+			expect(osNotifications.show).toHaveBeenCalledTimes(1);
+		});
+
+		it('silences a ring that was already running', () => {
+			const store = useOffersStore();
+			store.notify(buildOffer('call-1'));
+
+			store.setCallInProgress(true);
+
+			expect(ringtone.stop).toHaveBeenCalledTimes(1);
+		});
+
+		it('rings again once the call ends with a call offer still waiting', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+			store.notify(buildOffer('call-1'));
+
+			store.setCallInProgress(false);
+
+			expect(ringtone.start).toHaveBeenCalledTimes(1);
+		});
+
+		it('stays quiet once the call ends with only a chat offer waiting', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+			store.notify(buildChatInteraction());
+
+			store.setCallInProgress(false);
+
+			expect(ringtone.start).not.toHaveBeenCalled();
+			expect(chirp.play).not.toHaveBeenCalled();
+		});
+
+		it('ignores a repeat of the same state', () => {
+			const store = useOffersStore();
+			store.notify(buildOffer('call-1'));
+			ringtone.start.mockClear();
+
+			store.setCallInProgress(false);
+
+			expect(ringtone.start).not.toHaveBeenCalled();
+			expect(ringtone.stop).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('retainOnly', () => {
 		it('dismisses offers that are no longer on the wire', () => {
 			const store = useOffersStore();
