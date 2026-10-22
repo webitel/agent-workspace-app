@@ -3,7 +3,8 @@ import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
-vi.mock('vue-i18n', () => ({
+vi.mock('vue-i18n', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	useI18n: () => ({
 		t: (
 			key: string,

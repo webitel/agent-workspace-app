@@ -61,7 +61,8 @@ class FakeClient {
 	}
 }
 
-vi.mock('webitel-sdk', () => ({
+vi.mock('webitel-sdk', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	Client: FakeClient,
 }));
 

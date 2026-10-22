@@ -20,7 +20,8 @@ vi.mock('@webitel/ui-sdk/scripts', async (importOriginal) => ({
 	},
 }));
 
-vi.mock('vue-i18n', () => ({
+vi.mock('vue-i18n', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	useI18n: () => ({
 		t: (
 			key: string,

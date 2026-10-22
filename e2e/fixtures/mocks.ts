@@ -132,6 +132,26 @@ export async function mockAppApis(page: Page) {
 			});
 		},
 	);
+	// [Claude] the chats store loads the agent's chat account at startup; specs that
+	// need a real account (chat-thread, chat-preview) route it again with their own
+	await page.route('**/api/v1/auth/token', async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: '{}',
+		});
+	});
+	// [Claude] the calls page's history table, same 401 -> login redirect when unmocked
+	await page.route('**/api/calls/history', async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				items: [],
+				next: false,
+			}),
+		});
+	});
 }
 
 /** Per-action reply bodies; everything unmodelled still gets an empty object. */
