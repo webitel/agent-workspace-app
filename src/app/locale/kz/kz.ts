@@ -59,6 +59,12 @@ export default {
 				pageTabs: {
 					missed: 'Қабылданбаған',
 				},
+				tabs: {
+					info: 'Ақпарат',
+					postProcessing: 'Кейінгі өңдеу',
+					interaction: 'Өзара әрекет',
+					contact: 'Контакт',
+				},
 			},
 			chats: {
 				pageTabs: {

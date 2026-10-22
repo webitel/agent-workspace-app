@@ -59,6 +59,12 @@ export default {
 				pageTabs: {
 					missed: 'Пропущенные',
 				},
+				tabs: {
+					info: 'Инфо',
+					postProcessing: 'Постобработка',
+					interaction: 'Взаимодействие',
+					contact: 'Контакт',
+				},
 			},
 			chats: {
 				pageTabs: {
