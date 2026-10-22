@@ -16,6 +16,7 @@
 			<wt-copy-action
 				v-if="copyableNumber"
 				:value="copyableNumber"
+				color="info"
 				size="sm"
 			/>
 		</template>

@@ -51,7 +51,10 @@
 			disabled
 		/>
 
-		<wt-divider vertical />
+		<wt-divider
+			class="call-top-bar-actions__divider"
+			variant="vertical"
+		/>
 
 		<!-- the transfer flow is WS-95's -->
 		<wt-button
@@ -98,5 +101,20 @@ const toggleVariant = (isPressed: boolean) =>
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
+}
+
+/* a vertical divider is as tall as its container, which sets no height of its
+   own; stretched, it spans the buttons as in DES-711 */
+.call-top-bar-actions__divider {
+	align-self: stretch;
+	min-height: auto;
+	padding: 0;
+}
+
+/* the theme fills a disabled button whatever its variant, which made the
+   placeholders read as pressed, like mute and hold do; DES-711 draws them as
+   bare icons */
+.call-top-bar-actions :deep(.p-button-text:disabled) {
+	background: transparent;
 }
 </style>
