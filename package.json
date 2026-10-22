@@ -32,7 +32,7 @@
 	"dependencies": {
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.8",
-		"@webitel/chat-web-sdk": "^0.0.21",
+		"@webitel/chat-web-sdk": "~0.0.21",
 		"@webitel/styleguide": "~26.8",
 		"@webitel/ui-chats": "~26.8",
 		"@webitel/ui-datalist": "~26.8",
@@ -47,7 +47,7 @@
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.40"
+		"webitel-sdk": "^26.4.41"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
@@ -72,7 +72,6 @@
 	},
 	"overrides": {
 		"vue-router": "^5.1.x",
-		"axios": "^1.17.0",
-		"@webitel/chat-web-sdk": "^0.0.21"
+		"axios": "^1.17.0"
 	}
 }
