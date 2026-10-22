@@ -116,6 +116,8 @@ export default {
 					numpad: 'Teclado',
 					mute: 'Silenciar',
 					hold: 'Poner en espera',
+					camera: 'Cámara',
+					message: 'Mensaje',
 					transfer: 'Transferir',
 					hangup: 'Finalizar llamada',
 					openFullView: 'Abrir vista completa',

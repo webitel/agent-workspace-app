@@ -116,6 +116,8 @@ export default {
 					numpad: 'Bàn phím',
 					mute: 'Tắt micrô',
 					hold: 'Giữ máy',
+					camera: 'Camera',
+					message: 'Tin nhắn',
 					transfer: 'Chuyển cuộc gọi',
 					hangup: 'Kết thúc cuộc gọi',
 					openFullView: 'Mở chế độ xem đầy đủ',
