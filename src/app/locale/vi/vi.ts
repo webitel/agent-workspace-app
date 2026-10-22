@@ -54,6 +54,14 @@ export default {
 			empty: 'Không có biến',
 			loadError: 'Không thể tải các biến',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Chọn một liên hệ',
+					text: 'Chọn một bản ghi trong danh sách lịch sử để xem thông tin chi tiết của liên hệ',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {

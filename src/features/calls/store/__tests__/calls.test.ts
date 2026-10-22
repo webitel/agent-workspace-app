@@ -455,6 +455,58 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('call in progress', () => {
+		it('tells the offers that a call is in progress while one is audible', async () => {
+			const store = useCallsStore();
+			const interactions = useOffersStore();
+			store.initialize();
+
+			calls.value = [
+				buildCall({
+					allowAnswer: false,
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+			];
+			await nextTick();
+
+			expect(interactions.isCallInProgress).toBe(true);
+		});
+
+		it('clears it once the call ends', async () => {
+			const call = buildCall({
+				allowAnswer: false,
+				answeredAt: 1,
+				hangupAt: 0,
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+			const interactions = useOffersStore();
+			store.initialize();
+
+			calls.value = [];
+			await nextTick();
+
+			expect(interactions.isCallInProgress).toBe(false);
+		});
+
+		it('does not count a call that is still an offer', async () => {
+			const store = useCallsStore();
+			const interactions = useOffersStore();
+			store.initialize();
+
+			calls.value = [
+				buildCall(),
+			];
+			await nextTick();
+
+			expect(interactions.offers).toHaveLength(1);
+			expect(interactions.isCallInProgress).toBe(false);
+		});
+	});
+
 	describe('activeCalls', () => {
 		it('lists answered calls that have not ended', () => {
 			calls.value = [

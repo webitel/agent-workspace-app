@@ -28,6 +28,13 @@ vi.mock('../chat-previews', () => ({
 	}),
 }));
 
+const snoozedThreadIds = ref(new Set<string>());
+vi.mock('../chat-snoozed', () => ({
+	useChatSnoozedStore: () => ({
+		isSnoozed: (threadId: string) => snoozedThreadIds.value.has(threadId),
+	}),
+}));
+
 import { useChatActiveStore } from '../chat-active';
 
 const buildChats = (count: number, firstId = 1) =>
@@ -47,6 +54,7 @@ describe('chat-active store', () => {
 	beforeEach(() => {
 		chatTaskList.value = [];
 		unreadByThread.value = {};
+		snoozedThreadIds.value = new Set();
 		setActivePinia(createPinia());
 	});
 
@@ -68,6 +76,37 @@ describe('chat-active store', () => {
 			store.toggleOnlyUnread();
 
 			expect(store.count).toBe(4);
+		});
+	});
+
+	// a chat is on exactly one tab (AC_02.01.01)
+	describe('snoozed chats', () => {
+		it('leaves snoozed chats to the Snoozed tab', () => {
+			chatTaskList.value = buildChats(3);
+			snoozedThreadIds.value = new Set([
+				't2',
+			]);
+			const store = useChatActiveStore();
+
+			expect(store.tasks.map((task) => task.id)).toEqual([
+				1,
+				3,
+			]);
+			expect(store.count).toBe(2);
+		});
+
+		it('does not count a snoozed chat as unread on Active', () => {
+			chatTaskList.value = buildChats(3);
+			unreadByThread.value = {
+				t2: 1,
+				t3: 1,
+			};
+			snoozedThreadIds.value = new Set([
+				't2',
+			]);
+			const store = useChatActiveStore();
+
+			expect(store.unreadCount).toBe(1);
 		});
 	});
 

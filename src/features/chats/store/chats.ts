@@ -7,6 +7,7 @@ import { useOffersStore } from '../../../ui/notifications/modules/offers/store/o
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
 import { useChatPreviewsStore } from '../modules/previews/store/chat-previews';
+import { useChatSnoozedStore } from '../modules/previews/store/chat-snoozed';
 import { isChatTask } from '../scripts/isChatTask';
 import { isIncomingChatOffer } from '../scripts/isIncomingChatOffer';
 import { toChatOfferContent } from '../scripts/toChatOfferContent';
@@ -30,6 +31,7 @@ export const useChatsStore = defineStore('chats', () => {
 	const {
 		connect: connectChatsSocket,
 		onThreadMessage,
+		onThreadTagsChanged,
 		onReconnected,
 	} = useChatsSocket();
 	const offersStore = useOffersStore();
@@ -219,6 +221,12 @@ export const useChatsStore = defineStore('chats', () => {
 		// once here and every chat store reads it from its own store
 		void accountStore.load();
 
+		// resolved here, not in setup: the snoozed store reads this one's task
+		// list, and two stores using each other from setup never finish
+		const snoozedStore = useChatSnoozedStore();
+		// which chats are snoozed lives on the chat backend only (ADR-0008)
+		void snoozedStore.load();
+
 		connectChatsSocket();
 		onThreadMessage((message) => {
 			// every listed chat keeps its last message current, open or not
@@ -228,10 +236,13 @@ export const useChatsStore = defineStore('chats', () => {
 			if (!message.threadId || !hasChatSession(message.threadId)) return;
 			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
+		onThreadTagsChanged((changed) => snoozedStore.receiveTagsChanged(changed));
 		onReconnected(() => {
 			// the socket was down, so anything written meanwhile was never pushed:
-			// read the list's last messages and every session's newest page again
+			// read the list's last messages, the snoozed chats and every session's
+			// newest page again
 			previewsStore.reseed();
+			void snoozedStore.load();
 			for (const threadId of chatSessionIds()) {
 				useChatSessionStore(threadId).catchUp();
 			}

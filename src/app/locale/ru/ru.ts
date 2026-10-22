@@ -54,6 +54,14 @@ export default {
 			empty: 'Переменных нет',
 			loadError: 'Не удалось загрузить переменные',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Выберите контакт',
+					text: 'Выберите запись из списка истории, чтобы увидеть данные контакта',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {

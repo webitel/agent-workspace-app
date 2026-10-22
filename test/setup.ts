@@ -12,14 +12,7 @@ import { beforeEach, vi } from 'vitest';
 export const mockT = vi.fn((key: string) => key);
 export const mockTe = vi.fn((_key: string) => true);
 
-/**
- * @author Oleksandr Palonnyi
- * the real module is spread because `@webitel/ui-sdk/scripts` pulls in the
- * SDK's own locale/i18n.js, which calls `createI18n` at import time; a
- * wholesale replacement leaves it undefined and breaks any suite importing
- * the scripts barrel before it can mock anything
- * [WTEL-WS-23](https://webitel.atlassian.net/browse/WTEL-WS-23)
- */
+// [Claude] spread the real module: ui-sdk creates its own i18n instance (createI18n) on import
 vi.mock('vue-i18n', async (importOriginal) => ({
 	...(await importOriginal<Record<string, unknown>>()),
 	useI18n: () => ({
