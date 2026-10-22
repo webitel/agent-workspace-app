@@ -132,6 +132,17 @@ export async function mockAppApis(page: Page) {
 			});
 		},
 	);
+	// the calls page lands on its Missed tab, which lists call history; unmocked,
+	// the request reaches the real instance and its 401 sends the app to login
+	await page.route('**/api/calls/history**', async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				items: [],
+			}),
+		});
+	});
 }
 
 /** Per-action reply bodies; everything unmodelled still gets an empty object. */
