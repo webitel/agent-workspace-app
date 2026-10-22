@@ -54,6 +54,14 @@ export default {
 			empty: 'Sin variables',
 			loadError: 'No se pudieron cargar las variables',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Selecciona un contacto',
+					text: 'Elige un registro de la lista del historial para ver los detalles del contacto',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
