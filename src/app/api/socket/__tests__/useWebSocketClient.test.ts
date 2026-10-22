@@ -61,7 +61,8 @@ class FakeClient {
 	}
 }
 
-vi.mock('webitel-sdk', () => ({
+vi.mock('webitel-sdk', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	Client: FakeClient,
 }));
 
@@ -224,6 +225,23 @@ describe('useWebSocketClient', () => {
 				mos: {
 					average: 4,
 				},
+			});
+		});
+
+		it('forwards the SDK system_settings_changed event to registered listeners', async () => {
+			const api = await loadModule();
+			const onSystemSettingsChanged = vi.fn();
+			api.on(api.Event.SystemSettingsChanged, onSystemSettingsChanged);
+
+			const cli = await connectCli(api);
+			cli.fire('system_settings_changed', {
+				name: 'show_full_contact',
+				value: true,
+			});
+
+			expect(onSystemSettingsChanged).toHaveBeenCalledWith({
+				name: 'show_full_contact',
+				value: true,
 			});
 		});
 

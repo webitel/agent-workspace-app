@@ -24,6 +24,7 @@ export type EventMap = {
 	[WebSocketClientEvent.CallMediaMetric]: ClientEvents['call_media_metric'];
 	[WebSocketClientEvent.Disconnected]: ClientEvents['disconnected'];
 	[WebSocketClientEvent.PhoneRegistered]: EventCallback<boolean>;
+	[WebSocketClientEvent.SystemSettingsChanged]: ClientEvents['system_settings_changed'];
 };
 
 // shallowRef so derived computeds re-resolve when the instance is swapped
@@ -44,6 +45,7 @@ const listeners: { [T in WebSocketClientEvent]: EventMap[T][] } = {
 		handleDisconnect,
 	],
 	[WebSocketClientEvent.PhoneRegistered]: [],
+	[WebSocketClientEvent.SystemSettingsChanged]: [],
 };
 
 const { hostname, protocol } = window.location;
@@ -130,6 +132,10 @@ function attachCoreHandlers(cli: Client) {
 
 	cli.on('call_media_metric', (e: RtpMetrics) => {
 		emit(WebSocketClientEvent.CallMediaMetric, e);
+	});
+
+	cli.on('system_settings_changed', (e) => {
+		emit(WebSocketClientEvent.SystemSettingsChanged, e);
 	});
 
 	cli.on('open_link', (e: unknown) => {
