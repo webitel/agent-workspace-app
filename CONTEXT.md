@@ -32,6 +32,9 @@ and should not be carried over wholesale.
 - [ADR-0007](docs/adr/0007-chat-session-lifetime.md) — a chat session lives
   while its chat is listed or has a window, and why the chat preview's history
   read is not deduplicated against it.
+- [ADR-0008](docs/adr/0008-snoozed-chats-split-the-task-feed.md) — the chat
+  list's tabs stay on the task feed, split by the set of threads the chat backend
+  has tagged snoozed, and why the tabs are not listed from threads.
 
 ## Language
 
@@ -125,11 +128,16 @@ sight until it does — an unread state worked out on the client would read as
 fact.
 
 **Snoozed chat** — a chat the agent has set aside to wait for the client or for
-themselves. Not closed: it carries on, and a new client message brings it back to
-the Active tab (AC_02.02.05). The chat list has an Active tab and a Snoozed tab,
-and a chat is on exactly one of them. Nothing says which chats are snoozed yet —
-no design for the action and no backend state — so the Snoozed tab exists but
-stays empty, and no chat is snoozed as far as the app can tell.
+themselves, with **Snooze** in its chat window. Not closed: the task and thread
+carry on, and it still takes one of the agent's chat slots. The chat list has an
+Active tab and a Snoozed tab, and a chat is on exactly one of them.
+
+Snoozing is the agent's own: another agent in the same thread still sees it as
+active. It ends by itself — there is no Unsnooze — when any message arrives that
+the agent did not send (client, bot, another agent or a system message), which is
+wider than "a new client message" in AC_02.02.05, or when the agent leaves the
+thread (transfer, removal). Rejoining does not restore it. The chat backend keeps
+it as a tag on the thread; the call-center side (the **Task**) knows nothing of it.
 
 **Tab indicator** — the badge beside a chat list tab's name. The grey one is the
 number of chats on that tab. The green one, on Active only, is the number of
