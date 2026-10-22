@@ -1,7 +1,8 @@
+import { useNow } from '@vueuse/core';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 
-import { useElapsedSec } from '../../composables/useElapsedSec';
+const TICK_MS = 1000;
 
 /**
  * @author Oleksandr Palonnyi
@@ -18,6 +19,10 @@ export function useActiveCallTimer({
 	answeredAt: MaybeRefOrGetter<number>;
 	isHold: MaybeRefOrGetter<boolean>;
 }) {
+	const now = useNow({
+		interval: TICK_MS,
+	});
+
 	const holdStartedAt = ref<number | null>(null);
 
 	watch(
@@ -30,9 +35,10 @@ export function useActiveCallTimer({
 		},
 	);
 
-	const elapsedSec = useElapsedSec(
-		() => holdStartedAt.value ?? toValue(answeredAt),
-	);
+	const elapsedSec = computed(() => {
+		const startedAt = holdStartedAt.value ?? toValue(answeredAt);
+		return Math.max(0, Math.floor((now.value.getTime() - startedAt) / 1000));
+	});
 
 	/**
 	 * @author Oleksandr Palonnyi

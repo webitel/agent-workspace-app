@@ -1,8 +1,8 @@
 <template>
-	<div class="active-call-numpad">
+	<div class="call-dock-numpad">
 		<wt-input-text
-			class="active-call-numpad__input"
-			:model-value="sentDigits"
+			class="call-dock-numpad__input"
+			:model-value="digits"
 			disabled
 		/>
 
@@ -15,9 +15,12 @@
 	lang="ts"
 >
 import { WtInputText } from '@webitel/ui-sdk/components';
-import { ref } from 'vue';
 
-import NumpadKeys from '../../numpad/components/numpad-keys.vue';
+import NumpadKeys from '../../../../numpad/components/numpad-keys.vue';
+
+defineProps<{
+	digits: string;
+}>();
 
 const emit = defineEmits<{
 	digit: [
@@ -25,22 +28,19 @@ const emit = defineEmits<{
 	];
 }>();
 
-const sentDigits = ref('');
-
 function onDigit(digit: string) {
-	sentDigits.value += digit;
 	emit('digit', digit);
 }
 </script>
 
 <style scoped>
-.active-call-numpad {
+.call-dock-numpad {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-xs);
+	gap: var(--wt-ws-call-dock-sizes-root-gap);
 }
 
-.active-call-numpad__input :deep(.wt-input-text__input) {
+.call-dock-numpad__input :deep(.wt-input-text__input) {
 	text-align: center;
 }
 </style>

@@ -35,6 +35,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 	const isOutboundCallRequestPending = ref(false);
 
+	const callIdsWithHoldRequestPending = new Set<string>();
+
 	const callList = computed<Call[]>(() => calls.value ?? []);
 
 	const incomingOffers = computed(() =>
@@ -58,19 +60,46 @@ export const useCallsStore = defineStore('calls', () => {
 
 		if (!(await ensureMicrophoneAllowed())) return;
 
+		await holdOtherLiveCallsOrNotify(callId);
 		await call.answer({
 			audio: true,
 			disableStun: !getStunEnabled(),
 		});
 	}
 
-	async function holdActiveCall() {
-		const activeCall = callList.value.find(
-			(existingCall) => existingCall.active && !existingCall.isHold,
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the agent talks on one call at a time and the rest wait on hold, as in
+	 * cc-workspaces (HOLD_OTHER_CALLS); the SDK does not hold the others when a
+	 * call goes live, so every action that makes a call live does it here
+	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+	 */
+	async function holdOtherLiveCalls(exceptCallId: string | undefined) {
+		const liveCalls = callList.value.filter(
+			(existingCall) =>
+				existingCall.id !== exceptCallId &&
+				existingCall.active &&
+				!existingCall.isHold &&
+				existingCall.allowHold,
 		);
-		if (!activeCall?.allowHold) return;
 
-		await activeCall.hold();
+		await Promise.all(liveCalls.map((liveCall) => liveCall.hold()));
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * answering or resuming must not be blocked by another call that refused to
+	 * hold: the agent can still put it on hold by hand, but a call left
+	 * unanswered is lost
+	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+	 */
+	async function holdOtherLiveCallsOrNotify(exceptCallId: string) {
+		try {
+			await holdOtherLiveCalls(exceptCallId);
+		} catch (err) {
+			console.warn('[calls] holding the other calls failed', err);
+			notifyCallError('holdToggleFailed');
+		}
 	}
 
 	async function call({
@@ -91,7 +120,7 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			if (!(await ensureMicrophoneAllowed())) return false;
 
-			await holdActiveCall();
+			await holdOtherLiveCalls(undefined);
 			await getClient().call({
 				destination,
 				params: {
@@ -144,11 +173,24 @@ export const useCallsStore = defineStore('calls', () => {
 		 */
 		if (!call?.allowHold && !call?.allowUnHold) return;
 
+		/**
+		 * @author Oleksandr Palonnyi
+		 * `allowHold` / `allowUnHold` only flip once the SDK has applied the
+		 * toggle, so a second click while the first request is in flight passes
+		 * the check above and would flip the call back or raise a false error
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (callIdsWithHoldRequestPending.has(callId)) return;
+
+		callIdsWithHoldRequestPending.add(callId);
 		try {
+			if (call.isHold) await holdOtherLiveCallsOrNotify(callId);
 			await call.toggleHold();
 		} catch (err) {
 			console.warn('[calls] hold toggle failed', err);
 			notifyCallError('holdToggleFailed');
+		} finally {
+			callIdsWithHoldRequestPending.delete(callId);
 		}
 	}
 

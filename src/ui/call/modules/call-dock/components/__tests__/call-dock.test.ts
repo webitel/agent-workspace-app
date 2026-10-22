@@ -1,26 +1,27 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import type { ActiveCallPreview } from '../../types/ActiveCallPreview.types';
-import ActiveCallActions from '../active-call-actions.vue';
-import ActiveCallCard from '../active-call-card.vue';
-import ActiveCallNumpad from '../active-call-numpad.vue';
+import type { ActiveCallContent } from '../../types/ActiveCallContent.types';
+import CallDock from '../call-dock.vue';
+import CallDockActions from '../call-dock-actions.vue';
+import CallDockNumpad from '../call-dock-numpad.vue';
 
 const buildPreview = (
-	overrides: Partial<ActiveCallPreview> = {},
-): ActiveCallPreview => ({
+	overrides: Partial<ActiveCallContent> = {},
+): ActiveCallContent => ({
 	name: 'Emily Johnson',
 	number: '+12023417842',
 	queueName: 'Sales',
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	dtmfDigits: '',
 	isPostProcessingEnabled: true,
 	...overrides,
 });
 
-const mountCard = (preview: ActiveCallPreview = buildPreview()) =>
-	mount(ActiveCallCard, {
+const mountCard = (preview: ActiveCallContent = buildPreview()) =>
+	mount(CallDock, {
 		props: {
 			preview,
 			elapsedTime: '00:05:52',
@@ -45,17 +46,17 @@ const mountCard = (preview: ActiveCallPreview = buildPreview()) =>
 		},
 	});
 
-describe('active-call-card', () => {
+describe('call-dock', () => {
 	it('shows the contact, the number and the queue', () => {
 		const wrapper = mountCard();
 
-		expect(wrapper.find('.active-call-card__identity').text()).toContain(
+		expect(wrapper.find('.call-dock__identity').text()).toContain(
 			'Emily Johnson',
 		);
-		expect(wrapper.find('.active-call-card__identity').text()).toContain(
+		expect(wrapper.find('.call-dock__identity').text()).toContain(
 			'+12023417842',
 		);
-		expect(wrapper.find('.active-call-card__queue').text()).toContain('Sales');
+		expect(wrapper.find('.call-dock__queue').text()).toContain('Sales');
 	});
 
 	it('hides the queue line for a call outside a queue', () => {
@@ -65,18 +66,16 @@ describe('active-call-card', () => {
 			}),
 		);
 
-		expect(wrapper.find('.active-call-card__queue').exists()).toBe(false);
+		expect(wrapper.find('.call-dock__queue').exists()).toBe(false);
 	});
 
 	it('shows the in-call status with the elapsed time', () => {
 		const wrapper = mountCard();
 
-		expect(wrapper.find('.active-call-card__status').text()).toContain(
+		expect(wrapper.find('.call-dock__status').text()).toContain(
 			'ui.call.activeCall.inCall',
 		);
-		expect(wrapper.find('.active-call-card__status').text()).toContain(
-			'00:05:52',
-		);
+		expect(wrapper.find('.call-dock__status').text()).toContain('00:05:52');
 	});
 
 	it('shows the on-hold status when the call is held', () => {
@@ -86,7 +85,7 @@ describe('active-call-card', () => {
 			}),
 		);
 
-		expect(wrapper.find('.active-call-card__status').text()).toContain(
+		expect(wrapper.find('.call-dock__status').text()).toContain(
 			'ui.call.activeCall.onHold',
 		);
 	});
@@ -108,23 +107,23 @@ describe('active-call-card', () => {
 
 	it('toggles the numpad from the numpad action', async () => {
 		const wrapper = mountCard();
-		expect(wrapper.findComponent(ActiveCallNumpad).exists()).toBe(false);
+		expect(wrapper.findComponent(CallDockNumpad).exists()).toBe(false);
 
-		wrapper.findComponent(ActiveCallActions).vm.$emit('toggleNumpad');
+		wrapper.findComponent(CallDockActions).vm.$emit('toggleNumpad');
 		await wrapper.vm.$nextTick();
-		expect(wrapper.findComponent(ActiveCallNumpad).exists()).toBe(true);
+		expect(wrapper.findComponent(CallDockNumpad).exists()).toBe(true);
 
-		wrapper.findComponent(ActiveCallActions).vm.$emit('toggleNumpad');
+		wrapper.findComponent(CallDockActions).vm.$emit('toggleNumpad');
 		await wrapper.vm.$nextTick();
-		expect(wrapper.findComponent(ActiveCallNumpad).exists()).toBe(false);
+		expect(wrapper.findComponent(CallDockNumpad).exists()).toBe(false);
 	});
 
 	it('forwards the sent digit', async () => {
 		const wrapper = mountCard();
-		wrapper.findComponent(ActiveCallActions).vm.$emit('toggleNumpad');
+		wrapper.findComponent(CallDockActions).vm.$emit('toggleNumpad');
 		await wrapper.vm.$nextTick();
 
-		wrapper.findComponent(ActiveCallNumpad).vm.$emit('digit', '5');
+		wrapper.findComponent(CallDockNumpad).vm.$emit('digit', '5');
 
 		expect(wrapper.emitted('sendDigit')).toEqual([
 			[
@@ -133,9 +132,21 @@ describe('active-call-card', () => {
 		]);
 	});
 
+	it('shows the DTMF digits of the call in the numpad', async () => {
+		const wrapper = mountCard(
+			buildPreview({
+				dtmfDigits: '12#',
+			}),
+		);
+		wrapper.findComponent(CallDockActions).vm.$emit('toggleNumpad');
+		await wrapper.vm.$nextTick();
+
+		expect(wrapper.findComponent(CallDockNumpad).props('digits')).toBe('12#');
+	});
+
 	it('forwards the call actions', () => {
 		const wrapper = mountCard();
-		const actions = wrapper.findComponent(ActiveCallActions);
+		const actions = wrapper.findComponent(CallDockActions);
 
 		actions.vm.$emit('toggleMute');
 		actions.vm.$emit('toggleHold');

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import { IconColor } from '@webitel/ui-sdk/enums';
 import { describe, expect, it } from 'vitest';
 
-import ActiveCallActions from '../active-call-actions.vue';
+import CallDockActions from '../call-dock-actions.vue';
 
 const mountActions = (
 	props: Partial<{
@@ -11,7 +11,7 @@ const mountActions = (
 		isHold: boolean;
 	}> = {},
 ) =>
-	mount(ActiveCallActions, {
+	mount(CallDockActions, {
 		props: {
 			isNumpadOpen: false,
 			isMuted: false,
@@ -35,7 +35,7 @@ const mountActions = (
 const findAction = (wrapper: ReturnType<typeof mountActions>, name: string) =>
 	wrapper.find(`[aria-label="ui.call.activeCall.actions.${name}"]`);
 
-describe('active-call-actions', () => {
+describe('call-dock-actions', () => {
 	it('labels every action for assistive technology', () => {
 		const wrapper = mountActions();
 

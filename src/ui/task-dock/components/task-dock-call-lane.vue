@@ -18,9 +18,9 @@
 >
 import { computed } from 'vue';
 
-import { toActiveCallPreview } from '../../../features/calls/scripts/toActiveCallPreview';
+import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import FloatingCallWidget from '../../call/components/floating-call-widget.vue';
+import FloatingCallWidget from '../../call/modules/call-dock/components/floating-call-widget.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 
 const callsStore = useCallsStore();
@@ -28,7 +28,7 @@ const callsStore = useCallsStore();
 const activeCalls = computed(() =>
 	callsStore.activeCalls.map((call) => ({
 		id: call.id,
-		preview: toActiveCallPreview(call),
+		preview: toActiveCallContent(call),
 	})),
 );
 </script>

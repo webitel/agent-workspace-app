@@ -38,7 +38,7 @@ const emit = defineEmits<{
 .numpad-keys {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: var(--spacing-2xs);
+	gap: var(--wt-ws-dialer-sizes-numpad-gap);
 }
 
 .numpad-keys__key {

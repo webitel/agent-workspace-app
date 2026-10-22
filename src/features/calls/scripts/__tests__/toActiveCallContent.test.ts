@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Call } from 'webitel-sdk';
 
-import { toActiveCallPreview } from '../toActiveCallPreview';
+import { toActiveCallContent } from '../toActiveCallContent';
 
 // the shared i18n instance can't be constructed under the global vue-i18n mock
 vi.mock('../../../../app/locale/i18n', () => ({
@@ -25,25 +25,51 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 		isHold: false,
 		muted: false,
 		allowReporting: true,
+		digits: [],
 		...overrides,
 	}) as unknown as Call;
 
-describe('toActiveCallPreview', () => {
+describe('toActiveCallContent', () => {
 	it('maps an identified contact with its queue', () => {
-		expect(toActiveCallPreview(buildCall())).toEqual({
+		expect(toActiveCallContent(buildCall())).toEqual({
 			name: 'Emily Johnson',
 			number: '+12023417842',
 			queueName: 'Sales',
 			answeredAt: 1_700_000_000_000,
 			isHold: false,
 			isMuted: false,
+			dtmfDigits: '',
 			isPostProcessingEnabled: true,
 		});
 	});
 
+	it('joins the confirmed DTMF digits in order', () => {
+		expect(
+			toActiveCallContent(
+				buildCall({
+					digits: [
+						'1',
+						'#',
+						'0',
+					],
+				}),
+			).dtmfDigits,
+		).toBe('1#0');
+	});
+
+	it('has no DTMF digits when the call carries none', () => {
+		expect(
+			toActiveCallContent(
+				buildCall({
+					digits: undefined,
+				}),
+			).dtmfDigits,
+		).toBe('');
+	});
+
 	it('carries whether the call allows post-processing', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					allowReporting: false,
 				}),
@@ -53,7 +79,7 @@ describe('toActiveCallPreview', () => {
 
 	it('treats a missing post-processing flag as not allowed', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					allowReporting: undefined,
 				}),
@@ -63,7 +89,7 @@ describe('toActiveCallPreview', () => {
 
 	it('leaves the name out when the contact was not identified', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					displayName: '',
 				}),
@@ -73,7 +99,7 @@ describe('toActiveCallPreview', () => {
 
 	it('leaves the name out when the platform hides the contact', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					hideContact: true,
 				}),
@@ -83,7 +109,7 @@ describe('toActiveCallPreview', () => {
 
 	it('masks the number when the platform hides it', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					hideNumber: true,
 				}),
@@ -93,7 +119,7 @@ describe('toActiveCallPreview', () => {
 
 	it('leaves the queue out for a call outside a queue', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					queue: null,
 				}),
@@ -103,7 +129,7 @@ describe('toActiveCallPreview', () => {
 
 	it('carries the hold state', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					isHold: true,
 				}),
@@ -113,7 +139,7 @@ describe('toActiveCallPreview', () => {
 
 	it('carries the mute state', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					muted: true,
 				}),
@@ -123,7 +149,7 @@ describe('toActiveCallPreview', () => {
 
 	it('is not muted when the call carries no mute state', () => {
 		expect(
-			toActiveCallPreview(
+			toActiveCallContent(
 				buildCall({
 					muted: undefined,
 				}),
