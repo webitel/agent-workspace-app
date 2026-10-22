@@ -122,8 +122,11 @@ const { t } = useI18n();
 	white-space: nowrap;
 }
 
+/* never squeezed: once the line runs out it wraps under the identity instead,
+   and squeezing it collapsed the action buttons' icons */
 .task-top-bar__trailing {
 	display: flex;
+	flex-shrink: 0;
 	align-items: center;
 	gap: var(--wt-ws-chat-page-sizes-top-bar-gap);
 	margin-left: auto;
