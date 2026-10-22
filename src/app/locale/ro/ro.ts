@@ -59,6 +59,12 @@ export default {
 				pageTabs: {
 					missed: 'Pierdute',
 				},
+				tabs: {
+					info: 'Informații',
+					postProcessing: 'Post-procesare',
+					interaction: 'Interacțiune',
+					contact: 'Contact',
+				},
 			},
 			chats: {
 				pageTabs: {

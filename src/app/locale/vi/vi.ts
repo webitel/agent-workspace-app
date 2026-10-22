@@ -59,6 +59,12 @@ export default {
 				pageTabs: {
 					missed: 'Cuộc gọi nhỡ',
 				},
+				tabs: {
+					info: 'Thông tin',
+					postProcessing: 'Xử lý sau',
+					interaction: 'Tương tác',
+					contact: 'Liên hệ',
+				},
 			},
 			chats: {
 				pageTabs: {
