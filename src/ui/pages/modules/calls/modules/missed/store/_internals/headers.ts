@@ -9,6 +9,7 @@ export const headers: DatalistTableHeader[] = [
 		// virtual field, expanded to API fields in callsHistoryApiModule
 		field: 'name',
 		width: '256px',
+		sort: SortSymbols.NONE,
 	},
 	{
 		value: 'createdAt',

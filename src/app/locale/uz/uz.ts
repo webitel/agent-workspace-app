@@ -58,6 +58,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Oʼtkazib yuborilgan',
+					offline: 'Oflayn',
 				},
 			},
 			chats: {

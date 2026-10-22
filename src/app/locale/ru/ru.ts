@@ -58,6 +58,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Пропущенные',
+					offline: 'Оффлайн',
 				},
 			},
 			chats: {
