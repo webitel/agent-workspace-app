@@ -122,11 +122,11 @@ export const useCallsStore = defineStore('calls', () => {
 		};
 
 		if (settle(phase())) return;
-		const stop = storeScope?.run(() =>
+		const register = () =>
 			watch(phase, (value) => {
 				if (settle(value)) stop?.();
-			}),
-		);
+			});
+		const stop = storeScope ? storeScope.run(register) : register();
 	}
 
 	function takeReturnTarget(callId: string): string | undefined {
