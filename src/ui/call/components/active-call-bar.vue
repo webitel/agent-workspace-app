@@ -13,6 +13,7 @@
 				@toggle-mute="emit('toggleMute')"
 				@toggle-hold="emit('toggleHold')"
 				@hangup="emit('hangup')"
+				@open-full-view="emit('openFullView')"
 				@send-digit="emit('sendDigit', $event)"
 			/>
 		</slide-up-overlay>
@@ -21,6 +22,7 @@
 			:preview="preview"
 			:elapsed-time="timer.formatted.value"
 			@toggle-expand="emit('toggleExpand')"
+			@open-full-view="emit('openFullView')"
 		/>
 	</div>
 </template>
@@ -48,6 +50,7 @@ const emit = defineEmits<{
 	toggleMute: [];
 	toggleHold: [];
 	hangup: [];
+	openFullView: [];
 	sendDigit: [
 		digit: string,
 	];
