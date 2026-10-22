@@ -135,6 +135,8 @@ export default {
 					numpad: 'Numpad',
 					mute: 'Mute',
 					hold: 'Hold',
+					camera: 'Camera',
+					message: 'Message',
 					transfer: 'Transfer',
 					hangup: 'End call',
 					openFullView: 'Open full view',

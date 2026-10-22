@@ -124,6 +124,8 @@ export default {
 					numpad: 'Klawiatura',
 					mute: 'Wycisz',
 					hold: 'Wstrzymaj',
+					camera: 'Kamera',
+					message: 'Wiadomość',
 					transfer: 'Przekieruj',
 					hangup: 'Zakończ połączenie',
 					openFullView: 'Otwórz pełny widok',
