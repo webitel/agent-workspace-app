@@ -26,13 +26,12 @@ const mountBar = (props = {}, slots: Record<string, string> = {}) =>
 	});
 
 describe('task-top-bar', () => {
-	it('shows the name and the subtitle beside the avatar', () => {
+	it('shows the name and the subtitle', () => {
 		const wrapper = mountBar({
 			name: 'client_username',
 			subtitle: 'Support',
 		});
 
-		expect(wrapper.find('.avatar').text()).toBe('client_username');
 		expect(wrapper.text()).toContain('client_username');
 		expect(wrapper.text()).toContain('Support');
 	});
@@ -86,5 +85,29 @@ describe('task-top-bar', () => {
 		expect(wrapper.find('.leading').exists()).toBe(true);
 		expect(wrapper.find('.status').exists()).toBe(true);
 		expect(wrapper.find('.actions').exists()).toBe(true);
+	});
+
+	// the call bar has none (DES-711); the chat bar brings its own
+	it('draws no avatar of its own', () => {
+		expect(
+			mountBar({
+				name: 'Jane',
+			})
+				.find('.avatar')
+				.exists(),
+		).toBe(false);
+	});
+
+	it('sets what a channel brings beside the name on the name line', () => {
+		const wrapper = mountBar(
+			{
+				name: 'Jane',
+			},
+			{
+				'name-append': '<b class="copy" />',
+			},
+		);
+
+		expect(wrapper.find('.task-top-bar__name-line .copy').exists()).toBe(true);
 	});
 });
