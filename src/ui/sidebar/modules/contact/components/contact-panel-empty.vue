@@ -2,7 +2,7 @@
 	<section class="contact-panel-empty">
 		<wt-image
 			:src="emptyContact"
-			size="2xs"
+			width="var(--icon-7xl-size)"
 			alt=""
 		/>
 		<div class="contact-panel-empty__info">
