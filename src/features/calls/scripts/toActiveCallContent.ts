@@ -33,6 +33,5 @@ export function toActiveCallContent(call: Call): ActiveCallContent {
 		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
 		 */
 		dtmfDigits: (call.digits ?? []).join(''),
-		isPostProcessingEnabled: Boolean(call.allowReporting),
 	};
 }

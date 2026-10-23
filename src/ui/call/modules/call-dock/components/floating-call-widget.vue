@@ -19,6 +19,7 @@
 			:size="ComponentSize.SM"
 			:color="buttonColor"
 			width-by-content
+			@click.stop="emit('openFullView')"
 		>
 			<wt-icon
 				icon="ws-open-full-view"
@@ -42,6 +43,10 @@ import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 
 const props = defineProps<{
 	preview: ActiveCallContent;
+}>();
+
+const emit = defineEmits<{
+	openFullView: [];
 }>();
 
 const timer = useActiveCallTimer({

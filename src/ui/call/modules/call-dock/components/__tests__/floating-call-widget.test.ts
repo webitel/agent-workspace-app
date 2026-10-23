@@ -14,7 +14,6 @@ const buildPreview = (
 	isHold: false,
 	isMuted: false,
 	dtmfDigits: '',
-	isPostProcessingEnabled: true,
 	...overrides,
 });
 
@@ -46,6 +45,14 @@ describe('floating-call-widget', () => {
 		expect(wrapper.find('.floating-call-widget__timer').text()).toMatch(
 			/^\d{2}:\d{2}:\d{2}$/,
 		);
+	});
+
+	it('emits openFullView from its button', async () => {
+		const wrapper = mountBar();
+
+		await wrapper.find('.button').trigger('click');
+
+		expect(wrapper.emitted('openFullView')).toHaveLength(1);
 	});
 
 	it('is not marked as on hold while the call is live', () => {
