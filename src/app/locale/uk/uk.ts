@@ -94,6 +94,7 @@ export default {
 				closed: {
 					notFound: 'Чат не знайдено',
 					loadError: 'Не вдалося завантажити чат',
+					retry: 'Спробувати ще раз',
 					taskVariablesUnavailable:
 						'Змінні контакт-центру для закритих чатів недоступні',
 				},

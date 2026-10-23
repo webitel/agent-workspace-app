@@ -94,6 +94,7 @@ export default {
 				closed: {
 					notFound: 'Chat not found',
 					loadError: "Couldn't load the chat",
+					retry: 'Try again',
 					taskVariablesUnavailable:
 						'Contact center variables are not available for closed chats',
 				},

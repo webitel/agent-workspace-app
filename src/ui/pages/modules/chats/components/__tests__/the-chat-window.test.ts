@@ -119,6 +119,10 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 		props: [
 			'image',
 			'text',
+			'primaryActionText',
+		],
+		emits: [
+			'click:primary',
 		],
 		template: '<div class="empty-stub" />',
 	},
@@ -570,6 +574,57 @@ describe('the-chat-window', () => {
 			expect(empty.exists()).toBe(true);
 			expect(empty.props('text')).toBe('ui.pages.chats.closed.loadError');
 			expect(showsClosedThread(wrapper)).toBe(false);
+		});
+
+		// the read can race the backend recording the leave of a chat that just
+		// turned closed in place, and the window stays open meanwhile
+		it.each([
+			[
+				'not found',
+				(closedChat: FakeClosedChat) => {
+					closedChat.isNotFound = true;
+				},
+			],
+			[
+				'a failed read',
+				(closedChat: FakeClosedChat) => {
+					closedChat.error = new Error('offline');
+				},
+			],
+		])('reads the closed chat again on retry after %s', async (_name, fail) => {
+			const wrapper = mountWindow();
+			const closedChat = closedChats.get('thread-1') as FakeClosedChat;
+			closedChat.thread = null;
+			fail(closedChat);
+			closedChat.load.mockImplementation(() => {
+				closedChat.isNotFound = false;
+				closedChat.error = null;
+				closedChat.thread = {
+					id: 'thread-1',
+					members: [],
+				};
+			});
+			await nextTick();
+			const empty = wrapper.findComponent({
+				name: 'WtEmpty',
+			});
+			expect(empty.props('primaryActionText')).toBe(
+				'ui.pages.chats.closed.retry',
+			);
+			expect(closedChat.load).toHaveBeenCalledTimes(1);
+
+			empty.vm.$emit('click:primary');
+			await nextTick();
+
+			expect(closedChat.load).toHaveBeenCalledTimes(2);
+			expect(
+				wrapper
+					.findComponent({
+						name: 'WtEmpty',
+					})
+					.exists(),
+			).toBe(false);
+			expect(showsClosedThread(wrapper)).toBe(true);
 		});
 
 		// a closed chat read before the agent rejoined is dropped by the

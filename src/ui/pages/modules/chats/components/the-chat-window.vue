@@ -10,6 +10,8 @@
 			class="the-chat-window__empty"
 			:image="emptyImage"
 			:text="emptyText"
+			:primary-action-text="t('ui.pages.chats.closed.retry')"
+			@click:primary="retryClosedChat"
 		/>
 
 		<template v-else>
@@ -123,6 +125,12 @@ const emptyText = computed(() => {
 		return t('ui.pages.chats.closed.loadError');
 	return '';
 });
+
+// Both empty states are final only until asked again: right after a chat turns
+// closed in place, the read can run before the backend has recorded the leave.
+function retryClosedChat() {
+	void closedChat.value?.load();
+}
 
 const emptyImage = useThemedImage({
 	light: emptyTableLight,
