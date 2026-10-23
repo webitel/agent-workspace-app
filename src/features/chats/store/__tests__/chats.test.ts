@@ -82,6 +82,26 @@ vi.mock('../../modules/previews/store/chat-previews', () => ({
 	}),
 }));
 
+const loadSnoozedMock = vi.fn();
+const receiveTagsChangedMock = vi.fn();
+
+vi.mock('../../modules/previews/store/chat-snoozed', () => ({
+	useChatSnoozedStore: () => ({
+		load: loadSnoozedMock,
+		receiveTagsChanged: receiveTagsChangedMock,
+	}),
+}));
+
+let tagsChangedHandler:
+	| ((changed: { threadId: string; tags: string[] }) => void)
+	| null = null;
+const onThreadTagsChangedMock = vi.fn(
+	(callback: (changed: { threadId: string; tags: string[] }) => void) => {
+		tagsChangedHandler = callback;
+		return () => {};
+	},
+);
+
 const connectChatsSocketMock = vi.fn();
 // Captures the handler chats registers so tests can emit a socket message.
 let threadMessageHandler: ((message: { threadId?: string }) => void) | null =
@@ -105,6 +125,7 @@ vi.mock('../../composables/useChatsSocket', () => ({
 		disconnect: vi.fn(),
 		onThreadMessage: onThreadMessageMock,
 		onReconnected: onReconnectedMock,
+		onThreadTagsChanged: onThreadTagsChangedMock,
 	}),
 }));
 
@@ -189,6 +210,7 @@ describe('chats store', () => {
 		sessionInitialized = false;
 		tasks.value = [];
 		threadMessageHandler = null;
+		tagsChangedHandler = null;
 		reconnectedHandler = null;
 		routerCurrentRoute.value.params = {};
 	});
@@ -249,6 +271,37 @@ describe('chats store', () => {
 
 			expect(reseedPreviewsMock).toHaveBeenCalledOnce();
 			expect(catchUpMock).toHaveBeenCalledTimes(2);
+		});
+
+		// which chats are snoozed lives on the chat backend only (ADR-0008)
+		it('reads the snoozed chats on initialize and follows their tag changes', () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			tagsChangedHandler?.({
+				threadId: 'chat-1',
+				tags: [
+					'snoozed',
+				],
+			});
+
+			expect(loadSnoozedMock).toHaveBeenCalledOnce();
+			expect(receiveTagsChangedMock).toHaveBeenCalledWith({
+				threadId: 'chat-1',
+				tags: [
+					'snoozed',
+				],
+			});
+		});
+
+		it('reads the snoozed chats again once the socket is back', () => {
+			const store = useChatsStore();
+			store.initialize();
+			loadSnoozedMock.mockClear();
+
+			reconnectedHandler?.();
+
+			expect(loadSnoozedMock).toHaveBeenCalledOnce();
 		});
 
 		// a listed chat's session outlives its window and must stay current

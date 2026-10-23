@@ -32,7 +32,7 @@
 	"dependencies": {
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.8",
-		"@webitel/chat-web-sdk": "^0.0.20",
+		"@webitel/chat-web-sdk": "^0.0.21",
 		"@webitel/styleguide": "~26.8",
 		"@webitel/ui-chats": "~26.8",
 		"@webitel/ui-datalist": "~26.8",
@@ -41,13 +41,13 @@
 		"date-fns": "^4",
 		"dompurify": "^3.4.16",
 		"jszip": "^3.10.2",
-		"markdown-it": "^15.0.2",
+		"markdown-it": "^15.0.3",
 		"pinia": "^3.x",
 		"vidstack": "^1.15.6",
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.34"
+		"webitel-sdk": "^26.4.40"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
@@ -55,7 +55,7 @@
 		"@playwright/test": "^1.55.1",
 		"@types/node": "^25.9.2",
 		"@vitejs/plugin-vue": "^6.x",
-		"@vitest/coverage-v8": "^4.1.11",
+		"@vitest/coverage-v8": "^4.1.12",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.8.1",
 		"clipboard-copy": "^4.0.1",
@@ -65,17 +65,14 @@
 		"npm-run-all2": "^8.0.4",
 		"typescript": "~5.9.x",
 		"typescript-plugin-css-modules": "^5.x",
-		"vite": "^8.x",
+		"vite": "^8.3.5",
 		"vite-plugin-vue-devtools": "^8.1.x",
-		"vitest": "^4.x",
+		"vitest": "^4.1.12",
 		"vue-tsc": "^3.1.0"
 	},
 	"overrides": {
 		"vue-router": "^5.1.x",
 		"axios": "^1.17.0",
-		"@webitel/chat-web-sdk": "^0.0.20",
-		"@webitel/ui-chats": {
-			"@webitel/chat-web-sdk": "$@webitel/chat-web-sdk"
-		}
+		"@webitel/chat-web-sdk": "^0.0.21"
 	}
 }

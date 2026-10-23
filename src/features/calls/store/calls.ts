@@ -12,6 +12,7 @@ import { useOffersStore } from '../../../ui/notifications/modules/offers/store/o
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
 import { isActiveCall } from '../scripts/isActiveCall';
+import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
@@ -34,6 +35,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 	const isOutboundCallRequestPending = ref(false);
 
+	const callIdsWithHoldRequestPending = new Set<string>();
+
 	const callList = computed<Call[]>(() => calls.value ?? []);
 
 	const incomingOffers = computed(() =>
@@ -41,6 +44,8 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const isCallInProgress = computed(() => callList.value.some(isCallAudible));
 
 	// TODO: замінити на реальний підрахунок нових/пропущених дзвінків
 	const newCallsCount = computed(() => 3);
@@ -55,19 +60,37 @@ export const useCallsStore = defineStore('calls', () => {
 
 		if (!(await ensureMicrophoneAllowed())) return;
 
+		await holdOtherLiveCalls(callId);
 		await call.answer({
 			audio: true,
 			disableStun: !getStunEnabled(),
 		});
 	}
 
-	async function holdActiveCall() {
-		const activeCall = callList.value.find(
-			(existingCall) => existingCall.active && !existingCall.isHold,
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the agent talks on one call at a time and the rest wait on hold, as in
+	 * cc-workspaces (HOLD_OTHER_CALLS); the SDK does not hold the others when a
+	 * call goes live, so every action that makes a call live does it here.
+	 * A call that refuses to hold must not block that action: the agent can
+	 * still put it on hold by hand, but a call left unanswered is lost
+	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+	 */
+	async function holdOtherLiveCalls(exceptCallId?: string) {
+		const liveCalls = callList.value.filter(
+			(existingCall) =>
+				existingCall.id !== exceptCallId &&
+				existingCall.active &&
+				!existingCall.isHold &&
+				existingCall.allowHold,
 		);
-		if (!activeCall?.allowHold) return;
 
-		await activeCall.hold();
+		try {
+			await Promise.all(liveCalls.map((liveCall) => liveCall.hold()));
+		} catch (err) {
+			console.warn('[calls] holding the other calls failed', err);
+			notifyCallError('holdToggleFailed');
+		}
 	}
 
 	async function call({
@@ -88,7 +111,7 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			if (!(await ensureMicrophoneAllowed())) return false;
 
-			await holdActiveCall();
+			await holdOtherLiveCalls();
 			await getClient().call({
 				destination,
 				params: {
@@ -141,11 +164,24 @@ export const useCallsStore = defineStore('calls', () => {
 		 */
 		if (!call?.allowHold && !call?.allowUnHold) return;
 
+		/**
+		 * @author Oleksandr Palonnyi
+		 * `allowHold` / `allowUnHold` only flip once the SDK has applied the
+		 * toggle, so a second click while the first request is in flight passes
+		 * the check above and would flip the call back or raise a false error
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (callIdsWithHoldRequestPending.has(callId)) return;
+
+		callIdsWithHoldRequestPending.add(callId);
 		try {
+			if (call.isHold) await holdOtherLiveCalls(callId);
 			await call.toggleHold();
 		} catch (err) {
 			console.warn('[calls] hold toggle failed', err);
 			notifyCallError('holdToggleFailed');
+		} finally {
+			callIdsWithHoldRequestPending.delete(callId);
 		}
 	}
 
@@ -191,6 +227,21 @@ export const useCallsStore = defineStore('calls', () => {
 		);
 	}
 
+	/**
+	 * Registered before the offers watcher so that, when a feed update brings an
+	 * audible call and a new offer at once, the offer already finds the ring muted.
+	 * [WS-133](https://webitel.atlassian.net/browse/WS-133)
+	 */
+	function subscribeToCallInProgress() {
+		watch(
+			isCallInProgress,
+			(inProgress) => offersStore.setCallInProgress(inProgress),
+			{
+				immediate: true,
+			},
+		);
+	}
+
 	function onCallEvent(action: CallActions, changedCall: Call) {
 		switch (action) {
 			case CallActions.PeerStream:
@@ -208,6 +259,7 @@ export const useCallsStore = defineStore('calls', () => {
 		client.subscribeCall(onCallEvent, null);
 
 		offersStore.initialize();
+		subscribeToCallInProgress();
 		subscribeToOffers();
 	}
 
@@ -219,7 +271,6 @@ export const useCallsStore = defineStore('calls', () => {
 		isOutboundCallRequestPending,
 
 		initialize,
-		getCallById,
 		call,
 		answer,
 		toggleMute,

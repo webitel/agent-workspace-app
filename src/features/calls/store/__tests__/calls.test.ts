@@ -198,6 +198,51 @@ describe('useCallsStore', () => {
 		);
 	});
 
+	it('holds the call the agent is talking on before answering another', async () => {
+		const store = useCallsStore();
+		const talkingCall = buildCall({
+			id: 'call-talking',
+			active: true,
+		});
+		const offeredCall = buildCall({
+			id: 'call-offered',
+		});
+		calls.value = [
+			talkingCall,
+			offeredCall,
+		];
+
+		await store.answer('call-offered');
+
+		expect(talkingCall.hold).toHaveBeenCalledTimes(1);
+		expect(offeredCall.hold).not.toHaveBeenCalled();
+		expect(offeredCall.answer).toHaveBeenCalledTimes(1);
+	});
+
+	it('still answers when another call refuses to hold', async () => {
+		const store = useCallsStore();
+		const talkingCall = buildCall({
+			id: 'call-talking',
+			active: true,
+			hold: vi.fn().mockRejectedValue(new Error('boom')),
+		});
+		const offeredCall = buildCall({
+			id: 'call-offered',
+		});
+		calls.value = [
+			talkingCall,
+			offeredCall,
+		];
+
+		await store.answer('call-offered');
+
+		expect(offeredCall.answer).toHaveBeenCalledTimes(1);
+		expect(mockEmit).toHaveBeenCalledWith('notification', {
+			type: 'error',
+			text: 'error.calls.holdToggleFailed',
+		});
+	});
+
 	// a denied mic yields a connected call the customer hears nothing on
 	it('refuses to answer when the microphone is blocked', async () => {
 		isMicrophoneAllowed.mockResolvedValue(false);
@@ -331,6 +376,27 @@ describe('useCallsStore', () => {
 			expect(clientCall).toHaveBeenCalled();
 		});
 
+		it('still dials when another call refuses to hold', async () => {
+			const stubbornCall = buildCall({
+				active: true,
+				hold: vi.fn().mockRejectedValue(new Error('boom')),
+			});
+			calls.value = [
+				stubbornCall,
+			];
+			const store = useCallsStore();
+
+			await store.call({
+				destination: '100',
+			});
+
+			expect(clientCall).toHaveBeenCalled();
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
+		});
+
 		it('leaves an already held call alone', async () => {
 			const heldCall = buildCall({
 				active: true,
@@ -455,6 +521,58 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('call in progress', () => {
+		it('tells the offers that a call is in progress while one is audible', async () => {
+			const store = useCallsStore();
+			const interactions = useOffersStore();
+			store.initialize();
+
+			calls.value = [
+				buildCall({
+					allowAnswer: false,
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+			];
+			await nextTick();
+
+			expect(interactions.isCallInProgress).toBe(true);
+		});
+
+		it('clears it once the call ends', async () => {
+			const call = buildCall({
+				allowAnswer: false,
+				answeredAt: 1,
+				hangupAt: 0,
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+			const interactions = useOffersStore();
+			store.initialize();
+
+			calls.value = [];
+			await nextTick();
+
+			expect(interactions.isCallInProgress).toBe(false);
+		});
+
+		it('does not count a call that is still an offer', async () => {
+			const store = useCallsStore();
+			const interactions = useOffersStore();
+			store.initialize();
+
+			calls.value = [
+				buildCall(),
+			];
+			await nextTick();
+
+			expect(interactions.offers).toHaveLength(1);
+			expect(interactions.isCallInProgress).toBe(false);
+		});
+	});
+
 	describe('activeCalls', () => {
 		it('lists answered calls that have not ended', () => {
 			calls.value = [
@@ -514,6 +632,52 @@ describe('useCallsStore', () => {
 			expect(call.toggleHold).toHaveBeenCalledTimes(1);
 		});
 
+		it('holds the other live calls when resuming a held one', async () => {
+			const heldCall = buildCall({
+				id: 'call-held',
+				active: true,
+				allowHold: false,
+				allowUnHold: true,
+				isHold: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			const talkingCall = buildCall({
+				id: 'call-talking',
+				active: true,
+			});
+			calls.value = [
+				heldCall,
+				talkingCall,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-held');
+
+			expect(talkingCall.hold).toHaveBeenCalledTimes(1);
+			expect(heldCall.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves the other calls alone when putting a call on hold', async () => {
+			const talkingCall = buildCall({
+				id: 'call-talking',
+				active: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			const otherCall = buildCall({
+				id: 'call-other',
+				active: true,
+			});
+			calls.value = [
+				talkingCall,
+				otherCall,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-talking');
+
+			expect(otherCall.hold).not.toHaveBeenCalled();
+		});
+
 		it('leaves a call that can be neither held nor resumed alone', async () => {
 			const call = buildCall({
 				allowHold: false,
@@ -528,6 +692,45 @@ describe('useCallsStore', () => {
 			await store.toggleHold('call-1');
 
 			expect(call.toggleHold).not.toHaveBeenCalled();
+		});
+
+		it('ignores a second toggle while the first one is still in flight', async () => {
+			let finishToggle: () => void = () => {};
+			const call = buildCall({
+				toggleHold: vi.fn(
+					() =>
+						new Promise<object>((resolve) => {
+							finishToggle = () => resolve({});
+						}),
+				),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			const firstToggle = store.toggleHold('call-1');
+			await store.toggleHold('call-1');
+			finishToggle();
+			await firstToggle;
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+			expect(mockEmit).not.toHaveBeenCalled();
+		});
+
+		it('accepts a new toggle once the previous one has settled', async () => {
+			const call = buildCall({
+				toggleHold: vi.fn().mockRejectedValueOnce(new Error('boom')),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(2);
 		});
 	});
 

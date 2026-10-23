@@ -32,8 +32,9 @@ and should not be carried over wholesale.
 - [ADR-0007](docs/adr/0007-chat-session-lifetime.md) — a chat session lives
   while its chat is listed or has a window, and why the chat preview's history
   read is not deduplicated against it.
-- [ADR-0008](docs/adr/0008-call-info-tab-variables.md) — a call's Info tab
-  shows the call's own variables only, and why it does not merge like a chat's.
+- [ADR-0008](docs/adr/0008-snoozed-chats-split-the-task-feed.md) — the chat
+  list's tabs stay on the task feed, split by the set of threads the chat backend
+  has tagged snoozed, and why the tabs are not listed from threads.
 
 ## Language
 
@@ -56,16 +57,8 @@ either brings the next form or releases the task.
 agent finishes the processing form before the task is released. It has a
 deadline the agent may renew a limited number of times.
 
-A processing form can exist without post-processing (it arrived mid-chat).
-
-**Reporting** — post-processing without a processing form: the agent marks the
-interaction successful or not, and for a failure may set when the client is
-tried next. It is how a queue with post-processing but no form schema lets the
-agent finish before the deadline. Not built yet, for any channel: such an
-interaction shows no Post-processing tab, and its task is released when the
-deadline passes.
-
-The chat window's
+A processing form can exist without post-processing (it arrived mid-chat), and
+post-processing without a form falls back to plain reporting. The chat window's
 tab is labelled "Post-processing" by design, but it hosts the processing form
 whenever one exists.
 
@@ -84,11 +77,6 @@ distributes the chat and live on the `Task`. Thread variables are set by bots an
 flows during the chat and live behind REST on the thread. The Info tab shows both
 (ADR-0006).
 
-**Call variables** — the variables a flow exports onto a call, carried by the
-call itself. Every call has them, task or not. A queue call's task also carries
-the queue's distribution variables, but the Call window's Info tab shows only
-the call variables (ADR-0008).
-
 **End chat** — the agent's request to the backend to finish the task. It is
 answered by post-processing starting, or by the task being released outright
 when the queue has no post-processing.
@@ -104,15 +92,6 @@ answers, the attempt ends and the call carries on in the active-call window.
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
-
-**Call window** — the central-area card for one call, the call's counterpart of
-the chat window. It hosts the call while it is an **Active call** and stays on
-through the call's **Post-processing** after hangup, until the agent leaves it or
-the call's task is released (form submitted, deadline passed, or no
-post-processing configured). A Call window is not an Active call: once the call
-has hung up it is still a Call window, but no longer an Active call.
-There is one per call, not per task: a call with no task (a manual dial, an
-internal call) still has a Call window, just never a Post-processing phase.
 
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
@@ -149,11 +128,16 @@ sight until it does — an unread state worked out on the client would read as
 fact.
 
 **Snoozed chat** — a chat the agent has set aside to wait for the client or for
-themselves. Not closed: it carries on, and a new client message brings it back to
-the Active tab (AC_02.02.05). The chat list has an Active tab and a Snoozed tab,
-and a chat is on exactly one of them. Nothing says which chats are snoozed yet —
-no design for the action and no backend state — so the Snoozed tab exists but
-stays empty, and no chat is snoozed as far as the app can tell.
+themselves, with **Snooze** in its chat window. Not closed: the task and thread
+carry on, and it still takes one of the agent's chat slots. The chat list has an
+Active tab and a Snoozed tab, and a chat is on exactly one of them.
+
+Snoozing is the agent's own: another agent in the same thread still sees it as
+active. It ends by itself — there is no Unsnooze — when any message arrives that
+the agent did not send (client, bot, another agent or a system message), which is
+wider than "a new client message" in AC_02.02.05, or when the agent leaves the
+thread (transfer, removal). Rejoining does not restore it. The chat backend keeps
+it as a tag on the thread; the call-center side (the **Task**) knows nothing of it.
 
 **Tab indicator** — the badge beside a chat list tab's name. The grey one is the
 number of chats on that tab. The green one, on Active only, is the number of

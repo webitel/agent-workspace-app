@@ -23,24 +23,6 @@ describe('useTaskDockStore', () => {
 		expect(store.expandedCallId).toBeNull();
 	});
 
-	it('collapses the expanded call', () => {
-		const store = useTaskDockStore();
-		store.toggleCallExpand('call-1');
-
-		store.collapseCall('call-1');
-
-		expect(store.expandedCallId).toBeNull();
-	});
-
-	it('keeps another call expanded when a different one is collapsed', () => {
-		const store = useTaskDockStore();
-		store.toggleCallExpand('call-2');
-
-		store.collapseCall('call-1');
-
-		expect(store.expandedCallId).toBe('call-2');
-	});
-
 	it('keeps only one call expanded at a time', () => {
 		const store = useTaskDockStore();
 

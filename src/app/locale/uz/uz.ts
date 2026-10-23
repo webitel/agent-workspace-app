@@ -54,16 +54,18 @@ export default {
 			empty: "O'zgaruvchilar yo'q",
 			loadError: "O'zgaruvchilarni yuklab bo'lmadi",
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Kontaktni tanlang',
+					text: 'Kontakt maʼlumotlarini koʼrish uchun tarix roʼyxatidan yozuvni tanlang',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Oʼtkazib yuborilgan',
-				},
-				tabs: {
-					info: "Ma'lumot",
-					postProcessing: 'Keyingi ishlov',
-					interaction: "O'zaro aloqa",
-					contact: 'Kontakt',
 				},
 			},
 			chats: {

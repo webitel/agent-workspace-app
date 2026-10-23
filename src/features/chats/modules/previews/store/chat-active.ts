@@ -3,11 +3,13 @@ import { computed, ref } from 'vue';
 
 import { useChatsStore } from '../../../store/chats';
 import { useChatPreviewsStore } from './chat-previews';
+import { useChatSnoozedStore } from './chat-snoozed';
 
 /**
- * The Active tab's chats: every chat the agent has accepted, or the unread ones
- * when the filter is on (AC_02.01.04). The chats themselves belong to the task
- * feed, which `chats` owns; this store is what the Active tab makes of them.
+ * The Active tab's chats: every chat the agent has accepted and not snoozed, or
+ * the unread ones when the filter is on (AC_02.01.04). The chats themselves
+ * belong to the task feed, which `chats` owns; this store is what the Active
+ * tab makes of them.
  *
  * Paging on scroll (AC_02.01.02) is deliberately not here yet; the list is every
  * active chat the task feed carries.
@@ -15,8 +17,16 @@ import { useChatPreviewsStore } from './chat-previews';
 export const useChatActiveStore = defineStore('chat-active', () => {
 	const chatsStore = useChatsStore();
 	const previewsStore = useChatPreviewsStore();
+	const snoozedStore = useChatSnoozedStore();
 
 	const onlyUnread = ref(false);
+
+	// a chat is on exactly one tab, so a snoozed one is not here
+	const activeTasks = computed(() =>
+		chatsStore.chatTaskList.filter(
+			(task) => !snoozedStore.isSnoozed(task.thread?.id ?? ''),
+		),
+	);
 
 	/**
 	 * The toggle exists only while there is unread data behind it; the backend
@@ -38,12 +48,12 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 
 	const tasks = computed(() =>
 		isFilteringUnread.value
-			? chatsStore.chatTaskList.filter(isUnread)
-			: chatsStore.chatTaskList,
+			? activeTasks.value.filter(isUnread)
+			: activeTasks.value,
 	);
 
 	// the tab's indicator counts its chats, not what the unread filter leaves
-	const count = computed(() => chatsStore.chatTaskList.length);
+	const count = computed(() => activeTasks.value.length);
 
 	/**
 	 * Zero while there is no unread data, so the indicator stays out of sight
@@ -51,7 +61,7 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 	 */
 	const unreadCount = computed(() =>
 		isUnreadFilterAvailable.value
-			? chatsStore.chatTaskList.filter(isUnread).length
+			? activeTasks.value.filter(isUnread).length
 			: 0,
 	);
 

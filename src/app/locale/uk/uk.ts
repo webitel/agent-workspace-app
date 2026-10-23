@@ -61,16 +61,18 @@ export default {
 			empty: 'Змінних немає',
 			loadError: 'Не вдалося завантажити змінні',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Виберіть контакт',
+					text: 'Виберіть запис зі списку історії, щоб переглянути дані контакту',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Пропущені',
-				},
-				tabs: {
-					info: 'Інфо',
-					postProcessing: 'Постобробка',
-					interaction: 'Взаємодія',
-					contact: 'Контакт',
 				},
 			},
 			chats: {

@@ -54,16 +54,18 @@ export default {
 			empty: 'Brak zmiennych',
 			loadError: 'Nie udało się wczytać zmiennych',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Wybierz kontakt',
+					text: 'Wybierz rekord z listy historii, aby zobaczyć szczegóły kontaktu',
+				},
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Nieodebrane',
-				},
-				tabs: {
-					info: 'Informacje',
-					postProcessing: 'Przetwarzanie końcowe',
-					interaction: 'Interakcja',
-					contact: 'Kontakt',
 				},
 			},
 			chats: {

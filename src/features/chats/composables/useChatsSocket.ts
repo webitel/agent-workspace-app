@@ -2,6 +2,7 @@ import {
 	ChatsSocketMessage,
 	createChatsSocketClient,
 	createSocketConfig,
+	type SocketThreadTagsChangedEventPayload,
 } from '@webitel/chat-web-sdk';
 import { shallowRef } from 'vue';
 
@@ -15,6 +16,9 @@ type ChatsSocketClient = ReturnType<typeof createChatsSocketClient>;
 // their own callbacks — the SDK exposes no off(), only onMessage().
 const client = shallowRef<ChatsSocketClient | null>(null);
 const messageHandlers = new Set<(message: IMessage) => void>();
+const tagsChangedHandlers = new Set<
+	(changed: SocketThreadTagsChangedEventPayload) => void
+>();
 const reconnectHandlers = new Set<() => void>();
 
 /**
@@ -45,6 +49,11 @@ export function useChatsSocket() {
 				handler(data as IMessage);
 			});
 		});
+		socketClient.onMessage(ChatsSocketMessage.ThreadTagsChanged, (data) => {
+			tagsChangedHandlers.forEach((handler) => {
+				handler(data as SocketThreadTagsChangedEventPayload);
+			});
+		});
 		// whatever was written while the socket was down was never pushed
 		socketClient.onReconnected(() => {
 			reconnectHandlers.forEach((handler) => {
@@ -72,6 +81,14 @@ export function useChatsSocket() {
 		return () => messageHandlers.delete(callback);
 	}
 
+	/** The agent's own tags on a thread changed: their snooze, or its end. */
+	function onThreadTagsChanged(
+		callback: (changed: SocketThreadTagsChangedEventPayload) => void,
+	): () => void {
+		tagsChangedHandlers.add(callback);
+		return () => tagsChangedHandlers.delete(callback);
+	}
+
 	/** Called each time the socket is back after a drop, never on the first connect. */
 	function onReconnected(callback: () => void): () => void {
 		reconnectHandlers.add(callback);
@@ -82,6 +99,7 @@ export function useChatsSocket() {
 		connect,
 		disconnect,
 		onThreadMessage,
+		onThreadTagsChanged,
 		onReconnected,
 	};
 }
