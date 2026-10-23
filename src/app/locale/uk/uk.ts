@@ -66,12 +66,6 @@ export default {
 				pageTabs: {
 					missed: 'Пропущені',
 				},
-				tabs: {
-					info: 'Інфо',
-					postProcessing: 'Постобробка',
-					interaction: 'Взаємодія',
-					contact: 'Контакт',
-				},
 			},
 			chats: {
 				pageTabs: {

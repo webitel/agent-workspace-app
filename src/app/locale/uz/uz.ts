@@ -59,12 +59,6 @@ export default {
 				pageTabs: {
 					missed: 'Oʼtkazib yuborilgan',
 				},
-				tabs: {
-					info: "Ma'lumot",
-					postProcessing: 'Keyingi ishlov',
-					interaction: "O'zaro aloqa",
-					contact: 'Kontakt',
-				},
 			},
 			chats: {
 				pageTabs: {

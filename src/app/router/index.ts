@@ -6,7 +6,6 @@ import {
 	type NavigationGuard,
 	type RouteRecordRaw,
 } from 'vue-router';
-import TheCallWorkspace from '../../ui/pages/modules/calls/components/the-call-workspace.vue';
 import { CallsPageTab } from '../../ui/pages/modules/calls/enums/CallsPageTab.enum';
 import TheCallsPage from '../../ui/pages/modules/calls/the-calls-page.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
@@ -45,11 +44,6 @@ const routes: RouteRecordRaw[] = [
 						component: NoopRouteComponent,
 					},
 				],
-			},
-			{
-				path: '/calls/:callId',
-				name: 'call-window',
-				component: TheCallWorkspace,
 			},
 			{
 				path: '/chats',
