@@ -11,6 +11,13 @@ import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
 
 const calls = ref<Call[]>([]);
+const push = vi.fn();
+
+vi.mock('vue-router', () => ({
+	useRouter: () => ({
+		push,
+	}),
+}));
 
 vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
@@ -70,6 +77,7 @@ function mountCallLane() {
 describe('task-dock-call-lane', () => {
 	beforeEach(() => {
 		calls.value = [];
+		push.mockClear();
 	});
 
 	it('shows a bar for each active call and none for a call still ringing', () => {
@@ -168,6 +176,75 @@ describe('task-dock-call-lane', () => {
 			await key?.trigger('click');
 
 			expect(call.sendDTMF).toHaveBeenCalledWith('5');
+		});
+	});
+
+	describe('call windows', () => {
+		const inPostProcessing = () =>
+			buildCall({
+				id: 'ended',
+				hangupAt: Date.now(),
+				task: {
+					id: 7,
+					state: 'processing',
+					processingTimeoutAt: Date.now() + 65_500,
+				},
+			} as Partial<Call>);
+
+		it('keeps an ended call in post-processing as a widget with its time left', () => {
+			calls.value = [
+				inPostProcessing(),
+			];
+
+			const wrapper = mountCallLane();
+
+			expect(wrapper.find('.post-processing-call-bar').exists()).toBe(true);
+			expect(wrapper.find('.floating-call-widget__timer').text()).toBe('01:05');
+		});
+
+		it('leaves out an ended call that has no task left', () => {
+			calls.value = [
+				buildCall({
+					hangupAt: Date.now(),
+				}),
+			];
+
+			const wrapper = mountCallLane();
+
+			expect(wrapper.find('.floating-call-widget').exists()).toBe(false);
+		});
+
+		it('leads from the post-processing widget back to its Call window', async () => {
+			calls.value = [
+				inPostProcessing(),
+			];
+			const wrapper = mountCallLane();
+
+			await wrapper.find('.post-processing-call-bar').trigger('click');
+
+			expect(push).toHaveBeenCalledWith({
+				name: 'call-window',
+				params: {
+					callId: 'ended',
+				},
+			});
+		});
+
+		it('opens the Call window from the open-full-view button of an active call', async () => {
+			calls.value = [
+				buildCall(),
+			];
+			const wrapper = mountCallLane();
+
+			await wrapper.find('.floating-call-widget button').trigger('click');
+
+			expect(push).toHaveBeenCalledTimes(1);
+			expect(push).toHaveBeenCalledWith({
+				name: 'call-window',
+				params: {
+					callId: 'call-1',
+				},
+			});
 		});
 	});
 

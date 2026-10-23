@@ -16,10 +16,9 @@
 				class="floating-call-widget__avatar"
 			/>
 
-			<span class="floating-call-widget__timer typo-body-1">
-				{{ elapsedTime }}
-			</span>
-		</button>
+		<span class="floating-call-widget__timer typo-body-1">
+			{{ timeLeft ?? timer.formatted.value }}
+		</span>
 
 		<wt-button
 			v-if="preview.isPostProcessingEnabled"
@@ -27,6 +26,7 @@
 			:color="buttonColor"
 			:aria-label="t('ui.call.activeCall.actions.openFullView')"
 			width-by-content
+			@click.stop="emit('openFullView')"
 		>
 			<wt-icon
 				icon="ws-open-full-view"
@@ -50,11 +50,14 @@ import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 
 const props = defineProps<{
 	preview: ActiveCallContent;
-	elapsedTime: string;
+	/** Replaces the call timer, e.g. with the time left of post-processing. */
+	timeLeft?: string;
 }>();
 
+const { t } = useI18n();
+
 const emit = defineEmits<{
-	toggleExpand: [];
+	openFullView: [];
 }>();
 
 const { t } = useI18n();

@@ -67,6 +67,12 @@ export default {
 				pageTabs: {
 					missed: 'Nieodebrane',
 				},
+				tabs: {
+					info: 'Informacje',
+					postProcessing: 'Przetwarzanie końcowe',
+					interaction: 'Interakcja',
+					contact: 'Kontakt',
+				},
 			},
 			chats: {
 				pageTabs: {

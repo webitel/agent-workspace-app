@@ -24,7 +24,6 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 		answeredAt: 1_700_000_000_000,
 		isHold: false,
 		muted: false,
-		allowReporting: true,
 		digits: [],
 		...overrides,
 	}) as unknown as Call;
@@ -39,7 +38,6 @@ describe('toActiveCallContent', () => {
 			isHold: false,
 			isMuted: false,
 			dtmfDigits: '',
-			isPostProcessingEnabled: true,
 		});
 	});
 
@@ -65,26 +63,6 @@ describe('toActiveCallContent', () => {
 				}),
 			).dtmfDigits,
 		).toBe('');
-	});
-
-	it('carries whether the call allows post-processing', () => {
-		expect(
-			toActiveCallContent(
-				buildCall({
-					allowReporting: false,
-				}),
-			).isPostProcessingEnabled,
-		).toBe(false);
-	});
-
-	it('treats a missing post-processing flag as not allowed', () => {
-		expect(
-			toActiveCallContent(
-				buildCall({
-					allowReporting: undefined,
-				}),
-			).isPostProcessingEnabled,
-		).toBe(false);
 	});
 
 	it('leaves the name out when the contact was not identified', () => {
