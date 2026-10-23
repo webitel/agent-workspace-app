@@ -35,7 +35,9 @@ active chat only and is dropped from the Closed list.
 
 **The chat window serves both, on the same `/chats/:threadId`.** A thread with no
 task in the feed is shown as a Closed chat — but only after the feed's first
-load, so a window opened in the app never flashes as closed. A thread that is
+load, so a window already open in the app never flashes as closed. (A cold deep
+link is a different case: it is sent back to `/chats` and opens no window, see
+Consequences.) A thread that is
 neither active nor left shows "not found". When the agent leaves the thread with
 its window open, the window turns into the Closed chat card in place, and its
 history is read again from the left-threads endpoint.
@@ -94,8 +96,13 @@ says the task's are not available.
   window" now applies to active chats only. A window over a thread with no task
   keeps no chat session, and the Closed chat's store is dropped whenever its
   thread has a task again.
-- "Feed ready" is taken to be the agent session being loaded. That the task feed
-  is restored by then is not yet checked on a live instance.
+- "Feed ready" is taken to be the agent session being loaded, and that holds:
+  `agentSession()` in webitel-sdk requests the agent's active tasks before it
+  resolves, and `src/app/stores/workspace.ts` awaits it before
+  `useChatsStore().initialize()`, while `main.ts` awaits the workspace before the
+  app mounts. The feed is complete at startup, so `pending` is a guard users
+  rarely see. It does stay in place for a session that has no agent (the
+  workspace store only warns then), where the feed is never ready.
 - The chats workspace still sends a URL for a chat not opened this session back
   to `/chats`, as it does for active chats, so a deep link or a refresh does not
   reach a Closed chat card. The Closed tab opens its rows from inside the app.

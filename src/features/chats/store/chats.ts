@@ -46,8 +46,8 @@ export const useChatsStore = defineStore('chats', () => {
 	/**
 	 * Whether the feed holds every task the agent has, so a thread missing from
 	 * it can be taken for a closed chat (ADR-0009). Taken to be once the agent
-	 * session has loaded, on the assumption that the SDK restores the agent's
-	 * tasks along with it — still to be checked on a live instance.
+	 * session has loaded: the SDK loads the agent's active tasks before it
+	 * resolves, and the workspace store awaits it before this store initializes.
 	 */
 	const isTaskFeedReady = computed(() => agent.value !== undefined);
 
