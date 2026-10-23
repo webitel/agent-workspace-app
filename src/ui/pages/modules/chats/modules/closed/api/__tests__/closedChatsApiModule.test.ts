@@ -147,6 +147,34 @@ describe('closedChatsApiModule.getList', () => {
 		});
 	});
 
+	// the card shows these as the backend sent them (the SDK's own thread api
+	// skips them too): keys are names the user chose, values are data
+	it('keeps the thread variables, keys and values, as the backend sent them', async () => {
+		const variables = {
+			customer_id: {
+				value: '42',
+			},
+			tags: {
+				value: [
+					'vip_client',
+				],
+			},
+		};
+		respond({
+			items: [
+				thread({
+					variables: {
+						variables,
+					},
+				}),
+			],
+		});
+
+		const { items } = await getList();
+
+		expect(items[0].thread.variables?.variables).toEqual(variables);
+	});
+
 	it('drops a thread the agent has rejoined', async () => {
 		respond({
 			items: [

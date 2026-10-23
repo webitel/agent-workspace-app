@@ -72,7 +72,11 @@ const getList = async (params: Record<string, unknown> = {}) => {
 			);
 
 		const { items, next } = applyTransform(response.data, [
-			snakeToCamel(),
+			// variables are the user's own names and values: kept as sent, as in the
+			// SDK's Threads.api
+			snakeToCamel([
+				'variables',
+			]),
 			merge(getDefaultGetListResponse()),
 		]);
 
