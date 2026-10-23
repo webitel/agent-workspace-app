@@ -1,44 +1,61 @@
 <template>
 	<section class="the-chat-window">
-		<wt-tabs
-			class="the-chat-window__tabs"
-			:current="{ value: activeTab }"
-			:tabs="tabs"
-			@change="handleTabChange"
-		>
-			<!-- WtTabs has no disabled state; its buttons stay clickable, so the
-			     handler ignores these and the span below greys the label out -->
-			<template
-				v-for="tab in disabledTabs"
-				:key="tab.value"
-				#[tab.value]
-			>
-				<span
-					class="the-chat-window__tab--disabled"
-					aria-disabled="true"
-				>
-					{{ tab.text }}
-				</span>
-			</template>
-		</wt-tabs>
-
-		<wt-divider />
-
-		<!-- under the tab strip, over the panel: the deadline has to stay in view
-		     on every tab (DES-711), the form tab included -->
-		<chat-top-bar
-			v-if="task"
-			class="the-chat-window__top-bar"
-			:task="task"
+		<wt-loader
+			v-if="isLoaderShown"
+			class="the-chat-window__loader"
 		/>
 
-		<keep-alive>
-			<component
-				:is="currentTab.is"
-				v-bind="currentTab.props"
-				class="the-chat-window__panel"
+		<!-- neither active nor left by the agent (ADR-0009) -->
+		<wt-empty
+			v-else-if="isNotFound"
+			class="the-chat-window__empty"
+			:image="emptyImage"
+			:text="t('ui.pages.chats.closed.notFound')"
+		/>
+
+		<template v-else>
+			<wt-tabs
+				class="the-chat-window__tabs"
+				:current="{ value: activeTab }"
+				:tabs="tabs"
+				@change="handleTabChange"
+			>
+				<!-- WtTabs has no disabled state; its buttons stay clickable, so the
+				     handler ignores these and the span below greys the label out -->
+				<template
+					v-for="tab in disabledTabs"
+					:key="tab.value"
+					#[tab.value]
+				>
+					<span
+						class="the-chat-window__tab--disabled"
+						aria-disabled="true"
+					>
+						{{ tab.text }}
+					</span>
+				</template>
+			</wt-tabs>
+
+			<wt-divider />
+
+			<!-- under the tab strip, over the panel: the deadline has to stay in view
+			     on every tab (DES-711), the form tab included -->
+			<chat-top-bar
+				v-if="task"
+				class="the-chat-window__top-bar"
+				:task="task"
 			/>
-		</keep-alive>
+
+			<!-- keyed by mode: a chat turning closed or active in place starts on
+			     fresh panels, which read the stores of what it is now -->
+			<keep-alive :key="mode">
+				<component
+					:is="currentTab.is"
+					v-bind="currentTab.props"
+					class="the-chat-window__panel"
+				/>
+			</keep-alive>
+		</template>
 	</section>
 </template>
 
@@ -46,12 +63,26 @@
 	setup
 	lang="ts"
 >
-import { WtDivider, WtTabs } from '@webitel/ui-sdk/components';
+import {
+	WtDivider,
+	WtEmpty,
+	WtLoader,
+	WtTabs,
+} from '@webitel/ui-sdk/components';
+import emptyTableDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-dark.svg';
+import emptyTableLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-table-light.svg';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
+import { useThemedImage } from '../../../../../app/composables/useThemedImage';
 import ChatInfo from '../../../../../features/chats/components/chat-info/chat-info.vue';
 import ChatTopBar from '../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue';
+import { useChatWindowMode } from '../../../../../features/chats/composables/useChatWindowMode';
+import TheClosedChatThread from '../../../../../features/chats/modules/closed/components/the-closed-chat-thread.vue';
+import {
+	disposeClosedChat,
+	useClosedChatStore,
+} from '../../../../../features/chats/modules/closed/store/closed-chat';
 import { toChatThreadMode } from '../../../../../features/chats/scripts/toChatThreadMode';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
@@ -71,6 +102,24 @@ const { t } = useI18n();
 const route = useRoute();
 const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
+const mode = useChatWindowMode(threadId);
+
+// Read on use, not held: the store a closed chat is read into is replaced when
+// the agent leaves its thread again (see the mode watcher below).
+const closedChat = computed(() =>
+	mode.value === 'closed' ? useClosedChatStore(threadId.value) : null,
+);
+const isLoaderShown = computed(
+	() =>
+		mode.value === 'pending' ||
+		Boolean(closedChat.value?.isLoading && !closedChat.value.thread),
+);
+const isNotFound = computed(() => Boolean(closedChat.value?.isNotFound));
+
+const emptyImage = useThemedImage({
+	light: emptyTableLight,
+	dark: emptyTableDark,
+});
 
 // The SDK task backing the open chat carries the processing form.
 const task = computed(() => chatsStore.getTaskByThreadId(threadId.value));
@@ -151,6 +200,12 @@ const currentTab = computed(() => {
 			},
 		};
 	}
+	if (mode.value === 'closed') {
+		return {
+			is: TheClosedChatThread,
+			props: {},
+		};
+	}
 	return {
 		is: TheChatThread,
 		props: {
@@ -158,6 +213,27 @@ const currentTab = computed(() => {
 		},
 	};
 });
+
+// A closed chat is read once it is known to be closed. One that turns closed
+// with its window open is read afresh: a store kept from an earlier time the
+// agent left it misses the period they have just ended. A store for a thread
+// the window switches to is kept, as the Closed tab may have handed it over.
+watch(
+	[
+		threadId,
+		mode,
+	],
+	([id, current], previous) => {
+		if (current !== 'closed') return;
+		// no previous values on the first, immediate run
+		const [previousId, previousMode] = previous ?? [];
+		if (id === previousId && previousMode === 'active') disposeClosedChat(id);
+		void useClosedChatStore(id).load();
+	},
+	{
+		immediate: true,
+	},
+);
 
 // Opening a chat lands on its form when it is already in post-processing.
 watch(threadId, () => {
@@ -207,6 +283,11 @@ watch(hasForm, (value) => {
 .the-chat-window__tab--disabled {
 	display: block;
 	opacity: 0.4;
+}
+
+.the-chat-window__loader,
+.the-chat-window__empty {
+	margin: auto;
 }
 
 .the-chat-window__top-bar {

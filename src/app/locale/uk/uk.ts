@@ -91,6 +91,9 @@ export default {
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 				},
+				closed: {
+					notFound: 'Чат не знайдено',
+				},
 			},
 			history: {
 				tabs: {

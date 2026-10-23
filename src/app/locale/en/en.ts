@@ -91,6 +91,9 @@ export default {
 					transfer: 'Transfer chat',
 					end: 'End chat',
 				},
+				closed: {
+					notFound: 'Chat not found',
+				},
 			},
 			history: {
 				tabs: {
