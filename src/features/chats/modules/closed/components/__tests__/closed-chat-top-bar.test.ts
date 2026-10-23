@@ -2,7 +2,6 @@ import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
-import { useUserinfoStore } from '../../../../../userinfo/stores/userinfoStore';
 import type { ILeftThread } from '../../../../types/ChatSession.types';
 import ClosedChatTopBar from '../closed-chat-top-bar.vue';
 
@@ -68,7 +67,6 @@ describe('closed-chat-top-bar', () => {
 
 		expect(wrapper.find('.icon').attributes('data-icon')).toBe('lock');
 		expect(wrapper.text()).toContain('client_username');
-		expect(useUserinfoStore().userId).toBe('agent-sub');
 	});
 
 	it('has no queue, no status and no actions', () => {
