@@ -79,7 +79,7 @@ function createStoreDefinition(threadId: string) {
 			}
 		}
 
-		function seed(leftThread: ILeftThread) {
+		function holdSeed(leftThread: ILeftThread) {
 			seededThread.value = leftThread;
 		}
 
@@ -118,7 +118,7 @@ function createStoreDefinition(threadId: string) {
 			isNotFound,
 			error,
 			hasMore,
-			seed,
+			holdSeed,
 			load,
 			loadMore,
 		};
@@ -141,7 +141,7 @@ export function useClosedChatStore(threadId: string) {
  * calls load() with no thread of its own, skips the lookup.
  */
 export function seedClosedChat(thread: ILeftThread) {
-	useClosedChatStore(thread.id).seed(thread);
+	useClosedChatStore(thread.id).holdSeed(thread);
 }
 
 // $dispose() stops the scope but leaves state in pinia.state.value for setup

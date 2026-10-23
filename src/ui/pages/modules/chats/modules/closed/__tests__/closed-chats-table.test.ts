@@ -1,5 +1,7 @@
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
+import { FormatDateMode } from '@webitel/ui-sdk/enums';
+import { formatDate } from '@webitel/ui-sdk/utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive, ref } from 'vue';
 import type { ClosedChatRow } from '../api/closedChatsApiModule';
@@ -86,12 +88,16 @@ vi.mock('../../../../../../../features/chats/store/chats', () => ({
 vi.mock('@webitel/ui-sdk/components', () => ({
 	WtTable: {
 		name: 'WtTable',
-		props: [
-			'data',
-			'headers',
-			'selected',
-			'onLoading',
-		],
+		props: {
+			data: Array,
+			headers: Array,
+			selected: Array,
+			onLoading: Function,
+			sortable: {
+				type: Boolean,
+				default: false,
+			},
+		},
 		emits: [
 			'column-resize',
 			'column-reorder',
@@ -100,7 +106,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 		template: `<table>
 			<tr v-for="item in data" :key="item.id" class="row">
 				<td v-for="header in headers" :class="'cell-' + header.value">
-					<slot :name="header.value" :item="item">{{ item[header.value] }}</slot>
+					<slot :name="header.value" :item="item">{{ 'plain:' + item[header.value] }}</slot>
 				</td>
 				<td class="cell-actions"><slot name="actions" :item="item" /></td>
 			</tr>
@@ -175,7 +181,7 @@ describe('closed-chats-table', () => {
 	it('does not make columns sortable', () => {
 		const wrapper = mountTable();
 
-		expect(tableOf(wrapper).props('sortable')).toBeUndefined();
+		expect(tableOf(wrapper).props('sortable')).toBe(false);
 	});
 
 	describe('loading the next page on scroll', () => {
@@ -209,7 +215,7 @@ describe('closed-chats-table', () => {
 
 			const wrapper = mountTable();
 
-			expect(wrapper.find('.cell-name').text()).toBe('John Doe');
+			expect(wrapper.find('.cell-name').text()).toBe('plain:John Doe');
 		});
 
 		it.each([
@@ -217,11 +223,39 @@ describe('closed-chats-table', () => {
 			'endedAt',
 			'duration',
 		])('leaves %s empty when the row has none', (column) => {
+			// without its slot the stub would render the 'plain:' fallback
 			showColumns(column);
 
 			const wrapper = mountTable();
 
 			expect(wrapper.find(`.cell-${column}`).text()).toBe('');
+		});
+	});
+
+	describe('cells with values', () => {
+		const STARTED_AT = 1790947707140;
+		const ENDED_AT = 1790947772140;
+
+		it('formats the dates and the duration', () => {
+			mockStore.dataList = [
+				{
+					...chat,
+					startedAt: STARTED_AT,
+					endedAt: ENDED_AT,
+					duration: 65,
+				},
+			];
+			showColumns('startedAt', 'endedAt', 'duration');
+
+			const wrapper = mountTable();
+
+			expect(wrapper.find('.cell-startedAt').text()).toBe(
+				formatDate(STARTED_AT, FormatDateMode.DATETIME),
+			);
+			expect(wrapper.find('.cell-endedAt').text()).toBe(
+				formatDate(ENDED_AT, FormatDateMode.DATETIME),
+			);
+			expect(wrapper.find('.cell-duration').text()).toBe('00:01:05');
 		});
 	});
 
