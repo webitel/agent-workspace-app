@@ -44,6 +44,11 @@
 				class="the-chat-window__top-bar"
 				:task="task"
 			/>
+			<closed-chat-top-bar
+				v-else-if="closedChat?.thread"
+				class="the-chat-window__top-bar"
+				:thread="closedChat.thread"
+			/>
 
 			<!-- keyed by mode: a chat turning closed or active in place starts on
 			     fresh panels, which read the stores of what it is now -->
@@ -77,6 +82,7 @@ import { useThemedImage } from '../../../../../app/composables/useThemedImage';
 import ChatInfo from '../../../../../features/chats/components/chat-info/chat-info.vue';
 import ChatTopBar from '../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue';
 import { useChatWindowMode } from '../../../../../features/chats/composables/useChatWindowMode';
+import ClosedChatTopBar from '../../../../../features/chats/modules/closed/components/closed-chat-top-bar.vue';
 import TheClosedChatThread from '../../../../../features/chats/modules/closed/components/the-closed-chat-thread.vue';
 import { useClosedChatStore } from '../../../../../features/chats/modules/closed/store/closed-chat';
 import { toChatThreadMode } from '../../../../../features/chats/scripts/toChatThreadMode';
@@ -142,6 +148,8 @@ const activeTab = ref<ChatWindowTab>(defaultTab());
 // The strip follows Figma (DES-730): Chat, Info, Post-processing, then the tabs
 // whose content is not built yet. Only Post-processing comes and goes with the
 // form, and a form arriving mid-chat does not pull the agent away from the chat.
+// A closed chat always shows it, disabled, until the backend returns the
+// submitted forms (ADR-0009).
 const tabs = computed<ChatWindowTabItem[]>(() => [
 	{
 		value: 'chat',
@@ -151,14 +159,22 @@ const tabs = computed<ChatWindowTabItem[]>(() => [
 		value: 'info',
 		text: t('ui.pages.chats.tabs.info'),
 	},
-	...(hasForm.value
+	...(mode.value === 'closed'
 		? [
 				{
 					value: 'processing',
 					text: t('ui.pages.chats.tabs.postProcessing'),
+					disabled: true,
 				},
 			]
-		: []),
+		: hasForm.value
+			? [
+					{
+						value: 'processing',
+						text: t('ui.pages.chats.tabs.postProcessing'),
+					},
+				]
+			: []),
 	{
 		value: 'interaction',
 		text: t('ui.pages.chats.tabs.interaction'),
@@ -199,6 +215,11 @@ const currentTab = computed(() => {
 			props: {
 				task: task.value,
 				threadId: threadId.value,
+				// the left thread's own variables; the empty object still marks the
+				// chat closed, so the tab does not go looking over REST
+				closedThreadVariables: closedChat.value
+					? (closedChat.value.thread?.variables?.variables ?? {})
+					: undefined,
 			},
 		};
 	}

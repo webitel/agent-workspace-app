@@ -152,6 +152,7 @@ vi.mock(
 			props: [
 				'task',
 				'threadId',
+				'closedThreadVariables',
 			],
 			template: '<div class="info-stub" />',
 		},
@@ -167,6 +168,19 @@ vi.mock(
 				'task',
 			],
 			template: '<div class="top-bar-stub" />',
+		},
+	}),
+);
+
+vi.mock(
+	'../../../../../../features/chats/modules/closed/components/closed-chat-top-bar.vue',
+	() => ({
+		default: {
+			name: 'ClosedChatTopBar',
+			props: [
+				'thread',
+			],
+			template: '<div class="closed-top-bar-stub" />',
 		},
 	}),
 );
@@ -278,6 +292,20 @@ describe('the-chat-window', () => {
 			'ui.pages.chats.tabs.contact',
 			'ui.pages.chats.tabs.iframe',
 		]);
+	});
+
+	it('does not mark the info panel of an active chat closed', async () => {
+		tasksByThread['thread-1'] = makeTask();
+		const wrapper = mountWindow();
+		await selectTab(wrapper, 'info');
+
+		expect(
+			wrapper
+				.findComponent({
+					name: 'ChatInfo',
+				})
+				.props('closedThreadVariables'),
+		).toBeUndefined();
 	});
 
 	it('opens the info panel for the open chat and its task', async () => {
@@ -421,6 +449,86 @@ describe('the-chat-window', () => {
 			expect(wrapper.find('.thread-stub').exists()).toBe(false);
 			// the active bar is for a task, and there is none
 			expect(wrapper.find('.top-bar-stub').exists()).toBe(false);
+			expect(
+				wrapper
+					.findComponent({
+						name: 'ClosedChatTopBar',
+					})
+					.props('thread'),
+			).toBe(closedChats.get('thread-1')?.thread);
+		});
+
+		it('shows no top bar until the closed chat has its thread', async () => {
+			const wrapper = mountWindow();
+			const closedChat = closedChats.get('thread-1') as FakeClosedChat;
+			closedChat.thread = null;
+			closedChat.isLoading = true;
+			await nextTick();
+
+			expect(wrapper.find('.closed-top-bar-stub').exists()).toBe(false);
+		});
+
+		it('shows Post-processing disabled, and ignores selecting it', async () => {
+			const wrapper = mountWindow();
+
+			expect(tabValues(wrapper)).toEqual([
+				'chat',
+				'info',
+				'processing',
+				'interaction',
+				'contact',
+				'iframe',
+			]);
+			expect(
+				tabsOf(wrapper)
+					.filter((tab) => tab.disabled)
+					.map((tab) => tab.value),
+			).toEqual([
+				'processing',
+				'interaction',
+				'contact',
+				'iframe',
+			]);
+
+			await selectTab(wrapper, 'processing');
+			expect(showsClosedThread(wrapper)).toBe(true);
+		});
+
+		it("gives the Info tab the left thread's variables, and no task", async () => {
+			const wrapper = mountWindow();
+			const closedChat = closedChats.get('thread-1') as FakeClosedChat;
+			const variables = {
+				Region: {
+					value: 'EU',
+				},
+			};
+			closedChat.thread = {
+				id: 'thread-1',
+				members: [],
+				variables: {
+					variables,
+				},
+			};
+			await selectTab(wrapper, 'info');
+
+			const info = wrapper.findComponent({
+				name: 'ChatInfo',
+			});
+			expect(info.props('closedThreadVariables')).toEqual(variables);
+			expect(info.props('task')).toBeUndefined();
+		});
+
+		it('still marks the Info tab closed when the thread has no variables', async () => {
+			const wrapper = mountWindow();
+			await selectTab(wrapper, 'info');
+
+			expect(
+				wrapper
+					.findComponent({
+						name: 'ChatInfo',
+					})
+					.props('closedThreadVariables'),
+			).toEqual({});
 		});
 
 		it('shows the loader until the closed chat has its thread', async () => {
