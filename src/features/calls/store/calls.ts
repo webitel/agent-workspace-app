@@ -1,6 +1,6 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, getCurrentScope, ref, watch } from 'vue';
 import {
 	type Call,
 	CallActions,
@@ -8,6 +8,7 @@ import {
 } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import i18n from '../../../app/locale/i18n';
+import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
@@ -28,12 +29,21 @@ import { toCallOfferContent } from '../scripts/toCallOfferContent';
  * notifications-module calls.
  */
 export const useCallsStore = defineStore('calls', () => {
+	// captured during setup so a watcher started from an action belongs to the
+	// store and stops with `$dispose()`
+	const storeScope = getCurrentScope();
+
 	const { getClient, calls } = useWebSocketClient();
 	const offersStore = useOffersStore();
 
 	const { playRemoteAudio, stopRemoteAudio } = useCallAudio();
 
 	const isOutboundCallRequestPending = ref(false);
+
+	// Return targets by call id: where the agent was when they accepted each
+	// call here. Not reactive — only the call's workspace reads one, once, when
+	// the window closes.
+	const returnTargets = new Map<string, string>();
 
 	const callList = computed<Call[]>(() => calls.value ?? []);
 
@@ -53,16 +63,76 @@ export const useCallsStore = defineStore('calls', () => {
 		return callList.value.find((call) => call.id === callId);
 	}
 
-	async function answer(callId: string) {
+	/**
+	 * Resolves `false` when nothing was answered: the call is gone, the mic is
+	 * blocked, or the SDK has no line of its own to answer on (no web device).
+	 */
+	async function answer(callId: string): Promise<boolean> {
 		const call = getCallById(callId);
-		if (!call?.allowAnswer) return;
+		if (!call?.allowAnswer) return false;
 
-		if (!(await ensureMicrophoneAllowed())) return;
+		if (!(await ensureMicrophoneAllowed())) return false;
 
-		await call.answer({
+		return call.answer({
 			audio: true,
 			disableStun: !getStunEnabled(),
 		});
+	}
+
+	/**
+	 * Accepting an inbound offer here is the one thing that takes the agent to
+	 * the call's window by itself; a call connected any other way waits in the
+	 * dock (WS-87). Where they were is kept as the call's Return target.
+	 */
+	async function acceptOffer(callId: string) {
+		// a target is only ever taken while its window is open, so one whose call
+		// has gone is never going to be
+		for (const id of returnTargets.keys()) {
+			if (!getCallById(id)) returnTargets.delete(id);
+		}
+
+		returnTargets.set(callId, router.currentRoute.value.fullPath);
+		if (!(await answer(callId))) {
+			returnTargets.delete(callId);
+			return;
+		}
+		openWindowOnceConnected(callId);
+	}
+
+	function openWindowOnceConnected(callId: string) {
+		const phase = () => {
+			const call = getCallById(callId);
+			if (!call) return 'gone';
+			return hasCallWindow(call) ? 'connected' : 'ringing';
+		};
+
+		const settle = (value: ReturnType<typeof phase>) => {
+			if (value === 'ringing') return false;
+			if (value === 'connected') {
+				router.push({
+					name: 'call-window',
+					params: {
+						callId,
+					},
+				});
+			} else {
+				returnTargets.delete(callId);
+			}
+			return true;
+		};
+
+		if (settle(phase())) return;
+		const register = () =>
+			watch(phase, (value) => {
+				if (settle(value)) stop?.();
+			});
+		const stop = storeScope ? storeScope.run(register) : register();
+	}
+
+	function takeReturnTarget(callId: string): string | undefined {
+		const target = returnTargets.get(callId);
+		returnTargets.delete(callId);
+		return target;
 	}
 
 	async function holdActiveCall() {
@@ -184,7 +254,7 @@ export const useCallsStore = defineStore('calls', () => {
 						id: call.id,
 						// a getter, so the card tracks the live call instead of a snapshot
 						content: () => toCallOfferContent(call),
-						onAccept: () => answer(call.id),
+						onAccept: () => acceptOffer(call.id),
 						onDecline: () => hangup(call.id),
 					});
 				}
@@ -227,6 +297,7 @@ export const useCallsStore = defineStore('calls', () => {
 		getCallById,
 		call,
 		answer,
+		takeReturnTarget,
 		toggleMute,
 		toggleHold,
 		sendDtmf,
