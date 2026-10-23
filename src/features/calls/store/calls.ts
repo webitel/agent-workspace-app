@@ -60,7 +60,7 @@ export const useCallsStore = defineStore('calls', () => {
 
 		if (!(await ensureMicrophoneAllowed())) return;
 
-		await holdOtherLiveCallsOrNotify(callId);
+		await holdOtherLiveCalls(callId);
 		await call.answer({
 			audio: true,
 			disableStun: !getStunEnabled(),
@@ -71,10 +71,12 @@ export const useCallsStore = defineStore('calls', () => {
 	 * @author Oleksandr Palonnyi
 	 * the agent talks on one call at a time and the rest wait on hold, as in
 	 * cc-workspaces (HOLD_OTHER_CALLS); the SDK does not hold the others when a
-	 * call goes live, so every action that makes a call live does it here
+	 * call goes live, so every action that makes a call live does it here.
+	 * A call that refuses to hold must not block that action: the agent can
+	 * still put it on hold by hand, but a call left unanswered is lost
 	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
 	 */
-	async function holdOtherLiveCalls(exceptCallId: string | undefined) {
+	async function holdOtherLiveCalls(exceptCallId?: string) {
 		const liveCalls = callList.value.filter(
 			(existingCall) =>
 				existingCall.id !== exceptCallId &&
@@ -83,19 +85,8 @@ export const useCallsStore = defineStore('calls', () => {
 				existingCall.allowHold,
 		);
 
-		await Promise.all(liveCalls.map((liveCall) => liveCall.hold()));
-	}
-
-	/**
-	 * @author Oleksandr Palonnyi
-	 * answering or resuming must not be blocked by another call that refused to
-	 * hold: the agent can still put it on hold by hand, but a call left
-	 * unanswered is lost
-	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
-	 */
-	async function holdOtherLiveCallsOrNotify(exceptCallId: string) {
 		try {
-			await holdOtherLiveCalls(exceptCallId);
+			await Promise.all(liveCalls.map((liveCall) => liveCall.hold()));
 		} catch (err) {
 			console.warn('[calls] holding the other calls failed', err);
 			notifyCallError('holdToggleFailed');
@@ -120,7 +111,7 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			if (!(await ensureMicrophoneAllowed())) return false;
 
-			await holdOtherLiveCalls(undefined);
+			await holdOtherLiveCalls();
 			await getClient().call({
 				destination,
 				params: {
@@ -184,7 +175,7 @@ export const useCallsStore = defineStore('calls', () => {
 
 		callIdsWithHoldRequestPending.add(callId);
 		try {
-			if (call.isHold) await holdOtherLiveCallsOrNotify(callId);
+			if (call.isHold) await holdOtherLiveCalls(callId);
 			await call.toggleHold();
 		} catch (err) {
 			console.warn('[calls] hold toggle failed', err);

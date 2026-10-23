@@ -376,6 +376,27 @@ describe('useCallsStore', () => {
 			expect(clientCall).toHaveBeenCalled();
 		});
 
+		it('still dials when another call refuses to hold', async () => {
+			const stubbornCall = buildCall({
+				active: true,
+				hold: vi.fn().mockRejectedValue(new Error('boom')),
+			});
+			calls.value = [
+				stubbornCall,
+			];
+			const store = useCallsStore();
+
+			await store.call({
+				destination: '100',
+			});
+
+			expect(clientCall).toHaveBeenCalled();
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
+		});
+
 		it('leaves an already held call alone', async () => {
 			const heldCall = buildCall({
 				active: true,
