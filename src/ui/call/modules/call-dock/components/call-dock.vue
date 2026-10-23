@@ -132,7 +132,7 @@ const statusChipColor = computed(() =>
 	gap: var(--spacing-sm);
 	box-sizing: border-box;
 	width: var(--active-call-bar-dock-width);
-	padding: var(--wt-ws-call-dock-sizes-root-gap);
+	padding: var(--wt-ws-call-dock-sizes-root-padding-x);
 	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius)
 		var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;
 	background-color: var(--wt-ws-call-dock-colors-root-background);
