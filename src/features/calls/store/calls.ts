@@ -11,6 +11,7 @@ import i18n from '../../../app/locale/i18n';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
+import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
@@ -41,6 +42,9 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	// Active calls plus the ended ones still in post-processing (WS-91).
+	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
 
 	// TODO: замінити на реальний підрахунок нових/пропущених дзвінків
 	const newCallsCount = computed(() => 3);
@@ -215,6 +219,7 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
 
