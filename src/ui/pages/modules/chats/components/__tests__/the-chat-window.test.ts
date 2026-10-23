@@ -33,13 +33,31 @@ vi.mock('../../../../../../features/chats/store/chats', () => ({
 
 type FakeClosedChat = {
 	thread: object | null;
+	messages: object[];
+	hasMore: boolean;
 	isLoading: boolean;
 	isNotFound: boolean;
+	error: unknown;
 	load: ReturnType<typeof vi.fn>;
+	loadMore: ReturnType<typeof vi.fn>;
 };
-// one fake per thread, recreated after a dispose, like the real registry
+// one fake per thread, like the real registry
 const closedChats = new Map<string, FakeClosedChat>();
-const disposeClosedChatMock = vi.fn((id: string) => closedChats.delete(id));
+
+const createClosedChat = (id: string, messages: object[] = []) =>
+	reactive<FakeClosedChat>({
+		thread: {
+			id,
+			members: [],
+		},
+		messages,
+		hasMore: false,
+		isLoading: false,
+		isNotFound: false,
+		error: null,
+		load: vi.fn(),
+		loadMore: vi.fn(),
+	});
 
 vi.mock(
 	'../../../../../../features/chats/modules/closed/store/closed-chat',
@@ -47,31 +65,34 @@ vi.mock(
 		useClosedChatStore: (id: string) => {
 			let closedChat = closedChats.get(id);
 			if (!closedChat) {
-				closedChat = reactive({
-					thread: {
-						id,
-					},
-					isLoading: false,
-					isNotFound: false,
-					load: vi.fn(),
-				});
+				closedChat = createClosedChat(id);
 				closedChats.set(id, closedChat);
 			}
 			return closedChat;
 		},
-		disposeClosedChat: (id: string) => disposeClosedChatMock(id),
 	}),
 );
 
-vi.mock(
-	'../../../../../../features/chats/modules/closed/components/the-closed-chat-thread.vue',
-	() => ({
-		default: {
-			name: 'TheClosedChatThread',
-			template: '<div class="closed-thread-stub" />',
-		},
-	}),
-);
+// The closed thread is rendered for real, so the window is seen rebinding it
+// to the route; ChatThread itself is a stub (its real entry pulls svg?raw).
+vi.mock('@webitel/ui-chats/v2', () => ({
+	ChatThreadMode: {
+		Awaiting: 'awaiting',
+		Active: 'active',
+		Readonly: 'readonly',
+	},
+	ChatThread: {
+		name: 'ChatThread',
+		props: [
+			'thread',
+			'messages',
+			'selfMemberId',
+			'mode',
+			'hasMore',
+		],
+		template: '<div class="chat-thread-stub" />',
+	},
+}));
 
 vi.mock('@webitel/ui-sdk/components', () => ({
 	WtDivider: {
@@ -225,7 +246,6 @@ describe('the-chat-window', () => {
 		for (const key of Object.keys(tasksByThread)) delete tasksByThread[key];
 		feed.isTaskFeedReady = true;
 		closedChats.clear();
-		disposeClosedChatMock.mockClear();
 	});
 
 	it('always shows the tab strip, without the post-processing tab while there is no form', () => {
@@ -375,7 +395,7 @@ describe('the-chat-window', () => {
 
 	describe('a chat no task backs', () => {
 		const showsClosedThread = (wrapper: ReturnType<typeof mountWindow>) =>
-			wrapper.find('.closed-thread-stub').exists();
+			wrapper.find('.the-closed-chat-thread').exists();
 
 		// a deep-linked active chat must not flash as closed (ADR-0009)
 		it('waits for the task feed before showing anything', () => {
@@ -429,17 +449,24 @@ describe('the-chat-window', () => {
 			expect(wrapper.find('.wt-tabs-stub').exists()).toBe(false);
 		});
 
-		// the history grew while the agent was back in the thread
-		it('turns into the closed chat in place, reading it again, when the task leaves', async () => {
-			const stale = reactive({
-				thread: {
-					id: 'thread-1',
-				},
-				isLoading: false,
-				isNotFound: false,
-				load: vi.fn(),
+		it('says the chat could not be loaded when its read fails', async () => {
+			const wrapper = mountWindow();
+			const closedChat = closedChats.get('thread-1') as FakeClosedChat;
+			closedChat.thread = null;
+			closedChat.error = new Error('offline');
+			await nextTick();
+
+			const empty = wrapper.findComponent({
+				name: 'WtEmpty',
 			});
-			closedChats.set('thread-1', stale);
+			expect(empty.exists()).toBe(true);
+			expect(empty.props('text')).toBe('ui.pages.chats.closed.loadError');
+			expect(showsClosedThread(wrapper)).toBe(false);
+		});
+
+		// a closed chat read before the agent rejoined is dropped by the
+		// coordinator, so the window only has to read what is there
+		it('turns into the closed chat in place when the task leaves', async () => {
 			tasksByThread['thread-1'] = makeTask();
 			const wrapper = mountWindow();
 			expect(wrapper.find('.thread-stub').exists()).toBe(true);
@@ -447,23 +474,50 @@ describe('the-chat-window', () => {
 			delete tasksByThread['thread-1'];
 			await nextTick();
 
-			expect(disposeClosedChatMock).toHaveBeenCalledWith('thread-1');
-			expect(stale.load).not.toHaveBeenCalled();
 			expect(closedChats.get('thread-1')?.load).toHaveBeenCalledOnce();
 			expect(showsClosedThread(wrapper)).toBe(true);
+			expect(wrapper.find('.thread-stub').exists()).toBe(false);
 		});
 
-		// a thread handed over by the Closed tab is already loaded
-		it('keeps the closed chat of a thread it switches to', async () => {
-			tasksByThread['thread-1'] = makeTask();
+		it('follows the route from one closed chat to another', async () => {
+			closedChats.set(
+				'thread-1',
+				createClosedChat('thread-1', [
+					{
+						id: 'm-1',
+					},
+				]),
+			);
+			closedChats.set(
+				'thread-2',
+				createClosedChat('thread-2', [
+					{
+						id: 'm-2',
+					},
+				]),
+			);
 			const wrapper = mountWindow();
+			const chatThread = () =>
+				wrapper.findComponent({
+					name: 'ChatThread',
+				});
+			expect(chatThread().props('thread')).toMatchObject({
+				id: 'thread-1',
+			});
 
 			route.params.threadId = 'thread-2';
 			await nextTick();
 
-			expect(disposeClosedChatMock).not.toHaveBeenCalled();
 			expect(closedChats.get('thread-2')?.load).toHaveBeenCalledOnce();
-			expect(showsClosedThread(wrapper)).toBe(true);
+			expect(chatThread().props('thread')).toMatchObject({
+				id: 'thread-2',
+			});
+			expect(chatThread().props('messages')).toEqual([
+				{
+					id: 'm-2',
+				},
+			]);
+			expect(chatThread().props('mode')).toBe('readonly');
 		});
 	});
 });

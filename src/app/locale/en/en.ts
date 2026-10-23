@@ -93,6 +93,7 @@ export default {
 				},
 				closed: {
 					notFound: 'Chat not found',
+					loadError: "Couldn't load the chat",
 				},
 			},
 			history: {

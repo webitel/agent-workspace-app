@@ -231,10 +231,12 @@ export const useChatsStore = defineStore('chats', () => {
 	/**
 	 * A chat that leaves the list loses its session unless a task still backs
 	 * its window; a window whose thread gains a task (the agent rejoined it)
-	 * gets one.
+	 * gets one. A closed chat read before the rejoin misses the period that
+	 * follows, so it is dropped, and read afresh once the agent leaves again.
 	 */
 	function syncChatSessions() {
 		releaseUnusedSessions();
+		for (const threadId of taskThreadIds.value) disposeClosedChat(threadId);
 		for (const chat of openChats.value) {
 			if (hasChatTask(chat.id) && !hasChatSession(chat.id))
 				warmChatSession(chat.id);

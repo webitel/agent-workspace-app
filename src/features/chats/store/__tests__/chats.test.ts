@@ -769,6 +769,21 @@ describe('chats store', () => {
 
 			expect(disposeClosedChatMock).toHaveBeenCalledWith('chat-9');
 		});
+
+		// read before the agent rejoined, it misses the period they are in now;
+		// the window need not be open, or on that chat, when the task comes back
+		it('drops the closed chat of a thread that gets a task again', async () => {
+			agent.value = {};
+			const store = useChatsStore();
+			store.initialize();
+
+			tasks.value = [
+				buildListed(1, 'chat-9'),
+			];
+			await nextTick();
+
+			expect(disposeClosedChatMock).toHaveBeenCalledWith('chat-9');
+		});
 	});
 
 	describe('task feed readiness', () => {

@@ -93,6 +93,7 @@ export default {
 				},
 				closed: {
 					notFound: 'Чат не знайдено',
+					loadError: 'Не вдалося завантажити чат',
 				},
 			},
 			history: {

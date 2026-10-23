@@ -5,12 +5,11 @@
 			class="the-chat-window__loader"
 		/>
 
-		<!-- neither active nor left by the agent (ADR-0009) -->
 		<wt-empty
-			v-else-if="isNotFound"
+			v-else-if="emptyText"
 			class="the-chat-window__empty"
 			:image="emptyImage"
-			:text="t('ui.pages.chats.closed.notFound')"
+			:text="emptyText"
 		/>
 
 		<template v-else>
@@ -79,10 +78,7 @@ import ChatInfo from '../../../../../features/chats/components/chat-info/chat-in
 import ChatTopBar from '../../../../../features/chats/components/chat-top-bar/chat-top-bar.vue';
 import { useChatWindowMode } from '../../../../../features/chats/composables/useChatWindowMode';
 import TheClosedChatThread from '../../../../../features/chats/modules/closed/components/the-closed-chat-thread.vue';
-import {
-	disposeClosedChat,
-	useClosedChatStore,
-} from '../../../../../features/chats/modules/closed/store/closed-chat';
+import { useClosedChatStore } from '../../../../../features/chats/modules/closed/store/closed-chat';
 import { toChatThreadMode } from '../../../../../features/chats/scripts/toChatThreadMode';
 import { useChatsStore } from '../../../../../features/chats/store/chats';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
@@ -104,8 +100,8 @@ const chatsStore = useChatsStore();
 const threadId = computed(() => route.params.threadId as string);
 const mode = useChatWindowMode(threadId);
 
-// Read on use, not held: the store a closed chat is read into is replaced when
-// the agent leaves its thread again (see the mode watcher below).
+// Read on use, not held: the coordinator drops a closed chat's store when the
+// agent rejoins its thread, and the next leave reads into a new one.
 const closedChat = computed(() =>
 	mode.value === 'closed' ? useClosedChatStore(threadId.value) : null,
 );
@@ -114,7 +110,13 @@ const isLoaderShown = computed(
 		mode.value === 'pending' ||
 		Boolean(closedChat.value?.isLoading && !closedChat.value.thread),
 );
-const isNotFound = computed(() => Boolean(closedChat.value?.isNotFound));
+const emptyText = computed(() => {
+	// neither active nor left by the agent (ADR-0009)
+	if (closedChat.value?.isNotFound) return t('ui.pages.chats.closed.notFound');
+	if (closedChat.value?.error && !closedChat.value.thread)
+		return t('ui.pages.chats.closed.loadError');
+	return '';
+});
 
 const emptyImage = useThemedImage({
 	light: emptyTableLight,
@@ -214,21 +216,16 @@ const currentTab = computed(() => {
 	};
 });
 
-// A closed chat is read once it is known to be closed. One that turns closed
-// with its window open is read afresh: a store kept from an earlier time the
-// agent left it misses the period they have just ended. A store for a thread
-// the window switches to is kept, as the Closed tab may have handed it over.
+// A closed chat is read once it is known to be closed, including when it turns
+// closed with its window open. A store already loaded is kept, as the Closed tab
+// may have handed it over; one read before a rejoin is gone by now (see above).
 watch(
 	[
 		threadId,
 		mode,
 	],
-	([id, current], previous) => {
-		if (current !== 'closed') return;
-		// no previous values on the first, immediate run
-		const [previousId, previousMode] = previous ?? [];
-		if (id === previousId && previousMode === 'active') disposeClosedChat(id);
-		void useClosedChatStore(id).load();
+	([id, current]) => {
+		if (current === 'closed') void useClosedChatStore(id).load();
 	},
 	{
 		immediate: true,
