@@ -47,6 +47,24 @@ describe('floating-call-widget', () => {
 		);
 	});
 
+	it('shows the time left in place of the call timer when it is given', () => {
+		const wrapper = mount(FloatingCallWidget, {
+			props: {
+				preview: buildPreview(),
+				timeLeft: '01:05',
+			},
+			global: {
+				stubs: {
+					'wt-avatar': true,
+					'wt-button': true,
+					'wt-icon': true,
+				},
+			},
+		});
+
+		expect(wrapper.find('.floating-call-widget__timer').text()).toBe('01:05');
+	});
+
 	it('emits openFullView from its button', async () => {
 		const wrapper = mountBar();
 
