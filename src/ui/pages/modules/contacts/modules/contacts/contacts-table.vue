@@ -54,16 +54,13 @@ const props = defineProps<{
 }>();
 
 const { initialize, appendToDataList, updateSort } = props.store;
-const { dataList, shownHeaders, next } = storeToRefs(props.store);
+const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
-const isFirstLoad = ref(false);
 const isInitializing = ref(true);
 
 const onLoading = async () => {
-	if (isInitializing.value) return;
-	if (!next.value && isFirstLoad.value) return;
+	if (isInitializing.value || isLoading.value || !next.value) return;
 	await appendToDataList();
-	isFirstLoad.value = true;
 };
 
 function getGroupItems(item: WebitelContactsContact) {
