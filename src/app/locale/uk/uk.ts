@@ -79,7 +79,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Активні',
-					closed: 'Closed',
+					closed: 'Закриті',
 				},
 				tabs: {
 					chat: 'Чат',
