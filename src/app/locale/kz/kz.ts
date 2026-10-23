@@ -116,6 +116,8 @@ export default {
 					numpad: 'Пернетақта',
 					mute: 'Микрофонды өшіру',
 					hold: 'Күтуге қою',
+					camera: 'Камера',
+					message: 'Хабарлама',
 					transfer: 'Қайта бағыттау',
 					hangup: 'Қоңырауды аяқтау',
 					openFullView: 'Толық көріністі ашу',
