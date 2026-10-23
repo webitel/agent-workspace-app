@@ -9,6 +9,10 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 		expandedCallId.value = expandedCallId.value === id ? null : id;
 	}
 
+	function collapseCall(id: string): void {
+		if (expandedCallId.value === id) expandedCallId.value = null;
+	}
+
 	function toggleChatExpand(id: string) {
 		expandedChatId.value = expandedChatId.value === id ? null : id;
 	}
@@ -17,6 +21,7 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 		expandedCallId,
 		expandedChatId,
 		toggleCallExpand,
+		collapseCall,
 		toggleChatExpand,
 	};
 });

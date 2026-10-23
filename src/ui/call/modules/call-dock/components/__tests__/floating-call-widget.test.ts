@@ -22,6 +22,7 @@ const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	mount(FloatingCallWidget, {
 		props: {
 			preview,
+			elapsedTime: '00:01:05',
 		},
 		global: {
 			stubs: {
@@ -40,12 +41,36 @@ const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	});
 
 describe('floating-call-widget', () => {
-	it('shows the call timer', () => {
+	it('shows the elapsed time it is given', () => {
 		const wrapper = mountBar();
 
-		expect(wrapper.find('.floating-call-widget__timer').text()).toMatch(
-			/^\d{2}:\d{2}:\d{2}$/,
+		expect(wrapper.find('.floating-call-widget__timer').text()).toBe(
+			'00:01:05',
 		);
+	});
+
+	it('asks to expand when the avatar and timer area is clicked', async () => {
+		const wrapper = mountBar();
+
+		await wrapper.find('.floating-call-widget__toggle').trigger('click');
+
+		expect(wrapper.emitted('toggleExpand')).toHaveLength(1);
+	});
+
+	it('shows the full view button when the call allows post-processing', () => {
+		const wrapper = mountBar();
+
+		expect(wrapper.find('.button').exists()).toBe(true);
+	});
+
+	it('hides the full view button when the call has no post-processing', () => {
+		const wrapper = mountBar(
+			buildPreview({
+				isPostProcessingEnabled: false,
+			}),
+		);
+
+		expect(wrapper.find('.button').exists()).toBe(false);
 	});
 
 	it('is not marked as on hold while the call is live', () => {

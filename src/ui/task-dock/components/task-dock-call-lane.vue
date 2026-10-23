@@ -3,10 +3,17 @@
         <the-numpad-panel />
 
         <div class="task-dock-call-lane__container">
-            <floating-call-widget
+            <active-call-bar
                 v-for="activeCall in activeCalls"
                 :key="activeCall.id"
                 :preview="activeCall.preview"
+                :expanded="taskDockStore.expandedCallId === activeCall.id"
+                @toggle-expand="taskDockStore.toggleCallExpand(activeCall.id)"
+                @collapse="taskDockStore.collapseCall(activeCall.id)"
+                @toggle-mute="callsStore.toggleMute(activeCall.id)"
+                @toggle-hold="callsStore.toggleHold(activeCall.id)"
+                @hangup="onHangup(activeCall.id)"
+                @send-digit="callsStore.sendDtmf(activeCall.id, $event)"
             />
         </div>
     </div>
@@ -20,9 +27,11 @@ import { computed } from 'vue';
 
 import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import FloatingCallWidget from '../../call/modules/call-dock/components/floating-call-widget.vue';
+import ActiveCallBar from '../../call/modules/call-dock/components/active-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
+import { useTaskDockStore } from '../store/task-dock';
 
+const taskDockStore = useTaskDockStore();
 const callsStore = useCallsStore();
 
 const activeCalls = computed(() =>
@@ -31,6 +40,11 @@ const activeCalls = computed(() =>
 		preview: toActiveCallContent(call),
 	})),
 );
+
+function onHangup(callId: string): void {
+	taskDockStore.collapseCall(callId);
+	callsStore.hangup(callId);
+}
 </script>
 
 <style scoped>

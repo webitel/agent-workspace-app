@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 import { useNumpadStore } from '../../../numpad/store/numpad';
+import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
 
 const calls = ref<Call[]>([]);
@@ -87,7 +88,87 @@ describe('task-dock-call-lane', () => {
 
 		const wrapper = mountCallLane();
 
-		expect(wrapper.findAll('.floating-call-widget')).toHaveLength(2);
+		expect(wrapper.findAll('.active-call-bar')).toHaveLength(2);
+	});
+
+	it('expands the bar that is clicked and collapses it on the next click', async () => {
+		calls.value = [
+			buildCall(),
+		];
+		const wrapper = mountCallLane();
+		const store = useTaskDockStore();
+
+		await wrapper.find('.floating-call-widget__toggle').trigger('click');
+		expect(store.expandedCallId).toBe('call-1');
+		expect(wrapper.find('.call-dock').exists()).toBe(true);
+
+		await wrapper.find('.floating-call-widget__toggle').trigger('click');
+		expect(store.expandedCallId).toBeNull();
+	});
+
+	describe('expanded dock actions', () => {
+		const expandDock = async (wrapper: ReturnType<typeof mountCallLane>) => {
+			await wrapper.find('.floating-call-widget__toggle').trigger('click');
+		};
+
+		const findAction = (
+			wrapper: ReturnType<typeof mountCallLane>,
+			name: string,
+		) => wrapper.find(`[aria-label="ui.call.activeCall.actions.${name}"]`);
+
+		it('toggles hold on the call', async () => {
+			const call = buildCall({
+				allowHold: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const wrapper = mountCallLane();
+			await expandDock(wrapper);
+
+			await findAction(wrapper, 'hold').trigger('click');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('hangs up the call and collapses the dock', async () => {
+			const call = buildCall({
+				allowHangup: true,
+				hangup: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const wrapper = mountCallLane();
+			const store = useTaskDockStore();
+			await expandDock(wrapper);
+
+			await findAction(wrapper, 'hangup').trigger('click');
+
+			expect(call.hangup).toHaveBeenCalledTimes(1);
+			expect(store.expandedCallId).toBeNull();
+		});
+
+		it('sends the digit of a numpad key on the call', async () => {
+			const call = buildCall({
+				allowDtmf: true,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const wrapper = mountCallLane();
+			await expandDock(wrapper);
+			await findAction(wrapper, 'numpad').trigger('click');
+
+			const key = wrapper
+				.findAll('.numpad-keys__key')
+				.find((candidate) => candidate.text() === '5');
+			await key?.trigger('click');
+
+			expect(call.sendDTMF).toHaveBeenCalledWith('5');
+		});
 	});
 
 	it('shows the numpad only once the numpad store is opened', async () => {
