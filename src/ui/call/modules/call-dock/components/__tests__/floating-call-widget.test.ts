@@ -21,6 +21,7 @@ const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	mount(FloatingCallWidget, {
 		props: {
 			preview,
+			elapsedTime: '00:01:05',
 		},
 		global: {
 			stubs: {
@@ -39,38 +40,29 @@ const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	});
 
 describe('floating-call-widget', () => {
-	it('shows the call timer', () => {
+	it('shows the elapsed time it is given', () => {
 		const wrapper = mountBar();
 
-		expect(wrapper.find('.floating-call-widget__timer').text()).toMatch(
-			/^\d{2}:\d{2}:\d{2}$/,
+		expect(wrapper.find('.floating-call-widget__timer').text()).toBe(
+			'00:01:05',
 		);
 	});
 
-	it('shows the time left in place of the call timer when it is given', () => {
-		const wrapper = mount(FloatingCallWidget, {
-			props: {
-				preview: buildPreview(),
-				timeLeft: '01:05',
-			},
-			global: {
-				stubs: {
-					'wt-avatar': true,
-					'wt-button': true,
-					'wt-icon': true,
-				},
-			},
-		});
+	it('asks to expand when the widget is clicked', async () => {
+		const wrapper = mountBar();
 
-		expect(wrapper.find('.floating-call-widget__timer').text()).toBe('01:05');
+		await wrapper.find('.floating-call-widget').trigger('click');
+
+		expect(wrapper.emitted('toggleExpand')).toHaveLength(1);
 	});
 
-	it('emits openFullView from its button', async () => {
+	it('emits openFullView from its button and not toggleExpand', async () => {
 		const wrapper = mountBar();
 
 		await wrapper.find('.button').trigger('click');
 
 		expect(wrapper.emitted('openFullView')).toHaveLength(1);
+		expect(wrapper.emitted('toggleExpand')).toBeUndefined();
 	});
 
 	it('is not marked as on hold while the call is live', () => {

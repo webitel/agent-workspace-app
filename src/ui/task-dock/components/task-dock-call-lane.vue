@@ -7,10 +7,17 @@
                 v-for="windowedCall in windowedCalls"
                 :key="windowedCall.id"
             >
-                <floating-call-widget
+                <active-call-tray-entry
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
+                    :expanded="taskDockStore.expandedCallId === windowedCall.id"
+                    @toggle-expand="taskDockStore.toggleCallExpand(windowedCall.id)"
                     @open-full-view="openCallWindow(windowedCall.id)"
+                    @collapse="taskDockStore.collapseCall(windowedCall.id)"
+                    @toggle-mute="callsStore.toggleMute(windowedCall.id)"
+                    @toggle-hold="callsStore.toggleHold(windowedCall.id)"
+                    @hangup="onHangup(windowedCall.id)"
+                    @send-digit="callsStore.sendDtmf(windowedCall.id, $event)"
                 />
                 <post-processing-call-bar
                     v-else-if="windowedCall.task"
@@ -33,10 +40,12 @@ import { useRouter } from 'vue-router';
 import { isActiveCall } from '../../../features/calls/scripts/isActiveCall';
 import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import FloatingCallWidget from '../../call/modules/call-dock/components/floating-call-widget.vue';
+import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
+import { useTaskDockStore } from '../store/task-dock';
 
+const taskDockStore = useTaskDockStore();
 const router = useRouter();
 const callsStore = useCallsStore();
 
@@ -51,6 +60,11 @@ const windowedCalls = computed(() =>
 		task: call.task,
 	})),
 );
+
+function onHangup(callId: string): void {
+	taskDockStore.collapseCall(callId);
+	callsStore.hangup(callId);
+}
 
 function openCallWindow(callId: string) {
 	router.push({

@@ -4,6 +4,7 @@
 		:class="{
 			'floating-call-widget--hold': preview.isHold,
 		}"
+		@click="emit('toggleExpand')"
 	>
 		<padded-avatar
 			:username="preview.name"
@@ -12,7 +13,7 @@
 		/>
 
 		<span class="floating-call-widget__timer typo-body-1">
-			{{ timeLeft ?? timer.formatted.value }}
+			{{ elapsedTime }}
 		</span>
 
 		<wt-button
@@ -40,25 +41,20 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import PaddedAvatar from '../../../../components/padded-avatar/padded-avatar.vue';
-import { useActiveCallTimer } from '../composables/useActiveCallTimer';
 import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 
 const props = defineProps<{
 	preview: ActiveCallContent;
-	/** Replaces the call timer, e.g. with the time left of post-processing. */
-	timeLeft?: string;
+	/** The call timer, or the time left of post-processing for an ended call. */
+	elapsedTime: string;
 }>();
 
-const { t } = useI18n();
-
 const emit = defineEmits<{
+	toggleExpand: [];
 	openFullView: [];
 }>();
 
-const timer = useActiveCallTimer({
-	answeredAt: () => props.preview.answeredAt,
-	isHold: () => props.preview.isHold,
-});
+const { t } = useI18n();
 
 const buttonColor = computed(() =>
 	props.preview.isHold ? ButtonColor.WARN : ButtonColor.SUCCESS,
@@ -75,6 +71,7 @@ const buttonColor = computed(() =>
 	border-radius: var(--wt-ws-call-dock-sizes-floating-call-widget-border-radius);
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-background);
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-active-color);
+	cursor: pointer;
 }
 
 .floating-call-widget:hover {
@@ -88,6 +85,7 @@ const buttonColor = computed(() =>
 .floating-call-widget__timer {
 	width: 50px;
 	flex: 0 1 auto;
+	text-align: start;
 }
 
 .floating-call-widget--hold {

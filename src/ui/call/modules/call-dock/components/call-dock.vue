@@ -108,7 +108,7 @@ const { t } = useI18n();
 
 /**
  * @author Oleksandr Palonnyi
- * the open flag lives here and not in the bar: the bar unmounts the dock
+ * the open flag lives here and not in the tray entry: the tray entry unmounts the dock
  * when it collapses, so the numpad comes back closed; its digits are not
  * lost, they come from the call preview
  * [WS-23](https://webitel.atlassian.net/browse/WS-23)
@@ -132,7 +132,7 @@ const statusChipColor = computed(() =>
 	flex-direction: column;
 	gap: var(--spacing-sm);
 	box-sizing: border-box;
-	width: var(--active-call-bar-dock-width);
+	width: var(--active-call-tray-entry-dock-width);
 	padding: var(--wt-ws-call-dock-sizes-root-padding-x);
 	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius)
 		var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;
