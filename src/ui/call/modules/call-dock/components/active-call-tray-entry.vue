@@ -1,9 +1,9 @@
 <template>
 	<div
 		ref="root"
-		class="active-call-bar"
+		class="active-call-tray-entry"
 		:class="{
-			'active-call-bar--expanded': expanded,
+			'active-call-tray-entry--expanded': expanded,
 		}"
 	>
 		<slide-up-overlay :is-open="expanded">
@@ -83,18 +83,18 @@ const timer = useActiveCallTimer({
 <style scoped>
 /**
  * @author Oleksandr Palonnyi
- * the dock reads this width too: while expanded the bar takes the dock's
+ * the dock reads this width too: while expanded the tray entry takes the dock's
  * width, so the pill is as wide as the dock and the dock does not cover the
  * neighbouring pills
  * [WS-23](https://webitel.atlassian.net/browse/WS-23)
  */
-.active-call-bar {
-	--active-call-bar-dock-width: 280px;
+.active-call-tray-entry {
+	--active-call-tray-entry-dock-width: 280px;
 
 	position: relative;
 }
 
-.active-call-bar--expanded {
-	width: var(--active-call-bar-dock-width);
+.active-call-tray-entry--expanded {
+	width: var(--active-call-tray-entry-dock-width);
 }
 </style>

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import type { ActiveCallContent } from '../../types/ActiveCallContent.types';
-import ActiveCallBar from '../active-call-bar.vue';
+import ActiveCallTrayEntry from '../active-call-tray-entry.vue';
 
 const buildPreview = (
 	overrides: Partial<ActiveCallContent> = {},
@@ -18,7 +18,7 @@ const buildPreview = (
 });
 
 const mountBar = (expanded = false) =>
-	mount(ActiveCallBar, {
+	mount(ActiveCallTrayEntry, {
 		props: {
 			preview: buildPreview(),
 			expanded,
@@ -38,7 +38,7 @@ const mountBar = (expanded = false) =>
 		},
 	});
 
-describe('active-call-bar', () => {
+describe('active-call-tray-entry', () => {
 	it('shows the pill and no dock while collapsed', () => {
 		const wrapper = mountBar();
 

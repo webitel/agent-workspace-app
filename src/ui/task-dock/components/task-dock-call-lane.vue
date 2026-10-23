@@ -7,7 +7,7 @@
                 v-for="windowedCall in windowedCalls"
                 :key="windowedCall.id"
             >
-                <active-call-bar
+                <active-call-tray-entry
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
                     :expanded="taskDockStore.expandedCallId === windowedCall.id"
@@ -40,7 +40,7 @@ import { useRouter } from 'vue-router';
 import { isActiveCall } from '../../../features/calls/scripts/isActiveCall';
 import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import ActiveCallBar from '../../call/modules/call-dock/components/active-call-bar.vue';
+import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';

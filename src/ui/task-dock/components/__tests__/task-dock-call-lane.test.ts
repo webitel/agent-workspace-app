@@ -80,7 +80,7 @@ describe('task-dock-call-lane', () => {
 		push.mockClear();
 	});
 
-	it('shows a bar for each active call and none for a call still ringing', () => {
+	it('shows a tray entry for each active call and none for a call still ringing', () => {
 		calls.value = [
 			buildCall({
 				id: 'call-1',
@@ -96,10 +96,10 @@ describe('task-dock-call-lane', () => {
 
 		const wrapper = mountCallLane();
 
-		expect(wrapper.findAll('.active-call-bar')).toHaveLength(2);
+		expect(wrapper.findAll('.active-call-tray-entry')).toHaveLength(2);
 	});
 
-	it('expands the bar that is clicked and collapses it on the next click', async () => {
+	it('expands the tray entry that is clicked and collapses it on the next click', async () => {
 		calls.value = [
 			buildCall(),
 		];
