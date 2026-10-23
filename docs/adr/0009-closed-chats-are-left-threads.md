@@ -80,8 +80,10 @@ says the task's are not available.
 ## Consequences
 
 - Until WS-96 adds an `ids` filter (or `GET /v1/threads/{id}` answers former
-  members), a deep link finds its thread by paging `/threads/left`. Opening from
-  the Closed tab hands the row's thread over and costs nothing.
+  members), a Closed chat opened without its thread in hand — the window turning
+  closed in place after the agent leaves — finds its thread by paging
+  `/threads/left`. Opening from the Closed tab hands the row's thread over and
+  costs nothing.
 - Messages the client wrote between two of the agent's periods, or after the
   last, are not part of the Closed chat. That is the backend's choice, and the
   card does not mark where one period ends.
