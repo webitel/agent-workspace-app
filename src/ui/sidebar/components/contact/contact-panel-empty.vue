@@ -3,7 +3,7 @@
 		:image="emptyContact"
 		:title="title"
 		:text="text"
-		width="var(--icon-7xl-size)"
+		width="88"
 	>
 		<template
 			v-if="slots.actions"

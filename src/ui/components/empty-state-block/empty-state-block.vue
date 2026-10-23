@@ -2,9 +2,7 @@
 	<section class="empty-state-block">
 		<wt-image
 			:src="image"
-			:size="size"
 			:width="width"
-			:height="height"
 			alt=""
 		/>
 		<div class="empty-state-block__info">
@@ -29,9 +27,7 @@ defineProps<{
 	image: string;
 	title?: string;
 	text?: string;
-	size?: string;
 	width?: string;
-	height?: string;
 }>();
 
 const slots = defineSlots<{
