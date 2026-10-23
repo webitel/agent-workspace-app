@@ -35,7 +35,7 @@ active chat only and is dropped from the Closed list.
 
 **The chat window serves both, on the same `/chats/:threadId`.** A thread with no
 task in the feed is shown as a Closed chat — but only after the feed's first
-load, so a deep-linked active chat never flashes as closed. A thread that is
+load, so a window opened in the app never flashes as closed. A thread that is
 neither active nor left shows "not found". When the agent leaves the thread with
 its window open, the window turns into the Closed chat card in place, and its
 history is read again from the left-threads endpoint.
@@ -88,3 +88,12 @@ says the task's are not available.
 - Name and Source columns and the card's contact icon (Е7,
   [WS-88](https://webitel.atlassian.net/browse/WS-88)) are not linked to the
   contact mini-card here.
+- ADR-0007's "a deep-linked chat that was never listed lives as long as its
+  window" now applies to active chats only. A window over a thread with no task
+  keeps no chat session, and the Closed chat's store is dropped whenever its
+  thread has a task again.
+- "Feed ready" is taken to be the agent session being loaded. That the task feed
+  is restored by then is not yet checked on a live instance.
+- The chats workspace still sends a URL for a chat not opened this session back
+  to `/chats`, as it does for active chats, so a deep link or a refresh does not
+  reach a Closed chat card. The Closed tab opens its rows from inside the app.
