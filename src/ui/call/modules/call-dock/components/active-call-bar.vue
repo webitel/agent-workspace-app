@@ -21,6 +21,7 @@
 			:preview="preview"
 			:elapsed-time="timer.formatted.value"
 			@toggle-expand="emit('toggleExpand')"
+			@open-full-view="emit('openFullView')"
 		/>
 	</div>
 </template>
@@ -45,6 +46,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	toggleExpand: [];
+	openFullView: [];
 	collapse: [];
 	toggleMute: [];
 	toggleHold: [];

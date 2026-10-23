@@ -4,24 +4,19 @@
 		:class="{
 			'floating-call-widget--hold': preview.isHold,
 		}"
+		@click="emit('toggleExpand')"
 	>
-		<button
-			type="button"
-			class="floating-call-widget__toggle"
-			@click="emit('toggleExpand')"
-		>
-			<padded-avatar
-				:username="preview.name"
-				:size="ComponentSize.XS"
-				class="floating-call-widget__avatar"
-			/>
+		<padded-avatar
+			:username="preview.name"
+			:size="ComponentSize.XS"
+			class="floating-call-widget__avatar"
+		/>
 
 		<span class="floating-call-widget__timer typo-body-1">
-			{{ timeLeft ?? timer.formatted.value }}
+			{{ elapsedTime }}
 		</span>
 
 		<wt-button
-			v-if="preview.isPostProcessingEnabled"
 			:size="ComponentSize.SM"
 			:color="buttonColor"
 			:aria-label="t('ui.call.activeCall.actions.openFullView')"
@@ -50,13 +45,12 @@ import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 
 const props = defineProps<{
 	preview: ActiveCallContent;
-	/** Replaces the call timer, e.g. with the time left of post-processing. */
-	timeLeft?: string;
+	/** The call timer, or the time left of post-processing for an ended call. */
+	elapsedTime: string;
 }>();
 
-const { t } = useI18n();
-
 const emit = defineEmits<{
+	toggleExpand: [];
 	openFullView: [];
 }>();
 
@@ -77,24 +71,11 @@ const buttonColor = computed(() =>
 	border-radius: var(--wt-ws-call-dock-sizes-floating-call-widget-border-radius);
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-background);
 	color: var(--wt-ws-call-dock-colors-floating-call-widget-active-color);
+	cursor: pointer;
 }
 
 .floating-call-widget:hover {
 	background-color: var(--wt-ws-call-dock-colors-floating-call-widget-active-hover-background);
-}
-
-.floating-call-widget__toggle {
-	display: flex;
-	flex: 1;
-	align-items: center;
-	gap: var(--wt-ws-call-dock-sizes-floating-call-widget-gap);
-	min-width: 0;
-	padding: 0;
-	border: 0;
-	background: none;
-	color: inherit;
-	font: inherit;
-	cursor: pointer;
 }
 
 .floating-call-widget__avatar {

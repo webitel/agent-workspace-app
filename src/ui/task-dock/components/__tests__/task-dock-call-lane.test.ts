@@ -106,17 +106,17 @@ describe('task-dock-call-lane', () => {
 		const wrapper = mountCallLane();
 		const store = useTaskDockStore();
 
-		await wrapper.find('.floating-call-widget__toggle').trigger('click');
+		await wrapper.find('.floating-call-widget').trigger('click');
 		expect(store.expandedCallId).toBe('call-1');
 		expect(wrapper.find('.call-dock').exists()).toBe(true);
 
-		await wrapper.find('.floating-call-widget__toggle').trigger('click');
+		await wrapper.find('.floating-call-widget').trigger('click');
 		expect(store.expandedCallId).toBeNull();
 	});
 
 	describe('expanded dock actions', () => {
 		const expandDock = async (wrapper: ReturnType<typeof mountCallLane>) => {
-			await wrapper.find('.floating-call-widget__toggle').trigger('click');
+			await wrapper.find('.floating-call-widget').trigger('click');
 		};
 
 		const findAction = (
@@ -236,7 +236,11 @@ describe('task-dock-call-lane', () => {
 			];
 			const wrapper = mountCallLane();
 
-			await wrapper.find('.floating-call-widget button').trigger('click');
+			await wrapper
+				.find(
+					'.floating-call-widget [aria-label="ui.call.activeCall.actions.openFullView"]',
+				)
+				.trigger('click');
 
 			expect(push).toHaveBeenCalledTimes(1);
 			expect(push).toHaveBeenCalledWith({

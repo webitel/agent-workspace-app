@@ -3,36 +3,29 @@
         <the-numpad-panel />
 
         <div class="task-dock-call-lane__container">
-            <active-call-bar
-                v-for="activeCall in activeCalls"
-                :key="activeCall.id"
-                :preview="activeCall.preview"
-                :expanded="taskDockStore.expandedCallId === activeCall.id"
-                @toggle-expand="taskDockStore.toggleCallExpand(activeCall.id)"
-                @collapse="taskDockStore.collapseCall(activeCall.id)"
-                @toggle-mute="callsStore.toggleMute(activeCall.id)"
-                @toggle-hold="callsStore.toggleHold(activeCall.id)"
-                @hangup="onHangup(activeCall.id)"
-                @send-digit="callsStore.sendDtmf(activeCall.id, $event)"
-            />
-
-
-          <template
-              v-for="windowedCall in windowedCalls"
-              :key="windowedCall.id"
-          >
-            <floating-call-widget
-                v-if="windowedCall.isActive"
-                :preview="windowedCall.preview"
-                @open-full-view="openCallWindow(windowedCall.id)"
-            />
-            <post-processing-call-bar
-                v-else-if="windowedCall.task"
-                :preview="windowedCall.preview"
-                :task="windowedCall.task"
-                @open-full-view="openCallWindow(windowedCall.id)"
-            />
-          </template>
+            <template
+                v-for="windowedCall in windowedCalls"
+                :key="windowedCall.id"
+            >
+                <active-call-bar
+                    v-if="windowedCall.isActive"
+                    :preview="windowedCall.preview"
+                    :expanded="taskDockStore.expandedCallId === windowedCall.id"
+                    @toggle-expand="taskDockStore.toggleCallExpand(windowedCall.id)"
+                    @open-full-view="openCallWindow(windowedCall.id)"
+                    @collapse="taskDockStore.collapseCall(windowedCall.id)"
+                    @toggle-mute="callsStore.toggleMute(windowedCall.id)"
+                    @toggle-hold="callsStore.toggleHold(windowedCall.id)"
+                    @hangup="onHangup(windowedCall.id)"
+                    @send-digit="callsStore.sendDtmf(windowedCall.id, $event)"
+                />
+                <post-processing-call-bar
+                    v-else-if="windowedCall.task"
+                    :preview="windowedCall.preview"
+                    :task="windowedCall.task"
+                    @open-full-view="openCallWindow(windowedCall.id)"
+                />
+            </template>
         </div>
     </div>
 </template>
@@ -47,7 +40,7 @@ import { useRouter } from 'vue-router';
 import { isActiveCall } from '../../../features/calls/scripts/isActiveCall';
 import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
-import FloatingCallWidget from '../../call/modules/call-dock/components/floating-call-widget.vue';
+import ActiveCallBar from '../../call/modules/call-dock/components/active-call-bar.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
@@ -65,13 +58,6 @@ const windowedCalls = computed(() =>
 		preview: toActiveCallContent(call),
 		isActive: isActiveCall(call),
 		task: call.task,
-	})),
-);
-
-const activeCalls = computed(() =>
-	callsStore.activeCalls.map((call) => ({
-		id: call.id,
-		preview: toActiveCallContent(call),
 	})),
 );
 

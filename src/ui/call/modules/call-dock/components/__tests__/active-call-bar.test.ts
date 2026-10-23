@@ -14,7 +14,6 @@ const buildPreview = (
 	isHold: false,
 	isMuted: false,
 	dtmfDigits: '',
-	isPostProcessingEnabled: true,
 	...overrides,
 });
 
@@ -65,9 +64,17 @@ describe('active-call-bar', () => {
 	it('asks to expand when the pill is clicked', async () => {
 		const wrapper = mountBar();
 
-		await wrapper.find('.floating-call-widget__toggle').trigger('click');
+		await wrapper.find('.floating-call-widget').trigger('click');
 
 		expect(wrapper.emitted('toggleExpand')).toHaveLength(1);
+	});
+
+	it('passes on openFullView from the pill', async () => {
+		const wrapper = mountBar();
+
+		await wrapper.find('.floating-call-widget .button').trigger('click');
+
+		expect(wrapper.emitted('openFullView')).toHaveLength(1);
 	});
 
 	it('collapses on a click outside the opened dock', async () => {
