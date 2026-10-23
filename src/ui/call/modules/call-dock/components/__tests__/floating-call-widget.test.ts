@@ -1,21 +1,24 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import type { ActiveCallPreview } from '../../types/ActiveCallPreview.types';
+import type { ActiveCallContent } from '../../types/ActiveCallContent.types';
 import FloatingCallWidget from '../floating-call-widget.vue';
 
 const buildPreview = (
-	overrides: Partial<ActiveCallPreview> = {},
-): ActiveCallPreview => ({
+	overrides: Partial<ActiveCallContent> = {},
+): ActiveCallContent => ({
 	name: 'Emily Johnson',
 	number: '+12023417842',
 	queueName: 'Sales',
 	answeredAt: Date.now(),
 	isHold: false,
+	isMuted: false,
+	dtmfDigits: '',
+	isPostProcessingEnabled: true,
 	...overrides,
 });
 
-const mountBar = (preview: ActiveCallPreview = buildPreview()) =>
+const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	mount(FloatingCallWidget, {
 		props: {
 			preview,

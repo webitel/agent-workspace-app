@@ -35,6 +35,8 @@ export const useCallsStore = defineStore('calls', () => {
 
 	const isOutboundCallRequestPending = ref(false);
 
+	const callIdsWithHoldRequestPending = new Set<string>();
+
 	const callList = computed<Call[]>(() => calls.value ?? []);
 
 	const incomingOffers = computed(() =>
@@ -58,19 +60,37 @@ export const useCallsStore = defineStore('calls', () => {
 
 		if (!(await ensureMicrophoneAllowed())) return;
 
+		await holdOtherLiveCalls(callId);
 		await call.answer({
 			audio: true,
 			disableStun: !getStunEnabled(),
 		});
 	}
 
-	async function holdActiveCall() {
-		const activeCall = callList.value.find(
-			(existingCall) => existingCall.active && !existingCall.isHold,
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the agent talks on one call at a time and the rest wait on hold, as in
+	 * cc-workspaces (HOLD_OTHER_CALLS); the SDK does not hold the others when a
+	 * call goes live, so every action that makes a call live does it here.
+	 * A call that refuses to hold must not block that action: the agent can
+	 * still put it on hold by hand, but a call left unanswered is lost
+	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+	 */
+	async function holdOtherLiveCalls(exceptCallId?: string) {
+		const liveCalls = callList.value.filter(
+			(existingCall) =>
+				existingCall.id !== exceptCallId &&
+				existingCall.active &&
+				!existingCall.isHold &&
+				existingCall.allowHold,
 		);
-		if (!activeCall?.allowHold) return;
 
-		await activeCall.hold();
+		try {
+			await Promise.all(liveCalls.map((liveCall) => liveCall.hold()));
+		} catch (err) {
+			console.warn('[calls] holding the other calls failed', err);
+			notifyCallError('holdToggleFailed');
+		}
 	}
 
 	async function call({
@@ -91,7 +111,7 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			if (!(await ensureMicrophoneAllowed())) return false;
 
-			await holdActiveCall();
+			await holdOtherLiveCalls();
 			await getClient().call({
 				destination,
 				params: {
@@ -130,6 +150,50 @@ export const useCallsStore = defineStore('calls', () => {
 			await call.mute(!call.muted);
 		} catch (err) {
 			console.warn('[calls] mute toggle failed', err);
+		}
+	}
+
+	async function toggleHold(callId: string) {
+		const call = getCallById(callId);
+		/**
+		 * @author Oleksandr Palonnyi
+		 * the SDK splits the permission: `allowHold` is false once the call is on
+		 * hold, and releasing it is gated by `allowUnHold`, so checking only
+		 * `allowHold` made a held call impossible to resume
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (!call?.allowHold && !call?.allowUnHold) return;
+
+		/**
+		 * @author Oleksandr Palonnyi
+		 * `allowHold` / `allowUnHold` only flip once the SDK has applied the
+		 * toggle, so a second click while the first request is in flight passes
+		 * the check above and would flip the call back or raise a false error
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (callIdsWithHoldRequestPending.has(callId)) return;
+
+		callIdsWithHoldRequestPending.add(callId);
+		try {
+			if (call.isHold) await holdOtherLiveCalls(callId);
+			await call.toggleHold();
+		} catch (err) {
+			console.warn('[calls] hold toggle failed', err);
+			notifyCallError('holdToggleFailed');
+		} finally {
+			callIdsWithHoldRequestPending.delete(callId);
+		}
+	}
+
+	async function sendDtmf(callId: string, digit: string) {
+		const call = getCallById(callId);
+		if (!call?.allowDtmf) return;
+
+		try {
+			await call.sendDTMF(digit);
+		} catch (err) {
+			console.warn('[calls] dtmf failed', err);
+			notifyCallError('dtmfFailed');
 		}
 	}
 
@@ -210,9 +274,18 @@ export const useCallsStore = defineStore('calls', () => {
 		call,
 		answer,
 		toggleMute,
+		toggleHold,
+		sendDtmf,
 		hangup,
 	};
 });
+
+function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
+	eventBus.$emit('notification', {
+		type: 'error',
+		text: i18n.global.t(`error.calls.${errorKey}`),
+	});
+}
 
 async function ensureMicrophoneAllowed(): Promise<boolean> {
 	if (await isMicrophoneAllowed()) return true;

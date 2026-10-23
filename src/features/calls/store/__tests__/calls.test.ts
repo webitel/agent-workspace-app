@@ -198,6 +198,51 @@ describe('useCallsStore', () => {
 		);
 	});
 
+	it('holds the call the agent is talking on before answering another', async () => {
+		const store = useCallsStore();
+		const talkingCall = buildCall({
+			id: 'call-talking',
+			active: true,
+		});
+		const offeredCall = buildCall({
+			id: 'call-offered',
+		});
+		calls.value = [
+			talkingCall,
+			offeredCall,
+		];
+
+		await store.answer('call-offered');
+
+		expect(talkingCall.hold).toHaveBeenCalledTimes(1);
+		expect(offeredCall.hold).not.toHaveBeenCalled();
+		expect(offeredCall.answer).toHaveBeenCalledTimes(1);
+	});
+
+	it('still answers when another call refuses to hold', async () => {
+		const store = useCallsStore();
+		const talkingCall = buildCall({
+			id: 'call-talking',
+			active: true,
+			hold: vi.fn().mockRejectedValue(new Error('boom')),
+		});
+		const offeredCall = buildCall({
+			id: 'call-offered',
+		});
+		calls.value = [
+			talkingCall,
+			offeredCall,
+		];
+
+		await store.answer('call-offered');
+
+		expect(offeredCall.answer).toHaveBeenCalledTimes(1);
+		expect(mockEmit).toHaveBeenCalledWith('notification', {
+			type: 'error',
+			text: 'error.calls.holdToggleFailed',
+		});
+	});
+
 	// a denied mic yields a connected call the customer hears nothing on
 	it('refuses to answer when the microphone is blocked', async () => {
 		isMicrophoneAllowed.mockResolvedValue(false);
@@ -329,6 +374,27 @@ describe('useCallsStore', () => {
 
 			expect(activeCall.hold).toHaveBeenCalledTimes(1);
 			expect(clientCall).toHaveBeenCalled();
+		});
+
+		it('still dials when another call refuses to hold', async () => {
+			const stubbornCall = buildCall({
+				active: true,
+				hold: vi.fn().mockRejectedValue(new Error('boom')),
+			});
+			calls.value = [
+				stubbornCall,
+			];
+			const store = useCallsStore();
+
+			await store.call({
+				destination: '100',
+			});
+
+			expect(clientCall).toHaveBeenCalled();
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
 		});
 
 		it('leaves an already held call alone', async () => {
@@ -531,6 +597,207 @@ describe('useCallsStore', () => {
 			expect(store.activeCalls.map((call) => call.id)).toEqual([
 				'talking',
 			]);
+		});
+	});
+
+	describe('toggleHold', () => {
+		it('toggles hold on the call', async () => {
+			const call = buildCall({
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('resumes a call that is on hold', async () => {
+			const call = buildCall({
+				allowHold: false,
+				allowUnHold: true,
+				isHold: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('holds the other live calls when resuming a held one', async () => {
+			const heldCall = buildCall({
+				id: 'call-held',
+				active: true,
+				allowHold: false,
+				allowUnHold: true,
+				isHold: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			const talkingCall = buildCall({
+				id: 'call-talking',
+				active: true,
+			});
+			calls.value = [
+				heldCall,
+				talkingCall,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-held');
+
+			expect(talkingCall.hold).toHaveBeenCalledTimes(1);
+			expect(heldCall.toggleHold).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves the other calls alone when putting a call on hold', async () => {
+			const talkingCall = buildCall({
+				id: 'call-talking',
+				active: true,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			const otherCall = buildCall({
+				id: 'call-other',
+				active: true,
+			});
+			calls.value = [
+				talkingCall,
+				otherCall,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-talking');
+
+			expect(otherCall.hold).not.toHaveBeenCalled();
+		});
+
+		it('leaves a call that can be neither held nor resumed alone', async () => {
+			const call = buildCall({
+				allowHold: false,
+				allowUnHold: false,
+				toggleHold: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).not.toHaveBeenCalled();
+		});
+
+		it('ignores a second toggle while the first one is still in flight', async () => {
+			let finishToggle: () => void = () => {};
+			const call = buildCall({
+				toggleHold: vi.fn(
+					() =>
+						new Promise<object>((resolve) => {
+							finishToggle = () => resolve({});
+						}),
+				),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			const firstToggle = store.toggleHold('call-1');
+			await store.toggleHold('call-1');
+			finishToggle();
+			await firstToggle;
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(1);
+			expect(mockEmit).not.toHaveBeenCalled();
+		});
+
+		it('accepts a new toggle once the previous one has settled', async () => {
+			const call = buildCall({
+				toggleHold: vi.fn().mockRejectedValueOnce(new Error('boom')),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+			await store.toggleHold('call-1');
+
+			expect(call.toggleHold).toHaveBeenCalledTimes(2);
+		});
+	});
+
+	describe('call action failures', () => {
+		it('notifies when toggling hold fails', async () => {
+			calls.value = [
+				buildCall({
+					toggleHold: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			await store.toggleHold('call-1');
+
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
+		});
+
+		it('notifies when sending a digit fails', async () => {
+			calls.value = [
+				buildCall({
+					allowDtmf: true,
+					sendDTMF: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.dtmfFailed',
+			});
+		});
+	});
+
+	describe('sendDtmf', () => {
+		it('sends the digit on the call', async () => {
+			const call = buildCall({
+				allowDtmf: true,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(call.sendDTMF).toHaveBeenCalledWith('5');
+		});
+
+		it('sends nothing when the call does not allow DTMF', async () => {
+			const call = buildCall({
+				allowDtmf: false,
+				sendDTMF: vi.fn(),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			await store.sendDtmf('call-1', '5');
+
+			expect(call.sendDTMF).not.toHaveBeenCalled();
 		});
 	});
 });

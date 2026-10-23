@@ -111,6 +111,18 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'W rozmowie',
+				onHold: 'Wstrzymane',
+				actions: {
+					numpad: 'Klawiatura',
+					mute: 'Wycisz',
+					hold: 'Wstrzymaj',
+					transfer: 'Przekieruj',
+					hangup: 'Zakończ połączenie',
+					openFullView: 'Otwórz pełny widok',
+				},
+			},
 			outboundCall: {
 				ringing: 'Dzwonienie',
 				noAnswer: 'Brak odpowiedzi',
@@ -124,6 +136,9 @@ export default {
 		calls: {
 			outboundCallFailed:
 				'Nie udało się nawiązać połączenia. Spróbuj ponownie.',
+			holdToggleFailed:
+				'Nie udało się wstrzymać ani wznowić połączenia. Spróbuj ponownie.',
+			dtmfFailed: 'Nie udało się wysłać cyfry. Spróbuj ponownie.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

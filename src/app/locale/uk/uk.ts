@@ -122,6 +122,18 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'У розмові',
+				onHold: 'На утриманні',
+				actions: {
+					numpad: 'Клавіатура',
+					mute: 'Вимкнути мікрофон',
+					hold: 'Утримання',
+					transfer: 'Переадресація',
+					hangup: 'Завершити дзвінок',
+					openFullView: 'Відкрити повний вигляд',
+				},
+			},
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',
@@ -134,6 +146,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Не вдалося здійснити дзвінок. Спробуйте ще раз.',
+			holdToggleFailed:
+				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
+			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
