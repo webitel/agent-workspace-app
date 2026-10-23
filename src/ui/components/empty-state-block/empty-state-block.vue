@@ -1,21 +1,23 @@
 <template>
-	<section class="contact-panel-empty">
+	<section class="empty-state-block">
 		<wt-image
-			:src="emptyContact"
-			width="var(--icon-7xl-size)"
+			:src="image"
+			:size="size"
+			:width="width"
+			:height="height"
 			alt=""
 		/>
-		<div class="contact-panel-empty__info">
-			<h3 class="contact-panel-empty__title typo-heading-4">
+		<div class="empty-state-block__info">
+			<h3 class="empty-state-block__title typo-heading-4">
 				{{ title }}
 			</h3>
-			<p class="contact-panel-empty__text typo-body-1">
+			<p class="empty-state-block__text typo-body-1">
 				{{ text }}
 			</p>
 		</div>
 		<div
 			v-if="slots.actions"
-			class="contact-panel-empty__actions"
+			class="empty-state-block__actions"
 		>
 			<slot name="actions" />
 		</div>
@@ -23,11 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import emptyContact from '../../../../../app/assets/ws-empty-contact.svg';
-
 defineProps<{
-	title: string;
-	text: string;
+	image: string;
+	title?: string;
+	text?: string;
+	size?: string;
+	width?: string;
+	height?: string;
 }>();
 
 const slots = defineSlots<{
@@ -36,7 +40,7 @@ const slots = defineSlots<{
 </script>
 
 <style scoped>
-.contact-panel-empty {
+.empty-state-block {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -44,20 +48,19 @@ const slots = defineSlots<{
 	text-align: center;
 }
 
-.contact-panel-empty__info {
+.empty-state-block__info {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-xs);
 }
 
-.contact-panel-empty__title,
-.contact-panel-empty__text {
+.empty-state-block__title,
+.empty-state-block__text {
 	margin: 0;
 }
 
-.contact-panel-empty__actions {
+.empty-state-block__actions {
 	display: flex;
 	gap: var(--spacing-xs);
 }
 </style>
-
