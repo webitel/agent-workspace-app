@@ -18,6 +18,7 @@
 		<wt-button
 			:size="ComponentSize.SM"
 			:color="buttonColor"
+			:aria-label="t('ui.call.activeCall.actions.openFullView')"
 			width-by-content
 			@click.stop="emit('openFullView')"
 		>
@@ -36,6 +37,7 @@
 >
 import { ButtonColor, ComponentSize, IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import PaddedAvatar from '../../../../components/padded-avatar/padded-avatar.vue';
 import { useActiveCallTimer } from '../composables/useActiveCallTimer';
@@ -46,6 +48,8 @@ const props = defineProps<{
 	/** Replaces the call timer, e.g. with the time left of post-processing. */
 	timeLeft?: string;
 }>();
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
 	openFullView: [];
