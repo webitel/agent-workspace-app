@@ -74,6 +74,12 @@ export default {
 				pageTabs: {
 					missed: 'Missed',
 				},
+				tabs: {
+					info: 'Info',
+					postProcessing: 'Post-processing',
+					interaction: 'Interaction',
+					contact: 'Contact',
+				},
 			},
 			chats: {
 				pageTabs: {
