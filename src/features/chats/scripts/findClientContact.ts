@@ -1,6 +1,6 @@
 /**
- * The client in a thread: the first member whose contact is neither a bot
- * nor the current user.
+ * The client in a thread: the first member with a contact that is neither
+ * a bot nor the current user.
  *
  * Interim until WS-96 says how to tell the client. Wrong once another agent
  * is (or was) a member of the thread: that agent is not a bot and not the
@@ -18,6 +18,6 @@ export function findClientContact<
 	userId: string,
 ): Contact | undefined {
 	return members.find(
-		({ contact }) => !contact?.isBot && contact?.sub !== userId,
+		({ contact }) => contact && !contact.isBot && contact.sub !== userId,
 	)?.contact;
 }

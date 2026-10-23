@@ -59,6 +59,17 @@ describe('findClientContact', () => {
 		expect(findClientContact(members, 'agent-1')).toBeUndefined();
 	});
 
+	it('skips a member without a contact', () => {
+		const members = [
+			{},
+			{
+				contact: clientContact,
+			},
+		];
+
+		expect(findClientContact(members, 'agent-1')).toBe(clientContact);
+	});
+
 	it('returns undefined for no members or no list', () => {
 		expect(findClientContact([], 'agent-1')).toBeUndefined();
 		expect(findClientContact(undefined, 'agent-1')).toBeUndefined();
