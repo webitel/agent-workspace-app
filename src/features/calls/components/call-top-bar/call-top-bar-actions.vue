@@ -110,11 +110,4 @@ const toggleVariant = (isPressed: boolean) =>
 	min-height: auto;
 	padding: 0;
 }
-
-/* the theme fills a disabled button whatever its variant, which made the
-   placeholders read as pressed, like mute and hold do; DES-711 draws them as
-   bare icons */
-.call-top-bar-actions :deep(.p-button-text:disabled) {
-	background: transparent;
-}
 </style>
