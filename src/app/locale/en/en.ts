@@ -43,6 +43,7 @@ export default {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
 			startedAt: 'Started at',
+			endedAt: 'Ended at',
 			username: 'Username',
 			message: 'Message',
 			phoneNumber: 'Phone number',
@@ -78,6 +79,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Active',
+					closed: 'Closed',
 				},
 				tabs: {
 					chat: 'Chat',

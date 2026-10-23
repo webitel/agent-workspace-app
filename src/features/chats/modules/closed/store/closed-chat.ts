@@ -26,6 +26,9 @@ function createStoreDefinition(threadId: string) {
 		// keyset cursor to OLDER messages (response nextCursor.id)
 		const olderCursor = ref<string | null>(null);
 		const initialized = ref(false);
+		// A thread handed over before the card loads (see seedClosedChat), used
+		// by load() in place of the lookup when it gets no seed of its own.
+		const seededThread = shallowRef<ILeftThread | null>(null);
 
 		const hasMore = computed(() => olderCursor.value !== null);
 
@@ -36,8 +39,9 @@ function createStoreDefinition(threadId: string) {
 
 		/**
 		 * Reads the closed chat's thread and its newest history page. A thread
-		 * the table already holds goes in as `seed`, saving the lookup. Once
-		 * loaded, a closed chat does not change, so later calls do nothing.
+		 * the table already holds goes in as `seed`, or was seeded beforehand,
+		 * saving the lookup. Once loaded, a closed chat does not change, so later
+		 * calls do nothing.
 		 */
 		async function load(seed?: ILeftThread) {
 			if (initialized.value) return;
@@ -47,7 +51,9 @@ function createStoreDefinition(threadId: string) {
 			error.value = null;
 			try {
 				const leftThread =
-					seed ?? (await threadsService.findLeftThread(threadId));
+					seed ??
+					seededThread.value ??
+					(await threadsService.findLeftThread(threadId));
 				if (request !== latestRequest) return;
 				if (!leftThread) {
 					isNotFound.value = true;
@@ -71,6 +77,10 @@ function createStoreDefinition(threadId: string) {
 			} finally {
 				if (request === latestRequest) isLoading.value = false;
 			}
+		}
+
+		function seed(leftThread: ILeftThread) {
+			seededThread.value = leftThread;
 		}
 
 		async function loadMore() {
@@ -108,6 +118,7 @@ function createStoreDefinition(threadId: string) {
 			isNotFound,
 			error,
 			hasMore,
+			seed,
 			load,
 			loadMore,
 		};
@@ -123,6 +134,14 @@ export function useClosedChatStore(threadId: string) {
 		storeDefinitions.set(threadId, useStore);
 	}
 	return useStore();
+}
+
+/**
+ * Hands the table's thread to the closed chat's store, so the card, which
+ * calls load() with no thread of its own, skips the lookup.
+ */
+export function seedClosedChat(thread: ILeftThread) {
+	useClosedChatStore(thread.id).seed(thread);
 }
 
 // $dispose() stops the scope but leaves state in pinia.state.value for setup
