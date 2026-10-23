@@ -308,18 +308,12 @@ export function callRingingFrame({
 	number = '380671234678',
 	queueName = 'Support',
 	hideNumber = false,
-	attemptId = 1,
-	payload = {},
 }: {
 	id?: string;
 	name?: string;
 	number?: string;
 	queueName?: string;
 	hideNumber?: boolean;
-	/** the queue attempt; a task distributed first under it becomes `call.task` */
-	attemptId?: number;
-	/** the call's variables, as the flow exported them */
-	payload?: Record<string, string>;
 } = {}) {
 	return {
 		call: {
@@ -337,7 +331,7 @@ export function callRingingFrame({
 					type: 'sip',
 				},
 				queue: {
-					attempt_id: attemptId,
+					attempt_id: 1,
 					member_id: '1',
 					queue_id: '1',
 					queue_name: queueName,
@@ -345,23 +339,9 @@ export function callRingingFrame({
 					reporting: '',
 				},
 				params: {},
-				payload,
+				payload: {},
 				hide_number: hideNumber,
 			},
-		},
-	};
-}
-
-/** An `active` frame: the call is answered, so it becomes an Active call. */
-export function callActiveFrame({ id = 'e2e-call-1' }: { id?: string } = {}) {
-	return {
-		call: {
-			id,
-			app_id: 'e2e',
-			cc_app_id: '',
-			event: 'active',
-			timestamp: Date.now(),
-			data: {},
 		},
 	};
 }
