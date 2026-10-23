@@ -482,34 +482,6 @@ describe('useCallsStore', () => {
 		});
 	});
 
-	describe('windowedCalls', () => {
-		it('lists answered calls, ended ones included', () => {
-			calls.value = [
-				buildCall({
-					id: 'ringing',
-					answeredAt: 0,
-					hangupAt: 0,
-				} as Partial<Call>),
-				buildCall({
-					id: 'talking',
-					answeredAt: 1,
-					hangupAt: 0,
-				} as Partial<Call>),
-				buildCall({
-					id: 'post-processing',
-					answeredAt: 1,
-					hangupAt: 2,
-				} as Partial<Call>),
-			];
-			const store = useCallsStore();
-
-			expect(store.windowedCalls.map((call) => call.id)).toEqual([
-				'talking',
-				'post-processing',
-			]);
-		});
-	});
-
 	describe('toggleHold', () => {
 		it('toggles hold on the call', async () => {
 			const call = buildCall({

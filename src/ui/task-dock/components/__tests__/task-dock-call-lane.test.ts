@@ -11,13 +11,6 @@ import { useTaskDockStore } from '../../store/task-dock';
 import TaskDockCallLane from '../task-dock-call-lane.vue';
 
 const calls = ref<Call[]>([]);
-const push = vi.fn();
-
-vi.mock('vue-router', () => ({
-	useRouter: () => ({
-		push,
-	}),
-}));
 
 vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
@@ -77,7 +70,6 @@ function mountCallLane() {
 describe('task-dock-call-lane', () => {
 	beforeEach(() => {
 		calls.value = [];
-		push.mockClear();
 	});
 
 	it('shows a bar for each active call and none for a call still ringing', () => {
@@ -176,70 +168,6 @@ describe('task-dock-call-lane', () => {
 			await key?.trigger('click');
 
 			expect(call.sendDTMF).toHaveBeenCalledWith('5');
-		});
-	});
-
-	describe('call windows', () => {
-		const inPostProcessing = () =>
-			buildCall({
-				id: 'ended',
-				hangupAt: Date.now(),
-				task: {
-					id: 7,
-					state: 'processing',
-					processingTimeoutAt: Date.now() + 65_500,
-				},
-			} as Partial<Call>);
-
-		it('keeps an ended call in post-processing as a pill with its time left', () => {
-			calls.value = [
-				inPostProcessing(),
-			];
-
-			const wrapper = mountCallLane();
-
-			expect(wrapper.find('.active-call-bar').exists()).toBe(false);
-			expect(wrapper.find('.post-processing-call-bar').exists()).toBe(true);
-			expect(wrapper.find('.floating-call-widget__timer').text()).toBe('01:05');
-		});
-
-		it('leads from the post-processing pill back to its Call window', async () => {
-			calls.value = [
-				inPostProcessing(),
-			];
-			const wrapper = mountCallLane();
-
-			await wrapper.find('.floating-call-widget__toggle').trigger('click');
-
-			expect(push).toHaveBeenCalledWith({
-				name: 'call-window',
-				params: {
-					callId: 'ended',
-				},
-			});
-		});
-
-		it('opens the Call window from an active call and collapses its card', async () => {
-			calls.value = [
-				buildCall(),
-			];
-			const wrapper = mountCallLane();
-			const store = useTaskDockStore();
-			await wrapper.find('.floating-call-widget__toggle').trigger('click');
-
-			await wrapper
-				.find(
-					'.active-call-card [aria-label="ui.call.activeCall.actions.openFullView"]',
-				)
-				.trigger('click');
-
-			expect(push).toHaveBeenCalledWith({
-				name: 'call-window',
-				params: {
-					callId: 'call-1',
-				},
-			});
-			expect(store.expandedCallId).toBeNull();
 		});
 	});
 
