@@ -12,7 +12,7 @@
 		/>
 
 		<span class="floating-call-widget__timer typo-body-1">
-			{{ timer.formatted.value }}
+			{{ timeLeft ?? timer.formatted.value }}
 		</span>
 
 		<wt-button
@@ -43,6 +43,8 @@ import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 
 const props = defineProps<{
 	preview: ActiveCallContent;
+	/** Replaces the call timer, e.g. with the time left of post-processing. */
+	timeLeft?: string;
 }>();
 
 const emit = defineEmits<{

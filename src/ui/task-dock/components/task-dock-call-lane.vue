@@ -3,11 +3,22 @@
         <the-numpad-panel />
 
         <div class="task-dock-call-lane__container">
-            <floating-call-widget
-                v-for="activeCall in activeCalls"
-                :key="activeCall.id"
-                :preview="activeCall.preview"
-            />
+            <template
+                v-for="windowedCall in windowedCalls"
+                :key="windowedCall.id"
+            >
+                <floating-call-widget
+                    v-if="windowedCall.isActive"
+                    :preview="windowedCall.preview"
+                    @open-full-view="openCallWindow(windowedCall.id)"
+                />
+                <post-processing-call-bar
+                    v-else-if="windowedCall.task"
+                    :preview="windowedCall.preview"
+                    :task="windowedCall.task"
+                    @open-full-view="openCallWindow(windowedCall.id)"
+                />
+            </template>
         </div>
     </div>
 </template>
@@ -17,20 +28,38 @@
     lang="ts"
 >
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+import { isActiveCall } from '../../../features/calls/scripts/isActiveCall';
 import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
 import FloatingCallWidget from '../../call/modules/call-dock/components/floating-call-widget.vue';
+import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 
+const router = useRouter();
 const callsStore = useCallsStore();
 
-const activeCalls = computed(() =>
-	callsStore.activeCalls.map((call) => ({
+// Every call with a Call window, so an agent who left one during post-processing
+// has a way back to it (AC_13.02.04). An ended call is still listed only while
+// its task is in post-processing.
+const windowedCalls = computed(() =>
+	callsStore.windowedCalls.map((call) => ({
 		id: call.id,
 		preview: toActiveCallContent(call),
+		isActive: isActiveCall(call),
+		task: call.task,
 	})),
 );
+
+function openCallWindow(callId: string) {
+	router.push({
+		name: 'call-window',
+		params: {
+			callId,
+		},
+	});
+}
 </script>
 
 <style scoped>
