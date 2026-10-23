@@ -13,7 +13,7 @@ export const useClosedChatsDataListStore = createTableStore(
 				closedChatsApiModule.getList({
 					...params,
 					userId: useUserinfoStore().userId,
-					listedThreadIds: useChatsStore().listedThreadIds,
+					taskThreadIds: useChatsStore().taskThreadIds,
 				}),
 		},
 		headers,

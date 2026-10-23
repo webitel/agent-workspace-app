@@ -49,17 +49,17 @@ const toClosedChatRow =
  * Adapts datalist table store params to ThreadManagement.SearchLeft, which
  * takes paging only: no search text, no sort.
  *
- * A thread the agent has rejoined is a listed chat again, so it is dropped
- * from the closed ones.
+ * A thread a task backs is an active chat (ADR-0009), offered or accepted, so
+ * it is dropped from the closed ones: the chat window treats it the same way.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
-	const { page, size, userId, listedThreadIds } = params;
+	const { page, size, userId, taskThreadIds } = params;
 
-	const rejoinedThreadIds = new Set(listedThreadIds as string[] | undefined);
+	const activeThreadIds = new Set(taskThreadIds as string[] | undefined);
 
 	const listResponseHandler = (items: WebitelImApiGatewayV1Thread[]) =>
 		items
-			.filter((thread) => !rejoinedThreadIds.has(thread.id ?? ''))
+			.filter((thread) => !activeThreadIds.has(thread.id ?? ''))
 			.map(toClosedChatRow(String(userId)));
 
 	try {

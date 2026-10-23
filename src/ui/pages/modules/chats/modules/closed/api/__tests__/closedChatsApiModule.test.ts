@@ -52,7 +52,7 @@ const respond = (data: Record<string, unknown>) =>
 const getList = (params: Record<string, unknown> = {}) =>
 	closedChatsApiModule.getList({
 		userId: USER_ID,
-		listedThreadIds: [],
+		taskThreadIds: [],
 		...params,
 	});
 
@@ -175,7 +175,7 @@ describe('closedChatsApiModule.getList', () => {
 		expect(items[0].thread.variables?.variables).toEqual(variables);
 	});
 
-	it('drops a thread the agent has rejoined', async () => {
+	it('drops a thread any task backs, an offered one included', async () => {
 		respond({
 			items: [
 				thread(),
@@ -186,7 +186,7 @@ describe('closedChatsApiModule.getList', () => {
 		});
 
 		const { items } = await getList({
-			listedThreadIds: [
+			taskThreadIds: [
 				'thread-1',
 			],
 		});
