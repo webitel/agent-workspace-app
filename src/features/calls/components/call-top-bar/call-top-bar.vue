@@ -21,7 +21,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
 import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
-import { toActiveCallPreview } from '../../scripts/toActiveCallPreview';
+import { toActiveCallContent } from '../../scripts/toActiveCallContent';
 
 const props = defineProps<{
 	call: Call;
@@ -31,5 +31,5 @@ const { t } = useI18n();
 
 // Same identity as the dock's pill, masking included; the bar leads with the
 // number (AC_13.01.01).
-const preview = computed(() => toActiveCallPreview(props.call));
+const preview = computed(() => toActiveCallContent(props.call));
 </script>
