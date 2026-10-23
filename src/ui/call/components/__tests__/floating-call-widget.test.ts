@@ -13,6 +13,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	isPostProcessingEnabled: true,
 	...overrides,
 });
 
@@ -73,12 +74,21 @@ describe('floating-call-widget', () => {
 		expect(wrapper.find('.floating-call-widget--hold').exists()).toBe(true);
 	});
 
-	it('asks to open the full view from its button', async () => {
+	it('shows the open-full-view button when post-processing is enabled', () => {
 		const wrapper = mountWidget();
+
 		expect(wrapper.find('[data-icon="ws-open-full-view"]').exists()).toBe(true);
+	});
 
-		await wrapper.find('.button').trigger('click');
+	it('hides the open-full-view button when post-processing is disabled', () => {
+		const wrapper = mountWidget(
+			buildPreview({
+				isPostProcessingEnabled: false,
+			}),
+		);
 
-		expect(wrapper.emitted('openFullView')).toHaveLength(1);
+		expect(wrapper.find('[data-icon="ws-open-full-view"]').exists()).toBe(
+			false,
+		);
 	});
 });

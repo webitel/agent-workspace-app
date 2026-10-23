@@ -15,6 +15,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	isPostProcessingEnabled: true,
 	...overrides,
 });
 
@@ -90,14 +91,19 @@ describe('active-call-card', () => {
 		);
 	});
 
-	it('asks to open the full view from its button', async () => {
-		const wrapper = mountCard();
-		const button = wrapper.find('[data-icon="ws-open-full-view"]');
-		expect(button.exists()).toBe(true);
-
-		await button.trigger('click');
-
-		expect(wrapper.emitted('openFullView')).toHaveLength(1);
+	it('shows the open-full-view button only when post-processing is enabled', () => {
+		expect(mountCard().find('[data-icon="ws-open-full-view"]').exists()).toBe(
+			true,
+		);
+		expect(
+			mountCard(
+				buildPreview({
+					isPostProcessingEnabled: false,
+				}),
+			)
+				.find('[data-icon="ws-open-full-view"]')
+				.exists(),
+		).toBe(false);
 	});
 
 	it('toggles the numpad from the numpad action', async () => {

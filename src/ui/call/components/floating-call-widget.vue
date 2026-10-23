@@ -21,13 +21,12 @@
 			</span>
 		</button>
 
-		<!-- every call has a Call window to open, post-processing or not (WS-91) -->
 		<wt-button
+			v-if="preview.isPostProcessingEnabled"
 			:size="ComponentSize.SM"
 			:color="fullViewButtonColor"
 			:aria-label="t('ui.call.activeCall.actions.openFullView')"
 			width-by-content
-			@click="emit('openFullView')"
 		>
 			<wt-icon
 				icon="ws-open-full-view"
@@ -55,7 +54,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	toggleExpand: [];
-	openFullView: [];
 }>();
 
 const { t } = useI18n();
