@@ -10,10 +10,6 @@
 				color="success"
 				icon="ws-chat-clock"
 			/>
-			<wt-avatar
-				:username="header.name"
-				size="sm"
-			/>
 		</template>
 
 		<template #status>
