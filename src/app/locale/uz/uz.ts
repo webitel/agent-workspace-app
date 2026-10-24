@@ -116,8 +116,6 @@ export default {
 					numpad: 'Klaviatura',
 					mute: 'Mikrofonni oʻchirish',
 					hold: 'Kutishga qoʻyish',
-					camera: 'Kamera',
-					message: 'Xabar',
 					transfer: 'Yoʻnaltirish',
 					hangup: 'Qoʻngʻiroqni tugatish',
 					openFullView: 'Toʻliq koʻrinishni ochish',
