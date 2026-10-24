@@ -30,6 +30,7 @@ import ChatsPanelWrapper from './components/chats-panel-wrapper.vue';
 import { ChatsPageTab } from './enums/ChatsPageTab.enum';
 import ChatsActiveTable from './modules/active/active-chats-table.vue';
 import { useActiveChatsDataListStore } from './modules/active/store/active-chats';
+import ChatsClosedTable from './modules/closed/closed-chats-table.vue';
 
 type ChatsPageStore = ReturnType<typeof useActiveChatsDataListStore>;
 
@@ -44,6 +45,13 @@ const tabs = computed<PageTab<ChatsPageStore>[]>(() => [
 		pathName: ChatsPageTab.Active,
 		component: ChatsActiveTable,
 		store: useActiveChatsDataListStore(),
+	},
+	// no store: the closed chats list is not searchable, so there is no action panel
+	{
+		text: t('ui.pages.chats.pageTabs.closed'),
+		value: ChatsPageTab.Closed,
+		pathName: ChatsPageTab.Closed,
+		component: ChatsClosedTable,
 	},
 ]);
 

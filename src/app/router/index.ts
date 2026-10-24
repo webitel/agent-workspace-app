@@ -58,6 +58,11 @@ const routes: RouteRecordRaw[] = [
 								name: ChatsPageTab.Active,
 								component: NoopRouteComponent,
 							},
+							{
+								path: 'closed',
+								name: ChatsPageTab.Closed,
+								component: NoopRouteComponent,
+							},
 						],
 					},
 					{
