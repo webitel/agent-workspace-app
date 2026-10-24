@@ -91,6 +91,10 @@ export default {
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 				},
+				closed: {
+					notFound: 'Чат не знайдено',
+					loadError: 'Не вдалося завантажити чат',
+				},
 			},
 			history: {
 				tabs: {
