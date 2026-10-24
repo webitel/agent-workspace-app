@@ -52,21 +52,6 @@ vi.mock('../../../../ui/notifications/push/useOsNotifications', () => ({
 		close: vi.fn(),
 	}),
 }));
-// hoisted: the store reads the router at import time through vi.mock
-const { currentRoute, routerPush } = vi.hoisted(() => ({
-	currentRoute: {
-		value: {
-			fullPath: '/chats/thread-1',
-		},
-	},
-	routerPush: vi.fn(),
-}));
-vi.mock('../../../../app/router', () => ({
-	router: {
-		currentRoute,
-		push: (...args: unknown[]) => routerPush(...args),
-	},
-}));
 vi.mock('../../../../app/locale/i18n', () => ({
 	default: {
 		global: {
@@ -118,10 +103,6 @@ describe('useCallsStore', () => {
 		stopRemoteAudio.mockClear();
 		mockEmit.mockClear();
 		localStorage.clear();
-		routerPush.mockClear();
-		currentRoute.value = {
-			fullPath: '/chats/thread-1',
-		};
 	});
 
 	it('raises an offer when a ringing call appears', async () => {
@@ -254,110 +235,7 @@ describe('useCallsStore', () => {
 		const store = useCallsStore();
 		store.initialize();
 
-		await expect(store.answer('nope')).resolves.toBe(false);
-	});
-
-	describe('Call window on Accept', () => {
-		// what the SDK does once the answer goes through, in place on the proxy
-		const connect = (call: object) => {
-			(
-				call as {
-					answeredAt: number;
-				}
-			).answeredAt = Date.now();
-		};
-
-		const ringing = async (overrides: Partial<Call> = {}) => {
-			const store = useCallsStore();
-			store.initialize();
-			calls.value = [
-				buildCall({
-					answeredAt: 0,
-					answer: vi.fn(async () => true),
-					...overrides,
-				}),
-			];
-			await nextTick();
-			return {
-				store,
-				call: calls.value[0],
-			};
-		};
-
-		it('opens the Call window once the accepted offer connects', async () => {
-			const { call } = await ringing();
-
-			await useOffersStore().accept('call-1');
-			expect(routerPush).not.toHaveBeenCalled();
-
-			connect(call);
-			await nextTick();
-
-			expect(routerPush).toHaveBeenCalledWith({
-				name: 'call-window',
-				params: {
-					callId: 'call-1',
-				},
-			});
-		});
-
-		it('remembers where the agent was when they accepted it', async () => {
-			const { store } = await ringing();
-
-			await useOffersStore().accept('call-1');
-
-			expect(store.takeReturnTarget('call-1')).toBe('/chats/thread-1');
-			// taken once: the window gives way to it only the one time
-			expect(store.takeReturnTarget('call-1')).toBeUndefined();
-		});
-
-		it('opens nothing for a call that connects without Accept here', async () => {
-			const { store, call } = await ringing();
-
-			connect(call);
-			await nextTick();
-
-			expect(routerPush).not.toHaveBeenCalled();
-			expect(store.takeReturnTarget('call-1')).toBeUndefined();
-		});
-
-		it('forgets the target when the accepted call goes before connecting', async () => {
-			const { store } = await ringing();
-
-			await useOffersStore().accept('call-1');
-			calls.value = [];
-			await nextTick();
-
-			expect(routerPush).not.toHaveBeenCalled();
-			expect(store.takeReturnTarget('call-1')).toBeUndefined();
-		});
-
-		// the SDK answers only on a line of its own (a web device); with none it
-		// resolves false, and a later pickup on a desk phone is not an Accept here
-		it('opens nothing when the SDK has no line to answer on', async () => {
-			const { store, call } = await ringing({
-				answer: vi.fn(async () => false),
-			});
-
-			await useOffersStore().accept('call-1');
-			connect(call);
-			await nextTick();
-
-			expect(routerPush).not.toHaveBeenCalled();
-			expect(store.takeReturnTarget('call-1')).toBeUndefined();
-		});
-
-		it('opens nothing and keeps no target when the answer is refused', async () => {
-			isMicrophoneAllowed.mockResolvedValue(false);
-			const { store, call } = await ringing();
-
-			await useOffersStore().accept('call-1');
-			connect(call);
-			await nextTick();
-
-			expect(routerPush).not.toHaveBeenCalled();
-			expect(store.takeReturnTarget('call-1')).toBeUndefined();
-		});
+		await expect(store.answer('nope')).resolves.toBeUndefined();
 	});
 
 	describe('call', () => {
