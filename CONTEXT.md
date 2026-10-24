@@ -11,7 +11,6 @@ and should not be carried over wholesale.
 ## Architecture decisions
 
 `docs/adr/` — read the ones touching the area you are about to work in.
-
 - [ADR-0001](docs/adr/0001-incoming-interaction-offers.md) — incoming call and
   chat offers: the notifications module boundary, the channel-neutral preview
   contract, offers derived from the SDK feeds, and why a field is left absent
@@ -116,6 +115,19 @@ post-processing configured). A Call window is not an Active call: once the call
 has hung up it is still a Call window, but no longer an Active call.
 There is one per call, not per task: a call with no task (a manual dial, an
 internal call) still has a Call window, just never a Post-processing phase.
+
+It opens by itself only when the agent accepts an inbound **Offer** in this tab.
+An outbound call the callee answers, a call picked up on a desk phone or in
+another tab, and a call already connected when the page loads do not pull the
+agent anywhere; they reach the window from the call dock.
+
+**Return target** — where the agent was when they accepted the call: the screen
+a Call window that opened by itself gives way to when it closes (task released,
+or hangup for a call with no task). The agent is taken back only if they are
+still on that Call window at that moment;
+having left it, they stay where they are. A return target that no longer exists
+(a chat since closed, a call since released) is not followed further back — the
+agent lands on that section's list instead.
 
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
