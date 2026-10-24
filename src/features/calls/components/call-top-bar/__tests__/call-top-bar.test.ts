@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 import type { Call } from 'webitel-sdk';
 
-vi.mock('vue-i18n', () => ({
+// the processing composables load ui-sdk, which builds its own i18n instance
+vi.mock('vue-i18n', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	useI18n: () => ({
 		t: (key: string) => key,
 	}),
