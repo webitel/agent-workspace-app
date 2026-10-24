@@ -7,11 +7,11 @@ import { useChatsStore } from '../store/chats';
  * task in the feed backs the thread, `closed` once none does, and `pending`
  * until the feed is ready to tell the two apart.
  */
-export type ChatWindowMode = 'pending' | 'active' | 'closed';
+export type ChatWindowKind = 'pending' | 'active' | 'closed';
 
 export function useChatWindowMode(
 	threadId: Ref<string>,
-): ComputedRef<ChatWindowMode> {
+): ComputedRef<ChatWindowKind> {
 	const chatsStore = useChatsStore();
 
 	// the feed alone decides: a thread the agent left once and then rejoined is

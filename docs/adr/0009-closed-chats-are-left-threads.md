@@ -35,7 +35,9 @@ active chat only and is dropped from the Closed list.
 
 **The chat window serves both, on the same `/chats/:threadId`.** A thread with no
 task in the feed is shown as a Closed chat — but only after the feed's first
-load, so a deep-linked active chat never flashes as closed. A thread that is
+load, so a window already open in the app never flashes as closed. (A cold deep
+link is a different case: it is sent back to `/chats` and opens no window, see
+Consequences.) A thread that is
 neither active nor left shows "not found". When the agent leaves the thread with
 its window open, the window turns into the Closed chat card in place, and its
 history is read again from the left-threads endpoint.
@@ -80,11 +82,27 @@ says the task's are not available.
 ## Consequences
 
 - Until WS-96 adds an `ids` filter (or `GET /v1/threads/{id}` answers former
-  members), a deep link finds its thread by paging `/threads/left`. Opening from
-  the Closed tab hands the row's thread over and costs nothing.
+  members), a Closed chat opened without its thread in hand — the window turning
+  closed in place after the agent leaves — finds its thread by paging
+  `/threads/left`. Opening from the Closed tab hands the row's thread over and
+  costs nothing.
 - Messages the client wrote between two of the agent's periods, or after the
   last, are not part of the Closed chat. That is the backend's choice, and the
   card does not mark where one period ends.
 - Name and Source columns and the card's contact icon (Е7,
   [WS-88](https://webitel.atlassian.net/browse/WS-88)) are not linked to the
   contact mini-card here.
+- ADR-0007's "a deep-linked chat that was never listed lives as long as its
+  window" now applies to active chats only. A window over a thread with no task
+  keeps no chat session, and the Closed chat's store is dropped whenever its
+  thread has a task again.
+- "Feed ready" is taken to be the agent session being loaded, and that holds:
+  `agentSession()` in webitel-sdk requests the agent's active tasks before it
+  resolves, and `src/app/stores/workspace.ts` awaits it before
+  `useChatsStore().initialize()`, while `main.ts` awaits the workspace before the
+  app mounts. The feed is complete at startup, so `pending` is a guard users
+  rarely see. It does stay in place for a session that has no agent (the
+  workspace store only warns then), where the feed is never ready.
+- The chats workspace still sends a URL for a chat not opened this session back
+  to `/chats`, as it does for active chats, so a deep link or a refresh does not
+  reach a Closed chat card. The Closed tab opens its rows from inside the app.
