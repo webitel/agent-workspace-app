@@ -10,14 +10,13 @@ vi.mock('@webitel/api-services/gen-wire', () => ({
 
 import { closedChatsApiModule } from '../closedChatsApiModule';
 
-const USER_ID = 'agent';
-
 const member = (contact: Record<string, unknown>) => ({
 	contact,
 });
 
 const client = member({
 	sub: 'client',
+	iss: 'telegram',
 	name: 'John Doe',
 	username: 'john',
 });
@@ -29,11 +28,13 @@ const thread = (overrides: Record<string, unknown> = {}) => ({
 	members: [
 		member({
 			sub: 'bot',
+			iss: 'bot',
 			name: 'Bot',
 			is_bot: true,
 		}),
 		member({
-			sub: USER_ID,
+			sub: 'agent',
+			iss: 'webitel',
 			name: 'Agent',
 		}),
 		client,
@@ -51,7 +52,6 @@ const respond = (data: Record<string, unknown>) =>
 
 const getList = (params: Record<string, unknown> = {}) =>
 	closedChatsApiModule.getList({
-		userId: USER_ID,
 		taskThreadIds: [],
 		...params,
 	});

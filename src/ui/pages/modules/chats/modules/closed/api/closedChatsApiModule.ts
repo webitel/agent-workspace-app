@@ -32,18 +32,18 @@ export interface ClosedChatRow {
 	thread: ThreadModel;
 }
 
-const toClosedChatRow =
-	(userId: string) =>
-	(thread: WebitelImApiGatewayV1Thread): ClosedChatRow => {
-		const client = findClientContact(thread.members, userId);
+const toClosedChatRow = (
+	thread: WebitelImApiGatewayV1Thread,
+): ClosedChatRow => {
+	const client = findClientContact(thread.members);
 
-		return {
-			id: thread.id ?? '',
-			name: client?.name || client?.username || '',
-			username: client?.username ?? '',
-			thread: thread as ThreadModel,
-		};
+	return {
+		id: thread.id ?? '',
+		name: client?.name || client?.username || '',
+		username: client?.username ?? '',
+		thread: thread as ThreadModel,
 	};
+};
 
 /**
  * Adapts datalist table store params to ThreadManagement.SearchLeft, which
@@ -53,14 +53,14 @@ const toClosedChatRow =
  * it is dropped from the closed ones: the chat window treats it the same way.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
-	const { page, size, userId, taskThreadIds } = params;
+	const { page, size, taskThreadIds } = params;
 
 	const activeThreadIds = new Set(taskThreadIds as string[] | undefined);
 
 	const listResponseHandler = (items: WebitelImApiGatewayV1Thread[]) =>
 		items
 			.filter((thread) => !activeThreadIds.has(thread.id ?? ''))
-			.map(toClosedChatRow(String(userId)));
+			.map(toClosedChatRow);
 
 	try {
 		const response =
