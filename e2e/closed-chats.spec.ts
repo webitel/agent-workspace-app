@@ -15,8 +15,8 @@ const AGENT = {
 	contact: {
 		name: 'Alina Timoshenko',
 		type: 'webitel',
-		// the id `/userinfo` answers with (see `session`): the client is the member
-		// who is neither a bot nor this user
+		// the id `/userinfo` answers with (see `session`), so the agent's own
+		// messages read as outgoing; `iss: 'webitel'` keeps them from being the client
 		sub: '1',
 		iss: 'webitel',
 	},
