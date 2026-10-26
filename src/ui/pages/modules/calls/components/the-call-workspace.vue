@@ -10,7 +10,12 @@
 >
 import { WtLayout } from '@webitel/ui-sdk/components';
 import { watch } from 'vue';
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
+import {
+	onBeforeRouteLeave,
+	onBeforeRouteUpdate,
+	useRoute,
+	useRouter,
+} from 'vue-router';
 
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import TheCallWindow from './the-call-window.vue';
@@ -54,19 +59,12 @@ watch(
  * or on to another call; the target taken for that visit goes with it
  * [WS-105](https://webitel.atlassian.net/browse/WS-105)
  */
-watch(
-	() => route.params.callId as string,
-	(_callId, previousCallId) => {
-		if (previousCallId) {
-			callsStore.forgetReturnTargetOfUnansweredCall(previousCallId);
-		}
-	},
-);
+function forgetReturnTargetOfThisVisit() {
+	callsStore.forgetReturnTargetOfUnansweredCall(route.params.callId as string);
+}
 
-onBeforeRouteLeave(() => {
-	const callId = route.params.callId as string;
-	if (callId) callsStore.forgetReturnTargetOfUnansweredCall(callId);
-});
+onBeforeRouteUpdate(forgetReturnTargetOfThisVisit);
+onBeforeRouteLeave(forgetReturnTargetOfThisVisit);
 </script>
 
 <style scoped>
