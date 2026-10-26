@@ -1,6 +1,6 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, getCurrentScope, ref, watch } from 'vue';
 import {
 	type Call,
 	CallActions,
@@ -8,9 +8,11 @@ import {
 } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import i18n from '../../../app/locale/i18n';
+import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
+import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
@@ -28,12 +30,23 @@ import { toCallOfferContent } from '../scripts/toCallOfferContent';
  * notifications-module calls.
  */
 export const useCallsStore = defineStore('calls', () => {
+	// captured during setup so a watcher started from an action belongs to the
+	// store and stops with `$dispose()`
+	const storeScope = getCurrentScope();
+
 	const { getClient, calls } = useWebSocketClient();
 	const offersStore = useOffersStore();
 
 	const { playRemoteAudio, stopRemoteAudio } = useCallAudio();
 
 	const isOutboundCallRequestPending = ref(false);
+
+	const callIdsWithHoldRequestPending = new Set<string>();
+
+	// Return targets by call id: where the agent was when they accepted each
+	// call here. Not reactive — only the call's workspace reads one, once, when
+	// the window closes.
+	const returnTargets = new Map<string, string>();
 
 	const callList = computed<Call[]>(() => calls.value ?? []);
 
@@ -42,6 +55,9 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	// Active calls plus the ended ones still in post-processing (WS-91).
+	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
 
 	const isCallInProgress = computed(() => callList.value.some(isCallAudible));
 
@@ -52,25 +68,103 @@ export const useCallsStore = defineStore('calls', () => {
 		return callList.value.find((call) => call.id === callId);
 	}
 
-	async function answer(callId: string) {
+	/**
+	 * Resolves `false` when nothing was answered: the call is gone, the mic is
+	 * blocked, or the SDK has no line of its own to answer on (no web device).
+	 */
+	async function answer(callId: string): Promise<boolean> {
 		const call = getCallById(callId);
-		if (!call?.allowAnswer) return;
+		if (!call?.allowAnswer) return false;
 
-		if (!(await ensureMicrophoneAllowed())) return;
+		if (!(await ensureMicrophoneAllowed())) return false;
 
-		await call.answer({
+		await holdOtherLiveCalls(callId);
+		return call.answer({
 			audio: true,
 			disableStun: !getStunEnabled(),
 		});
 	}
 
-	async function holdActiveCall() {
-		const activeCall = callList.value.find(
-			(existingCall) => existingCall.active && !existingCall.isHold,
-		);
-		if (!activeCall?.allowHold) return;
+	/**
+	 * Accepting an inbound offer here is the one thing that takes the agent to
+	 * the call's window by itself; a call connected any other way waits in the
+	 * dock (WS-87). Where they were is kept as the call's Return target.
+	 */
+	async function acceptOffer(callId: string) {
+		// a target is only ever taken while its window is open, so one whose call
+		// has gone is never going to be
+		for (const id of returnTargets.keys()) {
+			if (!getCallById(id)) returnTargets.delete(id);
+		}
 
-		await activeCall.hold();
+		returnTargets.set(callId, router.currentRoute.value.fullPath);
+		if (!(await answer(callId))) {
+			returnTargets.delete(callId);
+			return;
+		}
+		openWindowOnceConnected(callId);
+	}
+
+	function openWindowOnceConnected(callId: string) {
+		const phase = () => {
+			const call = getCallById(callId);
+			if (!call) return 'gone';
+			return hasCallWindow(call) ? 'connected' : 'ringing';
+		};
+
+		const settle = (value: ReturnType<typeof phase>) => {
+			if (value === 'ringing') return false;
+			if (value === 'connected') {
+				router.push({
+					name: 'call-window',
+					params: {
+						callId,
+					},
+				});
+			} else {
+				returnTargets.delete(callId);
+			}
+			return true;
+		};
+
+		if (settle(phase())) return;
+		const register = () =>
+			watch(phase, (value) => {
+				if (settle(value)) stop?.();
+			});
+		const stop = storeScope ? storeScope.run(register) : register();
+	}
+
+	function takeReturnTarget(callId: string): string | undefined {
+		const target = returnTargets.get(callId);
+		returnTargets.delete(callId);
+		return target;
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the agent talks on one call at a time and the rest wait on hold, as in
+	 * cc-workspaces (HOLD_OTHER_CALLS); the SDK does not hold the others when a
+	 * call goes live, so every action that makes a call live does it here.
+	 * A call that refuses to hold must not block that action: the agent can
+	 * still put it on hold by hand, but a call left unanswered is lost
+	 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+	 */
+	async function holdOtherLiveCalls(exceptCallId?: string) {
+		const liveCalls = callList.value.filter(
+			(existingCall) =>
+				existingCall.id !== exceptCallId &&
+				existingCall.active &&
+				!existingCall.isHold &&
+				existingCall.allowHold,
+		);
+
+		try {
+			await Promise.all(liveCalls.map((liveCall) => liveCall.hold()));
+		} catch (err) {
+			console.warn('[calls] holding the other calls failed', err);
+			notifyCallError('holdToggleFailed');
+		}
 	}
 
 	async function call({
@@ -91,7 +185,7 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			if (!(await ensureMicrophoneAllowed())) return false;
 
-			await holdActiveCall();
+			await holdOtherLiveCalls();
 			await getClient().call({
 				destination,
 				params: {
@@ -133,6 +227,50 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	async function toggleHold(callId: string) {
+		const call = getCallById(callId);
+		/**
+		 * @author Oleksandr Palonnyi
+		 * the SDK splits the permission: `allowHold` is false once the call is on
+		 * hold, and releasing it is gated by `allowUnHold`, so checking only
+		 * `allowHold` made a held call impossible to resume
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (!call?.allowHold && !call?.allowUnHold) return;
+
+		/**
+		 * @author Oleksandr Palonnyi
+		 * `allowHold` / `allowUnHold` only flip once the SDK has applied the
+		 * toggle, so a second click while the first request is in flight passes
+		 * the check above and would flip the call back or raise a false error
+		 * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+		 */
+		if (callIdsWithHoldRequestPending.has(callId)) return;
+
+		callIdsWithHoldRequestPending.add(callId);
+		try {
+			if (call.isHold) await holdOtherLiveCalls(callId);
+			await call.toggleHold();
+		} catch (err) {
+			console.warn('[calls] hold toggle failed', err);
+			notifyCallError('holdToggleFailed');
+		} finally {
+			callIdsWithHoldRequestPending.delete(callId);
+		}
+	}
+
+	async function sendDtmf(callId: string, digit: string) {
+		const call = getCallById(callId);
+		if (!call?.allowDtmf) return;
+
+		try {
+			await call.sendDTMF(digit);
+		} catch (err) {
+			console.warn('[calls] dtmf failed', err);
+			notifyCallError('dtmfFailed');
+		}
+	}
+
 	/**
 	 * Diffing by id, not by array identity: the SDK mutates `Call` objects in
 	 * place, so unrelated field changes re-run this watcher with the same
@@ -152,7 +290,7 @@ export const useCallsStore = defineStore('calls', () => {
 						id: call.id,
 						// a getter, so the card tracks the live call instead of a snapshot
 						content: () => toCallOfferContent(call),
-						onAccept: () => answer(call.id),
+						onAccept: () => acceptOffer(call.id),
 						onDecline: () => hangup(call.id),
 					});
 				}
@@ -203,16 +341,28 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
 
 		initialize,
+		getCallById,
 		call,
 		answer,
+		takeReturnTarget,
 		toggleMute,
+		toggleHold,
+		sendDtmf,
 		hangup,
 	};
 });
+
+function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
+	eventBus.$emit('notification', {
+		type: 'error',
+		text: i18n.global.t(`error.calls.${errorKey}`),
+	});
+}
 
 async function ensureMicrophoneAllowed(): Promise<boolean> {
 	if (await isMicrophoneAllowed()) return true;

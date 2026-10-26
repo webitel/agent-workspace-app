@@ -661,7 +661,7 @@ describe('chats store', () => {
 		});
 
 		// the task was released with the window open: the window shows the
-		// closed chat now, which keeps no session (ADR-0009)
+		// closed chat now, which keeps no session (ADR-0010)
 		it('releases the session of a chat whose task leaves while its window is open', async () => {
 			agent.value = {};
 			tasks.value = [
