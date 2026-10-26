@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 
+import { ContactsPageTab } from '../../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../../pages/modules/history/enums/HistoryPageTab.enum';
+import ContactsSidebarPanel from '../../modules/contacts/contacts-sidebar-panel.vue';
 import HistorySidebarPanel from '../../modules/history/history-sidebar-panel.vue';
 import { useSidebarContent } from '../useSidebarContent';
 
@@ -22,6 +24,15 @@ describe('useSidebarContent', () => {
 
 		expect(content.value).toEqual({
 			component: HistorySidebarPanel,
+		});
+	});
+
+	it('returns the contacts panel for the Contacts tab', () => {
+		routeName.value = ContactsPageTab.Contacts;
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: ContactsSidebarPanel,
 		});
 	});
 
