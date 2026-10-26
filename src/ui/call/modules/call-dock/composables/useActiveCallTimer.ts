@@ -1,7 +1,7 @@
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 
-import { useElapsedSec } from '../../composables/useElapsedSec';
+import { useElapsedSec } from '../../../../composables/useElapsedSec';
 
 /**
  * @author Oleksandr Palonnyi

@@ -66,6 +66,7 @@ describe('closed-chat-top-bar', () => {
 		const wrapper = mountBar();
 
 		expect(wrapper.find('.icon').attributes('data-icon')).toBe('lock');
+		expect(wrapper.find('.avatar').text()).toBe('client_username');
 		expect(wrapper.text()).toContain('client_username');
 	});
 

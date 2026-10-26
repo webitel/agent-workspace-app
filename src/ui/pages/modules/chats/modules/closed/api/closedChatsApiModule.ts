@@ -49,7 +49,7 @@ const toClosedChatRow =
  * Adapts datalist table store params to ThreadManagement.SearchLeft, which
  * takes paging only: no search text, no sort.
  *
- * A thread a task backs is an active chat (ADR-0009), offered or accepted, so
+ * A thread a task backs is an active chat (ADR-0010), offered or accepted, so
  * it is dropped from the closed ones: the chat window treats it the same way.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
