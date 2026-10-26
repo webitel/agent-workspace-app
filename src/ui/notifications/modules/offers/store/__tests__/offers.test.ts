@@ -113,6 +113,15 @@ describe('useOffersStore', () => {
 		});
 	});
 
+	it('tells whether an interaction is currently offered', () => {
+		const store = useOffersStore();
+
+		store.notify(buildOffer());
+
+		expect(store.hasOffer('call-1')).toBe(true);
+		expect(store.hasOffer('call-2')).toBe(false);
+	});
+
 	it('ignores a repeat offer for the same interaction', () => {
 		const store = useOffersStore();
 

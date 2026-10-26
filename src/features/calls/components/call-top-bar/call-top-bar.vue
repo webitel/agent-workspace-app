@@ -57,7 +57,6 @@ import { useOffersStore } from '../../../../ui/notifications/modules/offers/stor
 import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
 import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
-import { hasCallWindow } from '../../scripts/hasCallWindow';
 import { isActiveCall } from '../../scripts/isActiveCall';
 import { toActiveCallContent } from '../../scripts/toActiveCallContent';
 import CallTopBarActions from './call-top-bar-actions.vue';
@@ -82,12 +81,13 @@ const copyableNumber = computed(() =>
 
 /**
  * @author Oleksandr Palonnyi
- * a call nobody has answered yet is the offer being looked at before it is accepted (US_13.08),
- * and accept / decline go through the offers store like the offer card's buttons,
- * so both share one in-flight lock
+ * a call is the offer being looked at before it is accepted (US_13.08) only while
+ * the offers store holds it: an unanswered call without an offer, such as an outbound
+ * attempt, has no Accept / Decline to act on. Both buttons go through the offers store
+ * like the offer card's, so they share one in-flight lock
  * [WS-105](https://webitel.atlassian.net/browse/WS-105)
  */
-const isOffered = computed(() => !hasCallWindow(props.call));
+const isOffered = computed(() => offersStore.hasOffer(props.call.id));
 
 // The bar's other two states follow the call, not the task: a form can land mid-call
 // without the call's actions going anywhere, and once hung up there is nothing

@@ -1,7 +1,7 @@
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 // the processing composables load ui-sdk, which builds its own i18n instance
@@ -28,6 +28,7 @@ vi.mock('../../../../../app/locale/i18n', () => ({
 }));
 
 import { useOffersStore } from '../../../../../ui/notifications/modules/offers/store/offers';
+import type { Offer } from '../../../../../ui/notifications/modules/offers/types/Offer.types';
 import CallTopBar from '../call-top-bar.vue';
 
 let nextTaskId = 1;
@@ -199,22 +200,39 @@ describe('call-top-bar', () => {
 		expect(bar.find('.timer-stub').exists()).toBe(true);
 	});
 
-	describe('before the call is answered (AC_13.08.01)', () => {
+	describe('while the call is offered (AC_13.08.01)', () => {
 		const buildOffered = () =>
 			buildCall({
 				answeredAt: 0,
 			});
 
-		it('offers accept and decline instead of the call actions', () => {
-			const bar = mountBar(buildOffered());
+		const mountOfferedBar = async (call: Call = buildOffered()) => {
+			const bar = mountBar(call);
+			useOffersStore().offers = [
+				{
+					id: call.id,
+				} as Offer,
+			];
+			await nextTick();
+			return bar;
+		};
+
+		it('offers accept and decline instead of the call actions', async () => {
+			const bar = await mountOfferedBar();
 
 			expect(bar.find('.offer-actions-stub').exists()).toBe(true);
 			expect(bar.find('.actions-stub').exists()).toBe(false);
 			expect(bar.find('.timer-stub').exists()).toBe(false);
 		});
 
-		it('still leads with the number, its copy and the queue', () => {
+		it('offers nothing to act on for an unanswered call that is not an offer', () => {
 			const bar = mountBar(buildOffered());
+
+			expect(bar.find('.offer-actions-stub').exists()).toBe(false);
+		});
+
+		it('still leads with the number, its copy and the queue', async () => {
+			const bar = await mountOfferedBar();
 
 			expect(bar.text()).toContain('+12023417842');
 			expect(bar.text()).toContain('Sales');
@@ -224,7 +242,7 @@ describe('call-top-bar', () => {
 		});
 
 		it('accepts the offer (AC_13.08.03)', async () => {
-			const bar = mountBar(buildOffered());
+			const bar = await mountOfferedBar();
 			const offers = useOffersStore();
 			const accept = vi.spyOn(offers, 'accept').mockResolvedValue(undefined);
 
@@ -234,7 +252,7 @@ describe('call-top-bar', () => {
 		});
 
 		it('declines the offer (AC_13.08.04)', async () => {
-			const bar = mountBar(buildOffered());
+			const bar = await mountOfferedBar();
 			const offers = useOffersStore();
 			const decline = vi.spyOn(offers, 'decline').mockResolvedValue(undefined);
 

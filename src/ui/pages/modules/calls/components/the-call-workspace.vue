@@ -10,7 +10,7 @@
 >
 import { WtLayout } from '@webitel/ui-sdk/components';
 import { watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import TheCallWindow from './the-call-window.vue';
@@ -47,6 +47,26 @@ watch(
 		immediate: true,
 	},
 );
+
+/**
+ * @author Oleksandr Palonnyi
+ * the window of an offer the agent opened to look at is left by navigating away
+ * or on to another call; the target taken for that visit goes with it
+ * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+ */
+watch(
+	() => route.params.callId as string,
+	(_callId, previousCallId) => {
+		if (previousCallId) {
+			callsStore.forgetReturnTargetOfUnansweredCall(previousCallId);
+		}
+	},
+);
+
+onBeforeRouteLeave(() => {
+	const callId = route.params.callId as string;
+	if (callId) callsStore.forgetReturnTargetOfUnansweredCall(callId);
+});
 </script>
 
 <style scoped>

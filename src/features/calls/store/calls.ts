@@ -128,15 +128,33 @@ export const useCallsStore = defineStore('calls', () => {
 	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
 	 */
 	function rememberReturnTarget(callId: string) {
+		forgetReturnTargetsOfGoneCalls();
+
+		if (isOnCallWindow(callId)) return;
+
+		returnTargets.set(callId, router.currentRoute.value.fullPath);
+	}
+
+	function forgetReturnTargetsOfGoneCalls() {
 		// a target is only ever taken while its window is open, so one whose call
 		// has gone is never going to be
 		for (const id of returnTargets.keys()) {
 			if (!getCallById(id)) returnTargets.delete(id);
 		}
+	}
 
-		if (isOnCallWindow(callId)) return;
+	/**
+	 * @author Oleksandr Palonnyi
+	 * a target taken by opening the offer's window belongs to that visit: left in
+	 * place after the agent walks away, a pickup elsewhere (desk phone, another tab)
+	 * would later close the call's window onto a screen they were on long ago.
+	 * A connected call keeps its target, it is the one the window gives way to
+	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+	 */
+	function forgetReturnTargetOfUnansweredCall(callId: string) {
+		if (hasCallWindow(getCallById(callId))) return;
 
-		returnTargets.set(callId, router.currentRoute.value.fullPath);
+		returnTargets.delete(callId);
 	}
 
 	function openWindowOnceConnected(callId: string) {
@@ -392,6 +410,7 @@ export const useCallsStore = defineStore('calls', () => {
 		call,
 		answer,
 		takeReturnTarget,
+		forgetReturnTargetOfUnansweredCall,
 		toggleMute,
 		toggleHold,
 		sendDtmf,

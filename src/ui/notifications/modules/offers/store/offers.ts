@@ -66,6 +66,10 @@ export const useOffersStore = defineStore('offers', () => {
 		return offers.value.find((offer) => offer.id === id);
 	}
 
+	function hasOffer(id: string): boolean {
+		return Boolean(find(id));
+	}
+
 	function kindOf(offer: Offer): OfferKind {
 		return toValue(offer.content).kind;
 	}
@@ -228,6 +232,7 @@ export const useOffersStore = defineStore('offers', () => {
 		dismiss,
 		retainOnly,
 		pendingAction,
+		hasOffer,
 		accept,
 		decline,
 		openBody,

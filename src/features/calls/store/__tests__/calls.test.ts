@@ -451,6 +451,25 @@ describe('useCallsStore', () => {
 				expect(store.takeReturnTarget('call-1')).toBe('/chats/thread-1');
 			});
 
+			it('forgets that target once the agent leaves an unanswered call', async () => {
+				const { store } = await ringing();
+				useOffersStore().openBody('call-1');
+
+				store.forgetReturnTargetOfUnansweredCall('call-1');
+
+				expect(store.takeReturnTarget('call-1')).toBeUndefined();
+			});
+
+			it('keeps the target of a connected call when the agent leaves its window', async () => {
+				const { store, call } = await ringing();
+				useOffersStore().openBody('call-1');
+				connect(call);
+
+				store.forgetReturnTargetOfUnansweredCall('call-1');
+
+				expect(store.takeReturnTarget('call-1')).toBe('/chats/thread-1');
+			});
+
 			it('keeps the target when accepting from its own window is refused', async () => {
 				isMicrophoneAllowed.mockResolvedValue(false);
 				const { store } = await ringing();
