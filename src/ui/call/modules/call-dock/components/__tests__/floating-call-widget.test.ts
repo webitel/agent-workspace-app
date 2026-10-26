@@ -1,21 +1,23 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import type { ActiveCallPreview } from '../../types/ActiveCallPreview.types';
+import type { ActiveCallContent } from '../../types/ActiveCallContent.types';
 import FloatingCallWidget from '../floating-call-widget.vue';
 
 const buildPreview = (
-	overrides: Partial<ActiveCallPreview> = {},
-): ActiveCallPreview => ({
+	overrides: Partial<ActiveCallContent> = {},
+): ActiveCallContent => ({
 	name: 'Emily Johnson',
 	number: '+12023417842',
 	queueName: 'Sales',
 	answeredAt: Date.now(),
 	isHold: false,
+	isMuted: false,
+	dtmfDigits: '',
 	...overrides,
 });
 
-const mountBar = (preview: ActiveCallPreview = buildPreview()) =>
+const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	mount(FloatingCallWidget, {
 		props: {
 			preview,
@@ -43,6 +45,32 @@ describe('floating-call-widget', () => {
 		expect(wrapper.find('.floating-call-widget__timer').text()).toMatch(
 			/^\d{2}:\d{2}:\d{2}$/,
 		);
+	});
+
+	it('shows the time left in place of the call timer when it is given', () => {
+		const wrapper = mount(FloatingCallWidget, {
+			props: {
+				preview: buildPreview(),
+				timeLeft: '01:05',
+			},
+			global: {
+				stubs: {
+					'wt-avatar': true,
+					'wt-button': true,
+					'wt-icon': true,
+				},
+			},
+		});
+
+		expect(wrapper.find('.floating-call-widget__timer').text()).toBe('01:05');
+	});
+
+	it('emits openFullView from its button', async () => {
+		const wrapper = mountBar();
+
+		await wrapper.find('.button').trigger('click');
+
+		expect(wrapper.emitted('openFullView')).toHaveLength(1);
 	});
 
 	it('is not marked as on hold while the call is live', () => {

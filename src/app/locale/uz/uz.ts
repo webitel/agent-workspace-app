@@ -67,6 +67,12 @@ export default {
 				pageTabs: {
 					missed: 'Oʼtkazib yuborilgan',
 				},
+				tabs: {
+					info: "Ma'lumot",
+					postProcessing: 'Keyingi ishlov',
+					interaction: "O'zaro aloqa",
+					contact: 'Kontakt',
+				},
 			},
 			chats: {
 				pageTabs: {
@@ -111,6 +117,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Suhbatda',
+				onHold: 'Kutishda',
+				actions: {
+					numpad: 'Klaviatura',
+					mute: 'Mikrofonni oʻchirish',
+					hold: 'Kutishga qoʻyish',
+					camera: 'Kamera',
+					message: 'Xabar',
+					transfer: 'Yoʻnaltirish',
+					hangup: 'Qoʻngʻiroqni tugatish',
+					openFullView: 'Toʻliq koʻrinishni ochish',
+				},
+			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',
 				noAnswer: 'Javob yoʻq',
@@ -123,6 +143,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Qoʻngʻiroq qilib boʻlmadi. Qaytadan urinib koʻring.',
+			holdToggleFailed:
+				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
+			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

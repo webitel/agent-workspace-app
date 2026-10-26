@@ -74,6 +74,12 @@ export default {
 				pageTabs: {
 					missed: 'Missed',
 				},
+				tabs: {
+					info: 'Info',
+					postProcessing: 'Post-processing',
+					interaction: 'Interaction',
+					contact: 'Contact',
+				},
 			},
 			chats: {
 				pageTabs: {
@@ -122,6 +128,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'In call',
+				onHold: 'On hold',
+				actions: {
+					numpad: 'Numpad',
+					mute: 'Mute',
+					hold: 'Hold',
+					camera: 'Camera',
+					message: 'Message',
+					transfer: 'Transfer',
+					hangup: 'End call',
+					openFullView: 'Open full view',
+				},
+			},
 			outboundCall: {
 				ringing: 'Ringing',
 				noAnswer: 'No answer',
@@ -135,6 +155,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'The call could not be placed. Please try again.',
+			holdToggleFailed:
+				'The call could not be put on hold or resumed. Please try again.',
+			dtmfFailed: 'The digit could not be sent. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

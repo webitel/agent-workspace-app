@@ -1,4 +1,4 @@
-# 9. Closed chats are the threads the agent has left
+# 10. Closed chats are the threads the agent has left
 
 Date: 2026-10-23
 
