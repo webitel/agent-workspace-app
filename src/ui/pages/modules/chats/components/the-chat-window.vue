@@ -119,7 +119,7 @@ const isLoaderShown = computed(
 		Boolean(closedChat.value?.isLoading && !closedChat.value.thread),
 );
 const emptyText = computed(() => {
-	// neither active nor left by the agent (ADR-0009)
+	// neither active nor left by the agent (ADR-0010)
 	if (closedChat.value?.isNotFound) return t('ui.pages.chats.closed.notFound');
 	if (closedChat.value?.error && !closedChat.value.thread)
 		return t('ui.pages.chats.closed.loadError');
@@ -157,7 +157,7 @@ const activeTab = ref<ChatWindowTab>(defaultTab());
 // whose content is not built yet. Only Post-processing comes and goes with the
 // form, and a form arriving mid-chat does not pull the agent away from the chat.
 // A closed chat always shows it, disabled, until the backend returns the
-// submitted forms (ADR-0009).
+// submitted forms (ADR-0010).
 const tabs = computed<ChatWindowTabItem[]>(() => [
 	{
 		value: 'chat',
