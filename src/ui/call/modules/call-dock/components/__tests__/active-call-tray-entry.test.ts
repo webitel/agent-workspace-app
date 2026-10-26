@@ -61,12 +61,28 @@ describe('active-call-tray-entry', () => {
 		expect(wrapper.find('.call-dock__status').text()).toContain(pillTime);
 	});
 
-	it('asks to expand when the pill is clicked', async () => {
+	it('asks to expand when the collapsed pill is clicked', async () => {
 		const wrapper = mountBar();
 
 		await wrapper.find('.floating-call-widget').trigger('click');
 
-		expect(wrapper.emitted('toggleExpand')).toHaveLength(1);
+		expect(wrapper.emitted('update:expanded')).toEqual([
+			[
+				true,
+			],
+		]);
+	});
+
+	it('asks to collapse when the expanded pill is clicked', async () => {
+		const wrapper = mountBar(true);
+
+		await wrapper.find('.floating-call-widget').trigger('click');
+
+		expect(wrapper.emitted('update:expanded')).toEqual([
+			[
+				false,
+			],
+		]);
 	});
 
 	it('passes on openFullView from the pill', async () => {
@@ -83,15 +99,19 @@ describe('active-call-tray-entry', () => {
 		document.body.click();
 		await wrapper.vm.$nextTick();
 
-		expect(wrapper.emitted('collapse')).toHaveLength(1);
+		expect(wrapper.emitted('update:expanded')).toEqual([
+			[
+				false,
+			],
+		]);
 	});
 
-	it('does not emit collapse on an outside click while collapsed', async () => {
+	it('emits nothing on an outside click while collapsed', async () => {
 		const wrapper = mountBar();
 
 		document.body.click();
 		await wrapper.vm.$nextTick();
 
-		expect(wrapper.emitted('collapse')).toBeUndefined();
+		expect(wrapper.emitted('update:expanded')).toBeUndefined();
 	});
 });

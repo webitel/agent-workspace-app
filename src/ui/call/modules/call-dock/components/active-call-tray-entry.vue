@@ -20,7 +20,7 @@
 		<floating-call-widget
 			:preview="preview"
 			:displayed-time="timer.formatted.value"
-			@toggle-expand="emit('toggleExpand')"
+			@toggle-expand="emit('update:expanded', !expanded)"
 			@open-full-view="emit('openFullView')"
 		/>
 	</div>
@@ -45,9 +45,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	toggleExpand: [];
+	'update:expanded': [
+		isExpanded: boolean,
+	];
 	openFullView: [];
-	collapse: [];
 	toggleMute: [];
 	toggleHold: [];
 	hangup: [];
@@ -65,7 +66,7 @@ const root = useTemplateRef<HTMLElement>('root');
  * [WS-23](https://webitel.atlassian.net/browse/WS-23)
  */
 onClickOutside(root, () => {
-	if (props.expanded) emit('collapse');
+	if (props.expanded) emit('update:expanded', false);
 });
 
 /**

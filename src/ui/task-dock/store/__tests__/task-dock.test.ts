@@ -13,30 +13,28 @@ describe('useTaskDockStore', () => {
 		);
 	});
 
-	it('expands a call on first toggle and collapses on second', () => {
+	it('expands a call', () => {
 		const store = useTaskDockStore();
 
-		store.toggleCallExpand('call-1');
-		expect(store.expandedCallId).toBe('call-1');
+		store.setCallExpanded('call-1', true);
 
-		store.toggleCallExpand('call-1');
-		expect(store.expandedCallId).toBeNull();
+		expect(store.expandedCallId).toBe('call-1');
 	});
 
 	it('collapses the expanded call', () => {
 		const store = useTaskDockStore();
-		store.toggleCallExpand('call-1');
+		store.setCallExpanded('call-1', true);
 
-		store.collapseCall('call-1');
+		store.setCallExpanded('call-1', false);
 
 		expect(store.expandedCallId).toBeNull();
 	});
 
 	it('keeps another call expanded when a different one is collapsed', () => {
 		const store = useTaskDockStore();
-		store.toggleCallExpand('call-2');
+		store.setCallExpanded('call-2', true);
 
-		store.collapseCall('call-1');
+		store.setCallExpanded('call-1', false);
 
 		expect(store.expandedCallId).toBe('call-2');
 	});
@@ -44,10 +42,19 @@ describe('useTaskDockStore', () => {
 	it('keeps only one call expanded at a time', () => {
 		const store = useTaskDockStore();
 
-		store.toggleCallExpand('call-1');
-		store.toggleCallExpand('call-2');
+		store.setCallExpanded('call-1', true);
+		store.setCallExpanded('call-2', true);
 
 		expect(store.expandedCallId).toBe('call-2');
+	});
+
+	it('stays expanded when the same call is expanded twice', () => {
+		const store = useTaskDockStore();
+
+		store.setCallExpanded('call-1', true);
+		store.setCallExpanded('call-1', true);
+
+		expect(store.expandedCallId).toBe('call-1');
 	});
 
 	it('expands a chat on first toggle and collapses on second', () => {
@@ -63,10 +70,10 @@ describe('useTaskDockStore', () => {
 	it('keeps call and chat expand state in separate lanes', () => {
 		const store = useTaskDockStore();
 
-		store.toggleCallExpand('call-1');
+		store.setCallExpanded('call-1', true);
 		store.toggleChatExpand('chat-1');
 
-		store.toggleCallExpand('call-1');
+		store.setCallExpanded('call-1', false);
 
 		expect(store.expandedCallId).toBeNull();
 		expect(store.expandedChatId).toBe('chat-1');

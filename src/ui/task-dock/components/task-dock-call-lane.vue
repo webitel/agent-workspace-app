@@ -11,9 +11,8 @@
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
                     :expanded="taskDockStore.expandedCallId === windowedCall.id"
-                    @toggle-expand="taskDockStore.toggleCallExpand(windowedCall.id)"
+                    @update:expanded="taskDockStore.setCallExpanded(windowedCall.id, $event)"
                     @open-full-view="openCallWindow(windowedCall.id)"
-                    @collapse="taskDockStore.collapseCall(windowedCall.id)"
                     @toggle-mute="callsStore.toggleMute(windowedCall.id)"
                     @toggle-hold="callsStore.toggleHold(windowedCall.id)"
                     @hangup="onHangup(windowedCall.id)"
@@ -62,7 +61,7 @@ const windowedCalls = computed(() =>
 );
 
 function onHangup(callId: string): void {
-	taskDockStore.collapseCall(callId);
+	taskDockStore.setCallExpanded(callId, false);
 	callsStore.hangup(callId);
 }
 
