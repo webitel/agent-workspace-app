@@ -5,7 +5,7 @@ import { expect, test } from './fixtures/test';
 /**
  * The chat list's Closed tab and the closed chat card it opens: threads the
  * agent has left, read from the chat backend's left-threads endpoints
- * (ADR-0009). The card is read-only and has no call-center task behind it.
+ * (ADR-0010). The card is read-only and has no call-center task behind it.
  */
 
 const THREAD_ID = 'e2e-left-thread';
