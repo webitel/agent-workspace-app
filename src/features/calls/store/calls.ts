@@ -91,9 +91,21 @@ export const useCallsStore = defineStore('calls', () => {
 	 * dock (WS-87). Where they were is kept as the call's Return target.
 	 */
 	async function acceptOffer(callId: string) {
+		/**
+		 * @author Oleksandr Palonnyi
+		 * accepting from the offer's own window leaves everything as it is: the
+		 * agent is already where the call opens, and the target taken when they
+		 * opened it stands. Taking one here would make that window its own target
+		 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+		 */
+		if (isOnCallWindow(callId)) {
+			await answer(callId);
+			return;
+		}
+
 		rememberReturnTarget(callId);
 		if (!(await answer(callId))) {
-			if (!isOnCallWindow(callId)) returnTargets.delete(callId);
+			returnTargets.delete(callId);
 			return;
 		}
 		openWindowOnceConnected(callId);
@@ -120,27 +132,14 @@ export const useCallsStore = defineStore('calls', () => {
 		});
 	}
 
-	/**
-	 * @author Oleksandr Palonnyi
-	 * accepting from the offer's own window must not make that window its Return
-	 * target, or closing the call would lead back to a window that is gone;
-	 * the target taken when the window was opened stands
-	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
-	 */
 	function rememberReturnTarget(callId: string) {
-		forgetReturnTargetsOfGoneCalls();
-
-		if (isOnCallWindow(callId)) return;
-
-		returnTargets.set(callId, router.currentRoute.value.fullPath);
-	}
-
-	function forgetReturnTargetsOfGoneCalls() {
 		// a target is only ever taken while its window is open, so one whose call
 		// has gone is never going to be
 		for (const id of returnTargets.keys()) {
 			if (!getCallById(id)) returnTargets.delete(id);
 		}
+
+		returnTargets.set(callId, router.currentRoute.value.fullPath);
 	}
 
 	/**

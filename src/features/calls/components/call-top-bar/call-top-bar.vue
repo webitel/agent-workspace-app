@@ -8,7 +8,7 @@
 		<template #leading>
 			<wt-icon
 				v-if="isOffered"
-				color="info"
+				:color="IconColor.INFO"
 				icon="bell"
 			/>
 			<wt-icon
@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';

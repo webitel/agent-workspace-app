@@ -3,8 +3,8 @@
 		<wt-button
 			:disabled="Boolean(pending)"
 			:loading="pending === 'accept'"
-			color="success"
-			size="sm"
+			:color="ButtonColor.SUCCESS"
+			:size="ComponentSize.SM"
 			@click="emit('accept')"
 		>
 			{{ t('ui.notifications.offer.accept') }}
@@ -12,8 +12,8 @@
 		<wt-button
 			:disabled="Boolean(pending)"
 			:loading="pending === 'decline'"
-			color="error"
-			size="sm"
+			:color="ButtonColor.ERROR"
+			:size="ComponentSize.SM"
 			@click="emit('decline')"
 		>
 			{{ t('ui.notifications.offer.decline') }}
@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 import { WtButton } from '@webitel/ui-sdk/components';
+import { ButtonColor, ComponentSize } from '@webitel/ui-sdk/enums';
 import { useI18n } from 'vue-i18n';
 import type { OfferAction } from '../../../../ui/notifications/modules/offers/types/Offer.types';
 
