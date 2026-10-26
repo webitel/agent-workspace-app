@@ -11,7 +11,6 @@ and should not be carried over wholesale.
 ## Architecture decisions
 
 `docs/adr/` — read the ones touching the area you are about to work in.
-
 - [ADR-0001](docs/adr/0001-incoming-interaction-offers.md) — incoming call and
   chat offers: the notifications module boundary, the channel-neutral preview
   contract, offers derived from the SDK feeds, and why a field is left absent
@@ -35,7 +34,9 @@ and should not be carried over wholesale.
 - [ADR-0008](docs/adr/0008-snoozed-chats-split-the-task-feed.md) — the chat
   list's tabs stay on the task feed, split by the set of threads the chat backend
   has tagged snoozed, and why the tabs are not listed from threads.
-- [ADR-0009](docs/adr/0009-closed-chats-are-left-threads.md) — closed chats are
+- [ADR-0009](docs/adr/0009-call-info-tab-variables.md) — a call's Info tab
+  shows the call's own variables only, and why it does not merge like a chat's.
+- [ADR-0010](docs/adr/0010-closed-chats-are-left-threads.md) — closed chats are
   the threads the agent has left, opened in the same chat window once no task
   backs them, read without a socket, and shown without what the backend does
   not return.
@@ -61,8 +62,16 @@ either brings the next form or releases the task.
 agent finishes the processing form before the task is released. It has a
 deadline the agent may renew a limited number of times.
 
-A processing form can exist without post-processing (it arrived mid-chat), and
-post-processing without a form falls back to plain reporting. The chat window's
+A processing form can exist without post-processing (it arrived mid-chat).
+
+**Reporting** — post-processing without a processing form: the agent marks the
+interaction successful or not, and for a failure may set when the client is
+tried next. It is how a queue with post-processing but no form schema lets the
+agent finish before the deadline. Not built yet, for any channel: such an
+interaction shows no Post-processing tab, and its task is released when the
+deadline passes.
+
+The chat window's
 tab is labelled "Post-processing" by design, but it hosts the processing form
 whenever one exists.
 
@@ -81,6 +90,11 @@ distributes the chat and live on the `Task`. Thread variables are set by bots an
 flows during the chat and live behind REST on the thread. The Info tab shows both
 (ADR-0006).
 
+**Call variables** — the variables a flow exports onto a call, carried by the
+call itself. Every call has them, task or not. A queue call's task also carries
+the queue's distribution variables, but the Call window's Info tab shows only
+the call variables (ADR-0009).
+
 **End chat** — the agent's request to the backend to finish the task. It is
 answered by post-processing starting, or by the task being released outright
 when the queue has no post-processing.
@@ -96,6 +110,28 @@ answers, the attempt ends and the call carries on in the active-call window.
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
+
+**Call window** — the central-area card for one call, the call's counterpart of
+the chat window. It hosts the call while it is an **Active call** and stays on
+through the call's **Post-processing** after hangup, until the agent leaves it or
+the call's task is released (form submitted, deadline passed, or no
+post-processing configured). A Call window is not an Active call: once the call
+has hung up it is still a Call window, but no longer an Active call.
+There is one per call, not per task: a call with no task (a manual dial, an
+internal call) still has a Call window, just never a Post-processing phase.
+
+It opens by itself only when the agent accepts an inbound **Offer** in this tab.
+An outbound call the callee answers, a call picked up on a desk phone or in
+another tab, and a call already connected when the page loads do not pull the
+agent anywhere; they reach the window from the call dock.
+
+**Return target** — where the agent was when they accepted the call: the screen
+a Call window that opened by itself gives way to when it closes (task released,
+or hangup for a call with no task). The agent is taken back only if they are
+still on that Call window at that moment;
+having left it, they stay where they are. A return target that no longer exists
+(a chat since closed, a call since released) is not followed further back — the
+agent lands on that section's list instead.
 
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
