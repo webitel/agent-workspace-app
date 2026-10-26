@@ -12,13 +12,15 @@
 		/>
 
 		<span class="floating-call-widget__timer typo-body-1">
-			{{ timer.formatted.value }}
+			{{ timeLeft ?? timer.formatted.value }}
 		</span>
 
 		<wt-button
 			:size="ComponentSize.SM"
 			:color="buttonColor"
+			:aria-label="t('ui.call.activeCall.actions.openFullView')"
 			width-by-content
+			@click.stop="emit('openFullView')"
 		>
 			<wt-icon
 				icon="ws-open-full-view"
@@ -35,13 +37,22 @@
 >
 import { ButtonColor, ComponentSize, IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import PaddedAvatar from '../../components/padded-avatar/padded-avatar.vue';
+import PaddedAvatar from '../../../../components/padded-avatar/padded-avatar.vue';
 import { useActiveCallTimer } from '../composables/useActiveCallTimer';
-import type { ActiveCallPreview } from '../types/ActiveCallPreview.types';
+import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 
 const props = defineProps<{
-	preview: ActiveCallPreview;
+	preview: ActiveCallContent;
+	/** Replaces the call timer, e.g. with the time left of post-processing. */
+	timeLeft?: string;
+}>();
+
+const { t } = useI18n();
+
+const emit = defineEmits<{
+	openFullView: [];
 }>();
 
 const timer = useActiveCallTimer({
