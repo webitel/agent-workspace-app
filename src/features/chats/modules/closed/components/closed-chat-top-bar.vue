@@ -22,7 +22,6 @@
 import { computed } from 'vue';
 
 import TaskTopBar from '../../../../../ui/task-top-bar/task-top-bar.vue';
-import { useUserinfoStore } from '../../../../userinfo/stores/userinfoStore';
 import type { ILeftThread } from '../../../types/ChatSession.types';
 import { toClosedChatHeader } from '../scripts/toClosedChatHeader';
 
@@ -30,9 +29,5 @@ const props = defineProps<{
 	thread: ILeftThread;
 }>();
 
-const userinfoStore = useUserinfoStore();
-
-const header = computed(() =>
-	toClosedChatHeader(props.thread, userinfoStore.userId),
-);
+const header = computed(() => toClosedChatHeader(props.thread));
 </script>

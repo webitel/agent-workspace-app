@@ -12,6 +12,7 @@ const thread = {
 			id: 'member-1',
 			contact: {
 				sub: 'agent-sub',
+				iss: 'webitel',
 				username: 'agent',
 			},
 		},
@@ -19,6 +20,7 @@ const thread = {
 			id: 'member-2',
 			contact: {
 				sub: 'client-sub',
+				iss: 'telegram',
 				username: 'client_username',
 				name: 'Client Name',
 			},
@@ -35,11 +37,6 @@ const mountBar = () => {
 			plugins: [
 				createTestingPinia({
 					createSpy: vi.fn,
-					initialState: {
-						userinfo: {
-							userId: 'agent-sub',
-						},
-					},
 				}),
 			],
 			stubs: {
@@ -62,7 +59,7 @@ const mountBar = () => {
 };
 
 describe('closed-chat-top-bar', () => {
-	it('shows a lock and the client, told from the current user', () => {
+	it('shows a lock and the client, told from the agents', () => {
 		const wrapper = mountBar();
 
 		expect(wrapper.find('.icon').attributes('data-icon')).toBe('lock');
