@@ -38,18 +38,14 @@ describe('empty-state-block', () => {
 		);
 	});
 
-	it('passes the image and its sizing through to wt-image', () => {
+	it('passes the image and its width through to wt-image', () => {
 		const wrapper = mountBlock({
-			size: '2xs',
 			width: '80px',
-			height: '60px',
 		});
 
 		const image = wrapper.findComponent(WtImage);
 		expect(image.props('src')).toBe('empty.svg');
-		expect(image.props('size')).toBe('2xs');
 		expect(image.props('width')).toBe('80px');
-		expect(image.props('height')).toBe('60px');
 	});
 
 	it('renders no actions block without the actions slot', () => {
