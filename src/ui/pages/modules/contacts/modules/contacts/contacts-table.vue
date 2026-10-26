@@ -11,7 +11,11 @@
 			:on-loading="onLoading"
 			data-key="id"
 			sortable
+			resizable-columns
+			reorderable-columns
 			@sort="(column, order) => updateSort(column, order)"
+			@column-resize="columnResize"
+			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
 				<username-table-cell :name="item.name?.commonName" />
@@ -70,7 +74,13 @@ const props = defineProps<{
 	store: ReturnType<typeof useContactsDataListStore>;
 }>();
 
-const { initialize, appendToDataList, updateSort } = props.store;
+const {
+	initialize,
+	appendToDataList,
+	updateSort,
+	columnResize,
+	columnReorder,
+} = props.store;
 const { dataList, shownHeaders, next } = storeToRefs(props.store);
 
 const isFirstLoad = ref(false);
