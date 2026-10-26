@@ -157,7 +157,7 @@ const activeTab = ref<ChatWindowTab>(defaultTab());
 // whose content is not built yet. Only Post-processing comes and goes with the
 // form, and a form arriving mid-chat does not pull the agent away from the chat.
 // A closed chat always shows it, disabled, until the backend returns the
-// submitted forms (ADR-0009).
+// submitted forms (ADR-0010).
 const tabs = computed<ChatWindowTabItem[]>(() => [
 	{
 		value: 'chat',
