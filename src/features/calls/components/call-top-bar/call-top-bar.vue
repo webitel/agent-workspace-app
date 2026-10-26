@@ -7,6 +7,12 @@
 	>
 		<template #leading>
 			<wt-icon
+				v-if="isOffered"
+				color="info"
+				icon="bell"
+			/>
+			<wt-icon
+				v-else
 				color="success"
 				icon="ws-chat-clock"
 			/>
@@ -29,8 +35,14 @@
 		</template>
 
 		<template #actions>
+			<call-top-bar-offer-actions
+				v-if="isOffered"
+				:pending="offersStore.pendingAction(call.id)"
+				@accept="offersStore.accept(call.id)"
+				@decline="offersStore.decline(call.id)"
+			/>
 			<call-top-bar-actions
-				v-if="isConnected"
+				v-else-if="isConnected"
 				:call="call"
 			/>
 		</template>
@@ -41,18 +53,22 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
+import { useOffersStore } from '../../../../ui/notifications/modules/offers/store/offers';
 import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
 import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
+import { hasCallWindow } from '../../scripts/hasCallWindow';
 import { isActiveCall } from '../../scripts/isActiveCall';
 import { toActiveCallContent } from '../../scripts/toActiveCallContent';
 import CallTopBarActions from './call-top-bar-actions.vue';
+import CallTopBarOfferActions from './call-top-bar-offer-actions.vue';
 
 const props = defineProps<{
 	call: Call;
 }>();
 
 const { t } = useI18n();
+const offersStore = useOffersStore();
 
 // Same identity as the dock's pill, masking included. The bar shows the number
 // alone (AC_13.01.01): the contact's name is the right panel's (US_13.06).
@@ -64,7 +80,16 @@ const copyableNumber = computed(() =>
 	props.call.hideNumber ? undefined : props.call.displayNumber || undefined,
 );
 
-// The bar's two states follow the call, not the task: a form can land mid-call
+/**
+ * @author Oleksandr Palonnyi
+ * a call nobody has answered yet is the offer being looked at before it is accepted (US_13.08),
+ * and accept / decline go through the offers store like the offer card's buttons,
+ * so both share one in-flight lock
+ * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+ */
+const isOffered = computed(() => !hasCallWindow(props.call));
+
+// The bar's other two states follow the call, not the task: a form can land mid-call
 // without the call's actions going anywhere, and once hung up there is nothing
 // left to mute, hold, transfer or end.
 const isConnected = computed(() => isActiveCall(props.call));

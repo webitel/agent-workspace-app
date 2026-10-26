@@ -392,6 +392,83 @@ describe('useCallsStore', () => {
 			expect(store.takeReturnTarget('call-1')).toBeUndefined();
 		});
 
+		describe('opening the offer to look at it (WS-105)', () => {
+			it('opens the Call window when the offer card body is clicked', async () => {
+				await ringing();
+
+				useOffersStore().openBody('call-1');
+
+				expect(routerPush).toHaveBeenCalledWith({
+					name: 'call-window',
+					params: {
+						callId: 'call-1',
+					},
+				});
+			});
+
+			it('hides the offer card while that window is open, and brings it back after', async () => {
+				await ringing();
+				// the route mock is not reactive, so the predicate is read directly
+				const [offer] = useOffersStore().offers;
+				expect(offer.isHidden?.()).toBe(false);
+
+				currentRoute.value = {
+					fullPath: '/calls/call-1',
+					name: 'call-window',
+					params: {
+						callId: 'call-1',
+					},
+				} as typeof currentRoute.value;
+				expect(offer.isHidden?.()).toBe(true);
+
+				currentRoute.value = {
+					fullPath: '/calls',
+				};
+				expect(offer.isHidden?.()).toBe(false);
+			});
+
+			it('returns to where the agent clicked from', async () => {
+				const { store } = await ringing();
+
+				useOffersStore().openBody('call-1');
+
+				expect(store.takeReturnTarget('call-1')).toBe('/chats/thread-1');
+			});
+
+			it('keeps that target when the call is accepted from its own window', async () => {
+				const { store } = await ringing();
+				useOffersStore().openBody('call-1');
+				currentRoute.value = {
+					fullPath: '/calls/call-1',
+					name: 'call-window',
+					params: {
+						callId: 'call-1',
+					},
+				} as typeof currentRoute.value;
+
+				await useOffersStore().accept('call-1');
+
+				expect(store.takeReturnTarget('call-1')).toBe('/chats/thread-1');
+			});
+
+			it('keeps the target when accepting from its own window is refused', async () => {
+				isMicrophoneAllowed.mockResolvedValue(false);
+				const { store } = await ringing();
+				useOffersStore().openBody('call-1');
+				currentRoute.value = {
+					fullPath: '/calls/call-1',
+					name: 'call-window',
+					params: {
+						callId: 'call-1',
+					},
+				} as typeof currentRoute.value;
+
+				await useOffersStore().accept('call-1');
+
+				expect(store.takeReturnTarget('call-1')).toBe('/chats/thread-1');
+			});
+		});
+
 		it('opens nothing and keeps no target when the answer is refused', async () => {
 			isMicrophoneAllowed.mockResolvedValue(false);
 			const { store, call } = await ringing();

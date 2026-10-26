@@ -78,6 +78,41 @@ describe('useOffersStore', () => {
 		expect(osNotifications.show).toHaveBeenCalledTimes(1);
 	});
 
+	describe('an offer its producer hides', () => {
+		it('leaves the visible cards but keeps ringing and notifying', () => {
+			const store = useOffersStore();
+			const isHidden = ref(true);
+
+			store.notify({
+				...buildOffer('call-1'),
+				isHidden: () => isHidden.value,
+			});
+			store.notify(buildOffer('call-2'));
+
+			expect(store.visibleOffers.map((offer) => offer.id)).toEqual([
+				'call-2',
+			]);
+			expect(store.offers).toHaveLength(2);
+			expect(ringtone.start).toHaveBeenCalled();
+			expect(osNotifications.show).toHaveBeenCalledTimes(2);
+		});
+
+		it('brings its card back once it is no longer hidden', () => {
+			const store = useOffersStore();
+			const isHidden = ref(true);
+
+			store.notify({
+				...buildOffer('call-1'),
+				isHidden: () => isHidden.value,
+			});
+			isHidden.value = false;
+
+			expect(store.visibleOffers.map((offer) => offer.id)).toEqual([
+				'call-1',
+			]);
+		});
+	});
+
 	it('ignores a repeat offer for the same interaction', () => {
 		const store = useOffersStore();
 

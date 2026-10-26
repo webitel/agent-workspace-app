@@ -27,6 +27,7 @@ vi.mock('../../../../../app/locale/i18n', () => ({
 	},
 }));
 
+import { useOffersStore } from '../../../../../ui/notifications/modules/offers/store/offers';
 import CallTopBar from '../call-top-bar.vue';
 
 let nextTaskId = 1;
@@ -71,6 +72,17 @@ const stubs = {
 			'call',
 		],
 		template: '<div class="actions-stub" />',
+	},
+	CallTopBarOfferActions: {
+		props: [
+			'pending',
+		],
+		emits: [
+			'accept',
+			'decline',
+		],
+		template:
+			'<div class="offer-actions-stub"><button class="accept" @click="$emit(\'accept\')" /><button class="decline" @click="$emit(\'decline\')" /></div>',
 	},
 	PostProcessingTimer: {
 		props: [
@@ -185,6 +197,51 @@ describe('call-top-bar', () => {
 
 		expect(bar.find('.actions-stub').exists()).toBe(false);
 		expect(bar.find('.timer-stub').exists()).toBe(true);
+	});
+
+	describe('before the call is answered (AC_13.08.01)', () => {
+		const buildOffered = () =>
+			buildCall({
+				answeredAt: 0,
+			});
+
+		it('offers accept and decline instead of the call actions', () => {
+			const bar = mountBar(buildOffered());
+
+			expect(bar.find('.offer-actions-stub').exists()).toBe(true);
+			expect(bar.find('.actions-stub').exists()).toBe(false);
+			expect(bar.find('.timer-stub').exists()).toBe(false);
+		});
+
+		it('still leads with the number, its copy and the queue', () => {
+			const bar = mountBar(buildOffered());
+
+			expect(bar.text()).toContain('+12023417842');
+			expect(bar.text()).toContain('Sales');
+			expect(bar.find('.copy-action').attributes('data-value')).toBe(
+				'+12023417842',
+			);
+		});
+
+		it('accepts the offer (AC_13.08.03)', async () => {
+			const bar = mountBar(buildOffered());
+			const offers = useOffersStore();
+			const accept = vi.spyOn(offers, 'accept').mockResolvedValue(undefined);
+
+			await bar.find('.accept').trigger('click');
+
+			expect(accept).toHaveBeenCalledWith('call-1');
+		});
+
+		it('declines the offer (AC_13.08.04)', async () => {
+			const bar = mountBar(buildOffered());
+			const offers = useOffersStore();
+			const decline = vi.spyOn(offers, 'decline').mockResolvedValue(undefined);
+
+			await bar.find('.decline').trigger('click');
+
+			expect(decline).toHaveBeenCalledWith('call-1');
+		});
 	});
 
 	it('shows neither once hung up with no post-processing to time', () => {
