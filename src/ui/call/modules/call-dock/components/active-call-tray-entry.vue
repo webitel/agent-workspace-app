@@ -9,7 +9,7 @@
 		<slide-up-overlay :is-open="expanded">
 			<call-dock
 				:preview="preview"
-				:elapsed-time="timer.formatted.value"
+				:displayed-time="timer.formatted.value"
 				@toggle-mute="emit('toggleMute')"
 				@toggle-hold="emit('toggleHold')"
 				@hangup="emit('hangup')"
@@ -19,7 +19,7 @@
 
 		<floating-call-widget
 			:preview="preview"
-			:elapsed-time="timer.formatted.value"
+			:displayed-time="timer.formatted.value"
 			@toggle-expand="emit('toggleExpand')"
 			@open-full-view="emit('openFullView')"
 		/>
@@ -81,20 +81,18 @@ const timer = useActiveCallTimer({
 </script>
 
 <style scoped>
-/**
- * @author Oleksandr Palonnyi
- * the dock reads this width too: while expanded the tray entry takes the dock's
- * width, so the pill is as wide as the dock and the dock does not cover the
- * neighbouring pills
- * [WS-23](https://webitel.atlassian.net/browse/WS-23)
- */
 .active-call-tray-entry {
-	--active-call-tray-entry-dock-width: 280px;
-
 	position: relative;
 }
 
+/**
+ * @author Oleksandr Palonnyi
+ * while expanded the tray entry takes the dock's width, so the pill is as wide
+ * as the dock and the dock does not cover the neighbouring pills; the 280px
+ * fallback stands in until the installed @webitel/styleguide ships the token
+ * [WS-23](https://webitel.atlassian.net/browse/WS-23)
+ */
 .active-call-tray-entry--expanded {
-	width: var(--active-call-tray-entry-dock-width);
+	width: var(--wt-ws-call-dock-sizes-root-min-width);
 }
 </style>

@@ -21,7 +21,7 @@ const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	mount(FloatingCallWidget, {
 		props: {
 			preview,
-			elapsedTime: '00:01:05',
+			displayedTime: '00:01:05',
 		},
 		global: {
 			stubs: {
@@ -40,7 +40,7 @@ const mountBar = (preview: ActiveCallContent = buildPreview()) =>
 	});
 
 describe('floating-call-widget', () => {
-	it('shows the elapsed time it is given', () => {
+	it('shows the displayed time it is given', () => {
 		const wrapper = mountBar();
 
 		expect(wrapper.find('.floating-call-widget__timer').text()).toBe(

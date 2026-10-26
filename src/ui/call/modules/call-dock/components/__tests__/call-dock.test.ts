@@ -23,7 +23,7 @@ const mountCard = (preview: ActiveCallContent = buildPreview()) =>
 	mount(CallDock, {
 		props: {
 			preview,
-			elapsedTime: '00:05:52',
+			displayedTime: '00:05:52',
 		},
 		global: {
 			stubs: {
@@ -68,7 +68,7 @@ describe('call-dock', () => {
 		expect(wrapper.find('.call-dock__queue').exists()).toBe(false);
 	});
 
-	it('shows the in-call status with the elapsed time', () => {
+	it('shows the in-call status with the displayed time', () => {
 		const wrapper = mountCard();
 
 		expect(wrapper.find('.call-dock__status').text()).toContain(

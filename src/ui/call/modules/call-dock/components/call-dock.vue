@@ -53,7 +53,7 @@
 				{{ statusLabel }}:
 			</span>
 			<span>
-				{{ elapsedTime }}
+				{{ displayedTime }}
 			</span>
 		</wt-chip>
 
@@ -91,7 +91,7 @@ import CallDockNumpad from './call-dock-numpad.vue';
 
 const props = defineProps<{
 	preview: ActiveCallContent;
-	elapsedTime: string;
+	displayedTime: string;
 }>();
 
 const emit = defineEmits<{
@@ -132,7 +132,7 @@ const statusChipColor = computed(() =>
 	flex-direction: column;
 	gap: var(--spacing-sm);
 	box-sizing: border-box;
-	width: var(--active-call-tray-entry-dock-width);
+	width: var(--wt-ws-call-dock-sizes-root-min-width);
 	padding: var(--wt-ws-call-dock-sizes-root-padding-x);
 	border-radius: var(--wt-ws-call-dock-sizes-root-border-radius)
 		var(--wt-ws-call-dock-sizes-root-border-radius) 0 0;

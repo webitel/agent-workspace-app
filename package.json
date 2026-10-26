@@ -33,7 +33,7 @@
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.8",
 		"@webitel/chat-web-sdk": "^0.0.21",
-		"@webitel/styleguide": "~26.8",
+		"@webitel/styleguide": "~26.12",
 		"@webitel/ui-chats": "~26.8",
 		"@webitel/ui-datalist": "~26.8",
 		"@webitel/ui-sdk": "~26.8",
