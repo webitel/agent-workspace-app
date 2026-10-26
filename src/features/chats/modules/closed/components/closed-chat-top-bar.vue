@@ -7,6 +7,10 @@
 	>
 		<template #leading>
 			<wt-icon icon="lock" />
+			<wt-avatar
+				:username="header.name"
+				size="sm"
+			/>
 		</template>
 	</task-top-bar>
 </template>
