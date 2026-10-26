@@ -67,6 +67,12 @@ export default {
 				pageTabs: {
 					missed: 'Қабылданбаған',
 				},
+				tabs: {
+					info: 'Ақпарат',
+					postProcessing: 'Кейінгі өңдеу',
+					interaction: 'Өзара әрекет',
+					contact: 'Контакт',
+				},
 			},
 			chats: {
 				pageTabs: {
@@ -111,6 +117,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Сөйлесуде',
+				onHold: 'Күтуде',
+				actions: {
+					numpad: 'Пернетақта',
+					mute: 'Микрофонды өшіру',
+					hold: 'Күтуге қою',
+					camera: 'Камера',
+					message: 'Хабарлама',
+					transfer: 'Қайта бағыттау',
+					hangup: 'Қоңырауды аяқтау',
+					openFullView: 'Толық көріністі ашу',
+				},
+			},
 			outboundCall: {
 				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',
@@ -123,6 +143,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Қоңырау шалу мүмкін болмады. Қайталап көріңіз.',
+			holdToggleFailed:
+				'Қоңырауды күтуге қою немесе жалғастыру мүмкін болмады. Қайталап көріңіз.',
+			dtmfFailed: 'Санды жіберу мүмкін болмады. Қайталап көріңіз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
