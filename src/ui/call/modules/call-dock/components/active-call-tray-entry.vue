@@ -88,8 +88,7 @@ const timer = useActiveCallTimer({
 /**
  * @author Oleksandr Palonnyi
  * while expanded the tray entry takes the dock's width, so the pill is as wide
- * as the dock and the dock does not cover the neighbouring pills; the 280px
- * fallback stands in until the installed @webitel/styleguide ships the token
+ * as the dock and the dock does not cover the neighbouring pills
  * [WS-23](https://webitel.atlassian.net/browse/WS-23)
  */
 .active-call-tray-entry--expanded {
