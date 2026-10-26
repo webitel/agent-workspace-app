@@ -397,7 +397,7 @@ describe('the-chat-window', () => {
 		const showsClosedThread = (wrapper: ReturnType<typeof mountWindow>) =>
 			wrapper.find('.the-closed-chat-thread').exists();
 
-		// a deep-linked active chat must not flash as closed (ADR-0009)
+		// a deep-linked active chat must not flash as closed (ADR-0010)
 		it('waits for the task feed before showing anything', () => {
 			feed.isTaskFeedReady = false;
 

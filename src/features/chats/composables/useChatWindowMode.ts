@@ -3,7 +3,7 @@ import { type ComputedRef, computed, type Ref } from 'vue';
 import { useChatsStore } from '../store/chats';
 
 /**
- * What the chat window on `/chats/:threadId` shows (ADR-0009): `active` while a
+ * What the chat window on `/chats/:threadId` shows (ADR-0010): `active` while a
  * task in the feed backs the thread, `closed` once none does, and `pending`
  * until the feed is ready to tell the two apart.
  */

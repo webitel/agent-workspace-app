@@ -51,7 +51,7 @@ describe('useChatWindowMode', () => {
 		expect(mode.value).toBe('active');
 	});
 
-	// the agent left the thread once and rejoined it: an active chat only (ADR-0009)
+	// the agent left the thread once and rejoined it: an active chat only (ADR-0010)
 	it('is active for a thread the agent has also left before', () => {
 		useClosedChatStoreMock.mockReturnValue({
 			thread: {

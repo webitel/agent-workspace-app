@@ -111,7 +111,7 @@ const isLoaderShown = computed(
 		Boolean(closedChat.value?.isLoading && !closedChat.value.thread),
 );
 const emptyText = computed(() => {
-	// neither active nor left by the agent (ADR-0009)
+	// neither active nor left by the agent (ADR-0010)
 	if (closedChat.value?.isNotFound) return t('ui.pages.chats.closed.notFound');
 	if (closedChat.value?.error && !closedChat.value.thread)
 		return t('ui.pages.chats.closed.loadError');

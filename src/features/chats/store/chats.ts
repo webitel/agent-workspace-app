@@ -45,7 +45,7 @@ export const useChatsStore = defineStore('chats', () => {
 
 	/**
 	 * Whether the feed holds every task the agent has, so a thread missing from
-	 * it can be taken for a closed chat (ADR-0009). Taken to be once the agent
+	 * it can be taken for a closed chat (ADR-0010). Taken to be once the agent
 	 * session has loaded, on the assumption that the SDK restores the agent's
 	 * tasks along with it — still to be checked on a live instance.
 	 */
@@ -159,7 +159,7 @@ export const useChatsStore = defineStore('chats', () => {
 
 	/**
 	 * A chat session lives while its chat is listed, or has a window over a
-	 * thread a task backs (ADR-0007, ADR-0009): a deep-linked active chat that
+	 * thread a task backs (ADR-0007, ADR-0010): a deep-linked active chat that
 	 * was never listed lives as long as its window, while a window whose task
 	 * left the feed shows the closed chat and keeps no session.
 	 */
