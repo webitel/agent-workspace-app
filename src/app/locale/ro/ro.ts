@@ -124,6 +124,8 @@ export default {
 					numpad: 'Tastatură',
 					mute: 'Dezactivează microfonul',
 					hold: 'Pune în așteptare',
+					camera: 'Cameră',
+					message: 'Mesaj',
 					transfer: 'Transferă',
 					hangup: 'Închide apelul',
 					openFullView: 'Deschide vizualizarea completă',

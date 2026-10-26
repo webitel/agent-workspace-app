@@ -124,6 +124,8 @@ export default {
 					numpad: 'Клавиатура',
 					mute: 'Выключить микрофон',
 					hold: 'Удержание',
+					camera: 'Камера',
+					message: 'Сообщение',
 					transfer: 'Переадресация',
 					hangup: 'Завершить звонок',
 					openFullView: 'Открыть полный вид',

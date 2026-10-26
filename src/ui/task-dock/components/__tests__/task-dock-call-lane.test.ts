@@ -33,6 +33,12 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
  * `createI18n` being stubbed for every suite in `test/setup.ts`
  * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
  */
+// the calls store takes the agent to a call's window; the app's routes would
+// pull every page in
+vi.mock('../../../../app/router', () => ({
+	router: null,
+}));
+
 vi.mock('../../../../app/locale/i18n', () => ({
 	default: {
 		global: {
