@@ -56,8 +56,9 @@ cannot be marked read.
 **What the backend does not return is left out, not approximated** (as in
 ADR-0001): no queue, no Started/Ended/Duration from `thread.created_at`, no
 Message from `thread.last_msg`, Duration not sortable, search hidden until it
-exists. The one exception is the client, picked as "not a bot and not me" until
-WS-96 says how to tell, which is wrong only after a transfer.
+exists. The client is the member whose contact the chat backend issued as
+neither `webitel` (agents) nor `bot` (WS-96), so a transfer that leaves other
+agents in the thread does not confuse it.
 
 **No Reopen.** The backend has no reopen; a "via" send is a different feature
 and is not offered under that name. The Post-processing tab is shown disabled

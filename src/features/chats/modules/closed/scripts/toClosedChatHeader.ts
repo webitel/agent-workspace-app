@@ -7,11 +7,8 @@ import type { ILeftThread } from '../../../types/ChatSession.types';
  * (messenger username, else name), read off the thread's client. There is no
  * queue: a left thread does not carry one (ADR-0010).
  */
-export function toClosedChatHeader(
-	thread: ILeftThread,
-	userId: string,
-): ChatHeader {
-	const client = findClientContact(thread.members, userId);
+export function toClosedChatHeader(thread: ILeftThread): ChatHeader {
+	const client = findClientContact(thread.members);
 
 	return {
 		name: client?.username || client?.name || undefined,
