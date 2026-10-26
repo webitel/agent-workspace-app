@@ -10,7 +10,6 @@ vi.mock('@webitel/api-services/gen-wire', () => ({
 
 import { activeChatsApiModule } from '../activeChatsApiModule';
 
-const USER_ID = 'agent';
 const NOW = 1790947800000;
 const CREATED_AT = NOW - 90_000;
 
@@ -20,6 +19,7 @@ const member = (contact: Record<string, unknown>) => ({
 
 const client = member({
 	sub: 'client',
+	iss: 'telegram',
 	name: 'John Doe',
 	username: 'john',
 });
@@ -31,11 +31,13 @@ const thread = (overrides: Record<string, unknown> = {}) => ({
 	members: [
 		member({
 			sub: 'bot',
+			iss: 'bot',
 			name: 'Bot',
 			is_bot: true,
 		}),
 		member({
-			sub: USER_ID,
+			sub: 'agent',
+			iss: 'webitel',
 			name: 'Agent',
 		}),
 		client,
@@ -52,10 +54,7 @@ const respond = (data: Record<string, unknown>) =>
 	});
 
 const getList = (params: Record<string, unknown> = {}) =>
-	activeChatsApiModule.getList({
-		userId: USER_ID,
-		...params,
-	});
+	activeChatsApiModule.getList(params);
 
 const requestParams = () => mockThreadManagementSearch.mock.calls[0][0];
 
@@ -185,7 +184,8 @@ describe('activeChatsApiModule.getList', () => {
 					thread({
 						members: [
 							member({
-								sub: USER_ID,
+								sub: 'agent',
+								iss: 'webitel',
 								name: 'Agent',
 							}),
 						],
