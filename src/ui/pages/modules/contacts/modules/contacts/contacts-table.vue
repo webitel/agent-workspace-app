@@ -32,6 +32,23 @@
 				/>
 			</template>
 
+			<template #emails="{ item }">
+				<table-cell-info
+					icon="ws-navigation-email"
+					:icon-color="IconColor.MAIL"
+					:items="item.emails?.data"
+					item-label="email"
+				/>
+			</template>
+
+			<template #imclients="{ item }">
+				<table-cell-info
+					icon="ws-chat"
+					:icon-color="IconColor.CHAT"
+					:items="getImclientItems(item)"
+				/>
+			</template>
+
 			<template #about="{ item }">
 				{{ item.about }}
 			</template>
@@ -68,6 +85,17 @@ const onLoading = async () => {
 
 function getGroupItems(item: WebitelContactsContact) {
 	return item.groups?.data?.map(({ group }) => group).filter(Boolean) ?? [];
+}
+
+function getImclientItems(item: WebitelContactsContact) {
+	return (
+		item.imclients?.data
+			?.map(({ id, user }) => ({
+				id,
+				name: user?.name,
+			}))
+			.filter(({ name }) => Boolean(name)) ?? []
+	);
 }
 
 initialize().finally(() => {
