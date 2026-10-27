@@ -60,6 +60,13 @@ export default {
 					title: 'Wybierz kontakt',
 					text: 'Wybierz rekord z listy historii, aby zobaczyć szczegóły kontaktu',
 				},
+				selectOrCreateContact: {
+					title: 'Wybierz kontakt lub utwórz nowy',
+					text: 'Wybierz kontakt z listy, aby zobaczyć jego szczegóły, lub utwórz nowy.',
+				},
+				createContact: 'Utwórz kontakt',
+				addContacts: 'Dodaj kontakty',
+				profile: 'Profil',
 			},
 		},
 		pages: {
@@ -124,6 +131,8 @@ export default {
 					numpad: 'Klawiatura',
 					mute: 'Wycisz',
 					hold: 'Wstrzymaj',
+					camera: 'Kamera',
+					message: 'Wiadomość',
 					transfer: 'Przekieruj',
 					hangup: 'Zakończ połączenie',
 					openFullView: 'Otwórz pełny widok',

@@ -60,6 +60,13 @@ export default {
 					title: 'Selectați un contact',
 					text: 'Alegeți o înregistrare din lista istoricului pentru a vedea detaliile contactului',
 				},
+				selectOrCreateContact: {
+					title: 'Selectați un contact sau creați unul',
+					text: 'Alegeți un contact din listă pentru a vedea detaliile acestuia sau creați unul nou.',
+				},
+				createContact: 'Creați un contact',
+				addContacts: 'Adăugați contacte',
+				profile: 'Profil',
 			},
 		},
 		pages: {
@@ -124,6 +131,8 @@ export default {
 					numpad: 'Tastatură',
 					mute: 'Dezactivează microfonul',
 					hold: 'Pune în așteptare',
+					camera: 'Cameră',
+					message: 'Mesaj',
 					transfer: 'Transferă',
 					hangup: 'Închide apelul',
 					openFullView: 'Deschide vizualizarea completă',

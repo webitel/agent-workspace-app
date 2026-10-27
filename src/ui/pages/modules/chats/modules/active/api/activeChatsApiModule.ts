@@ -6,12 +6,11 @@ import {
 	snakeToCamel,
 	translateError,
 } from '@webitel/api-services/api/transformers';
-import type {
-	WebitelImApiGatewayV1Thread,
-	WebitelImApiGatewayV1ThreadMember,
-} from '@webitel/api-services/gen/models';
+import type { WebitelImApiGatewayV1Thread } from '@webitel/api-services/gen/models';
 import { getWebitelImApiGatewayV1Threadmanagement } from '@webitel/api-services/gen-wire';
 import type { ApiModule } from '@webitel/ui-sdk/api/types/ApiModule';
+
+import { findClientContact } from '../../../../../../../features/chats/scripts/findClientContact';
 
 const DEFAULT_SORT = '+created_at';
 
@@ -45,22 +44,12 @@ export interface ActiveChatRow {
 }
 
 /**
- * The client is the member that is neither a bot nor the current user.
- */
-const findClient = (
-	members: WebitelImApiGatewayV1ThreadMember[] = [],
-	userId: string,
-) =>
-	members.find(({ contact }) => !contact?.isBot && contact?.sub !== userId)
-		?.contact;
-
-/**
  * Duration is fixed at load time and is not updated live.
  */
 const toActiveChatRow =
-	(userId: string, loadedAt: number) =>
+	(loadedAt: number) =>
 	(thread: WebitelImApiGatewayV1Thread): ActiveChatRow => {
-		const client = findClient(thread.members, userId);
+		const client = findClientContact(thread.members);
 		const startedAt = Number(thread.createdAt);
 
 		return {
@@ -80,10 +69,10 @@ const toApiSort = (sort?: string) =>
  * Adapts datalist table store params to ThreadManagement.Search.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
-	const { page, size, sort, search, userId } = params;
+	const { page, size, sort, search } = params;
 
 	const listResponseHandler = (items: WebitelImApiGatewayV1Thread[]) =>
-		items.map(toActiveChatRow(String(userId), Date.now()));
+		items.map(toActiveChatRow(Date.now()));
 
 	try {
 		const response =

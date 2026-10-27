@@ -9,6 +9,7 @@
 			:lazy="true"
 			:selectable="false"
 			:on-loading="onLoading"
+			:grid-actions="false"
 			data-key="id"
 			sortable
 			resizable-columns
@@ -21,14 +22,13 @@
 				<username-table-cell :name="item.name" />
 			</template>
 
-			<template #presence="{ item }">
+			<template #status="{ item }">
 				<wt-indicator v-bind="getStatus(item)" />
 			</template>
 
-			<!-- TODO: uncomment together with the team header when UsersAPI starts returning team -->
-			<!-- <template #team="{ item }">
+			<template #team="{ item }">
 				{{ item.team?.name }}
-			</template> -->
+			</template>
 
 			<template #extension="{ item }">
 				<table-cell-info

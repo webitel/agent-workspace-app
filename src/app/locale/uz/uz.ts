@@ -60,6 +60,13 @@ export default {
 					title: 'Kontaktni tanlang',
 					text: 'Kontakt maʼlumotlarini koʼrish uchun tarix roʼyxatidan yozuvni tanlang',
 				},
+				selectOrCreateContact: {
+					title: 'Kontaktni tanlang yoki yangisini yarating',
+					text: 'Maʼlumotlarini koʼrish uchun roʼyxatdan kontaktni tanlang yoki yangisini yarating.',
+				},
+				createContact: 'Kontakt yaratish',
+				addContacts: 'Kontaktlarni qoʼshish',
+				profile: 'Profil',
 			},
 		},
 		pages: {
@@ -124,6 +131,8 @@ export default {
 					numpad: 'Klaviatura',
 					mute: 'Mikrofonni oʻchirish',
 					hold: 'Kutishga qoʻyish',
+					camera: 'Kamera',
+					message: 'Xabar',
 					transfer: 'Yoʻnaltirish',
 					hangup: 'Qoʻngʻiroqni tugatish',
 					openFullView: 'Toʻliq koʻrinishni ochish',

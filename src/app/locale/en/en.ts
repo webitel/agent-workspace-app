@@ -67,6 +67,13 @@ export default {
 					title: 'Select a contact',
 					text: "Choose a record from the history list to view the contact's details",
 				},
+				selectOrCreateContact: {
+					title: 'Select a contact or create one',
+					text: 'Choose a contact from the list to view their details, or create a new one.',
+				},
+				createContact: 'Create a contact',
+				addContacts: 'Add contacts',
+				profile: 'Profile',
 			},
 		},
 		pages: {
@@ -135,6 +142,8 @@ export default {
 					numpad: 'Numpad',
 					mute: 'Mute',
 					hold: 'Hold',
+					camera: 'Camera',
+					message: 'Message',
 					transfer: 'Transfer',
 					hangup: 'End call',
 					openFullView: 'Open full view',
