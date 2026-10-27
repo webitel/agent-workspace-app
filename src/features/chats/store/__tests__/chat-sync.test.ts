@@ -2,7 +2,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { flushPromises } from '@vue/test-utils';
 import { setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 /**
  * The chat session and chat previews stores, driven together through the chats
@@ -128,7 +128,7 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 			subscribeTask: vi.fn(),
 		}),
 		tasks,
-		agent,
+		isTaskFeedReady: computed(() => agent.value !== undefined),
 	}),
 }));
 

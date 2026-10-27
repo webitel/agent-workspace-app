@@ -1,7 +1,7 @@
 import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 const subscribeTaskMock = vi.fn();
 const getClientMock = vi.fn(() => ({
@@ -35,7 +35,7 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
 		getClient: getClientMock,
 		tasks,
-		agent,
+		isTaskFeedReady: computed(() => agent.value !== undefined),
 	}),
 }));
 
@@ -787,7 +787,7 @@ describe('chats store', () => {
 	});
 
 	describe('task feed readiness', () => {
-		it('is not ready until the agent session loads', async () => {
+		it("follows the socket client's readiness", async () => {
 			const store = useChatsStore();
 			expect(store.isTaskFeedReady).toBe(false);
 
