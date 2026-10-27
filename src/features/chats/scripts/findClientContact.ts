@@ -1,23 +1,28 @@
+// Issuers of the contacts that are never the client: our own users (agents)
+// and bots. Anyone else came in through a messenger (WS-96).
+const NON_CLIENT_ISSUERS = new Set([
+	'webitel',
+	'bot',
+]);
+
 /**
- * The client in a thread: the first member with a contact that is neither
- * a bot nor the current user.
- *
- * Interim until WS-96 says how to tell the client. Wrong once another agent
- * is (or was) a member of the thread: that agent is not a bot and not the
- * current user, so it is picked as the client.
+ * The client in a thread: the first member whose contact was issued by
+ * neither webitel nor a bot. Every agent who was ever a member — after a
+ * transfer there are several — is a webitel contact, so none is mistaken for
+ * the client.
  */
 export function findClientContact<
 	Contact extends {
 		isBot?: boolean;
-		sub?: string;
+		iss?: string;
 	},
 >(
 	members: {
 		contact?: Contact;
 	}[] = [],
-	userId: string,
 ): Contact | undefined {
 	return members.find(
-		({ contact }) => contact && !contact.isBot && contact.sub !== userId,
+		({ contact }) =>
+			contact && !contact.isBot && !NON_CLIENT_ISSUERS.has(contact.iss ?? ''),
 	)?.contact;
 }

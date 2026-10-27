@@ -60,6 +60,13 @@ export default {
 					title: 'Chọn một liên hệ',
 					text: 'Chọn một bản ghi trong danh sách lịch sử để xem thông tin chi tiết của liên hệ',
 				},
+				selectOrCreateContact: {
+					title: 'Chọn một liên hệ hoặc tạo mới',
+					text: 'Chọn một liên hệ trong danh sách để xem thông tin chi tiết hoặc tạo liên hệ mới.',
+				},
+				createContact: 'Tạo liên hệ',
+				addContacts: 'Thêm liên hệ',
+				profile: 'Hồ sơ',
 			},
 		},
 		pages: {

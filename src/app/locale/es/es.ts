@@ -60,6 +60,13 @@ export default {
 					title: 'Selecciona un contacto',
 					text: 'Elige un registro de la lista del historial para ver los detalles del contacto',
 				},
+				selectOrCreateContact: {
+					title: 'Selecciona un contacto o crea uno',
+					text: 'Elige un contacto de la lista para ver sus detalles o crea uno nuevo.',
+				},
+				createContact: 'Crear un contacto',
+				addContacts: 'Añadir contactos',
+				profile: 'Perfil',
 			},
 		},
 		pages: {
