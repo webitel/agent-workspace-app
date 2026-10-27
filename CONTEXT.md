@@ -36,6 +36,10 @@ and should not be carried over wholesale.
   has tagged snoozed, and why the tabs are not listed from threads.
 - [ADR-0009](docs/adr/0009-call-info-tab-variables.md) — a call's Info tab
   shows the call's own variables only, and why it does not merge like a chat's.
+- [ADR-0010](docs/adr/0010-closed-chats-are-left-threads.md) — closed chats are
+  the threads the agent has left, opened in the same chat window once no task
+  backs them, read without a socket, and shown without what the backend does
+  not return.
 
 ## Language
 
@@ -174,6 +178,45 @@ the agent did not send (client, bot, another agent or a system message), which i
 wider than "a new client message" in AC_02.02.05, or when the agent leaves the
 thread (transfer, removal). Rejoining does not restore it. The chat backend keeps
 it as a tag on the thread; the call-center side (the **Task**) knows nothing of it.
+
+**Ended chat** — a chat whose interaction is over (the client closed it, it
+timed out, or the agent sent **End chat**) while the agent is still a member of
+its thread: in post-processing, or waiting to be dismissed. It stays on the
+Active tab, marked with a lock and the reason it ended (AC_02.03.05–06), and
+becomes a **Closed chat** once the agent leaves the thread — the task released,
+or the agent dismissing it. The spec says "closed" for both; keep them apart.
+
+**Closed chat** — a thread the agent was a member of and has left: the chat was
+released after post-processing, transferred away, or the agent was removed. It
+is the agent's own view, like a Snoozed chat: the client's chat may carry on
+with another agent. An **Ended chat** is not closed yet, as the agent is still a
+member. Nor is a thread the agent has
+left and then joined again: while they are a member it is an active chat only,
+and it becomes a Closed chat again when they next leave.
+
+A thread is one Closed chat however many times the agent joined and left it.
+Its card shows only the **Membership periods** the agent has closed in it, so
+whatever the client wrote between two periods, or after the last, is not part of
+it.
+
+A Closed chat has no task, so its Info tab has thread variables only and says
+that the task variables are not available, rather than looking as if there were
+none.
+
+**Reopen** — bringing a Closed chat back so the agent can write in it and the
+client's reply comes back to them in the same thread (AC_04.01.06). The chat
+backend cannot do this yet, so a Closed chat has no Reopen. Sending a message to
+the client through a "via" (from the bot, fire-and-forget, the reply not routed
+back to the agent) is a different thing and must not be called Reopen.
+
+**Membership period** — one stretch of the agent's membership in a thread, from
+joining to leaving. A transfer back to the same agent starts a new one.
+
+A Closed chat's times are counted from its periods, not from the thread: it
+started when the agent first joined (a bot may have run the thread long
+before), ended when they last left, and its duration is the sum of its periods —
+the time the agent had it, without the stretches it spent with someone else.
+Its last message is the last one inside those periods.
 
 **Tab indicator** — the badge beside a chat list tab's name. The grey one is the
 number of chats on that tab. The green one, on Active only, is the number of
