@@ -181,7 +181,7 @@ describe('calls-history-name-cell', () => {
 					},
 				},
 			],
-		])('treats the %s party name equal to its number as no name', (_, item) => {
+		])('treats the %s counterpart name equal to its number as no name', (_, item) => {
 			const wrapper = mountCell(item);
 
 			expect(wrapper.find('p').text()).toBe('0501112233');

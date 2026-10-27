@@ -66,6 +66,10 @@ const { isLoading, runWithMinDuration } = useMinDurationLoader();
 const activeTab = ref<CallInfoTab>(CallInfoTab.Variables);
 const callInfo = ref<CallInfo | null>(null);
 
+const hasTranscripts = computed(() =>
+	Boolean(callInfo.value?.transcripts?.length),
+);
+
 const tabs = computed(() => [
 	{
 		value: CallInfoTab.Variables,
@@ -84,7 +88,7 @@ const tabs = computed(() => [
 			agentDescription: callInfo.value?.agentDescription,
 		},
 	},
-	...(callInfo.value?.transcripts?.length
+	...(hasTranscripts.value
 		? [
 				{
 					value: CallInfoTab.Transcription,

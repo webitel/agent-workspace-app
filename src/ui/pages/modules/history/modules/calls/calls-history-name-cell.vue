@@ -32,14 +32,14 @@ const props = defineProps<{
 }>();
 
 // backend fills `name` with the number itself when there is no member/schema name
-const getPartyName = ({ name, number }: EngineEndpoint = {}) =>
+const getCounterpartName = ({ name, number }: EngineEndpoint = {}) =>
 	name !== number ? name : undefined;
 
 const name = computed(() => {
 	const { contact, direction, to, from } = props.item;
-	const party = direction === CallDirection.Outbound ? to : from;
+	const counterpart = direction === CallDirection.Outbound ? to : from;
 
-	return contact?.name || getPartyName(party);
+	return contact?.name || getCounterpartName(counterpart);
 });
 
 const displayName = computed(
