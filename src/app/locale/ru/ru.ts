@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Открыть полный вид',
 				},
 			},
+			transfer: {
+				title: 'Перевод звонка',
+				numberLabel: 'Перевести на номер',
+				numberPlaceholder: 'Введите номер телефона',
+				modes: {
+					blind: 'Слепой',
+					consult: 'Консультативный',
+				},
+				tabs: {
+					agents: 'Операторы',
+					queues: 'Очереди',
+					users: 'Пользователи',
+					dialplans: 'Правила набора',
+				},
+			},
 			outboundCall: {
 				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',

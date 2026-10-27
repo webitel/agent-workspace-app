@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Толық көріністі ашу',
 				},
 			},
+			transfer: {
+				title: 'Қоңырауды ауыстыру',
+				numberLabel: 'Нөмірге ауыстыру',
+				numberPlaceholder: 'Телефон нөмірін енгізіңіз',
+				modes: {
+					blind: 'Тікелей',
+					consult: 'Кеңесумен',
+				},
+				tabs: {
+					agents: 'Операторлар',
+					queues: 'Кезектер',
+					users: 'Пайдаланушылар',
+					dialplans: 'Теру ережелері',
+				},
+			},
 			outboundCall: {
 				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',

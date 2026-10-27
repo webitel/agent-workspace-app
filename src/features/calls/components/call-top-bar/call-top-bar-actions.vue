@@ -56,13 +56,12 @@
 			variant="vertical"
 		/>
 
-		<!-- the transfer flow is WS-95's -->
 		<wt-button
 			:aria-label="t('ui.call.activeCall.actions.transfer')"
 			color="transfer"
 			icon="call-transfer--filled"
 			size="sm"
-			disabled
+			@click="callTransferStore.open(call.id)"
 		/>
 		<wt-button
 			:aria-label="t('ui.call.activeCall.actions.hangup')"
@@ -79,6 +78,7 @@ import { ButtonVariant } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
+import { useCallTransferStore } from '../../../../ui/call/modules/call-transfer/store/callTransfer';
 import { useCallsStore } from '../../store/calls';
 
 const props = defineProps<{
@@ -87,6 +87,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const callsStore = useCallsStore();
+const callTransferStore = useCallTransferStore();
 
 const isMuted = computed(() => Boolean(props.call.muted));
 

@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Abrir vista completa',
 				},
 			},
+			transfer: {
+				title: 'Transferir llamada',
+				numberLabel: 'Transferir al número',
+				numberPlaceholder: 'Introduzca el número de teléfono',
+				modes: {
+					blind: 'Ciega',
+					consult: 'Con consulta',
+				},
+				tabs: {
+					agents: 'Agentes',
+					queues: 'Colas',
+					users: 'Usuarios',
+					dialplans: 'Planes de marcado',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sonando',
 				noAnswer: 'Sin respuesta',

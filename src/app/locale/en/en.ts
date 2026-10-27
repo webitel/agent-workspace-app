@@ -149,6 +149,21 @@ export default {
 					openFullView: 'Open full view',
 				},
 			},
+			transfer: {
+				title: 'Transfer Call',
+				numberLabel: 'Transfer to number',
+				numberPlaceholder: 'Enter phone number',
+				modes: {
+					blind: 'Blind',
+					consult: 'Consult',
+				},
+				tabs: {
+					agents: 'Agents',
+					queues: 'Queues',
+					users: 'Users',
+					dialplans: 'Dialplans',
+				},
+			},
 			outboundCall: {
 				ringing: 'Ringing',
 				noAnswer: 'No answer',

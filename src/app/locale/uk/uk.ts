@@ -149,6 +149,21 @@ export default {
 					openFullView: 'Відкрити повний вигляд',
 				},
 			},
+			transfer: {
+				title: 'Переведення дзвінка',
+				numberLabel: 'Перевести на номер',
+				numberPlaceholder: 'Введіть номер телефону',
+				modes: {
+					blind: 'Сліпий',
+					consult: 'Консультативний',
+				},
+				tabs: {
+					agents: 'Оператори',
+					queues: 'Черги',
+					users: 'Користувачі',
+					dialplans: 'Правила набору',
+				},
+			},
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',

@@ -12,6 +12,7 @@
 				:displayed-time="timer.formatted.value"
 				@toggle-mute="emit('toggleMute')"
 				@toggle-hold="emit('toggleHold')"
+				@transfer="emit('transfer')"
 				@hangup="emit('hangup')"
 				@send-digit="emit('sendDigit', $event)"
 			/>
@@ -51,6 +52,7 @@ const emit = defineEmits<{
 	openFullView: [];
 	toggleMute: [];
 	toggleHold: [];
+	transfer: [];
 	hangup: [];
 	sendDigit: [
 		digit: string,

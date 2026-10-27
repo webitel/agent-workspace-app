@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Toʻliq koʻrinishni ochish',
 				},
 			},
+			transfer: {
+				title: 'Qoʻngʻiroqni oʻtkazish',
+				numberLabel: 'Raqamga oʻtkazish',
+				numberPlaceholder: 'Telefon raqamini kiriting',
+				modes: {
+					blind: 'Toʻgʻridan-toʻgʻri',
+					consult: 'Maslahat bilan',
+				},
+				tabs: {
+					agents: 'Operatorlar',
+					queues: 'Navbatlar',
+					users: 'Foydalanuvchilar',
+					dialplans: 'Terish qoidalari',
+				},
+			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',
 				noAnswer: 'Javob yoʻq',

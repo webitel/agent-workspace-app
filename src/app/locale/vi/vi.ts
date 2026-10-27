@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Mở chế độ xem đầy đủ',
 				},
 			},
+			transfer: {
+				title: 'Chuyển cuộc gọi',
+				numberLabel: 'Chuyển đến số',
+				numberPlaceholder: 'Nhập số điện thoại',
+				modes: {
+					blind: 'Chuyển thẳng',
+					consult: 'Chuyển có tham vấn',
+				},
+				tabs: {
+					agents: 'Tổng đài viên',
+					queues: 'Hàng đợi',
+					users: 'Người dùng',
+					dialplans: 'Kế hoạch quay số',
+				},
+			},
 			outboundCall: {
 				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',

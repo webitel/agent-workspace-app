@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Otwórz pełny widok',
 				},
 			},
+			transfer: {
+				title: 'Przekieruj połączenie',
+				numberLabel: 'Przekieruj na numer',
+				numberPlaceholder: 'Wpisz numer telefonu',
+				modes: {
+					blind: 'Bez konsultacji',
+					consult: 'Z konsultacją',
+				},
+				tabs: {
+					agents: 'Agenci',
+					queues: 'Kolejki',
+					users: 'Użytkownicy',
+					dialplans: 'Plany wybierania',
+				},
+			},
 			outboundCall: {
 				ringing: 'Dzwonienie',
 				noAnswer: 'Brak odpowiedzi',

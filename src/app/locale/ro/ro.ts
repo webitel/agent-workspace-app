@@ -138,6 +138,21 @@ export default {
 					openFullView: 'Deschide vizualizarea completă',
 				},
 			},
+			transfer: {
+				title: 'Transfer apel',
+				numberLabel: 'Transfer la numărul',
+				numberPlaceholder: 'Introduceți numărul de telefon',
+				modes: {
+					blind: 'Direct',
+					consult: 'Cu consultare',
+				},
+				tabs: {
+					agents: 'Agenți',
+					queues: 'Cozi',
+					users: 'Utilizatori',
+					dialplans: 'Planuri de apelare',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',
