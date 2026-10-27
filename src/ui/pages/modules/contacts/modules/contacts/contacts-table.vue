@@ -18,7 +18,11 @@
 			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
-				<username-table-cell :name="item.name?.commonName" />
+				<username-table-cell
+					:name="item.name?.commonName"
+					clickable
+					@click="selectContact(item.id)"
+				/>
 			</template>
 
 			<template #groups="{ item }">
@@ -66,6 +70,7 @@ import { WtTable } from '@webitel/ui-sdk/components';
 import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import TableCellInfo from '../../../../components/table-cell-info.vue';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import type { useContactsDataListStore } from './store/contacts';
@@ -82,6 +87,8 @@ const {
 	columnReorder,
 } = props.store;
 const { dataList, shownHeaders, next } = storeToRefs(props.store);
+
+const { selectContact } = useSidebarSelectionStore();
 
 const isFirstLoad = ref(false);
 const isInitializing = ref(true);
