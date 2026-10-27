@@ -4,7 +4,7 @@
 	<floating-call-widget
 		class="post-processing-call-bar"
 		:preview="preview"
-		:time-left="timeLeft"
+		:displayed-time="timeLeft"
 		@click="emit('openFullView')"
 		@open-full-view="emit('openFullView')"
 	/>
