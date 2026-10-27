@@ -6,6 +6,7 @@ import wsMissedCall from './ws-missed-call.svg?raw';
 import wsNavigationCalls from './ws-navigation-calls.svg?raw';
 import wsNavigationChats from './ws-navigation-chats.svg?raw';
 import wsNavigationContacts from './ws-navigation-contacts.svg?raw';
+import wsNavigationEmail from './ws-navigation-email.svg?raw';
 import wsNavigationHistory from './ws-navigation-history.svg?raw';
 import wsNavigationHomePage from './ws-navigation-home-page.svg?raw';
 import wsNavigationTasks from './ws-navigation-tasks.svg?raw';
@@ -33,6 +34,7 @@ const icons = {
 	'ws-play-video': wsPlayVideo,
 	'ws-chat': wsChat,
 	'wt-call-no-answer': wtCallNoAnswer,
+	'ws-navigation-email': wsNavigationEmail,
 };
 
 fillIconsRepository({

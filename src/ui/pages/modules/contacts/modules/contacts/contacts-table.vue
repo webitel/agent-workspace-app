@@ -11,7 +11,11 @@
 			:on-loading="onLoading"
 			data-key="id"
 			sortable
+			resizable-columns
+			reorderable-columns
 			@sort="(column, order) => updateSort(column, order)"
+			@column-resize="columnResize"
+			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
 				<username-table-cell :name="item.name?.commonName" />
@@ -29,6 +33,23 @@
 					:icon-color="IconColor.SUCCESS"
 					:items="item.phones?.data"
 					item-label="number"
+				/>
+			</template>
+
+			<template #emails="{ item }">
+				<table-cell-info
+					icon="ws-navigation-email"
+					:icon-color="IconColor.MAIL"
+					:items="item.emails?.data"
+					item-label="email"
+				/>
+			</template>
+
+			<template #imclients="{ item }">
+				<table-cell-info
+					icon="ws-chat"
+					:icon-color="IconColor.CHAT"
+					:items="getImclientItems(item)"
 				/>
 			</template>
 
@@ -53,7 +74,13 @@ const props = defineProps<{
 	store: ReturnType<typeof useContactsDataListStore>;
 }>();
 
-const { initialize, appendToDataList, updateSort } = props.store;
+const {
+	initialize,
+	appendToDataList,
+	updateSort,
+	columnResize,
+	columnReorder,
+} = props.store;
 const { dataList, shownHeaders, next } = storeToRefs(props.store);
 
 const isFirstLoad = ref(false);
@@ -68,6 +95,17 @@ const onLoading = async () => {
 
 function getGroupItems(item: WebitelContactsContact) {
 	return item.groups?.data?.map(({ group }) => group).filter(Boolean) ?? [];
+}
+
+function getImclientItems(item: WebitelContactsContact) {
+	return (
+		item.imclients?.data
+			?.map(({ id, user }) => ({
+				id,
+				name: user?.name,
+			}))
+			.filter(({ name }) => Boolean(name)) ?? []
+	);
 }
 
 initialize().finally(() => {
