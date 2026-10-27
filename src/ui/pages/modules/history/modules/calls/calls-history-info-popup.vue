@@ -84,14 +84,18 @@ const tabs = computed(() => [
 			agentDescription: callInfo.value?.agentDescription,
 		},
 	},
-	{
-		value: CallInfoTab.Transcription,
-		text: t('objects.transcription'),
-		component: CallsHistoryInfoTranscription,
-		props: {
-			transcripts: callInfo.value?.transcripts,
-		},
-	},
+	...(callInfo.value?.transcripts?.length
+		? [
+				{
+					value: CallInfoTab.Transcription,
+					text: t('objects.transcription'),
+					component: CallsHistoryInfoTranscription,
+					props: {
+						transcripts: callInfo.value.transcripts,
+					},
+				},
+			]
+		: []),
 ]);
 
 const activeTabConfig = computed(() =>
