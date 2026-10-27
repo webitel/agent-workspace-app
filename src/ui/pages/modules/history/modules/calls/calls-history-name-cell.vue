@@ -32,8 +32,8 @@ const props = defineProps<{
 }>();
 
 // backend fills `name` with the number itself when there is no member/schema name
-const getPartyName = (party?: EngineEndpoint) =>
-	party?.name !== party?.number ? party?.name : undefined;
+const getPartyName = ({ name, number }: EngineEndpoint = {}) =>
+	name !== number ? name : undefined;
 
 const name = computed(() => {
 	const { contact, direction, to, from } = props.item;
