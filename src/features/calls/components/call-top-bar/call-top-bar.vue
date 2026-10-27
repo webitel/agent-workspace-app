@@ -13,7 +13,7 @@
 			/>
 			<wt-icon
 				v-else
-				color="success"
+        :color="IconColor.SUCCESS"
 				icon="ws-chat-clock"
 			/>
 		</template>
