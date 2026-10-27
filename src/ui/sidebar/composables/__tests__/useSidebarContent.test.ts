@@ -3,8 +3,8 @@ import { ref } from 'vue';
 
 import { ContactsPageTab } from '../../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../../pages/modules/history/enums/HistoryPageTab.enum';
-import ContactsSidebarPanel from '../../modules/contacts/contacts-sidebar-panel.vue';
-import HistorySidebarPanel from '../../modules/history/history-sidebar-panel.vue';
+import TheContactsPanel from '../../modules/contacts/the-contacts-panel.vue';
+import TheHistoryPanel from '../../modules/history/the-history-panel.vue';
 import { useSidebarContent } from '../useSidebarContent';
 
 const routeName = ref<string | undefined>();
@@ -23,7 +23,7 @@ describe('useSidebarContent', () => {
 		const { content } = useSidebarContent();
 
 		expect(content.value).toEqual({
-			component: HistorySidebarPanel,
+			component: TheHistoryPanel,
 		});
 	});
 
@@ -32,7 +32,7 @@ describe('useSidebarContent', () => {
 		const { content } = useSidebarContent();
 
 		expect(content.value).toEqual({
-			component: ContactsSidebarPanel,
+			component: TheContactsPanel,
 		});
 	});
 
@@ -49,6 +49,6 @@ describe('useSidebarContent', () => {
 		expect(content.value).toBeNull();
 
 		routeName.value = HistoryPageTab.Calls;
-		expect(content.value?.component).toBe(HistorySidebarPanel);
+		expect(content.value?.component).toBe(TheHistoryPanel);
 	});
 });

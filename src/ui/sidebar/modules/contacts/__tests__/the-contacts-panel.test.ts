@@ -5,7 +5,7 @@ import ContactCard from '../../../components/contact/contact-card.vue';
 import ContactCreateForm from '../../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../../components/sidebar-section-header.vue';
-import ContactsSidebarPanel from '../contacts-sidebar-panel.vue';
+import TheContactsPanel from '../the-contacts-panel.vue';
 
 const ContactPanelEmptyStub = {
 	props: [
@@ -16,7 +16,7 @@ const ContactPanelEmptyStub = {
 };
 
 const mountPanel = (props: { contactId?: string } = {}) =>
-	mount(ContactsSidebarPanel, {
+	mount(TheContactsPanel, {
 		props,
 		global: {
 			stubs: {
@@ -35,7 +35,7 @@ const openCreateForm = async (wrapper: ReturnType<typeof mountPanel>) => {
 		.vm.$emit('click');
 };
 
-describe('ContactsSidebarPanel', () => {
+describe('the-contacts-panel', () => {
 	it('shows the empty state with the Contacts title when no contact is selected', () => {
 		const wrapper = mountPanel();
 

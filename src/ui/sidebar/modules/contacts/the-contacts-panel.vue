@@ -1,12 +1,12 @@
 <template>
-	<div class="contacts-sidebar-panel">
+	<div class="contacts-panel">
 		<sidebar-section-header :title="title" />
 		<contact-create-form
-			v-if="screen === ContactsSidebarScreen.Create"
+			v-if="mode === ContactsSidebarMode.Create"
 			@cancel="closeCreateForm"
 		/>
 		<contact-card
-			v-else-if="screen === ContactsSidebarScreen.Contact && contactId"
+			v-else-if="mode === ContactsSidebarMode.View && contactId"
 			:contact-id="contactId"
 		/>
 		<contact-panel-empty
@@ -31,7 +31,7 @@ import ContactCard from '../../components/contact/contact-card.vue';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../components/sidebar-section-header.vue';
-import { ContactsSidebarScreen } from './enums/ContactsSidebarScreen.enum';
+import { ContactsSidebarMode } from './enums/ContactsSidebarMode.enum';
 
 const props = defineProps<{
 	contactId?: string;
@@ -41,19 +41,19 @@ const { t } = useI18n();
 
 const isCreateFormOpen = ref(false);
 
-const screen = computed<ContactsSidebarScreen>(() => {
-	if (isCreateFormOpen.value) return ContactsSidebarScreen.Create;
-	if (props.contactId) return ContactsSidebarScreen.Contact;
-	return ContactsSidebarScreen.Empty;
+const mode = computed<ContactsSidebarMode>(() => {
+	if (isCreateFormOpen.value) return ContactsSidebarMode.Create;
+	if (props.contactId) return ContactsSidebarMode.View;
+	return ContactsSidebarMode.Empty;
 });
 
-const titleByScreen: Record<ContactsSidebarScreen, () => string> = {
-	[ContactsSidebarScreen.Empty]: () => t('objects.contact', 2),
-	[ContactsSidebarScreen.Create]: () => t('ui.sidebar.contact.addContacts'),
-	[ContactsSidebarScreen.Contact]: () => t('ui.sidebar.contact.profile'),
+const titleByMode: Record<ContactsSidebarMode, () => string> = {
+	[ContactsSidebarMode.Empty]: () => t('objects.contact', 2),
+	[ContactsSidebarMode.Create]: () => t('ui.sidebar.contact.addContacts'),
+	[ContactsSidebarMode.View]: () => t('ui.sidebar.contact.profile'),
 };
 
-const title = computed(() => titleByScreen[screen.value]());
+const title = computed(() => titleByMode[mode.value]());
 
 function openCreateForm() {
 	isCreateFormOpen.value = true;
@@ -72,7 +72,7 @@ watch(
 </script>
 
 <style scoped>
-.contacts-sidebar-panel {
+.contacts-panel {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-xs);
