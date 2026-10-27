@@ -8,7 +8,9 @@ import { mockEmit } from '../../../../../test/setup';
 import { useOffersStore } from '../../../../ui/notifications/modules/offers/store/offers';
 import { useCallsStore } from '../calls';
 
-const calls = ref<Call[]>([]);
+// replaced per test: stores from earlier tests are never disposed, and on a
+// shared ref they would keep reacting to the next test's calls
+let calls = ref<Call[]>([]);
 const subscribeCall = vi.fn();
 const clientCall = vi.fn(async () => undefined);
 const isMicrophoneAllowed = vi.fn(async () => true);
@@ -108,14 +110,14 @@ describe('useCallsStore', () => {
 				stubActions: false,
 			}),
 		);
-		calls.value = [];
+		calls = ref([]);
 		subscribeCall.mockClear();
+		playRemoteAudio.mockClear();
+		stopRemoteAudio.mockClear();
 		clientCall.mockReset();
 		clientCall.mockResolvedValue(undefined);
 		isMicrophoneAllowed.mockClear();
 		isMicrophoneAllowed.mockResolvedValue(true);
-		playRemoteAudio.mockClear();
-		stopRemoteAudio.mockClear();
 		mockEmit.mockClear();
 		localStorage.clear();
 		routerPush.mockClear();
@@ -640,6 +642,69 @@ describe('useCallsStore', () => {
 			getCallEventHandler()(action, buildCall());
 
 			expect(stopRemoteAudio).toHaveBeenCalledWith('call-1');
+		});
+
+		/**
+		 * The SDK drops `PeerStream` when the media is up before the call's
+		 * `ringing` binds its SIP session: an echo test answers that fast, and
+		 * the stream lands on the call with no event.
+		 */
+		it('plays a stream the call already carries without a PeerStream event', async () => {
+			const store = useCallsStore();
+			store.initialize();
+			const call = buildCall({
+				peerStreams: [
+					{} as MediaStream,
+				],
+			} as Partial<Call>);
+
+			calls.value = [
+				call,
+			];
+			await nextTick();
+
+			expect(playRemoteAudio).toHaveBeenCalledWith(call);
+		});
+
+		it('plays a stream that lands on a known call later', async () => {
+			const call = buildCall({
+				peerStreams: [],
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+			store.initialize();
+			await nextTick();
+			expect(playRemoteAudio).not.toHaveBeenCalled();
+
+			calls.value = [
+				buildCall({
+					peerStreams: [
+						{} as MediaStream,
+					],
+				} as Partial<Call>),
+			];
+			await nextTick();
+
+			expect(playRemoteAudio).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves the stream of an ended call alone', async () => {
+			const store = useCallsStore();
+			store.initialize();
+
+			calls.value = [
+				buildCall({
+					peerStreams: [
+						{} as MediaStream,
+					],
+					hangupAt: 1,
+				} as Partial<Call>),
+			];
+			await nextTick();
+
+			expect(playRemoteAudio).not.toHaveBeenCalled();
 		});
 	});
 

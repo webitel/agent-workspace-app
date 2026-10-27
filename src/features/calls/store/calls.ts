@@ -316,6 +316,34 @@ export const useCallsStore = defineStore('calls', () => {
 		);
 	}
 
+	/**
+	 * `PeerStream` alone is not enough. The SDK fires it only for a call whose
+	 * SIP session is already bound, and when the media is up before the call's
+	 * `ringing` binds it (an echo test answers that fast) the stream lands on
+	 * the call with no event at all. Playing whatever stream a live call carries
+	 * covers that path; the event stays, and playback ignores a repeat.
+	 */
+	function subscribeToRemoteAudio() {
+		const callsWithRemoteStream = () =>
+			callList.value.filter(
+				(call) => !call.hangupAt && call.peerStreams?.length > 0,
+			);
+
+		const register = () =>
+			watch(
+				() => callsWithRemoteStream().map((call) => call.peerStreams.at(-1)),
+				() => {
+					for (const call of callsWithRemoteStream()) playRemoteAudio(call);
+				},
+				{
+					immediate: true,
+				},
+			);
+
+		if (storeScope) storeScope.run(register);
+		else register();
+	}
+
 	function onCallEvent(action: CallActions, changedCall: Call) {
 		switch (action) {
 			case CallActions.PeerStream:
@@ -331,6 +359,7 @@ export const useCallsStore = defineStore('calls', () => {
 	function initialize() {
 		const client = getClient();
 		client.subscribeCall(onCallEvent, null);
+		subscribeToRemoteAudio();
 
 		offersStore.initialize();
 		subscribeToCallInProgress();
