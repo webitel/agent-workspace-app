@@ -77,8 +77,10 @@ export default {
 				tabs: {
 					info: 'Informații',
 					postProcessing: 'Post-procesare',
-					interaction: 'Interacțiune',
+					interaction: 'Interacțiuni',
+					screenshots: 'Capturi de ecran',
 					contact: 'Contact',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
