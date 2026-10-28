@@ -95,6 +95,11 @@ export default {
 					contact: 'Contacto',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Anclar chat',
+					transfer: 'Transferir chat',
+					end: 'Finalizar chat',
+				},
 			},
 			history: {
 				tabs: {

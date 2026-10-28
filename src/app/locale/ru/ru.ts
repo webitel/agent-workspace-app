@@ -95,6 +95,11 @@ export default {
 					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Закрепить чат',
+					transfer: 'Перевести чат',
+					end: 'Завершить чат',
+				},
 			},
 			history: {
 				tabs: {

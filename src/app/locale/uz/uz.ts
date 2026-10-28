@@ -95,6 +95,11 @@ export default {
 					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Chatni mahkamlash',
+					transfer: 'Chatni yoʻnaltirish',
+					end: 'Chatni tugatish',
+				},
 			},
 			history: {
 				tabs: {

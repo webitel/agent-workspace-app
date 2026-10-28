@@ -95,6 +95,11 @@ export default {
 					contact: 'Contact',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Fixează chatul',
+					transfer: 'Transferă chatul',
+					end: 'Încheie chatul',
+				},
 			},
 			history: {
 				tabs: {

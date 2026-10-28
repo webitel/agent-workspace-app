@@ -95,6 +95,11 @@ export default {
 					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Przypnij czat',
+					transfer: 'Przekieruj czat',
+					end: 'Zakończ czat',
+				},
 			},
 			history: {
 				tabs: {

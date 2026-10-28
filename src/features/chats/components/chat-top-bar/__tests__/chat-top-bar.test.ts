@@ -59,6 +59,7 @@ function makeTask(overrides = {}) {
 
 const stubs = {
 	'wt-icon': true,
+	'wt-divider': true,
 	'wt-avatar': {
 		props: [
 			'username',
@@ -131,6 +132,14 @@ describe('chat-top-bar', () => {
 
 		expect(endButton(wrapper).exists()).toBe(true);
 		expect(wrapper.find('.post-processing-timer').exists()).toBe(false);
+	});
+
+	it('keeps pin in place but disabled', () => {
+		const wrapper = mountBar(makeTask());
+
+		const pin = wrapper.find('.button.pin');
+		expect(pin.exists()).toBe(true);
+		expect(pin.attributes('disabled')).toBeDefined();
 	});
 
 	it('keeps transfer in place but disabled', () => {

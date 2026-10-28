@@ -95,6 +95,11 @@ export default {
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Ghim cuộc trò chuyện',
+					transfer: 'Chuyển cuộc trò chuyện',
+					end: 'Kết thúc cuộc trò chuyện',
+				},
 			},
 			history: {
 				tabs: {

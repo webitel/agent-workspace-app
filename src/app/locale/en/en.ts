@@ -103,6 +103,7 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Pin chat',
 					transfer: 'Transfer chat',
 					end: 'End chat',
 				},
