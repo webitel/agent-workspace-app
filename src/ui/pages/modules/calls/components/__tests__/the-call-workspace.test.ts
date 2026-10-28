@@ -11,11 +11,19 @@ const route = reactive({
 	},
 });
 const routerReplaceMock = vi.fn();
+let routeLeaveGuard: (() => void) | undefined;
+let routeUpdateGuard: (() => void) | undefined;
 vi.mock('vue-router', () => ({
 	useRoute: () => route,
 	useRouter: () => ({
 		replace: (...args: unknown[]) => routerReplaceMock(...args),
 	}),
+	onBeforeRouteLeave: (guard: () => void) => {
+		routeLeaveGuard = guard;
+	},
+	onBeforeRouteUpdate: (guard: () => void) => {
+		routeUpdateGuard = guard;
+	},
 }));
 
 const callsById = reactive<
@@ -27,10 +35,13 @@ const callsById = reactive<
 	>
 >({});
 const takeReturnTargetMock = vi.fn<(callId: string) => string | undefined>();
+const forgetReturnTargetMock = vi.fn<(callId: string) => void>();
 vi.mock('../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({
 		getCallById: (id: string) => callsById[id],
 		takeReturnTarget: (callId: string) => takeReturnTargetMock(callId),
+		forgetReturnTargetOfUnansweredCall: (callId: string) =>
+			forgetReturnTargetMock(callId),
 	}),
 }));
 
@@ -61,6 +72,8 @@ describe('the-call-workspace', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		takeReturnTargetMock.mockReset();
+		routeLeaveGuard = undefined;
+		routeUpdateGuard = undefined;
 		route.params.callId = 'call-1';
 		for (const key of Object.keys(callsById)) delete callsById[key];
 	});
@@ -96,6 +109,28 @@ describe('the-call-workspace', () => {
 		await nextTick();
 
 		expect(routerReplaceMock).toHaveBeenCalledWith('/calls');
+	});
+
+	it("forgets the visit's target when the agent navigates away from the window (WS-105)", () => {
+		callsById['call-1'] = {
+			id: 'call-1',
+		};
+		mountWorkspace();
+
+		routeLeaveGuard?.();
+
+		expect(forgetReturnTargetMock).toHaveBeenCalledWith('call-1');
+	});
+
+	it('forgets the target when the window moves on to another call (WS-105)', () => {
+		callsById['call-1'] = {
+			id: 'call-1',
+		};
+		mountWorkspace();
+
+		routeUpdateGuard?.();
+
+		expect(forgetReturnTargetMock).toHaveBeenCalledWith('call-1');
 	});
 
 	it('gives way to where the agent was when they accepted the call (AC_13.01.13)', async () => {
