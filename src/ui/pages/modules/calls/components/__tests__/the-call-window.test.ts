@@ -168,7 +168,9 @@ describe('the-call-window', () => {
 		expect(tabValues(wrapper)).toEqual([
 			'info',
 			'interaction',
+			'screenshots',
 			'contact',
+			'iframe',
 		]);
 		const info = wrapper.findComponent({
 			name: 'CallInfo',
@@ -189,10 +191,12 @@ describe('the-call-window', () => {
 		const wrapper = mountWindow();
 
 		expect(tabsOf(wrapper).map((tab) => tab.text)).toEqual([
-			'ui.pages.calls.tabs.info',
 			'ui.pages.calls.tabs.postProcessing',
+			'ui.pages.calls.tabs.info',
 			'ui.pages.calls.tabs.interaction',
+			'ui.pages.calls.tabs.screenshots',
 			'ui.pages.calls.tabs.contact',
+			'ui.pages.calls.tabs.iframe',
 		]);
 	});
 
@@ -204,7 +208,9 @@ describe('the-call-window', () => {
 		expect(tabValues(wrapper)).toEqual([
 			'info',
 			'interaction',
+			'screenshots',
 			'contact',
+			'iframe',
 		]);
 		expect(wrapper.find('.info-stub').exists()).toBe(true);
 	});
@@ -225,12 +231,16 @@ describe('the-call-window', () => {
 				.map((tab) => tab.value),
 		).toEqual([
 			'interaction',
+			'screenshots',
 			'contact',
+			'iframe',
 		]);
 
 		for (const value of [
 			'interaction',
+			'screenshots',
 			'contact',
+			'iframe',
 		]) {
 			await selectTab(wrapper, value);
 			expect(wrapper.find('.info-stub').exists()).toBe(true);
@@ -247,10 +257,12 @@ describe('the-call-window', () => {
 		await nextTick();
 
 		expect(tabValues(wrapper)).toEqual([
-			'info',
 			'processing',
+			'info',
 			'interaction',
+			'screenshots',
 			'contact',
+			'iframe',
 		]);
 		expect(showsForm(wrapper)).toBe(false);
 

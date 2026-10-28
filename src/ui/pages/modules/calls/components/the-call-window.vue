@@ -61,7 +61,7 @@ type CallWindowTab = 'info' | 'processing';
 interface CallWindowTabItem {
 	value: string;
 	text: string;
-	/** the tab shows in the strip (US_03.04, US_03.05) but has no content yet */
+	/** the tab shows in the strip (DES-711) but has no content yet */
 	disabled?: boolean;
 }
 
@@ -89,14 +89,10 @@ const defaultTab = (): CallWindowTab =>
 
 const activeTab = ref<CallWindowTab>(defaultTab());
 
-// The chat window's strip, for a call: Info, Post-processing, then the tabs
-// whose content is not built yet. Only Post-processing comes and goes with the
-// form, and a form arriving mid-call does not pull the agent away from Info.
+// The strip follows Figma (DES-711): Post-processing, Info, then the tabs whose
+// content is not built yet. Only Post-processing comes and goes with the form,
+// and a form arriving mid-call does not pull the agent away from Info.
 const tabs = computed<CallWindowTabItem[]>(() => [
-	{
-		value: 'info',
-		text: t('ui.pages.calls.tabs.info'),
-	},
 	...(hasForm.value
 		? [
 				{
@@ -106,13 +102,27 @@ const tabs = computed<CallWindowTabItem[]>(() => [
 			]
 		: []),
 	{
+		value: 'info',
+		text: t('ui.pages.calls.tabs.info'),
+	},
+	{
 		value: 'interaction',
 		text: t('ui.pages.calls.tabs.interaction'),
 		disabled: true,
 	},
 	{
+		value: 'screenshots',
+		text: t('ui.pages.calls.tabs.screenshots'),
+		disabled: true,
+	},
+	{
 		value: 'contact',
 		text: t('ui.pages.calls.tabs.contact'),
+		disabled: true,
+	},
+	{
+		value: 'iframe',
+		text: t('ui.pages.calls.tabs.iframe'),
 		disabled: true,
 	},
 ]);
