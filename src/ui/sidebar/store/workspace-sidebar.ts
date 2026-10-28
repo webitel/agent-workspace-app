@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useSidebarSelectionStore } from './sidebar-selection';
 
 export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 	const isOpen = ref(false);
@@ -8,12 +9,18 @@ export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 		isOpen.value = true;
 	}
 
+	/**
+	 * The selection lives only while the panel is open,
+	 * so the next open starts from the empty state
+	 */
 	function close() {
 		isOpen.value = false;
+		useSidebarSelectionStore().clearSelection();
 	}
 
 	function toggle() {
-		isOpen.value = !isOpen.value;
+		if (isOpen.value) close();
+		else open();
 	}
 
 	return {
