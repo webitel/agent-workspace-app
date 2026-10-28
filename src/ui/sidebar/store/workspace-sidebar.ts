@@ -4,7 +4,6 @@ import { useSidebarSelectionStore } from './sidebar-selection';
 
 export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 	const isOpen = ref(false);
-	const { clearSelection } = useSidebarSelectionStore();
 
 	function open() {
 		isOpen.value = true;
@@ -12,11 +11,13 @@ export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 
 	/**
 	 * The selection lives only while the panel is open,
-	 * so the next open starts from the empty state
+	 * so the next open starts from the empty state.
+	 * The selection store is resolved here, not in setup:
+	 * the two stores depend on each other
 	 */
 	function close() {
 		isOpen.value = false;
-		clearSelection();
+		useSidebarSelectionStore().clearSelection();
 	}
 
 	function toggle() {
