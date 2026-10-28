@@ -95,6 +95,11 @@ export default {
 					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
+				topBar: {
+					pin: 'Чатты бекіту',
+					transfer: 'Чатты қайта бағыттау',
+					end: 'Чатты аяқтау',
+				},
 			},
 			history: {
 				tabs: {
