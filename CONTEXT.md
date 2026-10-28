@@ -144,7 +144,9 @@ agent lands on that section's list instead.
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
 yet and the agent is not a member of its thread. It joins the list once
-accepted.
+accepted. Clicking the body of its **Offer card** opens the chat in the central
+panel as a read-only preview, and its top bar carries the same Accept and
+Decline as the card.
 
 **Offer card** — the incoming-interaction notification that presents an Offer in
 the top-right corner. Calls and chats share one design.

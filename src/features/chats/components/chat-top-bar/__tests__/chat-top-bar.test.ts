@@ -32,6 +32,8 @@ vi.mock('vue-i18n', async (importOriginal) => ({
 	}),
 }));
 
+import { useOffersStore } from '../../../../../ui/notifications/modules/offers/store/offers';
+import type { Offer } from '../../../../../ui/notifications/modules/offers/types/Offer.types';
 import ChatTopBar from '../chat-top-bar.vue';
 
 let nextId = 1;
@@ -58,6 +60,17 @@ function makeTask(overrides = {}) {
 }
 
 const stubs = {
+	TaskTopBarOfferActions: {
+		props: [
+			'pending',
+		],
+		emits: [
+			'accept',
+			'decline',
+		],
+		template:
+			'<div class="offer-actions-stub"><button class="accept" @click="$emit(\'accept\')" /><button class="decline" @click="$emit(\'decline\')" /></div>',
+	},
 	'wt-icon': true,
 	'wt-divider': true,
 	'wt-avatar': {
@@ -132,6 +145,77 @@ describe('chat-top-bar', () => {
 
 		expect(endButton(wrapper).exists()).toBe(true);
 		expect(wrapper.find('.post-processing-timer').exists()).toBe(false);
+	});
+
+	describe('while the chat is offered (AC_06.01.04)', () => {
+		const mountOfferedBar = async (task = makeTask()) => {
+			const wrapper = mountBar(task);
+			useOffersStore().offers = [
+				{
+					id: String(task.id),
+				} as Offer,
+			];
+			await nextTick();
+			return wrapper;
+		};
+
+		it('offers accept and decline instead of the chat actions', async () => {
+			const wrapper = await mountOfferedBar();
+
+			expect(wrapper.find('.offer-actions-stub').exists()).toBe(true);
+			expect(endButton(wrapper).exists()).toBe(false);
+			expect(wrapper.find('.button.pin').exists()).toBe(false);
+			expect(wrapper.find('.button.chat-transfer--filled').exists()).toBe(
+				false,
+			);
+		});
+
+		it('offers nothing to act on for a chat that is not an offer', () => {
+			const wrapper = mountBar(makeTask());
+
+			expect(wrapper.find('.offer-actions-stub').exists()).toBe(false);
+		});
+
+		it('still shows who the chat is with and its queue', async () => {
+			const wrapper = await mountOfferedBar();
+
+			expect(wrapper.text()).toContain('client_username');
+			expect(wrapper.text()).toContain('Support');
+		});
+
+		it('accepts the offer through the offers store', async () => {
+			const task = makeTask();
+			const wrapper = await mountOfferedBar(task);
+			const accept = vi
+				.spyOn(useOffersStore(), 'accept')
+				.mockResolvedValue(undefined);
+
+			await wrapper.find('.accept').trigger('click');
+
+			expect(accept).toHaveBeenCalledWith(String(task.id));
+		});
+
+		it('declines the offer through the offers store', async () => {
+			const task = makeTask();
+			const wrapper = await mountOfferedBar(task);
+			const decline = vi
+				.spyOn(useOffersStore(), 'decline')
+				.mockResolvedValue(undefined);
+
+			await wrapper.find('.decline').trigger('click');
+
+			expect(decline).toHaveBeenCalledWith(String(task.id));
+		});
+
+		it('gives way to the chat actions once the offer is gone', async () => {
+			const wrapper = await mountOfferedBar();
+
+			useOffersStore().offers = [];
+			await nextTick();
+
+			expect(wrapper.find('.offer-actions-stub').exists()).toBe(false);
+			expect(endButton(wrapper).exists()).toBe(true);
+		});
 	});
 
 	it('keeps pin in place but disabled', () => {

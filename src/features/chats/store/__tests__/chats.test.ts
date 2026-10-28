@@ -396,6 +396,34 @@ describe('chats store', () => {
 		expect(store.incomingOffers).toHaveLength(1);
 	});
 
+	it('finds a chat task by thread id, an offered chat included', () => {
+		tasks.value = [
+			{
+				channel: 'im',
+				offeringAt: 1,
+				bridgedAt: 0,
+				closedAt: 0,
+				thread: {
+					id: 'offered-thread',
+				},
+			},
+			{
+				channel: 'im',
+				offeringAt: 1,
+				bridgedAt: 2,
+				closedAt: 0,
+				thread: {
+					id: 'listed-thread',
+				},
+			},
+		];
+		const store = useChatsStore();
+
+		expect(store.getTaskByThreadId('offered-thread')).toBe(tasks.value[0]);
+		expect(store.getTaskByThreadId('listed-thread')).toBe(tasks.value[1]);
+		expect(store.getTaskByThreadId('unknown')).toBeUndefined();
+	});
+
 	describe('incoming offers', () => {
 		// `null`, not `undefined`: passing undefined would re-apply the default
 		const buildOffer = (id = 1, threadId: string | null = 'thread-1') => ({

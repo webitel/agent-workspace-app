@@ -74,7 +74,7 @@ const stubs = {
 		],
 		template: '<div class="actions-stub" />',
 	},
-	CallTopBarOfferActions: {
+	TaskTopBarOfferActions: {
 		props: [
 			'pending',
 		],
