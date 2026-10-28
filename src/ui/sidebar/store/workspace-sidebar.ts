@@ -4,6 +4,7 @@ import { useSidebarSelectionStore } from './sidebar-selection';
 
 export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 	const isOpen = ref(false);
+	const { clearSelection } = useSidebarSelectionStore();
 
 	function open() {
 		isOpen.value = true;
@@ -15,7 +16,7 @@ export const useWorkspaceSidebarStore = defineStore('sidebar', () => {
 	 */
 	function close() {
 		isOpen.value = false;
-		useSidebarSelectionStore().clearSelection();
+		clearSelection();
 	}
 
 	function toggle() {
