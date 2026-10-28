@@ -103,6 +103,7 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Закріпити чат',
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 				},

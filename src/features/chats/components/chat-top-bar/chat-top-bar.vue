@@ -24,7 +24,23 @@
 		</template>
 
 		<template #actions>
-			<!-- not in the MVP: Е6 owns the transfer flow, the button holds its place -->
+			<!-- not in the MVP: pinning a chat (AC_03.01.01 p.6) and Е6's transfer
+			     flow; the buttons hold their place -->
+			<wt-button
+				:aria-label="t('ui.pages.chats.topBar.pin')"
+				color="secondary"
+				icon="pin"
+				size="sm"
+				variant="text"
+				width-by-content
+				disabled
+			/>
+
+			<wt-divider
+				class="chat-top-bar__divider"
+				variant="vertical"
+			/>
+
 			<wt-button
 				:aria-label="t('ui.pages.chats.topBar.transfer')"
 				color="transfer"
@@ -100,3 +116,13 @@ async function end() {
 	}
 }
 </script>
+
+<style scoped>
+/* a vertical divider is as tall as its container, which sets no height of its
+   own; stretched, it spans the buttons as in DES-730 */
+.chat-top-bar__divider {
+	align-self: stretch;
+	min-height: auto;
+	padding: 0;
+}
+</style>
