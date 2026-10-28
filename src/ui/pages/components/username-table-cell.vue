@@ -29,6 +29,7 @@ withDefaults(
 		clickable?: boolean;
 	}>(),
 	{
+		name: '',
 		clickable: false,
 	},
 );
