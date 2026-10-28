@@ -1,5 +1,5 @@
 <template>
-	<div class="call-top-bar-offer-actions">
+	<div class="task-top-bar-offer-actions">
 		<wt-button
 			:disabled="Boolean(pending)"
 			:loading="pending === 'accept'"
@@ -25,10 +25,11 @@
 import { WtButton } from '@webitel/ui-sdk/components';
 import { ButtonColor, ComponentSize } from '@webitel/ui-sdk/enums';
 import { useI18n } from 'vue-i18n';
-import type { OfferAction } from '../../../../ui/notifications/modules/offers/types/Offer.types';
+import type { OfferAction } from '../notifications/modules/offers/types/Offer.types';
 
 /**
  * @author Oleksandr Palonnyi
+ * Accept / Decline for the offer a task window is showing, a call's or a chat's.
  * `pending` locks both buttons while an action runs, like the offer card's,
  * so the SDK is never asked twice
  * [WS-105](https://webitel.atlassian.net/browse/WS-105)
@@ -46,7 +47,7 @@ const { t } = useI18n();
 </script>
 
 <style scoped>
-.call-top-bar-offer-actions {
+.task-top-bar-offer-actions {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);

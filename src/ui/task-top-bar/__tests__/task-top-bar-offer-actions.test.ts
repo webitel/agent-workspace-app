@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-import CallTopBarOfferActions from '../call-top-bar-offer-actions.vue';
+import TaskTopBarOfferActions from '../task-top-bar-offer-actions.vue';
 
 const WtButtonStub = {
 	props: [
@@ -14,7 +14,7 @@ const WtButtonStub = {
 };
 
 const mountActions = (pending?: 'accept' | 'decline') =>
-	mount(CallTopBarOfferActions, {
+	mount(TaskTopBarOfferActions, {
 		props: {
 			pending,
 		},
@@ -25,7 +25,7 @@ const mountActions = (pending?: 'accept' | 'decline') =>
 		},
 	});
 
-describe('call-top-bar-offer-actions', () => {
+describe('task-top-bar-offer-actions', () => {
 	it('emits accept and decline', async () => {
 		const actions = mountActions();
 

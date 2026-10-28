@@ -24,45 +24,56 @@
 		</template>
 
 		<template #actions>
-			<!-- not in the MVP: pinning a chat (AC_03.01.01 p.6) and Е6's transfer
-			     flow; the buttons hold their place -->
-			<wt-button
-				:aria-label="t('ui.pages.chats.topBar.pin')"
-				color="secondary"
-				icon="pin"
-				size="sm"
-				variant="text"
-				width-by-content
-				disabled
+			<!-- an offer the agent is looking at before choosing (AC_06.01.04): the
+			     same two buttons as the offer card, through the same store, so the
+			     two share one in-flight lock -->
+			<task-top-bar-offer-actions
+				v-if="isOffered"
+				:pending="offersStore.pendingAction(offerId)"
+				@accept="offersStore.accept(offerId)"
+				@decline="offersStore.decline(offerId)"
 			/>
+			<template v-else>
+				<!-- not in the MVP: pinning a chat (AC_03.01.01 p.6) and Е6's transfer
+				     flow; the buttons hold their place -->
+				<wt-button
+					:aria-label="t('ui.pages.chats.topBar.pin')"
+					color="secondary"
+					icon="pin"
+					size="sm"
+					variant="text"
+					width-by-content
+					disabled
+				/>
 
-			<wt-divider
-				class="chat-top-bar__divider"
-				variant="vertical"
-			/>
+				<wt-divider
+					class="chat-top-bar__divider"
+					variant="vertical"
+				/>
 
-			<wt-button
-				:aria-label="t('ui.pages.chats.topBar.transfer')"
-				color="transfer"
-				icon="chat-transfer--filled"
-				size="sm"
-				disabled
-			/>
-			<wt-tooltip v-if="!isPostProcessing">
-				<template #activator>
-					<div>
-						<wt-button
-							:loading="isEnding"
-							:aria-label="t('ui.pages.chats.topBar.end')"
-							color="error"
-							icon="chat-end--filled"
-							size="sm"
-							@click="end"
-						/>
-					</div>
-				</template>
-				{{ t('ui.pages.chats.topBar.end') }}
-			</wt-tooltip>
+				<wt-button
+					:aria-label="t('ui.pages.chats.topBar.transfer')"
+					color="transfer"
+					icon="chat-transfer--filled"
+					size="sm"
+					disabled
+				/>
+				<wt-tooltip v-if="!isPostProcessing">
+					<template #activator>
+						<div>
+							<wt-button
+								:loading="isEnding"
+								:aria-label="t('ui.pages.chats.topBar.end')"
+								color="error"
+								icon="chat-end--filled"
+								size="sm"
+								@click="end"
+							/>
+						</div>
+					</template>
+					{{ t('ui.pages.chats.topBar.end') }}
+				</wt-tooltip>
+			</template>
 		</template>
 	</task-top-bar>
 </template>
@@ -72,7 +83,9 @@ import { eventBus } from '@webitel/ui-sdk/scripts';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
+import { useOffersStore } from '../../../../ui/notifications/modules/offers/store/offers';
 import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
+import TaskTopBarOfferActions from '../../../../ui/task-top-bar/task-top-bar-offer-actions.vue';
 import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
 import { toChatHeader } from '../../scripts/toChatHeader';
@@ -84,8 +97,14 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const chatsStore = useChatsStore();
+const offersStore = useOffersStore();
 
 const header = computed(() => toChatHeader(props.task));
+
+// The offer card and this bar are one offer: it is keyed by the task, and it
+// lives only while the chat is still being offered to the agent.
+const offerId = computed(() => String(props.task.id));
+const isOffered = computed(() => offersStore.hasOffer(offerId.value));
 const isPostProcessing = computed(
 	() => useProcessingStore(props.task).isPostProcessing,
 );
