@@ -20,6 +20,10 @@ export default {
 				active: 'Aktywne',
 				snoozed: 'Odłożone',
 			},
+			snooze: {
+				action: 'Odłóż',
+				error: 'Nie udało się odłożyć czatu',
+			},
 		},
 		notifications: {
 			offer: {

@@ -43,9 +43,27 @@ vi.mock('@webitel/ui-chats/v2', () => ({
 		emits: [
 			'seen',
 		],
-		template: '<div class="chat-thread-stub" />',
+		template: '<div class="chat-thread-stub"><slot name="history-end" /></div>',
 	},
 }));
+
+const snoozedThreadIds = new Set<string>();
+vi.mock(
+	'../../../../../../features/chats/modules/previews/store/chat-snoozed',
+	() => ({
+		useChatSnoozedStore: () => ({
+			isSnoozed: (threadId: string) => snoozedThreadIds.has(threadId),
+		}),
+	}),
+);
+
+const ChatSnoozeButtonStub = {
+	name: 'ChatSnoozeButton',
+	props: [
+		'threadId',
+	],
+	template: '<button class="chat-snooze-button-stub" />',
+};
 
 const mountThread = (props = {}) =>
 	mount(TheChatThread, {
@@ -56,6 +74,9 @@ const mountThread = (props = {}) =>
 					createSpy: vi.fn,
 				}),
 			],
+			stubs: {
+				ChatSnoozeButton: ChatSnoozeButtonStub,
+			},
 		},
 	});
 
@@ -77,6 +98,43 @@ const withThread = async (wrapper: ReturnType<typeof mountThread>) => {
 describe('the-chat-thread', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		snoozedThreadIds.clear();
+	});
+
+	// AC_03.02.01: Snooze sits after the newest message of an active chat
+	describe('snooze button', () => {
+		const snoozeButton = (wrapper: ReturnType<typeof mountThread>) =>
+			wrapper.findComponent({
+				name: 'ChatSnoozeButton',
+			});
+
+		it('offers Snooze in an active chat', async () => {
+			const wrapper = mountThread({
+				mode: 'active',
+			});
+			await withThread(wrapper);
+
+			expect(snoozeButton(wrapper).props('threadId')).toBe('chat-1');
+		});
+
+		it('offers no Snooze in a chat that is not active', async () => {
+			const wrapper = mountThread({
+				mode: 'readonly',
+			});
+			await withThread(wrapper);
+
+			expect(snoozeButton(wrapper).exists()).toBe(false);
+		});
+
+		it('offers no Snooze once the chat is snoozed', async () => {
+			snoozedThreadIds.add('chat-1');
+			const wrapper = mountThread({
+				mode: 'active',
+			});
+			await withThread(wrapper);
+
+			expect(snoozeButton(wrapper).exists()).toBe(false);
+		});
 	});
 
 	it('renders nothing until the thread has loaded', () => {

@@ -20,6 +20,10 @@ export default {
 				active: 'Белсенді',
 				snoozed: 'Кейінге қалдырылған',
 			},
+			snooze: {
+				action: 'Кейінге қалдыру',
+				error: 'Чатты кейінге қалдыру мүмкін болмады',
+			},
 		},
 		notifications: {
 			offer: {

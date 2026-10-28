@@ -20,6 +20,10 @@ export default {
 				active: 'Activos',
 				snoozed: 'Pospuestos',
 			},
+			snooze: {
+				action: 'Posponer',
+				error: 'No se pudo posponer el chat',
+			},
 		},
 		notifications: {
 			offer: {

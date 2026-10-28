@@ -20,6 +20,10 @@ export default {
 				active: 'Đang hoạt động',
 				snoozed: 'Đã tạm hoãn',
 			},
+			snooze: {
+				action: 'Tạm hoãn',
+				error: 'Không thể tạm hoãn cuộc trò chuyện',
+			},
 		},
 		notifications: {
 			offer: {

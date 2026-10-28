@@ -20,6 +20,10 @@ export default {
 				active: 'Active',
 				snoozed: 'Snoozed',
 			},
+			snooze: {
+				action: 'Snooze',
+				error: "Couldn't snooze the chat",
+			},
 		},
 		notifications: {
 			offer: {

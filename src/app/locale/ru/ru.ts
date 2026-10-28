@@ -20,6 +20,10 @@ export default {
 				active: 'Активные',
 				snoozed: 'Отложенные',
 			},
+			snooze: {
+				action: 'Отложить',
+				error: 'Не удалось отложить чат',
+			},
 		},
 		notifications: {
 			offer: {
