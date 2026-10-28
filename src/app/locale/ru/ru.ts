@@ -148,12 +148,6 @@ export default {
 					blind: 'Слепой',
 					consult: 'Консультативный',
 				},
-				tabs: {
-					agents: 'Операторы',
-					queues: 'Очереди',
-					users: 'Пользователи',
-					dialplans: 'Правила набора',
-				},
 			},
 			outboundCall: {
 				ringing: 'Вызов',

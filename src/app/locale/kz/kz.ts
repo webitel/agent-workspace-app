@@ -148,12 +148,6 @@ export default {
 					blind: 'Тікелей',
 					consult: 'Кеңесумен',
 				},
-				tabs: {
-					agents: 'Операторлар',
-					queues: 'Кезектер',
-					users: 'Пайдаланушылар',
-					dialplans: 'Теру ережелері',
-				},
 			},
 			outboundCall: {
 				ringing: 'Қоңырау шалынуда',

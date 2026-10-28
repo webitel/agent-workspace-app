@@ -22,6 +22,8 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 			queue_name: 'Sales',
 		},
 		answeredAt: 1_700_000_000_000,
+		hangupAt: 0,
+		allowTransfer: true,
 		isHold: false,
 		muted: false,
 		digits: [],
@@ -37,6 +39,7 @@ describe('toActiveCallContent', () => {
 			answeredAt: 1_700_000_000_000,
 			isHold: false,
 			isMuted: false,
+			canTransfer: true,
 			dtmfDigits: '',
 		});
 	});

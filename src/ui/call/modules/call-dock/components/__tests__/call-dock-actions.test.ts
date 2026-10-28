@@ -8,6 +8,7 @@ const mountActions = (
 		isNumpadOpen: boolean;
 		isMuted: boolean;
 		isHold: boolean;
+		canTransfer: boolean;
 	}> = {},
 ) =>
 	mount(CallDockActions, {
@@ -15,6 +16,7 @@ const mountActions = (
 			isNumpadOpen: false,
 			isMuted: false,
 			isHold: false,
+			canTransfer: true,
 			...props,
 		},
 		global: {
@@ -85,6 +87,16 @@ describe('call-dock-actions', () => {
 		expect(
 			findAction(wrapper, 'hangup').attributes('aria-pressed'),
 		).toBeUndefined();
+	});
+
+	it('disables transfer when the call cannot be transferred', () => {
+		const wrapper = mountActions({
+			canTransfer: false,
+		});
+
+		expect(
+			findAction(wrapper, 'transfer').attributes('disabled'),
+		).toBeDefined();
 	});
 
 	it('emits transfer without marking the action pressed', async () => {

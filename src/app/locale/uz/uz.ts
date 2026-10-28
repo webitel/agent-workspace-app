@@ -148,12 +148,6 @@ export default {
 					blind: 'Toʻgʻridan-toʻgʻri',
 					consult: 'Maslahat bilan',
 				},
-				tabs: {
-					agents: 'Operatorlar',
-					queues: 'Navbatlar',
-					users: 'Foydalanuvchilar',
-					dialplans: 'Terish qoidalari',
-				},
 			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',

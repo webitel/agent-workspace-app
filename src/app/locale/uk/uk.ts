@@ -159,12 +159,6 @@ export default {
 					blind: 'Сліпий',
 					consult: 'Консультативний',
 				},
-				tabs: {
-					agents: 'Оператори',
-					queues: 'Черги',
-					users: 'Користувачі',
-					dialplans: 'Правила набору',
-				},
 			},
 			outboundCall: {
 				ringing: 'Виклик',
@@ -181,6 +175,7 @@ export default {
 			holdToggleFailed:
 				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
 			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
+			transferFailed: 'Не вдалося переадресувати дзвінок. Спробуйте ще раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

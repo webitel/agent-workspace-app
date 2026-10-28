@@ -148,12 +148,6 @@ export default {
 					blind: 'Bez konsultacji',
 					consult: 'Z konsultacją',
 				},
-				tabs: {
-					agents: 'Agenci',
-					queues: 'Kolejki',
-					users: 'Użytkownicy',
-					dialplans: 'Plany wybierania',
-				},
 			},
 			outboundCall: {
 				ringing: 'Dzwonienie',

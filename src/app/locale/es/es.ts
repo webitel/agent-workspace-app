@@ -148,12 +148,6 @@ export default {
 					blind: 'Ciega',
 					consult: 'Con consulta',
 				},
-				tabs: {
-					agents: 'Agentes',
-					queues: 'Colas',
-					users: 'Usuarios',
-					dialplans: 'Planes de marcado',
-				},
 			},
 			outboundCall: {
 				ringing: 'Sonando',

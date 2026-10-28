@@ -61,6 +61,7 @@
 			color="transfer"
 			icon="call-transfer--filled"
 			size="sm"
+			:disabled="!canTransfer"
 			@click="callTransferStore.open(call.id)"
 		/>
 		<wt-button
@@ -79,6 +80,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
 import { useCallTransferStore } from '../../../../ui/call/modules/call-transfer/store/callTransfer';
+import { canTransferCall } from '../../scripts/canTransferCall';
 import { useCallsStore } from '../../store/calls';
 
 const props = defineProps<{
@@ -90,6 +92,7 @@ const callsStore = useCallsStore();
 const callTransferStore = useCallTransferStore();
 
 const isMuted = computed(() => Boolean(props.call.muted));
+const canTransfer = computed(() => canTransferCall(props.call));
 
 // wt-button has no pressed state of its own; the dock's actions mark one by
 // filling the button, and the bar follows suit

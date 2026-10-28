@@ -148,12 +148,6 @@ export default {
 					blind: 'Chuyển thẳng',
 					consult: 'Chuyển có tham vấn',
 				},
-				tabs: {
-					agents: 'Tổng đài viên',
-					queues: 'Hàng đợi',
-					users: 'Người dùng',
-					dialplans: 'Kế hoạch quay số',
-				},
 			},
 			outboundCall: {
 				ringing: 'Đang đổ chuông',

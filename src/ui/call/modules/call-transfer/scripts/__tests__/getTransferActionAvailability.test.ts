@@ -47,6 +47,16 @@ describe('getTransferActionAvailability', () => {
 		expect(availability.byNumber).toEqual(NONE);
 	});
 
+	it('treats a number of only non-dialable characters as no number', () => {
+		const availability = getTransferActionAvailability({
+			number: ' ( - ) ',
+			tab: TransferTab.Agents,
+			hasSelection: false,
+		});
+
+		expect(availability.byNumber).toEqual(NONE);
+	});
+
 	it('hands the buttons over to the selected row even when a number is typed', () => {
 		const availability = getTransferActionAvailability({
 			number: '1001',

@@ -1,3 +1,4 @@
+import { sanitizeDestination } from '../../../../../features/calls/scripts/sanitizeDestination';
 import { TRANSFER_MODES_BY_TAB } from '../constants/transferModesByTab';
 import { TransferMode } from '../enums/TransferMode.enum';
 import type { TransferTab } from '../enums/TransferTab.enum';
@@ -19,7 +20,8 @@ export function getTransferActionAvailability({
 	tab: TransferTab;
 	hasSelection: boolean;
 }): TransferActionAvailability {
-	const isNumberSendable = number.trim().length > 0 && !hasSelection;
+	const isNumberSendable =
+		sanitizeDestination(number).length > 0 && !hasSelection;
 	const modesOfTab = TRANSFER_MODES_BY_TAB[tab];
 
 	return {

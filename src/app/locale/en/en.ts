@@ -159,12 +159,6 @@ export default {
 					blind: 'Blind',
 					consult: 'Consult',
 				},
-				tabs: {
-					agents: 'Agents',
-					queues: 'Queues',
-					users: 'Users',
-					dialplans: 'Dialplans',
-				},
 			},
 			outboundCall: {
 				ringing: 'Ringing',
@@ -182,6 +176,7 @@ export default {
 			holdToggleFailed:
 				'The call could not be put on hold or resumed. Please try again.',
 			dtmfFailed: 'The digit could not be sent. Please try again.',
+			transferFailed: 'The call could not be transferred. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

@@ -12,9 +12,12 @@ const callState = reactive({
 	} as Record<string, unknown> | undefined,
 });
 
+const blindTransferMock = vi.fn();
+
 vi.mock('../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({
 		getCallById: () => callState.call,
+		blindTransfer: (...args: unknown[]) => blindTransferMock(...args),
 	}),
 }));
 
@@ -36,12 +39,13 @@ const stubs = {
 	'wt-input-text': {
 		props: [
 			'modelValue',
+			'disabled',
 		],
 		emits: [
 			'update:modelValue',
 		],
 		template:
-			'<input class="number" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+			'<input class="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
 	'wt-button': {
 		props: [
@@ -98,6 +102,8 @@ const isDisabled = (button: { attributes: (name: string) => unknown }) =>
 
 describe('call-transfer-popup', () => {
 	beforeEach(() => {
+		blindTransferMock.mockReset();
+		blindTransferMock.mockResolvedValue(true);
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -142,26 +148,53 @@ describe('call-transfer-popup', () => {
 		expect(bottomButtons(wrapper).slice(0, 2).every(isDisabled)).toBe(true);
 	});
 
-	it('requests a blind transfer to the typed number, trimmed', async () => {
+	it('blind-transfers the call to the typed number, sanitized like a dialled one', async () => {
 		const wrapper = mountPopup();
-		await wrapper.find('.number').setValue(' 1001 ');
+		await wrapper.find('.number').setValue(' +380 (67) 123-45-67 ');
 
 		await topButtons(wrapper)[0].trigger('click');
 
-		expect(wrapper.emitted('transfer')).toEqual([
-			[
-				{
-					mode: 'blind',
-					destination: {
-						kind: 'number',
-						number: '1001',
-					},
-				},
-			],
-		]);
+		expect(blindTransferMock).toHaveBeenCalledWith('call-1', '+380671234567');
+		expect(wrapper.emitted('transfer')).toBeUndefined();
 	});
 
-	it('requests a consult transfer to the typed number', async () => {
+	it('locks the buttons and the field while the transfer is in flight', async () => {
+		let finishTransfer: (isTransferred: boolean) => void = () => {};
+		blindTransferMock.mockReturnValue(
+			new Promise<boolean>((resolve) => {
+				finishTransfer = resolve;
+			}),
+		);
+		const wrapper = mountPopup();
+		await wrapper.find('.number').setValue('1001');
+
+		await topButtons(wrapper)[0].trigger('click');
+
+		expect(topButtons(wrapper).every(isDisabled)).toBe(true);
+		expect(isDisabled(wrapper.find('.number'))).toBe(true);
+
+		finishTransfer(false);
+		await flushPromises();
+
+		expect(topButtons(wrapper).every(isDisabled)).toBe(false);
+		expect(isDisabled(wrapper.find('.number'))).toBe(false);
+	});
+
+	it('stays open with the typed number when the transfer fails', async () => {
+		blindTransferMock.mockResolvedValue(false);
+		const wrapper = mountPopup();
+		await wrapper.find('.number').setValue('1001');
+
+		await topButtons(wrapper)[0].trigger('click');
+		await flushPromises();
+
+		expect(useCallTransferStore().isOpen).toBe(true);
+		expect((wrapper.find('.number').element as HTMLInputElement).value).toBe(
+			'1001',
+		);
+	});
+
+	it('only requests a consult transfer to the typed number, it is not executed yet', async () => {
 		const wrapper = mountPopup();
 		await wrapper.find('.number').setValue('1001');
 
@@ -170,6 +203,7 @@ describe('call-transfer-popup', () => {
 		expect(wrapper.emitted('transfer')?.[0][0]).toMatchObject({
 			mode: 'consult',
 		});
+		expect(blindTransferMock).not.toHaveBeenCalled();
 	});
 
 	it('keeps the typed number and clears the search when the tab changes', async () => {

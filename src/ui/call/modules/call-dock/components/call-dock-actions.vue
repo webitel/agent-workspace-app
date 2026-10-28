@@ -40,6 +40,7 @@
 			:color="ButtonColor.TRANSFER"
 			:variant="ButtonVariant.TEXT"
 			:aria-label="t('ui.call.activeCall.actions.transfer')"
+			:disabled="!canTransfer"
 			width-by-content
 			@click="emit('transfer')"
 		/>
@@ -72,6 +73,7 @@ defineProps<{
 	isNumpadOpen: boolean;
 	isMuted: boolean;
 	isHold: boolean;
+	canTransfer: boolean;
 }>();
 
 const emit = defineEmits<{

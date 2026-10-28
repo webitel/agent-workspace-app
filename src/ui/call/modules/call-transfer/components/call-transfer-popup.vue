@@ -16,13 +16,14 @@
 						class="call-transfer-popup__number-input"
 						:label="t('ui.call.transfer.numberLabel')"
 						:placeholder="t('ui.call.transfer.numberPlaceholder')"
+						:disabled="isSubmitting"
 					/>
 					<wt-button
 						v-for="mode in transferModes"
 						:key="mode"
 						:color="ButtonColor.SECONDARY"
 						:variant="ButtonVariant.OUTLINED"
-						:disabled="!availability.byNumber[mode]"
+						:disabled="isSubmitting || !availability.byNumber[mode]"
 						@click="requestTransferToNumber(mode)"
 					>
 						{{ t(`ui.call.transfer.modes.${mode}`) }}
@@ -57,7 +58,7 @@
 				v-for="mode in transferModes"
 				:key="mode"
 				:color="ButtonColor.SECONDARY"
-				:disabled="!availability.bySelection[mode]"
+				:disabled="isSubmitting || !availability.bySelection[mode]"
 				@click="requestTransferToRow(mode)"
 			>
 				{{ t(`ui.call.transfer.modes.${mode}`) }}
@@ -85,6 +86,7 @@ import { type Component, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { isActiveCall } from '../../../../../features/calls/scripts/isActiveCall';
+import { sanitizeDestination } from '../../../../../features/calls/scripts/sanitizeDestination';
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import { TransferMode } from '../enums/TransferMode.enum';
 import { TransferTab } from '../enums/TransferTab.enum';
@@ -108,6 +110,7 @@ const number = ref('');
 const activeTab = ref<TransferTab>(TransferTab.Agents);
 const searchQuery = ref('');
 const selectedRowId = ref<string | null>(null);
+const isSubmitting = ref(false);
 
 /**
  * @author Oleksandr Palonnyi
@@ -126,19 +129,19 @@ const tabs = computed<
 >(() => [
 	{
 		value: TransferTab.Agents,
-		text: t('ui.call.transfer.tabs.agents'),
+		text: t('objects.agent.agent', 2),
 	},
 	{
 		value: TransferTab.Queues,
-		text: t('ui.call.transfer.tabs.queues'),
+		text: t('objects.queue.queue', 2),
 	},
 	{
 		value: TransferTab.Users,
-		text: t('ui.call.transfer.tabs.users'),
+		text: t('objects.user', 2),
 	},
 	{
 		value: TransferTab.Dialplans,
-		text: t('ui.call.transfer.tabs.dialplans'),
+		text: t('WtApplication.admin.sections.dialplan'),
 	},
 ]);
 
@@ -167,14 +170,37 @@ function onTabChange(tab: { value: TransferTab }): void {
 	searchQuery.value = '';
 }
 
-function requestTransferToNumber(mode: TransferMode): void {
-	emit('transfer', {
-		mode,
-		destination: {
-			kind: 'number',
-			number: number.value.trim(),
-		},
-	});
+/**
+ * @author Oleksandr Palonnyi
+ * only a blind transfer to a typed number is executed so far; the consult
+ * and the tab rows are later stories and still just emit the request. On
+ * success the popup is left open on purpose: it closes when the call leaves
+ * the list, and on failure it keeps the typed number for another try
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+async function requestTransferToNumber(mode: TransferMode): Promise<void> {
+	const destinationNumber = sanitizeDestination(number.value);
+
+	if (mode !== TransferMode.Blind) {
+		emit('transfer', {
+			mode,
+			destination: {
+				kind: 'number',
+				number: destinationNumber,
+			},
+		});
+		return;
+	}
+
+	const { transferCallId } = callTransferStore;
+	if (isSubmitting.value || transferCallId === null) return;
+
+	isSubmitting.value = true;
+	try {
+		await callsStore.blindTransfer(transferCallId, destinationNumber);
+	} finally {
+		isSubmitting.value = false;
+	}
 }
 
 function requestTransferToRow(mode: TransferMode): void {
@@ -200,9 +226,15 @@ const isTransferredCallActive = computed(() =>
  * ended on another device) has nothing left to transfer
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-watch(isTransferredCallActive, (isActive) => {
-	if (!isActive) callTransferStore.close();
-});
+watch(
+	isTransferredCallActive,
+	(isActive) => {
+		if (!isActive) callTransferStore.close();
+	},
+	{
+		immediate: true,
+	},
+);
 </script>
 
 <style scoped>

@@ -69,6 +69,7 @@
 			:is-numpad-open="isNumpadOpen"
 			:is-muted="preview.isMuted"
 			:is-hold="preview.isHold"
+			:can-transfer="preview.canTransfer"
 			@toggle-numpad="isNumpadOpen = !isNumpadOpen"
 			@toggle-mute="emit('toggleMute')"
 			@toggle-hold="emit('toggleHold')"

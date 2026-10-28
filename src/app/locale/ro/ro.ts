@@ -148,12 +148,6 @@ export default {
 					blind: 'Direct',
 					consult: 'Cu consultare',
 				},
-				tabs: {
-					agents: 'Agenți',
-					queues: 'Cozi',
-					users: 'Utilizatori',
-					dialplans: 'Planuri de apelare',
-				},
 			},
 			outboundCall: {
 				ringing: 'Sună',

@@ -33,6 +33,9 @@ const buildCall = (overrides: Record<string, unknown> = {}): Call =>
 		id: 'call-1',
 		muted: false,
 		isHold: false,
+		answeredAt: 1_700_000_000_000,
+		hangupAt: 0,
+		allowTransfer: true,
 		...overrides,
 	}) as unknown as Call;
 
@@ -71,6 +74,18 @@ describe('call-top-bar-actions', () => {
 		await findAction(mountActions(), 'transfer').trigger('click');
 
 		expect(openTransferMock).toHaveBeenCalledWith('call-1');
+	});
+
+	it('disables transfer when the call cannot be transferred', () => {
+		const wrapper = mountActions(
+			buildCall({
+				allowTransfer: false,
+			}),
+		);
+
+		expect(
+			findAction(wrapper, 'transfer').attributes('disabled'),
+		).toBeDefined();
 	});
 
 	it('holds a place for the actions not built yet, disabled (AC_13.01.03, .05, .07)', () => {
