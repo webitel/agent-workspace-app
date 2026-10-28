@@ -19,9 +19,11 @@ vi.mock('../../../../store/chats', () => ({
 }));
 
 const fetchThreadsMock = vi.fn();
+const snoozeMock = vi.fn();
 vi.mock('../../../../api/chatSdk', () => ({
 	threadsService: {
 		fetchThreads: (...args: unknown[]) => fetchThreadsMock(...args),
+		snooze: (...args: unknown[]) => snoozeMock(...args),
 	},
 }));
 
@@ -46,6 +48,7 @@ describe('chat-snoozed store', () => {
 	beforeEach(() => {
 		chatTaskList.value = [];
 		fetchThreadsMock.mockReset();
+		snoozeMock.mockReset();
 		setActivePinia(createPinia());
 	});
 
@@ -200,6 +203,52 @@ describe('chat-snoozed store', () => {
 			});
 
 			expect(store.isSnoozed('t1')).toBe(false);
+		});
+	});
+	// AC_03.02.03: the chat moves to Snoozed at once, the agent stays on it
+	describe('snooze', () => {
+		it('moves the chat to Snoozed before the backend answers', async () => {
+			chatTaskList.value = buildChats('t1', 't2');
+			let answer: () => void = () => {};
+			snoozeMock.mockReturnValue(
+				new Promise<void>((resolve) => {
+					answer = resolve;
+				}),
+			);
+			const store = useChatSnoozedStore();
+
+			const pending = store.snooze('t1');
+
+			expect(store.isSnoozed('t1')).toBe(true);
+			expect(snoozeMock).toHaveBeenCalledWith('t1');
+			answer();
+			await pending;
+			expect(store.isSnoozed('t1')).toBe(true);
+		});
+
+		// the caller says why; the chat must not look snoozed meanwhile
+		it('returns the chat to Active and rethrows when snoozing fails', async () => {
+			const failure = new Error('403');
+			snoozeMock.mockRejectedValue(failure);
+			const store = useChatSnoozedStore();
+
+			await expect(store.snooze('t1')).rejects.toBe(failure);
+
+			expect(store.isSnoozed('t1')).toBe(false);
+		});
+
+		it('does not ask again for a chat that is already snoozed', async () => {
+			fetchThreadsMock.mockResolvedValue(
+				page([
+					't1',
+				]),
+			);
+			const store = useChatSnoozedStore();
+			await store.load();
+
+			await store.snooze('t1');
+
+			expect(snoozeMock).not.toHaveBeenCalled();
 		});
 	});
 });

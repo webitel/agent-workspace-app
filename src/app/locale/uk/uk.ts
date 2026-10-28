@@ -20,6 +20,10 @@ export default {
 				active: 'Активні',
 				snoozed: 'Відкладені',
 			},
+			snooze: {
+				action: 'Відкласти',
+				error: 'Не вдалося відкласти чат',
+			},
 		},
 		notifications: {
 			offer: {

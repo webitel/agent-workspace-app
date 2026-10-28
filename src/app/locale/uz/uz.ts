@@ -20,6 +20,10 @@ export default {
 				active: 'Faol',
 				snoozed: 'Kechiktirilgan',
 			},
+			snooze: {
+				action: 'Kechiktirish',
+				error: "Chatni kechiktirib bo'lmadi",
+			},
 		},
 		notifications: {
 			offer: {

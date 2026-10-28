@@ -12,7 +12,14 @@
 			@send="chatSession.sendText"
 			@attach="chatSession.sendFiles"
 			@seen="handleSeen"
-		/>
+		>
+			<template
+				v-if="isSnoozeOffered"
+				#history-end
+			>
+				<chat-snooze-button :thread-id="threadId" />
+			</template>
+		</chat-thread>
 	</section>
 </template>
 
@@ -29,6 +36,8 @@ import {
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+import ChatSnoozeButton from '../../../../../features/chats/components/chat-snooze-button/chat-snooze-button.vue';
+import { useChatSnoozedStore } from '../../../../../features/chats/modules/previews/store/chat-snoozed';
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
 
 const props = withDefaults(
@@ -51,6 +60,15 @@ const thread = computed(() => chatSession.value.thread);
 const messages = computed(() => chatSession.value.messages);
 const hasMore = computed(() => chatSession.value.hasMore);
 const selfMemberId = computed(() => chatSession.value.selfMemberId);
+
+const snoozedStore = useChatSnoozedStore();
+// AC_03.02.01: an active chat offers Snooze after its newest message, and a
+// snoozed one has nothing left to offer
+const isSnoozeOffered = computed(
+	() =>
+		props.mode === ChatThreadMode.Active &&
+		!snoozedStore.isSnoozed(threadId.value),
+);
 
 const chatActions = [
 	ChatComposerAction.Attach,
