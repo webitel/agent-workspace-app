@@ -14,6 +14,9 @@ const tasks = ref<
 		offeringAt?: number;
 		bridgedAt?: number;
 		closedAt?: number;
+		thread?: {
+			id: string;
+		};
 	}[]
 >([]);
 
