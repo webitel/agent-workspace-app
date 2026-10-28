@@ -77,8 +77,10 @@ export default {
 				tabs: {
 					info: 'Información',
 					postProcessing: 'Posprocesamiento',
-					interaction: 'Interacción',
+					interaction: 'Interacciones',
+					screenshots: 'Capturas de pantalla',
 					contact: 'Contacto',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {

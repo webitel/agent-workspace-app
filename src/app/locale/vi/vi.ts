@@ -78,7 +78,9 @@ export default {
 					info: 'Thông tin',
 					postProcessing: 'Xử lý sau',
 					interaction: 'Tương tác',
+					screenshots: 'Ảnh chụp màn hình',
 					contact: 'Liên hệ',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {

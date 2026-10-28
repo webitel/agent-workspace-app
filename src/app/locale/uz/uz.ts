@@ -77,8 +77,10 @@ export default {
 				tabs: {
 					info: "Ma'lumot",
 					postProcessing: 'Keyingi ishlov',
-					interaction: "O'zaro aloqa",
+					interaction: "O'zaro aloqalar",
+					screenshots: 'Skrinshotlar',
 					contact: 'Kontakt',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {

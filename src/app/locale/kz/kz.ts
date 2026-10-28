@@ -77,8 +77,10 @@ export default {
 				tabs: {
 					info: 'Ақпарат',
 					postProcessing: 'Кейінгі өңдеу',
-					interaction: 'Өзара әрекет',
+					interaction: 'Өзара әрекеттер',
+					screenshots: 'Скриншоттар',
 					contact: 'Контакт',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {

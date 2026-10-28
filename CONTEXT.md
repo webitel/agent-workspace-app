@@ -138,9 +138,17 @@ An outbound call the callee answers, a call picked up on a desk phone or in
 another tab, and a call already connected when the page loads do not pull the
 agent anywhere; they reach the window from the call dock.
 
-**Return target** — where the agent was when they accepted the call: the screen
-a Call window that opened by itself gives way to when it closes (task released,
-or hangup for a call with no task). The agent is taken back only if they are
+It also hosts an **Offer** the agent has not accepted yet: clicking the body of
+its **Offer card** (not its buttons) opens the window so the agent can read the
+call's Info before choosing Accept or Decline. The Offer card steps aside while
+that window is open and comes back when the agent leaves it without accepting.
+This is not a **Missed call**, which is a history entry: a call the agent never
+answered and that has ended.
+
+**Return target** — where the agent was when they accepted the call, or opened
+its Offer's window: the screen a Call window that opened by itself gives way to
+when it closes (task released, hangup for a call with no task, or an Offer that
+is declined or ends before it is answered). The agent is taken back only if they are
 still on that Call window at that moment;
 having left it, they stay where they are. A return target that no longer exists
 (a chat since closed, a call since released) is not followed further back — the
