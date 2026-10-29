@@ -51,11 +51,6 @@ const emit = defineEmits<{
 }
 
 .username-table-cell__name--clickable {
-	padding: 0;
-	border: none;
-	background: none;
-	color: inherit;
-	font: inherit;
 	text-align: start;
 	cursor: pointer;
 }
