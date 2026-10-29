@@ -77,11 +77,13 @@ vi.mock('../chat-account', () => ({
 
 const receivePreviewMessageMock = vi.fn();
 const reseedPreviewsMock = vi.fn();
+const loadUnreadMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
 		receiveMessage: receivePreviewMessageMock,
 		reseed: reseedPreviewsMock,
+		loadUnread: loadUnreadMock,
 	}),
 }));
 
@@ -295,6 +297,18 @@ describe('chats store', () => {
 					'snoozed',
 				],
 			});
+		});
+
+		// which chats have unread messages, and how many, is the chat backend's to say
+		it('reads the unread chats on initialize and again once the socket is back', () => {
+			const store = useChatsStore();
+			store.initialize();
+			expect(loadUnreadMock).toHaveBeenCalledOnce();
+			loadUnreadMock.mockClear();
+
+			reconnectedHandler?.();
+
+			expect(loadUnreadMock).toHaveBeenCalledOnce();
 		});
 
 		it('reads the snoozed chats again once the socket is back', () => {

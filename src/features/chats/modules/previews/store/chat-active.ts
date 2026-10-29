@@ -27,9 +27,8 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 	);
 
 	/**
-	 * The toggle exists only while there is unread data behind it; the backend
-	 * does not supply any yet (see `chat-previews`). Gating on the data rather
-	 * than on a flag means nothing changes here the day it arrives.
+	 * The toggle exists only while there is unread data behind it, which
+	 * `chat-previews` reads from the chat backend (ADR-0011).
 	 */
 	const isUnreadFilterAvailable = computed(() => previewsStore.hasUnreadData);
 
