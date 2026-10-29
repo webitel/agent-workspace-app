@@ -160,6 +160,12 @@ export default {
 				title: 'Transfer Call',
 				numberLabel: 'Transfer to number',
 				numberPlaceholder: 'Enter phone number',
+				emptyList: 'Nothing found',
+				columns: {
+					name: 'Name',
+					status: 'Status',
+					team: 'Team',
+				},
 				modes: {
 					blind: 'Blind',
 					consult: 'Consult',

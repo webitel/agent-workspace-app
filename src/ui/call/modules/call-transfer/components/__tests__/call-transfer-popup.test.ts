@@ -25,6 +25,7 @@ import { useCallTransferStore } from '../../store/callTransfer';
 import CallTransferPopup from '../call-transfer-popup.vue';
 
 const stubs = {
+	CallTransferAgentsTable: true,
 	'wt-popup': {
 		emits: [
 			'close',

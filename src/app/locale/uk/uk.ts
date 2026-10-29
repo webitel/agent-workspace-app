@@ -160,6 +160,12 @@ export default {
 				title: 'Переведення дзвінка',
 				numberLabel: 'Перевести на номер',
 				numberPlaceholder: 'Введіть номер телефону',
+				emptyList: 'Нічого не знайдено',
+				columns: {
+					name: "Ім'я",
+					status: 'Статус',
+					team: 'Команда',
+				},
 				modes: {
 					blind: 'Сліпий',
 					consult: 'Консультативний',

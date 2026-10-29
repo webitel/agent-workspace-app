@@ -93,6 +93,7 @@ import { TransferTab } from '../enums/TransferTab.enum';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
 import { useCallTransferStore } from '../store/callTransfer';
 import type { TransferRequest } from '../types/CallTransfer.types';
+import CallTransferAgentsTable from './call-transfer-agents-table.vue';
 
 const emit = defineEmits<{
 	transfer: [
@@ -114,10 +115,9 @@ const isSubmitting = ref(false);
 
 /**
  * @author Oleksandr Palonnyi
- * the tab bodies (the lists of agents, queues, users and dialplans) are
- * separate stories and not built yet, so no tab has a component here; a body
- * takes the search text and owns the selected row through
- * `v-model:selected-row-id`
+ * the tab bodies are built one per PR, a tab without a component shows an
+ * empty list area; a body takes the search text and owns the selected row
+ * through `v-model:selected-row-id`
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 const tabs = computed<
@@ -130,6 +130,7 @@ const tabs = computed<
 	{
 		value: TransferTab.Agents,
 		text: t('objects.agent.agent', 2),
+		component: CallTransferAgentsTable,
 	},
 	{
 		value: TransferTab.Queues,
