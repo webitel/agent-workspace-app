@@ -239,6 +239,31 @@ async function scrollUpUntil(page: Page, expected: () => Promise<void>) {
 
 const composerField = (page: Page) => page.locator('.chat-composer textarea');
 
+/** Answers the snooze request with `status`; returns how many were made. */
+async function mockSnooze(page: Page, status = 200) {
+	const calls: string[] = [];
+	await page.route(`**/api/v1/threads/${THREAD_ID}/snooze`, async (route) => {
+		calls.push(route.request().method());
+		await route.fulfill({
+			status,
+			contentType: 'application/json',
+			body: JSON.stringify(
+				status === 200
+					? {}
+					: {
+							message: 'forbidden',
+						},
+			),
+		});
+	});
+	return calls;
+}
+
+const listTab = (page: Page, name: string) =>
+	page.locator('.chat-list-tabs .wt-tab', {
+		hasText: name,
+	});
+
 test.describe('chat thread', () => {
 	test.beforeEach(() => {
 		test.setTimeout(60_000);
@@ -481,5 +506,45 @@ test.describe('chat thread', () => {
 		await expect(
 			page.locator('.chat-history').getByText('Photo and invoice'),
 		).toBeVisible();
+	});
+	// AC_03.02.01, AC_03.02.03
+	test.describe('snooze', () => {
+		test('moves the open chat to Snoozed and keeps it open', async ({
+			page,
+			socket,
+		}) => {
+			await mockThread(page);
+			const calls = await mockSnooze(page);
+			await openChat(page, socket);
+
+			const snooze = page.locator('.chat-history .chat-snooze-button');
+			await expect(snooze).toBeVisible();
+			await snooze.click();
+
+			await expect(snooze).toHaveCount(0);
+			expect(calls).toEqual([
+				'POST',
+			]);
+			await expect(page.locator('.chat-history')).toBeVisible();
+			await expect(listTab(page, 'Snoozed').locator('.wt-badge')).toHaveText(
+				'1',
+			);
+			await expect(page.locator('.chat-preview')).toHaveCount(0);
+		});
+
+		test('keeps the chat on Active when the backend refuses', async ({
+			page,
+			socket,
+		}) => {
+			await mockThread(page);
+			await mockSnooze(page, 403);
+			await openChat(page, socket);
+
+			await page.locator('.chat-snooze-button').click();
+
+			await expect(page.getByText("Couldn't snooze the chat")).toBeVisible();
+			await expect(page.locator('.chat-snooze-button')).toBeVisible();
+			await expect(page.locator('.chat-preview')).toHaveCount(1);
+		});
 	});
 });

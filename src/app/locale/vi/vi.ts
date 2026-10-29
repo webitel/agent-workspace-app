@@ -20,6 +20,10 @@ export default {
 				active: 'Đang hoạt động',
 				snoozed: 'Đã tạm hoãn',
 			},
+			snooze: {
+				action: 'Tạm hoãn',
+				error: 'Không thể tạm hoãn cuộc trò chuyện',
+			},
 		},
 		notifications: {
 			offer: {
@@ -94,6 +98,11 @@ export default {
 					interaction: 'Tương tác',
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Ghim cuộc trò chuyện',
+					transfer: 'Chuyển cuộc trò chuyện',
+					end: 'Kết thúc cuộc trò chuyện',
 				},
 			},
 			history: {

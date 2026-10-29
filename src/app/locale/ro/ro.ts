@@ -20,6 +20,10 @@ export default {
 				active: 'Active',
 				snoozed: 'Amânate',
 			},
+			snooze: {
+				action: 'Amână',
+				error: 'Chatul nu a putut fi amânat',
+			},
 		},
 		notifications: {
 			offer: {
@@ -94,6 +98,11 @@ export default {
 					interaction: 'Interacțiune',
 					contact: 'Contact',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Fixează chatul',
+					transfer: 'Transferă chatul',
+					end: 'Încheie chatul',
 				},
 			},
 			history: {

@@ -20,6 +20,10 @@ export default {
 				active: 'Active',
 				snoozed: 'Snoozed',
 			},
+			snooze: {
+				action: 'Snooze',
+				error: "Couldn't snooze the chat",
+			},
 		},
 		notifications: {
 			offer: {
@@ -103,6 +107,7 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Pin chat',
 					transfer: 'Transfer chat',
 					end: 'End chat',
 				},

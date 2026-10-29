@@ -35,7 +35,7 @@
 		</template>
 
 		<template #actions>
-			<call-top-bar-offer-actions
+			<task-top-bar-offer-actions
 				v-if="isOffered"
 				:pending="offersStore.pendingAction(call.id)"
 				@accept="offersStore.accept(call.id)"
@@ -56,12 +56,12 @@ import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
 import { useOffersStore } from '../../../../ui/notifications/modules/offers/store/offers';
 import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
+import TaskTopBarOfferActions from '../../../../ui/task-top-bar/task-top-bar-offer-actions.vue';
 import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
 import { isActiveCall } from '../../scripts/isActiveCall';
 import { toActiveCallContent } from '../../scripts/toActiveCallContent';
 import CallTopBarActions from './call-top-bar-actions.vue';
-import CallTopBarOfferActions from './call-top-bar-offer-actions.vue';
 
 const props = defineProps<{
 	call: Call;

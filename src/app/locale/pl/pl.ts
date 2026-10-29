@@ -20,6 +20,10 @@ export default {
 				active: 'Aktywne',
 				snoozed: 'Odłożone',
 			},
+			snooze: {
+				action: 'Odłóż',
+				error: 'Nie udało się odłożyć czatu',
+			},
 		},
 		notifications: {
 			offer: {
@@ -94,6 +98,11 @@ export default {
 					interaction: 'Interakcja',
 					contact: 'Kontakt',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Przypnij czat',
+					transfer: 'Przekieruj czat',
+					end: 'Zakończ czat',
 				},
 			},
 			history: {

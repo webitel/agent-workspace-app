@@ -10,11 +10,14 @@
 import { WtLayout } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { useSidebarContent } from '../composables/useSidebarContent';
+import { useSidebarRouteReset } from '../composables/useSidebarRouteReset';
 import { useWorkspaceSidebarStore } from '../store/workspace-sidebar';
 
 const { isOpen } = storeToRefs(useWorkspaceSidebarStore());
 
 const { content } = useSidebarContent();
+
+useSidebarRouteReset();
 </script>
 
 <style scoped>

@@ -64,18 +64,38 @@ export const useChatSnoozedStore = defineStore('chat-snoozed', () => {
 		threadIds.value = loaded;
 	}
 
-	// the tags are the agent's full set on that thread, not a diff
-	function receiveTagsChanged({
-		threadId,
-		tags,
-	}: Pick<SocketThreadTagsChangedEventPayload, 'threadId' | 'tags'>) {
-		const snoozed = tags.includes(ThreadTag.Snoozed);
+	function setSnoozed(threadId: string, snoozed: boolean) {
 		if (snoozed === isSnoozed(threadId)) return;
 
 		const next = new Set(threadIds.value);
 		if (snoozed) next.add(threadId);
 		else next.delete(threadId);
 		threadIds.value = next;
+	}
+
+	// the tags are the agent's full set on that thread, not a diff
+	function receiveTagsChanged({
+		threadId,
+		tags,
+	}: Pick<SocketThreadTagsChangedEventPayload, 'threadId' | 'tags'>) {
+		setSnoozed(threadId, tags.includes(ThreadTag.Snoozed));
+	}
+
+	/**
+	 * Moves the chat to Snoozed at once and asks the backend after
+	 * (AC_03.02.03); a refusal moves it back and is rethrown for the caller to
+	 * report. The tags event that follows a success changes nothing.
+	 */
+	async function snooze(threadId: string) {
+		if (isSnoozed(threadId)) return;
+
+		setSnoozed(threadId, true);
+		try {
+			await threadsService.snooze(threadId);
+		} catch (err) {
+			setSnoozed(threadId, false);
+			throw err;
+		}
 	}
 
 	return {
@@ -90,6 +110,7 @@ export const useChatSnoozedStore = defineStore('chat-snoozed', () => {
 		// actions
 		load,
 		receiveTagsChanged,
+		snooze,
 	};
 });
 

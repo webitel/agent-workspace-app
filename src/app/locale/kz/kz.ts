@@ -20,6 +20,10 @@ export default {
 				active: 'Белсенді',
 				snoozed: 'Кейінге қалдырылған',
 			},
+			snooze: {
+				action: 'Кейінге қалдыру',
+				error: 'Чатты кейінге қалдыру мүмкін болмады',
+			},
 		},
 		notifications: {
 			offer: {
@@ -94,6 +98,11 @@ export default {
 					interaction: 'Өзара әрекет',
 					contact: 'Контакт',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Чатты бекіту',
+					transfer: 'Чатты қайта бағыттау',
+					end: 'Чатты аяқтау',
 				},
 			},
 			history: {

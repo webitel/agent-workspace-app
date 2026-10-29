@@ -1,10 +1,14 @@
+import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { WtButton } from '@webitel/ui-sdk/components';
-import { describe, expect, it } from 'vitest';
+import { setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 import ContactCard from '../../../components/contact/contact-card.vue';
 import ContactCreateForm from '../../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../../components/sidebar-section-header.vue';
+import { useSidebarSelectionStore } from '../../../store/sidebar-selection';
 import TheContactsPanel from '../the-contacts-panel.vue';
 
 const ContactPanelEmptyStub = {
@@ -15,9 +19,8 @@ const ContactPanelEmptyStub = {
 	template: '<div><slot name="actions" /></div>',
 };
 
-const mountPanel = (props: { contactId?: string } = {}) =>
+const mountPanel = () =>
 	mount(TheContactsPanel, {
-		props,
 		global: {
 			stubs: {
 				ContactPanelEmpty: ContactPanelEmptyStub,
@@ -35,7 +38,20 @@ const openCreateForm = async (wrapper: ReturnType<typeof mountPanel>) => {
 		.vm.$emit('click');
 };
 
+const selectContact = async (id: string) => {
+	useSidebarSelectionStore().selectContact(id);
+	await nextTick();
+};
+
 describe('the-contacts-panel', () => {
+	beforeEach(() => {
+		setActivePinia(
+			createTestingPinia({
+				stubActions: false,
+			}),
+		);
+	});
+
 	it('shows the empty state with the Contacts title when no contact is selected', () => {
 		const wrapper = mountPanel();
 
@@ -66,10 +82,10 @@ describe('the-contacts-panel', () => {
 		expect(getTitle(wrapper)).toBe('objects.contact');
 	});
 
-	it('shows the contact card with the Profile title when a contact is selected', () => {
-		const wrapper = mountPanel({
-			contactId: '1',
-		});
+	it('shows the contact card with the Profile title when a contact is selected', async () => {
+		const wrapper = mountPanel();
+
+		await selectContact('1');
 
 		expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('1');
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
@@ -80,9 +96,7 @@ describe('the-contacts-panel', () => {
 		const wrapper = mountPanel();
 		await openCreateForm(wrapper);
 
-		await wrapper.setProps({
-			contactId: '2',
-		});
+		await selectContact('2');
 
 		expect(wrapper.findComponent(ContactCreateForm).exists()).toBe(false);
 		expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('2');
