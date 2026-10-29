@@ -43,7 +43,7 @@ describe('useContact', () => {
 
 	const setup = (initialId: string) => {
 		const contactId = ref(initialId);
-		const result = scope.run(() => useContact(contactId))!;
+		const result = scope.run(() => useContact(contactId));
 		return {
 			contactId,
 			...result,
