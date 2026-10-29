@@ -153,7 +153,14 @@ the top-right corner. Calls and chats share one design.
 
 **Chat preview** — one row of the chat list's Active tab: a chat the agent has
 accepted, summarised before they open it. It shows who the client is, the
-channel and queue, and the **Last message**. Opening it brings the chat into the
+channel and queue, and the **Own message** — a message in a chat that the agent sent, as opposed to one from
+the client, a bot, a colleague or the system. The chat window shows it on the
+agent's side, the other messages on the other. In an internal chat the other
+side is the colleague. A member is the agent when their contact is the agent's
+chat account; while that account is unknown, a webitel contact whose subject is
+the agent's Webitel user id is.
+
+**Last message**. Opening it brings the chat into the
 central panel, and the row of the chat currently open there is shown selected.
 
 "Preview" on its own is ambiguous — say **Chat preview** for the list row and

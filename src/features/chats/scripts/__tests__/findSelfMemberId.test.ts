@@ -62,4 +62,35 @@ describe('findSelfMemberId', () => {
 			}),
 		).toBe('');
 	});
+
+	describe('without a loaded account', () => {
+		it('finds the member by the webitel user id', () => {
+			expect(findSelfMemberId(thread, null, '42')).toBe('m-agent');
+			expect(findSelfMemberId(thread, null, 42)).toBe('m-agent');
+		});
+
+		it('does not take a messenger contact with the same subject for the operator', () => {
+			expect(findSelfMemberId(thread, null, 'client-1')).toBe('');
+		});
+
+		it('is empty without a user id', () => {
+			expect(findSelfMemberId(thread, null)).toBe('');
+			expect(findSelfMemberId(thread, null, '')).toBe('');
+		});
+	});
+
+	it('trusts the loaded account over the user id', () => {
+		expect(
+			findSelfMemberId(
+				thread,
+				{
+					contact: {
+						sub: 'client-1',
+						iss: 'telegram',
+					},
+				},
+				'42',
+			),
+		).toBe('m-client');
+	});
 });
