@@ -189,6 +189,10 @@ wider than "a new client message" in AC_02.02.05, or when the agent leaves the
 thread (transfer, removal). Rejoining does not restore it. The chat backend keeps
 it as a tag on the thread; the call-center side (the **Task**) knows nothing of it.
 
+Only contact-center chats can be snoozed. The backend would tag any thread, but
+an internal chat (one with no task) is never offered **Snooze** — so the Snoozed
+tab and the backend's snoozed set never disagree about what counts.
+
 **Ended chat** — a chat whose interaction is over (the client closed it, it
 timed out, or the agent sent **End chat**) while the agent is still a member of
 its thread: in post-processing, or waiting to be dismissed. It stays on the
