@@ -171,6 +171,12 @@ export default {
 			},
 			transfer: {
 				title: 'Transfer Call',
+				emptyList: 'Nothing found',
+				columns: {
+					name: 'Name',
+					status: 'Status',
+					team: 'Team',
+				},
 				phoneLabel: 'Transfer to number',
 				phonePlaceholder: 'Enter phone number',
 				modes: {
