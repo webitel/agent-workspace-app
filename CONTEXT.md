@@ -40,6 +40,9 @@ and should not be carried over wholesale.
   the threads the agent has left, opened in the same chat window once no task
   backs them, read without a socket, and shown without what the backend does
   not return.
+- [ADR-0011](docs/adr/0011-chat-list-stays-the-task-feed.md) — the chat list
+  stays the task feed (call-center chats only), with unread read from the thread
+  list, and paging and search over the tasks on the client.
 
 ## Language
 
@@ -151,10 +154,16 @@ Decline as the card.
 **Offer card** — the incoming-interaction notification that presents an Offer in
 the top-right corner. Calls and chats share one design.
 
-**Chat preview** — one row of the chat list's Active tab: a chat the agent has
+**Chat list** — the left panel of the Chats section: the agent's call-center chats
+(their tasks), on an Active and a Snoozed tab, in a window that grows on scroll and
+that a search by the client's name narrows. Internal chats, which have a thread and
+no task, are not in it; they are reached from the chats table (ADR-0011).
+
+**Chat preview** — one row of the chat list: a chat the agent has
 accepted, summarised before they open it. It shows who the client is, the
-channel and queue, and the **Last message**. Opening it brings the chat into the
-central panel, and the row of the chat currently open there is shown selected.
+channel and queue, the **Last message**, and how many messages the agent has not
+seen. Opening it brings the chat into the central panel, and the row of the chat
+currently open there is shown selected.
 
 "Preview" on its own is ambiguous — say **Chat preview** for the list row and
 **Offer card** for the notification. The SDK's `ThreadPreview` is its own name
@@ -162,20 +171,23 @@ for the summary carried on a task and is neither of these.
 
 **Last message** — the newest message in a chat as the Chat preview shows it: its
 text, when it was sent, and whether the agent or the client sent it. Kept for
-every listed chat whether or not its window is open; it is not read from an open
-chat's message history. The task carries a summary of its thread too, but only as
+every chat the list has shown, whether or not its window is open; it is not read
+from an open chat's message history. The task carries a summary of its thread too, but only as
 it was when the chat was distributed, and nothing refreshes it. It identifies the
 thread, so the chats socket's events can be matched to the chat; its text and its
 members are never shown or relied on, and a row shows no message until the first
 read of the Last message answers.
 
-**Unread chat** — a chat with client messages the agent has not read yet. A chat
-counts as read once the agent has opened it and clicked its input field, not
-merely opened it (AC_02.03.03). The chat list can be narrowed to unread chats.
-The backend does not yet say how many unread messages a task's chat has, so no
-chat is unread as far as the app can tell and the narrowing control stays out of
-sight until it does — an unread state worked out on the client would read as
-fact.
+**Unread chat** — a chat with messages the agent has not seen. The chat backend
+counts them per thread for the agent asking, leaving out their own and system
+messages; the app reads that count once and keeps it from the chats socket
+(ADR-0011). The chat list can be narrowed to unread chats, and the agent seeing a
+chat's messages clears its count here at once. The spec words "read" as the agent
+having opened the chat and clicked its input field (AC_02.03.03); the app counts it
+read as the thread view marks the messages seen, which is what the backend counts.
+Another tab or device reading the chat is not heard of until the unread chats are
+read again. The narrowing control shows once that first read has answered, since
+before it nothing can be said to be unread.
 
 **Snoozed chat** — a chat the agent has set aside to wait for the client or for
 themselves, with **Snooze** in its chat window. Not closed: the task and thread
@@ -229,7 +241,8 @@ the time the agent had it, without the stretches it spent with someone else.
 Its last message is the last one inside those periods.
 
 **Tab indicator** — the badge beside a chat list tab's name. The grey one is the
-number of chats on that tab. The green one, on Active only, is the number of
+number of chats on that tab, whatever the search or the unread filter leaves
+showing. The green one, on Active only, is the number of
 **Unread chats**, so it is hidden whenever the unread count is (AC_02.12.02). The
 spec also has it vanish when the agent returns to the Active tab (AC_02.12.03);
 that would be "new activity", not unread, and is deliberately not built.

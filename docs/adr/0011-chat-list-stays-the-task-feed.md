@@ -1,0 +1,87 @@
+# 11. The chat list stays the task feed, and reads unread from the thread list
+
+Date: 2026-10-29
+
+## Status
+
+Accepted. Implemented by [WS-55](https://webitel.atlassian.net/browse/WS-55); the
+backend side is [WS-54](https://webitel.atlassian.net/browse/WS-54). Builds on
+[ADR-0008](0008-snoozed-chats-split-the-task-feed.md), which it leaves standing.
+
+## Context
+
+WS-55 asks for the left panel's Active tab to page on scroll, search by name and
+narrow to unread chats. The chat backend now answers each of those for its own
+thread list: `GET /v1/threads` pages (`page`, `size`, `next`), searches (`q`) and
+filters on unread (`unread=true`), and each thread carries `unreadCount`. The
+chats table in the central panel already reads from that endpoint.
+
+That raised the question this record settles: should the left panel be built from
+those threads instead of the call-center task feed (`chatTaskList`)?
+
+It was built that way once, as a trial, and the product owner's answer on WS-55
+is that the left Active panel holds **only active call-center chats**, and that
+snoozed ones live on the Snoozed tab and nowhere else. A thread list also holds
+internal chats, which have a thread and no task. They are reached from the chats
+table, not from the left panel.
+
+## Decision
+
+**The chat list's rows stay the agent's tasks**, split into Active and Snoozed as
+ADR-0008 has it. A task is a call-center chat by definition, so internal chats
+are left out by construction rather than by a filter that has to be kept right.
+
+**Unread is the one thing read from the thread list.** Every thread with unread
+messages is read once, with `unread=true` (ids and counts, every page), when the
+chats feature starts and again after the chats socket reconnects. The socket keeps
+the counts current in between: a message someone else wrote raises its chat's
+count, the agent's own does not, and the agent's account has to be known to say
+which is which. Seeing a chat's messages clears its count at once, as the thread
+view marks them read.
+
+**The unread filter appears once that first read has answered.** Before then
+"nothing is unread" would be a gap and not a fact, and the filter would empty the
+list for no reason. An empty answer is an answer: the filter shows, and nothing is
+unread. A failed read keeps what is held and shows no filter on its first try.
+
+**Paging and search are over the tasks, on the client.** The feed arrives whole, so
+the list shows a window of twenty chats that grows when its bottom scrolls into
+view, narrowed by a search on the client's name or username. The window is there to
+bound the work per shown chat, not a download: the previews read one history
+request for each chat they are asked about, and an agent with a couple of hundred
+chats would otherwise open the page to a couple of hundred requests.
+
+**The previews are told two sets.** Every chat the agent has is *listed*, so its
+unread count follows the socket whether or not the window shows it, and a chat that
+the search, the filter or the window hides is not forgotten. Only the chats *shown*
+have their last message read, and a chat that leaves the window keeps its message,
+so scrolling back does not read it again.
+
+**The tab indicators stay exact.** The task feed is whole, so a tab's grey number
+is its real chat count and the green one is the real number of unread chats,
+whatever the search or the filter leaves showing.
+
+## Considered options
+
+- **Rows from `GET /v1/threads`.** Built as a trial. It lists internal chats in
+  the left panel, which the product owner rules out, and filtering the threads
+  down to those that have a task by hand leaves each page part hidden, so counts
+  and paging are inexact. It also changes what a chat with no task opens as.
+  Rejected.
+- **Unread worked out on the client** from the messages the app sees. A count
+  that restarts from zero on every load reads as fact (ADR-0001). Rejected for the
+  backend's own.
+- **Hold every chat's last message from one read of the threads** (`ids`, in
+  batches) instead of one history request each. Fewer requests, but it would put a
+  second source beside the history the chat window already reads. Left as a later
+  option; the window keeps the cost bounded for now.
+
+## Consequences
+
+- Another tab or device reading a chat is not heard of until the unread chats are
+  read again: the chats socket has no read event.
+- A chat the agent can see in the chats table but not in the left panel (an
+  internal one) has no unread count in the panel by design.
+- The window follows task-feed order and the spec has no sort, so a chat past the
+  twentieth that gets a new message stays below the fold until scrolled to; the
+  green indicator still counts it.
