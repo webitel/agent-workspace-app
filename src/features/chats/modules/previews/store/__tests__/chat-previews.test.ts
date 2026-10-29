@@ -4,12 +4,28 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchMessageHistoryMock = vi.fn();
+const fetchThreadsMock = vi.fn();
 
 vi.mock('../../../../api/chatSdk', () => ({
 	messagesService: {
 		fetchMessageHistory: (...args: unknown[]) =>
 			fetchMessageHistoryMock(...args),
 	},
+	threadsService: {
+		fetchThreads: (...args: unknown[]) => fetchThreadsMock(...args),
+	},
+}));
+
+const accountStore = {
+	account: {
+		contact: {
+			sub: '42',
+			iss: 'webitel',
+		},
+	} as unknown,
+};
+vi.mock('../../../../store/chat-account', () => ({
+	useChatAccountStore: () => accountStore,
 }));
 
 import { useChatPreviewsStore } from '../chat-previews';
@@ -38,6 +54,13 @@ const historyPage = (...messages: unknown[]) => ({
 describe('chat-previews store', () => {
 	beforeEach(() => {
 		fetchMessageHistoryMock.mockReset();
+		fetchThreadsMock.mockReset();
+		accountStore.account = {
+			contact: {
+				sub: '42',
+				iss: 'webitel',
+			},
+		};
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -47,25 +70,238 @@ describe('chat-previews store', () => {
 	});
 
 	describe('unread', () => {
-		// nothing in the app fills the counts yet, so the filter built on them has
-		// to stay out of sight until something does
-		it('holds no unread data until a count is set', () => {
+		const unreadThread = (id: string, unreadCount?: number) => ({
+			id,
+			unreadCount,
+		});
+
+		// before the first read answers, "nothing is unread" would be a gap
+		it('holds no unread data until the unread chats have been read', () => {
 			const store = useChatPreviewsStore();
 
 			expect(store.hasUnreadData).toBe(false);
 			expect(store.isUnread('t1')).toBe(false);
 		});
 
-		it('tells a chat with unread messages from one without', () => {
+		it('reads the chats with unread messages and keeps their counts', async () => {
+			fetchThreadsMock.mockResolvedValue({
+				items: [
+					unreadThread('t1', 3),
+					unreadThread('t2', 1),
+				],
+				next: false,
+			});
 			const store = useChatPreviewsStore();
 
-			store.setUnreadCount('t1', 3);
-			store.setUnreadCount('t2', 0);
+			await store.loadUnread();
 
+			expect(fetchThreadsMock).toHaveBeenCalledWith({
+				unread: true,
+				size: 100,
+				page: 1,
+			});
+			expect(store.unreadByThread).toEqual({
+				t1: 3,
+				t2: 1,
+			});
 			expect(store.hasUnreadData).toBe(true);
 			expect(store.isUnread('t1')).toBe(true);
-			expect(store.isUnread('t2')).toBe(false);
-			expect(store.isUnread('t3')).toBe(false);
+			expect(store.isUnread('t9')).toBe(false);
+		});
+
+		// nothing unread is a fact once the read has answered
+		it('counts a chat the backend lists as unread at least once', async () => {
+			fetchThreadsMock.mockResolvedValue({
+				items: [
+					unreadThread('t1'),
+				],
+				next: false,
+			});
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(store.unreadByThread.t1).toBe(1);
+		});
+
+		it('reads every page', async () => {
+			fetchThreadsMock
+				.mockResolvedValueOnce({
+					items: [
+						unreadThread('t1', 1),
+					],
+					next: true,
+				})
+				.mockResolvedValueOnce({
+					items: [
+						unreadThread('t2', 2),
+					],
+					next: false,
+				});
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(fetchThreadsMock).toHaveBeenCalledTimes(2);
+			expect(store.unreadByThread).toEqual({
+				t1: 1,
+				t2: 2,
+			});
+		});
+
+		it('keeps what it had when a read fails', async () => {
+			fetchThreadsMock.mockResolvedValueOnce({
+				items: [
+					unreadThread('t1', 2),
+				],
+				next: false,
+			});
+			const store = useChatPreviewsStore();
+			await store.loadUnread();
+
+			fetchThreadsMock.mockRejectedValueOnce(new Error('offline'));
+			await store.loadUnread();
+
+			expect(store.unreadByThread).toEqual({
+				t1: 2,
+			});
+		});
+
+		describe('counted from the socket', () => {
+			it("raises the count for someone else's message on a listed chat", () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+				store.receiveMessage(
+					buildMessage({
+						id: 'm2',
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBe(2);
+			});
+
+			it("does not count the agent's own message", () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(
+					buildMessage({
+						sender: {
+							contact: {
+								sub: '42',
+								iss: 'webitel',
+							},
+						},
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBeUndefined();
+			});
+
+			// ADR-0001: no guess about who wrote it while the account is unknown
+			it('does not count while the agent’s account is unknown', () => {
+				accountStore.account = null;
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+
+				expect(store.unreadByThread.t1).toBeUndefined();
+			});
+
+			// an edit, or the echo of a message already counted
+			it('does not count the same message twice', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+				store.receiveMessage(buildMessage());
+
+				expect(store.unreadByThread.t1).toBe(1);
+			});
+
+			it('does not count a notice, which is nobody’s message', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(
+					buildMessage({
+						system: {
+							memberJoined: {},
+						},
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBeUndefined();
+			});
+
+			it('does not count a chat the list does not hold', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(
+					buildMessage({
+						threadId: 't9',
+					}),
+				);
+
+				expect(store.unreadByThread.t9).toBeUndefined();
+			});
+		});
+
+		describe('marking a chat read', () => {
+			it('clears its count', () => {
+				const store = useChatPreviewsStore();
+				store.setUnreadCount('t1', 3);
+
+				store.markRead('t1');
+
+				expect(store.unreadByThread.t1).toBe(0);
+				expect(store.isUnread('t1')).toBe(false);
+			});
+
+			it('counts again from zero when something new arrives', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+				store.receiveMessage(buildMessage());
+				store.markRead('t1');
+
+				store.receiveMessage(
+					buildMessage({
+						id: 'm2',
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBe(1);
+			});
+		});
+
+		it('forgets the count of a chat that leaves the list', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.receiveMessage(buildMessage());
+
+			store.sync([]);
+
+			expect(store.unreadByThread.t1).toBeUndefined();
 		});
 	});
 

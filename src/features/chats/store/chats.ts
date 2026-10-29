@@ -228,10 +228,14 @@ export const useChatsStore = defineStore('chats', () => {
 		const snoozedStore = useChatSnoozedStore();
 		// which chats are snoozed lives on the chat backend only (ADR-0008)
 		void snoozedStore.load();
+		// which chats have unread messages, and how many, is the chat backend's to
+		// say too (ADR-0011)
+		void previewsStore.loadUnread();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
-			// every listed chat keeps its last message current, open or not
+			// every listed chat keeps its last message and unread count current,
+			// open or not
 			previewsStore.receiveMessage(message);
 			// a session outlives its window while its chat is listed, so it is
 			// kept current whether its window is open or not
@@ -241,9 +245,10 @@ export const useChatsStore = defineStore('chats', () => {
 		onThreadTagsChanged((changed) => snoozedStore.receiveTagsChanged(changed));
 		onReconnected(() => {
 			// the socket was down, so anything written meanwhile was never pushed:
-			// read the list's last messages, the snoozed chats and every session's
-			// newest page again
+			// read the list's last messages and unread counts, the snoozed chats and
+			// every session's newest page again
 			previewsStore.reseed();
+			void previewsStore.loadUnread();
 			void snoozedStore.load();
 			for (const threadId of chatSessionIds()) {
 				useChatSessionStore(threadId).catchUp();
