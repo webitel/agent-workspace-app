@@ -116,6 +116,19 @@ describe('chat-previews store', () => {
 		});
 
 		// nothing unread is a fact once the read has answered
+		it('has unread data once the read answered, even with nothing unread', async () => {
+			fetchThreadsMock.mockResolvedValue({
+				items: [],
+				next: false,
+			});
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(store.hasUnreadData).toBe(true);
+			expect(store.unreadByThread).toEqual({});
+		});
+
 		it('counts a chat the backend lists as unread at least once', async () => {
 			fetchThreadsMock.mockResolvedValue({
 				items: [
@@ -171,6 +184,15 @@ describe('chat-previews store', () => {
 			expect(store.unreadByThread).toEqual({
 				t1: 2,
 			});
+		});
+
+		it('does not claim data when the first read fails', async () => {
+			fetchThreadsMock.mockRejectedValueOnce(new Error('offline'));
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(store.hasUnreadData).toBe(false);
 		});
 
 		describe('counted from the socket', () => {

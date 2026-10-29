@@ -52,9 +52,9 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	 * only when someone else wrote it and the agent's account says so.
 	 */
 	const unreadByThread = shallowRef<Record<string, number>>({});
-	const hasUnreadData = computed(
-		() => Object.keys(unreadByThread.value).length > 0,
-	);
+	// the first read has answered, so "nothing unread" is a fact and not a gap
+	const isUnreadLoaded = shallowRef(false);
+	const hasUnreadData = computed(() => isUnreadLoaded.value);
 
 	function setUnreadCount(threadId: string, count: number) {
 		if ((unreadByThread.value[threadId] ?? 0) === count) return;
@@ -87,6 +87,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			return;
 		}
 		unreadByThread.value = found;
+		isUnreadLoaded.value = true;
 	}
 
 	/**

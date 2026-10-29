@@ -9,11 +9,9 @@ import { expect, test } from './fixtures/test';
 
 /**
  * The chat list's Active tab (US_02.01): the chats the agent has accepted, in a
- * window that grows on scroll and searchable by the client's name, and the
- * unread control, which has to stay out of sight until the backend says how
- * many unread messages a chat has. Also its tab indicators (US_02.12) and the
- * Snoozed tab (US_02.02), fed by the chat backend's snoozed threads (ADR-0008)
- * and unread chats (ADR-0011).
+ * window that grows on scroll, searchable by name and narrowable to unread. Also
+ * its tab indicators (US_02.12) and the Snoozed tab (US_02.02), fed by the chat
+ * backend's snoozed threads (ADR-0008) and unread chats (ADR-0011).
  */
 
 const firstAttemptId = 200;
@@ -206,49 +204,88 @@ test.describe('chat list', () => {
 		await expect(rows(page)).toHaveCount(3);
 	});
 
-	test('shows no unread filter while there is no unread data', async ({
-		page,
-		socket,
-	}) => {
-		await openChats(page);
+	test.describe('unread', () => {
+		test('shows the unread filter once the unread chats have been read', async ({
+			page,
+			socket,
+		}) => {
+			await openChats(page);
 
-		acceptChats(socket, 3);
+			acceptChats(socket, 3);
 
-		await expect(rows(page)).toHaveCount(3);
-		await expect(page.locator('.chat-unread-filter')).toHaveCount(0);
-	});
+			await expect(rows(page)).toHaveCount(3);
+			await expect(page.locator('.chat-unread-filter')).toBeVisible();
+		});
 
-	test('counts the unread messages on the row and the unread chats on the tab', async ({
-		page,
-		socket,
-	}) => {
-		await unreadThreads(page, [
-			{
-				id: 'e2e-thread-1',
-				unreadCount: 3,
-			},
-			{
-				id: 'e2e-thread-2',
-				unreadCount: 1,
-			},
-		]);
-		await openChats(page);
+		// "nothing is unread" would be a gap, not a fact
+		test('shows no unread filter while that read fails', async ({
+			page,
+			socket,
+		}) => {
+			await unreadThreads(page, 'fail');
+			await openChats(page);
 
-		acceptChats(socket, 3);
+			acceptChats(socket, 3);
 
-		await expect(rows(page)).toHaveCount(3);
-		await expect(rows(page).nth(1).locator('.wt-badge')).toHaveText('3');
-		await expect(rows(page).nth(0).locator('.wt-badge')).toHaveCount(0);
-		await expect(
-			page
-				.locator('.chat-list-tabs .wt-tab', {
-					hasText: 'Active',
-				})
-				.locator('.wt-badge'),
-		).toHaveText([
-			'3',
-			'2',
-		]);
+			await expect(rows(page)).toHaveCount(3);
+			await expect(page.locator('.chat-unread-filter')).toHaveCount(0);
+		});
+
+		test('counts the unread messages on the row and the unread chats on the tab', async ({
+			page,
+			socket,
+		}) => {
+			await unreadThreads(page, [
+				{
+					id: 'e2e-thread-1',
+					unreadCount: 3,
+				},
+				{
+					id: 'e2e-thread-2',
+					unreadCount: 1,
+				},
+			]);
+			await openChats(page);
+
+			acceptChats(socket, 3);
+
+			await expect(rows(page)).toHaveCount(3);
+			await expect(rows(page).nth(1).locator('.wt-badge')).toHaveText('3');
+			await expect(rows(page).nth(0).locator('.wt-badge')).toHaveCount(0);
+			await expect(
+				page
+					.locator('.chat-list-tabs .wt-tab', {
+						hasText: 'Active',
+					})
+					.locator('.wt-badge'),
+			).toHaveText([
+				'3',
+				'2',
+			]);
+		});
+
+		test('narrows the list to the chats with unread messages', async ({
+			page,
+			socket,
+		}) => {
+			await unreadThreads(page, [
+				{
+					id: 'e2e-thread-1',
+					unreadCount: 3,
+				},
+			]);
+			await openChats(page);
+			acceptChats(socket, 3);
+			await expect(rows(page)).toHaveCount(3);
+
+			await page.locator('.chat-unread-filter').click();
+
+			await expect(rows(page)).toHaveCount(1);
+
+			await page.locator('.chat-unread-filter').click();
+
+			await expect(rows(page)).toHaveCount(3);
+		});
 	});
 
 	test.describe('tabs', () => {
@@ -266,7 +303,7 @@ test.describe('chat list', () => {
 			await expect(tab(page, 'Active').locator('.wt-badge')).toHaveText('3');
 		});
 
-		test('shows no unread count while there is no unread data', async ({
+		test('shows no unread count while nothing is unread', async ({
 			page,
 			socket,
 		}) => {

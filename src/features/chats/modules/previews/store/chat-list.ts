@@ -68,6 +68,19 @@ export const useChatListStore = defineStore('chat-list', () => {
 		query.value = value.trim();
 	}
 
+	/**
+	 * On the Snoozed tab the unread filter hands the agent over to the Active tab
+	 * with it on (AC_02.02.04); on the Active tab it switches.
+	 */
+	function toggleOnlyUnread() {
+		if (currentTab.value === ChatListTab.Snoozed) {
+			currentTab.value = ChatListTab.Active;
+			activeStore.setOnlyUnread(true);
+			return;
+		}
+		activeStore.toggleOnlyUnread();
+	}
+
 	// a different tab, search or filter is a different list: start it from the top,
 	// not from wherever the previous one had been scrolled to
 	watch(
@@ -113,6 +126,7 @@ export const useChatListStore = defineStore('chat-list', () => {
 		// actions
 		setTab,
 		setQuery,
+		toggleOnlyUnread,
 		loadMore,
 	};
 });

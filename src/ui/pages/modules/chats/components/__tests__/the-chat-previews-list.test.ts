@@ -120,8 +120,8 @@ describe('the-chat-previews-list', () => {
 		expect(wrapper.find('.chat-list-tabs-stub').exists()).toBe(true);
 	});
 
-	// the unread data is not there yet, and a control with nothing behind it would
-	// read as a broken feature
+	// until the unread chats have been read, a control with nothing behind it
+	// would read as a broken feature
 	it('has no unread filter while it is unavailable', () => {
 		const wrapper = mountList();
 

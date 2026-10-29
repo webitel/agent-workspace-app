@@ -30,6 +30,12 @@ vi.mock('../chat-previews', () => ({
 const activeTasks = ref<FakeTask[]>([]);
 const activeUnreadCount = ref(0);
 const isFilteringUnread = ref(false);
+const setOnlyUnreadMock = vi.fn((value: boolean) => {
+	isFilteringUnread.value = value;
+});
+const toggleOnlyUnreadMock = vi.fn(() => {
+	isFilteringUnread.value = !isFilteringUnread.value;
+});
 vi.mock('../chat-active', () => ({
 	useChatActiveStore: () => ({
 		get tasks() {
@@ -44,6 +50,8 @@ vi.mock('../chat-active', () => ({
 		get isFilteringUnread() {
 			return isFilteringUnread.value;
 		},
+		setOnlyUnread: setOnlyUnreadMock,
+		toggleOnlyUnread: toggleOnlyUnreadMock,
 	}),
 }));
 
@@ -81,6 +89,8 @@ const idsOf = (tasks: FakeTask[]) => tasks.map((task) => task.id);
 describe('chat-list store', () => {
 	beforeEach(() => {
 		syncMock.mockReset();
+		setOnlyUnreadMock.mockClear();
+		toggleOnlyUnreadMock.mockClear();
 		chatTaskList.value = [];
 		snoozedTasks.value = [];
 		activeTasks.value = [];
@@ -283,7 +293,7 @@ describe('chat-list store', () => {
 			const store = useChatListStore();
 			store.loadMore();
 
-			isFilteringUnread.value = true;
+			store.toggleOnlyUnread();
 			await nextTick();
 
 			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE);
@@ -364,6 +374,29 @@ describe('chat-list store', () => {
 
 			expect(store.activeCount).toBe(2);
 			expect(store.snoozedCount).toBe(1);
+		});
+	});
+
+	describe('unread filter', () => {
+		it('switches the filter on the Active tab', () => {
+			const store = useChatListStore();
+
+			store.toggleOnlyUnread();
+
+			expect(toggleOnlyUnreadMock).toHaveBeenCalledOnce();
+			expect(store.currentTab).toBe(ChatListTab.Active);
+		});
+
+		// AC_02.02.04
+		it('hands the agent over to the Active tab with the filter on, from Snoozed', () => {
+			const store = useChatListStore();
+			store.setTab(ChatListTab.Snoozed);
+
+			store.toggleOnlyUnread();
+
+			expect(store.currentTab).toBe(ChatListTab.Active);
+			expect(setOnlyUnreadMock).toHaveBeenCalledWith(true);
+			expect(toggleOnlyUnreadMock).not.toHaveBeenCalled();
 		});
 	});
 
