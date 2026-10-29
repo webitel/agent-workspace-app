@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { describe, expect, it } from 'vitest';
 
-import KeyValueList from '../../../../key-value-list/key-value-list.vue';
+import KeyValueList from '../../key-value-list/key-value-list.vue';
 import ContactCardInfo from '../contact-card-info.vue';
 
 const contact: WebitelContactsContact = {
