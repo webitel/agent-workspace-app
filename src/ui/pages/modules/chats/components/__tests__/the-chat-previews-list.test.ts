@@ -6,6 +6,8 @@ const chatListStore = reactive({
 	currentTasks: [] as {
 		id: number;
 	}[],
+	hasMore: false,
+	loadMore: vi.fn(),
 });
 const chatActiveStore = reactive({
 	isUnreadFilterAvailable: false,
@@ -43,6 +45,15 @@ vi.mock(
 	}),
 );
 vi.mock(
+	'../../../../../../features/chats/modules/previews/components/chat-list-search/chat-list-search.vue',
+	() => ({
+		default: {
+			name: 'ChatListSearch',
+			template: '<div class="chat-list-search-stub" />',
+		},
+	}),
+);
+vi.mock(
 	'../../../../../../features/chats/modules/previews/components/chat-unread-filter/chat-unread-filter.vue',
 	() => ({
 		default: {
@@ -67,6 +78,25 @@ describe('the-chat-previews-list', () => {
 	beforeEach(() => {
 		chatListStore.currentTasks = [];
 		chatActiveStore.isUnreadFilterAvailable = false;
+		chatListStore.hasMore = false;
+		chatListStore.loadMore.mockClear();
+	});
+
+	it('has the search', () => {
+		expect(mountList().find('.chat-list-search-stub').exists()).toBe(true);
+	});
+
+	// scrolling to it asks for the next page (AC_02.01.02)
+	it('has a scroll sentinel only while there are more chats to show', () => {
+		chatListStore.hasMore = true;
+		expect(mountList().find('.the-chat-previews-list__sentinel').exists()).toBe(
+			true,
+		);
+
+		chatListStore.hasMore = false;
+		expect(mountList().find('.the-chat-previews-list__sentinel').exists()).toBe(
+			false,
+		);
 	});
 
 	it('renders a row for every chat', () => {
@@ -90,8 +120,8 @@ describe('the-chat-previews-list', () => {
 		expect(wrapper.find('.chat-list-tabs-stub').exists()).toBe(true);
 	});
 
-	// the unread data is not there yet, and a control with nothing behind it would
-	// read as a broken feature
+	// until the unread chats have been read, a control with nothing behind it
+	// would read as a broken feature
 	it('has no unread filter while it is unavailable', () => {
 		const wrapper = mountList();
 

@@ -9,10 +9,8 @@ import { useChatSnoozedStore } from './chat-snoozed';
  * The Active tab's chats: every chat the agent has accepted and not snoozed, or
  * the unread ones when the filter is on (AC_02.01.04). The chats themselves
  * belong to the task feed, which `chats` owns; this store is what the Active
- * tab makes of them.
- *
- * Paging on scroll (AC_02.01.02) is deliberately not here yet; the list is every
- * active chat the task feed carries.
+ * tab makes of them. Only call-center chats are here: an internal chat has no
+ * task and is reached from the chats table instead (ADR-0011).
  */
 export const useChatActiveStore = defineStore('chat-active', () => {
 	const chatsStore = useChatsStore();
@@ -29,9 +27,9 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 	);
 
 	/**
-	 * The toggle exists only while there is unread data behind it; the backend
-	 * does not supply any yet (see `chat-previews`). Gating on the data rather
-	 * than on a flag means nothing changes here the day it arrives.
+	 * The toggle exists once the first read of the unread chats has answered (see
+	 * `chat-previews`): before that, "nothing is unread" would be a gap and not a
+	 * fact, and the filter would empty the list for no reason.
 	 */
 	const isUnreadFilterAvailable = computed(() => previewsStore.hasUnreadData);
 
@@ -56,8 +54,8 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 	const count = computed(() => activeTasks.value.length);
 
 	/**
-	 * Zero while there is no unread data, so the indicator stays out of sight
-	 * rather than claiming nothing is unread.
+	 * Zero until the unread chats have been read, so the indicator stays out of
+	 * sight rather than claiming nothing is unread.
 	 */
 	const unreadCount = computed(() =>
 		isUnreadFilterAvailable.value
@@ -67,6 +65,10 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 
 	function toggleOnlyUnread() {
 		onlyUnread.value = !onlyUnread.value;
+	}
+
+	function setOnlyUnread(value: boolean) {
+		onlyUnread.value = value;
 	}
 
 	return {
@@ -82,6 +84,7 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 
 		// actions
 		toggleOnlyUnread,
+		setOnlyUnread,
 	};
 });
 
