@@ -71,6 +71,10 @@ export default {
 				createContact: 'Creați un contact',
 				addContacts: 'Adăugați contacte',
 				profile: 'Profil',
+				info: 'Informații',
+				groups: 'Grupuri',
+				attributes: 'Atribute',
+				noAttributes: 'Nu sunt definite variabile personalizate',
 			},
 		},
 		pages: {

@@ -78,6 +78,10 @@ export default {
 				createContact: 'Створити контакт',
 				addContacts: 'Додати контакти',
 				profile: 'Профіль',
+				info: 'Інформація',
+				groups: 'Групи',
+				attributes: 'Атрибути',
+				noAttributes: 'Користувацькі змінні не задано',
 			},
 		},
 		pages: {
