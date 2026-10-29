@@ -24,11 +24,15 @@ function isWebitelUser(
  * Webitel user id instead, which is the subject of a webitel contact, so an
  * internal chat still tells the operator's messages from their colleague's.
  */
-export function findSelfMemberId(
-	thread: ThreadModel | null,
-	account: AccountModel | null,
-	webitelUserId?: string | number | null,
-): string {
+export function findSelfMemberId({
+	thread,
+	account,
+	webitelUserId,
+}: {
+	thread: ThreadModel | null;
+	account: AccountModel | null;
+	webitelUserId?: string | number | null;
+}): string {
 	if (!thread) return '';
 
 	const isSelf = (contact: ContactIdentity | undefined) =>

@@ -37,11 +37,11 @@ function createStoreDefinition(chatId: string) {
 		// the operator's own member in this thread: which side a message is on,
 		// and its delivery ticks
 		const selfMemberId = computed(() =>
-			findSelfMemberId(
-				thread.value,
-				accountStore.account,
-				userinfoStore.userId,
-			),
+			findSelfMemberId({
+				thread: thread.value,
+				account: accountStore.account,
+				webitelUserId: userinfoStore.userId,
+			}),
 		);
 		const isLoading = ref(false);
 		const error = ref<unknown>(null);
