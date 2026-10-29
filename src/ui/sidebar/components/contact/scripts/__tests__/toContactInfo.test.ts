@@ -1,17 +1,21 @@
-import { mount } from '@vue/test-utils';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { describe, expect, it } from 'vitest';
 
-import KeyValueList from '../../../key-value-list/key-value-list.vue';
-import ContactCardInfo from '../../contact-card-info.vue';
+import { toContactInfo } from '../toContactInfo';
 
-const contact: WebitelContactsContact = {
+const contact = (
+	overrides: Partial<WebitelContactsContact> = {},
+): WebitelContactsContact => ({
 	timezones: {
 		data: [
 			{
-				primary: true,
 				timezone: {
 					name: 'Europe/Kyiv',
+				},
+			},
+			{
+				timezone: {
+					name: 'Europe/London',
 				},
 			},
 		],
@@ -19,9 +23,13 @@ const contact: WebitelContactsContact = {
 	managers: {
 		data: [
 			{
-				primary: true,
 				user: {
-					name: 'Alex Sanchez',
+					name: 'Anna Owner',
+				},
+			},
+			{
+				user: {
+					name: 'Second Manager',
 				},
 			},
 		],
@@ -43,58 +51,149 @@ const contact: WebitelContactsContact = {
 	variables: {
 		data: [
 			{
-				key: 'Account tier',
-				value: 'Enterprise',
+				key: 'CustomerID',
+				value: '458732',
+			},
+			{
+				key: 'Plan',
+				value: {
+					tier: 'gold',
+				},
 			},
 		],
 	},
-};
+	...overrides,
+});
 
-const mountInfo = (value: WebitelContactsContact) =>
-	mount(ContactCardInfo, {
-		props: {
-			contact: value,
-		},
+describe('toContactInfo', () => {
+	it('maps the first timezone and owner, group names and attributes', () => {
+		expect(toContactInfo(contact())).toEqual({
+			timezone: 'Europe/Kyiv',
+			owner: 'Anna Owner',
+			groups: 'VIP, Partners',
+			attributes: [
+				{
+					id: 'contact:CustomerID',
+					key: 'CustomerID',
+					value: '458732',
+				},
+				{
+					id: 'contact:Plan',
+					key: 'Plan',
+					value: '{"tier":"gold"}',
+				},
+			],
+		});
 	});
 
-describe('ContactCardInfo', () => {
-	it('renders the Info block with timezone, owner and groups', () => {
-		const [infoList] = mountInfo(contact).findAllComponents(KeyValueList);
-
-		expect(infoList.props('title')).toBe('ui.sidebar.contact.info');
-		expect(infoList.props('items')).toEqual([
-			{
-				id: 'timezone',
-				key: 'date.timezone',
-				value: 'Europe/Kyiv',
-			},
-			{
-				id: 'owner',
-				key: 'objects.owner',
-				value: 'Alex Sanchez',
-			},
-			{
-				id: 'groups',
-				key: 'ui.sidebar.contact.groups',
-				value: 'VIP, Partners',
-			},
-		]);
-	});
-
-	it('renders the Attributes block with its empty text', () => {
-		const [, attributesList] =
-			mountInfo(contact).findAllComponents(KeyValueList);
-
-		expect(attributesList.props('title')).toBe('ui.sidebar.contact.attributes');
-		expect(attributesList.props('items')).toEqual([
-			{
-				id: 'contact:Account tier',
-				key: 'Account tier',
-				value: 'Enterprise',
-			},
-		]);
-		expect(attributesList.props('emptyText')).toBe(
-			'ui.sidebar.contact.noAttributes',
+	it('takes the first entry even when a later one is marked primary', () => {
+		const info = toContactInfo(
+			contact({
+				timezones: {
+					data: [
+						{
+							timezone: {
+								name: 'Europe/Kyiv',
+							},
+						},
+						{
+							primary: true,
+							timezone: {
+								name: 'Europe/London',
+							},
+						},
+					],
+				},
+				managers: {
+					data: [
+						{
+							user: {
+								name: 'Anna Owner',
+							},
+						},
+						{
+							primary: true,
+							user: {
+								name: 'Second Manager',
+							},
+						},
+					],
+				},
+			}),
 		);
+
+		expect(info.timezone).toBe('Europe/Kyiv');
+		expect(info.owner).toBe('Anna Owner');
+	});
+
+	it('skips groups without a name', () => {
+		const info = toContactInfo(
+			contact({
+				groups: {
+					data: [
+						{
+							group: {
+								name: 'VIP',
+							},
+						},
+						{},
+						{
+							group: {},
+						},
+					],
+				},
+			}),
+		);
+
+		expect(info.groups).toBe('VIP');
+	});
+
+	it('drops attributes without a key', () => {
+		const info = toContactInfo(
+			contact({
+				variables: {
+					data: [
+						{
+							value: 'orphan',
+						},
+						{
+							key: 'Region',
+							value: 'EU',
+						},
+					],
+				},
+			}),
+		);
+
+		expect(info.attributes).toEqual([
+			{
+				id: 'contact:Region',
+				key: 'Region',
+				value: 'EU',
+			},
+		]);
+	});
+
+	it('returns empty values when the lists are empty or absent', () => {
+		const empty = {
+			timezone: '',
+			owner: '',
+			groups: '',
+			attributes: [],
+		};
+
+		expect(toContactInfo({})).toEqual(empty);
+		expect(
+			toContactInfo({
+				timezones: {
+					data: [],
+				},
+				managers: {},
+				groups: {
+					data: [],
+				},
+				variables: {},
+			}),
+		).toEqual(empty);
 	});
 });
