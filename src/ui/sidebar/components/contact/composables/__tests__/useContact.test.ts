@@ -1,6 +1,6 @@
+import { flushPromises } from '@vue/test-utils';
 import { ContactsAPI } from '@webitel/api-services/api';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
-import { flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type EffectScope, effectScope, nextTick, ref } from 'vue';
 import { useContact } from '../useContact';
