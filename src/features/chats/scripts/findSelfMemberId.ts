@@ -7,9 +7,9 @@ const WEBITEL_ISSUER = 'webitel';
 
 function isWebitelUser(
 	contact: ContactIdentity | undefined,
-	webitelUserId?: string | number,
+	webitelUserId?: string | number | null,
 ): boolean {
-	if (webitelUserId === undefined || webitelUserId === '') return false;
+	if (webitelUserId == null || webitelUserId === '') return false;
 
 	return (
 		contact?.iss === WEBITEL_ISSUER && contact.sub === String(webitelUserId)
@@ -27,7 +27,7 @@ function isWebitelUser(
 export function findSelfMemberId(
 	thread: ThreadModel | null,
 	account: AccountModel | null,
-	webitelUserId?: string | number,
+	webitelUserId?: string | number | null,
 ): string {
 	if (!thread) return '';
 

@@ -75,6 +75,7 @@ describe('findSelfMemberId', () => {
 
 		it('is empty without a user id', () => {
 			expect(findSelfMemberId(thread, null)).toBe('');
+			expect(findSelfMemberId(thread, null, null)).toBe('');
 			expect(findSelfMemberId(thread, null, '')).toBe('');
 		});
 	});
