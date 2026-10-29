@@ -15,8 +15,8 @@
 			class="contact-card-header__labels"
 		>
 			<wt-chip
-				v-for="label of labels"
-				:key="label"
+				v-for="(label, index) of labels"
+				:key="`${label}-${index}`"
 				:color="ChipColor.SECONDARY"
 			>
 				{{ label }}
