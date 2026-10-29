@@ -29,6 +29,7 @@ vi.mock('../chat-previews', () => ({
 
 const activeTasks = ref<FakeTask[]>([]);
 const activeUnreadCount = ref(0);
+const isFilteringUnread = ref(false);
 vi.mock('../chat-active', () => ({
 	useChatActiveStore: () => ({
 		get tasks() {
@@ -39,6 +40,9 @@ vi.mock('../chat-active', () => ({
 		},
 		get unreadCount() {
 			return activeUnreadCount.value;
+		},
+		get isFilteringUnread() {
+			return isFilteringUnread.value;
 		},
 	}),
 }));
@@ -56,9 +60,8 @@ vi.mock('../chat-snoozed', () => ({
 }));
 
 import { ChatListTab } from '../../enums/ChatListTab.enum';
-import { useChatListStore } from '../chat-list';
+import { CHAT_LIST_PAGE_SIZE, useChatListStore } from '../chat-list';
 
-// `null`, not `undefined`: passing undefined would re-apply the default
 const buildChats = (count: number, firstId = 1): FakeTask[] =>
 	Array.from(
 		{
@@ -82,25 +85,71 @@ describe('chat-list store', () => {
 		snoozedTasks.value = [];
 		activeTasks.value = [];
 		activeUnreadCount.value = 0;
+		isFilteringUnread.value = false;
 		setActivePinia(createPinia());
 	});
 
-	// the store's watcher reads the shared task list, so a store left running
-	// would keep calling the shared sync mock from every later test
+	// the store's watchers read module state shared with every later test
 	afterEach(() => {
 		useChatListStore().$dispose();
 	});
 
 	describe('chat previews', () => {
-		it('gives the previews the thread ids of every listed chat', () => {
+		it('tells the previews every chat the agent has, and the ones shown', () => {
 			chatTaskList.value = buildChats(3);
+			activeTasks.value = buildChats(3);
 
 			useChatListStore();
 
-			expect(syncMock).toHaveBeenLastCalledWith([
+			expect(syncMock).toHaveBeenLastCalledWith(
+				[
+					't1',
+					't2',
+					't3',
+				],
+				[
+					't1',
+					't2',
+					't3',
+				],
+			);
+		});
+
+		// the window bounds the history reads: one request per shown chat
+		it('asks for the last message of the shown window only', () => {
+			chatTaskList.value = buildChats(CHAT_LIST_PAGE_SIZE + 5);
+			activeTasks.value = buildChats(CHAT_LIST_PAGE_SIZE + 5);
+
+			useChatListStore();
+
+			const [listed, shown] = syncMock.mock.lastCall as [
+				string[],
+				string[],
+			];
+			expect(listed).toHaveLength(CHAT_LIST_PAGE_SIZE + 5);
+			expect(shown).toHaveLength(CHAT_LIST_PAGE_SIZE);
+		});
+
+		// hiding a chat must not make the previews forget it
+		it('still lists a chat that the search hides', async () => {
+			chatTaskList.value = buildChats(3);
+			activeTasks.value = buildChats(3);
+			const store = useChatListStore();
+
+			store.setQuery('Client 2');
+			await nextTick();
+
+			const [listed, shown] = syncMock.mock.lastCall as [
+				string[],
+				string[],
+			];
+			expect(listed).toEqual([
 				't1',
 				't2',
 				't3',
+			]);
+			expect(shown).toEqual([
+				't2',
 			]);
 		});
 
@@ -108,14 +157,21 @@ describe('chat-list store', () => {
 			useChatListStore();
 
 			chatTaskList.value = buildChats(1);
+			activeTasks.value = buildChats(1);
 			await nextTick();
-			expect(syncMock).toHaveBeenLastCalledWith([
-				't1',
-			]);
+			expect(syncMock).toHaveBeenLastCalledWith(
+				[
+					't1',
+				],
+				[
+					't1',
+				],
+			);
 
 			chatTaskList.value = [];
+			activeTasks.value = [];
 			await nextTick();
-			expect(syncMock).toHaveBeenLastCalledWith([]);
+			expect(syncMock).toHaveBeenLastCalledWith([], []);
 		});
 
 		// a task with no thread has no history to read
@@ -126,12 +182,18 @@ describe('chat-list store', () => {
 				},
 				...buildChats(1, 2),
 			];
+			activeTasks.value = chatTaskList.value;
 
 			useChatListStore();
 
-			expect(syncMock).toHaveBeenLastCalledWith([
-				't2',
-			]);
+			expect(syncMock).toHaveBeenLastCalledWith(
+				[
+					't2',
+				],
+				[
+					't2',
+				],
+			);
 		});
 	});
 
@@ -161,6 +223,70 @@ describe('chat-list store', () => {
 			expect(idsOf(store.currentTasks)).toEqual([
 				9,
 			]);
+		});
+	});
+
+	// the task feed arrives whole, so this is a window over it (AC_02.01.02)
+	describe('window', () => {
+		it('shows the first page of the chats', () => {
+			activeTasks.value = buildChats(CHAT_LIST_PAGE_SIZE + 5);
+			const store = useChatListStore();
+
+			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE);
+			expect(store.currentTasks[0]?.id).toBe(1);
+			expect(store.hasMore).toBe(true);
+		});
+
+		it('shows everything and offers no more when the chats fit one page', () => {
+			activeTasks.value = buildChats(3);
+			const store = useChatListStore();
+
+			expect(store.currentTasks).toHaveLength(3);
+			expect(store.hasMore).toBe(false);
+		});
+
+		it('grows by a page on loadMore, up to the end of the list', () => {
+			activeTasks.value = buildChats(CHAT_LIST_PAGE_SIZE + 5);
+			const store = useChatListStore();
+
+			store.loadMore();
+
+			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE + 5);
+			expect(store.hasMore).toBe(false);
+		});
+
+		it('does not run ahead of a list that has nothing more', () => {
+			activeTasks.value = buildChats(3);
+			const store = useChatListStore();
+
+			store.loadMore();
+			activeTasks.value = buildChats(CHAT_LIST_PAGE_SIZE + 1);
+
+			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE);
+		});
+
+		it('starts a new tab from the first page', async () => {
+			activeTasks.value = buildChats(CHAT_LIST_PAGE_SIZE * 2);
+			snoozedTasks.value = buildChats(CHAT_LIST_PAGE_SIZE * 2, 100);
+			const store = useChatListStore();
+			store.loadMore();
+			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE * 2);
+
+			store.setTab(ChatListTab.Snoozed);
+			await nextTick();
+
+			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE);
+		});
+
+		it('starts the filtered list from the first page', async () => {
+			activeTasks.value = buildChats(CHAT_LIST_PAGE_SIZE * 2);
+			const store = useChatListStore();
+			store.loadMore();
+
+			isFilteringUnread.value = true;
+			await nextTick();
+
+			expect(store.currentTasks).toHaveLength(CHAT_LIST_PAGE_SIZE);
 		});
 	});
 

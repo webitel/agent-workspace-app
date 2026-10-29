@@ -30,6 +30,12 @@ const buildMessage = (overrides: Record<string, unknown> = {}) =>
 		...overrides,
 	}) as never;
 
+/** Every listed chat is shown, which is all most of these cases need. */
+const syncAll = (
+	store: ReturnType<typeof useChatPreviewsStore>,
+	threadIds: string[],
+) => store.sync(threadIds, threadIds);
+
 // the history endpoint answers newest first
 const historyPage = (...messages: unknown[]) => ({
 	items: messages,
@@ -46,26 +52,100 @@ describe('chat-previews store', () => {
 		);
 	});
 
-	describe('unread', () => {
-		// nothing in the app fills the counts yet, so the filter built on them has
-		// to stay out of sight until something does
-		it('holds no unread data until a count is set', () => {
+	// the window bounds the history reads: only shown chats are read
+	describe('listed and shown', () => {
+		it('reads the last message of the shown chats only', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
 
-			expect(store.hasUnreadData).toBe(false);
-			expect(store.isUnread('t1')).toBe(false);
+			store.sync(
+				[
+					't1',
+					't2',
+				],
+				[
+					't1',
+				],
+			);
+			await flushPromises();
+
+			expect(fetchMessageHistoryMock).toHaveBeenCalledTimes(1);
+			expect(fetchMessageHistoryMock).toHaveBeenCalledWith('t1', {
+				size: 10,
+			});
 		});
 
-		it('tells a chat with unread messages from one without', () => {
+		it('reads a chat when it comes into the window, and not again when it leaves it', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
+			store.sync(
+				[
+					't1',
+					't2',
+				],
+				[
+					't1',
+				],
+			);
+			await flushPromises();
 
-			store.setUnreadCount('t1', 3);
-			store.setUnreadCount('t2', 0);
+			store.sync(
+				[
+					't1',
+					't2',
+				],
+				[
+					't2',
+				],
+			);
+			await flushPromises();
+			store.sync(
+				[
+					't1',
+					't2',
+				],
+				[
+					't1',
+				],
+			);
+			await flushPromises();
 
-			expect(store.hasUnreadData).toBe(true);
-			expect(store.isUnread('t1')).toBe(true);
-			expect(store.isUnread('t2')).toBe(false);
-			expect(store.isUnread('t3')).toBe(false);
+			expect(fetchMessageHistoryMock).toHaveBeenCalledTimes(2);
+			expect(store.lastMessages.t1?.id).toBe('m1');
+		});
+
+		// a chat the window moved off still has a socket to follow
+		it('keeps a chat’s last message current after it leaves the window', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
+			const store = useChatPreviewsStore();
+			store.sync(
+				[
+					't1',
+					't2',
+				],
+				[
+					't1',
+				],
+			);
+			await flushPromises();
+			store.sync(
+				[
+					't1',
+					't2',
+				],
+				[
+					't2',
+				],
+			);
+
+			store.receiveMessage(
+				buildMessage({
+					id: 'm2',
+					createdAt: '2000',
+				}),
+			);
+
+			expect(store.lastMessages.t1?.id).toBe('m2');
 		});
 	});
 
@@ -74,7 +154,7 @@ describe('chat-previews store', () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
 
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -97,10 +177,10 @@ describe('chat-previews store', () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
 
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
-			store.sync([
+			syncAll(store, [
 				't1',
 				't2',
 			]);
@@ -129,7 +209,7 @@ describe('chat-previews store', () => {
 			);
 			const store = useChatPreviewsStore();
 
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -141,14 +221,14 @@ describe('chat-previews store', () => {
 			fetchMessageHistoryMock.mockRejectedValueOnce(new Error('boom'));
 			const store = useChatPreviewsStore();
 
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
 			expect(store.lastMessages.t1).toBeUndefined();
 
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -164,7 +244,7 @@ describe('chat-previews store', () => {
 
 		it('takes a newer message for a listed chat', async () => {
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -186,7 +266,7 @@ describe('chat-previews store', () => {
 		// the agent is in threads the list does not show (offers, closed chats)
 		it('ignores a thread the list does not show', async () => {
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -202,7 +282,7 @@ describe('chat-previews store', () => {
 
 		it('applies an edit of the last message', async () => {
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -219,7 +299,7 @@ describe('chat-previews store', () => {
 
 		it('does not let the edit of an older message replace the last one', async () => {
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -243,7 +323,7 @@ describe('chat-previews store', () => {
 
 		it('does not let a system notice replace the last message', async () => {
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -271,7 +351,7 @@ describe('chat-previews store', () => {
 				}),
 			);
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 
@@ -292,15 +372,15 @@ describe('chat-previews store', () => {
 		it('forgets a chat that is no longer listed, and reads it afresh if it returns', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
 
-			store.sync([]);
+			syncAll(store, []);
 			expect(store.lastMessages.t1).toBeUndefined();
 
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -317,11 +397,11 @@ describe('chat-previews store', () => {
 				}),
 			);
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 
-			store.sync([]);
+			syncAll(store, []);
 			resolveSeed(historyPage(buildMessage()));
 			await flushPromises();
 
@@ -335,7 +415,7 @@ describe('chat-previews store', () => {
 				historyPage(buildMessage()),
 			);
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
@@ -359,11 +439,11 @@ describe('chat-previews store', () => {
 		it('does not read a chat the list no longer shows', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
-			store.sync([
+			syncAll(store, [
 				't1',
 			]);
 			await flushPromises();
-			store.sync([]);
+			syncAll(store, []);
 
 			store.reseed();
 			await flushPromises();

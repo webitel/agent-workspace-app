@@ -8,11 +8,11 @@ import {
 import { expect, test } from './fixtures/test';
 
 /**
- * The chat list's Active tab (US_02.01): every chat the agent has accepted,
- * searchable by the client's name, and the unread control, which has to stay
- * out of sight until the backend says how many unread messages a chat has. Also
- * its tab indicators (US_02.12) and the Snoozed tab (US_02.02), fed by the chat
- * backend's snoozed threads (ADR-0008).
+ * The chat list's Active tab (US_02.01): the chats the agent has accepted, in a
+ * window that grows on scroll and searchable by the client's name, and the
+ * unread control, which has to stay out of sight until the backend says how
+ * many unread messages a chat has. Also its tab indicators (US_02.12) and the
+ * Snoozed tab (US_02.02), fed by the chat backend's snoozed threads (ADR-0008).
  */
 
 const firstAttemptId = 200;
@@ -81,23 +81,71 @@ async function openChats(page: Page) {
 	});
 }
 
+const rows = (page: Page) => page.locator('.chat-preview');
+
 test.describe('chat list', () => {
-	test('lists every active chat', async ({ page, socket }) => {
+	// the task feed arrives whole; the window is what bounds the work per chat
+	test('shows a page of chats and loads the rest on scroll', async ({
+		page,
+		socket,
+	}) => {
 		await openChats(page);
 
 		acceptChats(socket, 45);
 
-		await expect(page.locator('.chat-preview')).toHaveCount(45);
+		await expect(rows(page)).toHaveCount(20);
+
+		await rows(page).last().scrollIntoViewIfNeeded();
+		await expect(rows(page)).toHaveCount(40);
+
+		await rows(page).last().scrollIntoViewIfNeeded();
+		await expect(rows(page)).toHaveCount(45);
+		await expect(page.locator('.the-chat-previews-list__sentinel')).toHaveCount(
+			0,
+		);
+	});
+
+	// one history read per shown chat, which is what the window is for
+	test('reads the last message of the shown chats only', async ({
+		page,
+		socket,
+	}) => {
+		const histories: string[] = [];
+		await page.route('**/api/v1/*/messages**', async (route) => {
+			histories.push(route.request().url());
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					items: [],
+				}),
+			});
+		});
+		await page.goto('chats');
+		await expect(
+			page.getByRole('combobox', {
+				name: 'Online',
+			}),
+		).toBeVisible({
+			timeout: 30_000,
+		});
+
+		acceptChats(socket, 45);
+		await expect(rows(page)).toHaveCount(20);
+
+		// the 21st chat has not been scrolled to, so its history is not read
+		await expect.poll(() => histories.length).toBe(20);
+		expect(histories.some((url) => url.includes('e2e-thread-30'))).toBe(false);
 	});
 
 	test('searches the chats by the client’s name', async ({ page, socket }) => {
 		await openChats(page);
 		acceptChats(socket, 3);
-		await expect(page.locator('.chat-preview')).toHaveCount(3);
+		await expect(rows(page)).toHaveCount(3);
 
 		await page.locator('.chat-list-search input').fill('client 2');
 
-		await expect(page.locator('.chat-preview')).toHaveCount(1);
+		await expect(rows(page)).toHaveCount(1);
 	});
 
 	test('lists every chat again once the search is cleared', async ({
@@ -107,11 +155,11 @@ test.describe('chat list', () => {
 		await openChats(page);
 		acceptChats(socket, 3);
 		await page.locator('.chat-list-search input').fill('client 2');
-		await expect(page.locator('.chat-preview')).toHaveCount(1);
+		await expect(rows(page)).toHaveCount(1);
 
 		await page.locator('.chat-list-search input').fill('');
 
-		await expect(page.locator('.chat-preview')).toHaveCount(3);
+		await expect(rows(page)).toHaveCount(3);
 	});
 
 	test('shows no unread filter while there is no unread data', async ({
@@ -122,7 +170,7 @@ test.describe('chat list', () => {
 
 		acceptChats(socket, 3);
 
-		await expect(page.locator('.chat-preview')).toHaveCount(3);
+		await expect(rows(page)).toHaveCount(3);
 		await expect(page.locator('.chat-unread-filter')).toHaveCount(0);
 	});
 

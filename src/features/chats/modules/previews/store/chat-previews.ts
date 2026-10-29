@@ -19,15 +19,17 @@ const SEED_PAGE_SIZE = 10;
  * (ADR-0007), while a chat preview must show its last message for every listed
  * chat, opened or not.
  *
- * A chat is seeded once with a single history request, then kept current from
- * the chats socket, so the list costs one request per chat rather than a
- * thread load.
+ * A chat is seeded once with a single history request, for the chats the list
+ * is showing, then kept current from the chats socket, so the list costs one
+ * request per shown chat rather than a thread load.
  */
 export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// reassigned, never mutated, so shallow reactivity is enough
 	const lastMessages = shallowRef<Record<string, LastMessage>>({});
-	// threads the list is showing: the socket carries every thread the agent is
-	// in, and only these are worth keeping
+	// every thread the list holds, shown or not: the socket carries every thread
+	// the agent is in, and only these are worth keeping
+	const listed = new Set<string>();
+	// the listed threads whose last message is kept: the ones that were shown
 	const tracked = new Set<string>();
 	const seeded = new Set<string>();
 
@@ -102,23 +104,29 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	}
 
 	/**
-	 * Aligns the store with the chats the list shows: drops the ones that left
-	 * and seeds the ones that arrived.
+	 * Aligns the store with the list. `listedIds` is every chat the agent has: the
+	 * ones that left are forgotten. `shownIds` is the chats the list is showing
+	 * now, whose last message is read when it is not held yet. A chat that stops
+	 * being shown keeps its message, so showing it again does not read it again.
 	 */
-	function sync(threadIds: string[]) {
-		const current = new Set(threadIds);
+	function sync(listedIds: string[], shownIds: string[]) {
+		const current = new Set(listedIds);
 
 		for (const threadId of [
-			...tracked,
+			...listed,
 		]) {
 			if (current.has(threadId)) continue;
+			listed.delete(threadId);
 			tracked.delete(threadId);
 			seeded.delete(threadId);
 			const { [threadId]: _dropped, ...rest } = lastMessages.value;
 			lastMessages.value = rest;
 		}
 
-		for (const threadId of current) {
+		for (const threadId of current) listed.add(threadId);
+
+		for (const threadId of shownIds) {
+			if (!current.has(threadId)) continue;
 			tracked.add(threadId);
 			void seed(threadId);
 		}

@@ -6,6 +6,8 @@ const chatListStore = reactive({
 	currentTasks: [] as {
 		id: number;
 	}[],
+	hasMore: false,
+	loadMore: vi.fn(),
 });
 const chatActiveStore = reactive({
 	isUnreadFilterAvailable: false,
@@ -76,10 +78,25 @@ describe('the-chat-previews-list', () => {
 	beforeEach(() => {
 		chatListStore.currentTasks = [];
 		chatActiveStore.isUnreadFilterAvailable = false;
+		chatListStore.hasMore = false;
+		chatListStore.loadMore.mockClear();
 	});
 
 	it('has the search', () => {
 		expect(mountList().find('.chat-list-search-stub').exists()).toBe(true);
+	});
+
+	// scrolling to it asks for the next page (AC_02.01.02)
+	it('has a scroll sentinel only while there are more chats to show', () => {
+		chatListStore.hasMore = true;
+		expect(mountList().find('.the-chat-previews-list__sentinel').exists()).toBe(
+			true,
+		);
+
+		chatListStore.hasMore = false;
+		expect(mountList().find('.the-chat-previews-list__sentinel').exists()).toBe(
+			false,
+		);
 	});
 
 	it('renders a row for every chat', () => {
