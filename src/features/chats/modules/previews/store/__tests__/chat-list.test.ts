@@ -29,6 +29,8 @@ vi.mock('../chat-previews', () => ({
 
 const activeTasks = ref<FakeTask[]>([]);
 const activeUnreadCount = ref(0);
+const setOnlyUnreadMock = vi.fn();
+const toggleOnlyUnreadMock = vi.fn();
 vi.mock('../chat-active', () => ({
 	useChatActiveStore: () => ({
 		get tasks() {
@@ -40,6 +42,8 @@ vi.mock('../chat-active', () => ({
 		get unreadCount() {
 			return activeUnreadCount.value;
 		},
+		setOnlyUnread: setOnlyUnreadMock,
+		toggleOnlyUnread: toggleOnlyUnreadMock,
 	}),
 }));
 
@@ -78,6 +82,8 @@ const idsOf = (tasks: FakeTask[]) => tasks.map((task) => task.id);
 describe('chat-list store', () => {
 	beforeEach(() => {
 		syncMock.mockReset();
+		setOnlyUnreadMock.mockClear();
+		toggleOnlyUnreadMock.mockClear();
 		chatTaskList.value = [];
 		snoozedTasks.value = [];
 		activeTasks.value = [];
@@ -238,6 +244,29 @@ describe('chat-list store', () => {
 
 			expect(store.activeCount).toBe(2);
 			expect(store.snoozedCount).toBe(1);
+		});
+	});
+
+	describe('unread filter', () => {
+		it('switches the filter on the Active tab', () => {
+			const store = useChatListStore();
+
+			store.toggleOnlyUnread();
+
+			expect(toggleOnlyUnreadMock).toHaveBeenCalledOnce();
+			expect(store.currentTab).toBe(ChatListTab.Active);
+		});
+
+		// AC_02.02.04
+		it('hands the agent over to the Active tab with the filter on, from Snoozed', () => {
+			const store = useChatListStore();
+			store.setTab(ChatListTab.Snoozed);
+
+			store.toggleOnlyUnread();
+
+			expect(store.currentTab).toBe(ChatListTab.Active);
+			expect(setOnlyUnreadMock).toHaveBeenCalledWith(true);
+			expect(toggleOnlyUnreadMock).not.toHaveBeenCalled();
 		});
 	});
 

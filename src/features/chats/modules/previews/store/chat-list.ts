@@ -47,6 +47,19 @@ export const useChatListStore = defineStore('chat-list', () => {
 	}
 
 	/**
+	 * On the Snoozed tab the unread filter hands the agent over to the Active tab
+	 * with it on (AC_02.02.04); on the Active tab it switches.
+	 */
+	function toggleOnlyUnread() {
+		if (currentTab.value === ChatListTab.Snoozed) {
+			currentTab.value = ChatListTab.Active;
+			activeStore.setOnlyUnread(true);
+			return;
+		}
+		activeStore.toggleOnlyUnread();
+	}
+
+	/**
 	 * The previews follow the agent's chats, not what the filter leaves showing: a
 	 * chat the filter hides still has a last message to keep current, and
 	 * forgetting it would read its history again the moment the filter is off.
@@ -75,6 +88,7 @@ export const useChatListStore = defineStore('chat-list', () => {
 		// actions
 		setTab,
 		setQuery,
+		toggleOnlyUnread,
 	};
 });
 
