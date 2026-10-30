@@ -1,7 +1,7 @@
 <template>
     <div class="task-dock-call-lane">
         <the-numpad-panel />
-        <call-transfer-popup v-if="callTransferStore.isOpen" />
+        <call-transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
 
         <div class="task-dock-call-lane__container">
             <template
@@ -16,7 +16,7 @@
                     @open-full-view="openCallWindow(windowedCall.id)"
                     @toggle-mute="callsStore.toggleMute(windowedCall.id)"
                     @toggle-hold="callsStore.toggleHold(windowedCall.id)"
-                    @transfer="callTransferStore.open(windowedCall.id)"
+                    @transfer="callTransferPopupStore.open(windowedCall.id)"
                     @hangup="onHangup(windowedCall.id)"
                     @send-digit="callsStore.sendDtmf(windowedCall.id, $event)"
                 />
@@ -44,14 +44,14 @@ import { useCallsStore } from '../../../features/calls/store/calls';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import CallTransferPopup from '../../call/modules/call-transfer/components/call-transfer-popup.vue';
-import { useCallTransferStore } from '../../call/modules/call-transfer/store/callTransfer';
+import { useCallTransferPopupStore } from '../../call/modules/call-transfer/store/callTransferPopup';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
 
 const taskDockStore = useTaskDockStore();
 const router = useRouter();
 const callsStore = useCallsStore();
-const callTransferStore = useCallTransferStore();
+const callTransferPopupStore = useCallTransferPopupStore();
 
 // Every call with a Call window, so an agent who left one during post-processing
 // has a way back to it (AC_13.02.04). An ended call is still listed only while

@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Перевод звонка',
-				numberLabel: 'Перевести на номер',
-				numberPlaceholder: 'Введите номер телефона',
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введите номер телефона',
 				modes: {
 					blind: 'Слепой',
 					consult: 'Консультативный',

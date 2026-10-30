@@ -15,56 +15,56 @@ const BOTH = {
 describe('getTransferActionAvailability', () => {
 	it('disables every button by default', () => {
 		const availability = getTransferActionAvailability({
-			number: '',
+			phone: '',
 			tab: TransferTab.Agents,
 			hasSelection: false,
 		});
 
-		expect(availability.byNumber).toEqual(NONE);
+		expect(availability.byPhone).toEqual(NONE);
 		expect(availability.bySelection).toEqual(NONE);
 	});
 
 	it('enables the number buttons for a typed number, on any tab', () => {
 		for (const tab of Object.values(TransferTab)) {
 			const availability = getTransferActionAvailability({
-				number: '1001',
+				phone: '1001',
 				tab,
 				hasSelection: false,
 			});
 
-			expect(availability.byNumber).toEqual(BOTH);
+			expect(availability.byPhone).toEqual(BOTH);
 			expect(availability.bySelection).toEqual(NONE);
 		}
 	});
 
 	it('treats a blank number as no number', () => {
 		const availability = getTransferActionAvailability({
-			number: '   ',
+			phone: '   ',
 			tab: TransferTab.Agents,
 			hasSelection: false,
 		});
 
-		expect(availability.byNumber).toEqual(NONE);
+		expect(availability.byPhone).toEqual(NONE);
 	});
 
 	it('treats a number of only non-dialable characters as no number', () => {
 		const availability = getTransferActionAvailability({
-			number: ' ( - ) ',
+			phone: ' ( - ) ',
 			tab: TransferTab.Agents,
 			hasSelection: false,
 		});
 
-		expect(availability.byNumber).toEqual(NONE);
+		expect(availability.byPhone).toEqual(NONE);
 	});
 
 	it('hands the buttons over to the selected row even when a number is typed', () => {
 		const availability = getTransferActionAvailability({
-			number: '1001',
+			phone: '1001',
 			tab: TransferTab.Queues,
 			hasSelection: true,
 		});
 
-		expect(availability.byNumber).toEqual(NONE);
+		expect(availability.byPhone).toEqual(NONE);
 		expect(availability.bySelection).toEqual(BOTH);
 	});
 
@@ -96,7 +96,7 @@ describe('getTransferActionAvailability', () => {
 		],
 	])('allows a selected %s row only the modes of that tab', (tab, expected) => {
 		const availability = getTransferActionAvailability({
-			number: '',
+			phone: '',
 			tab,
 			hasSelection: true,
 		});

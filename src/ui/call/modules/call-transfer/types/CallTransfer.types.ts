@@ -3,8 +3,8 @@ import type { TransferTab } from '../enums/TransferTab.enum';
 
 export type TransferDestination =
 	| {
-			kind: 'number';
-			number: string;
+			kind: 'phone';
+			phone: string;
 	  }
 	| {
 			kind: 'row';
@@ -20,6 +20,6 @@ export interface TransferRequest {
 export type TransferModeAvailability = Record<TransferMode, boolean>;
 
 export interface TransferActionAvailability {
-	byNumber: TransferModeAvailability;
+	byPhone: TransferModeAvailability;
 	bySelection: TransferModeAvailability;
 }

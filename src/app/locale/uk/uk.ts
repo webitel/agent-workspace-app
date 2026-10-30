@@ -158,8 +158,8 @@ export default {
 			},
 			transfer: {
 				title: 'Переведення дзвінка',
-				numberLabel: 'Перевести на номер',
-				numberPlaceholder: 'Введіть номер телефону',
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введіть номер телефону',
 				modes: {
 					blind: 'Сліпий',
 					consult: 'Консультативний',

@@ -2,20 +2,20 @@
 	<wt-popup
 		:size="ComponentSize.MD"
 		:height="ComponentSize.LG"
-		@close="callTransferStore.close()"
+		@close="callTransferPopupStore.close()"
 	>
 		<template #title>
 			{{ t('ui.call.transfer.title') }}
 		</template>
 
 		<template #main>
-			<div class="call-transfer-popup">
-				<div class="call-transfer-popup__number">
+			<div class="call-transfer-popup__main">
+				<div class="call-transfer-popup__phone">
 					<wt-input-text
-						v-model="number"
-						class="call-transfer-popup__number-input"
-						:label="t('ui.call.transfer.numberLabel')"
-						:placeholder="t('ui.call.transfer.numberPlaceholder')"
+						v-model="phone"
+						class="call-transfer-popup__phone-input"
+						:label="t('ui.call.transfer.phoneLabel')"
+						:placeholder="t('ui.call.transfer.phonePlaceholder')"
 						:disabled="isSubmitting"
 					/>
 					<wt-button
@@ -23,8 +23,8 @@
 						:key="mode"
 						:color="ButtonColor.SECONDARY"
 						:variant="ButtonVariant.OUTLINED"
-						:disabled="isSubmitting || !availability.byNumber[mode]"
-						@click="requestTransferToNumber(mode)"
+						:disabled="isSubmitting || !availability.byPhone[mode]"
+						@click="requestTransferToPhone(mode)"
 					>
 						{{ t(`ui.call.transfer.modes.${mode}`) }}
 					</wt-button>
@@ -65,7 +65,7 @@
 			</wt-button>
 			<wt-button
 				:color="ButtonColor.SECONDARY"
-				@click="callTransferStore.close()"
+				@click="callTransferPopupStore.close()"
 			>
 				{{ t('reusable.cancel') }}
 			</wt-button>
@@ -91,7 +91,7 @@ import { useCallsStore } from '../../../../../features/calls/store/calls';
 import { TransferMode } from '../enums/TransferMode.enum';
 import { TransferTab } from '../enums/TransferTab.enum';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
-import { useCallTransferStore } from '../store/callTransfer';
+import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
 
 const emit = defineEmits<{
@@ -102,11 +102,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const callsStore = useCallsStore();
-const callTransferStore = useCallTransferStore();
+const callTransferPopupStore = useCallTransferPopupStore();
 
 const transferModes = Object.values(TransferMode);
 
-const number = ref('');
+const phone = ref('');
 const activeTab = ref<TransferTab>(TransferTab.Agents);
 const searchQuery = ref('');
 const selectedRowId = ref<string | null>(null);
@@ -152,7 +152,7 @@ const activeTabConfig = computed(
 
 const availability = computed(() =>
 	getTransferActionAvailability({
-		number: number.value,
+		phone: phone.value,
 		tab: activeTab.value,
 		hasSelection: selectedRowId.value !== null,
 	}),
@@ -178,26 +178,26 @@ function onTabChange(tab: { value: TransferTab }): void {
  * the list, and on failure it keeps the typed number for another try
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-async function requestTransferToNumber(mode: TransferMode): Promise<void> {
-	const destinationNumber = sanitizeDestination(number.value);
+async function requestTransferToPhone(mode: TransferMode): Promise<void> {
+	const destinationPhone = sanitizeDestination(phone.value);
 
 	if (mode !== TransferMode.Blind) {
 		emit('transfer', {
 			mode,
 			destination: {
-				kind: 'number',
-				number: destinationNumber,
+				kind: 'phone',
+				phone: destinationPhone,
 			},
 		});
 		return;
 	}
 
-	const { transferCallId } = callTransferStore;
+	const { transferCallId } = callTransferPopupStore;
 	if (isSubmitting.value || transferCallId === null) return;
 
 	isSubmitting.value = true;
 	try {
-		await callsStore.blindTransfer(transferCallId, destinationNumber);
+		await callsStore.blindTransfer(transferCallId, destinationPhone);
 	} finally {
 		isSubmitting.value = false;
 	}
@@ -217,7 +217,9 @@ function requestTransferToRow(mode: TransferMode): void {
 }
 
 const isTransferredCallActive = computed(() =>
-	isActiveCall(callsStore.getCallById(callTransferStore.transferCallId ?? '')),
+	isActiveCall(
+		callsStore.getCallById(callTransferPopupStore.transferCallId ?? ''),
+	),
 );
 
 /**
@@ -229,7 +231,7 @@ const isTransferredCallActive = computed(() =>
 watch(
 	isTransferredCallActive,
 	(isActive) => {
-		if (!isActive) callTransferStore.close();
+		if (!isActive) callTransferPopupStore.close();
 	},
 	{
 		immediate: true,
@@ -238,20 +240,20 @@ watch(
 </script>
 
 <style scoped>
-.call-transfer-popup {
+.call-transfer-popup__main {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-xs);
 	height: 100%;
 }
 
-.call-transfer-popup__number {
+.call-transfer-popup__phone {
 	display: flex;
 	align-items: flex-end;
 	gap: var(--spacing-xs);
 }
 
-.call-transfer-popup__number-input {
+.call-transfer-popup__phone-input {
 	flex: 1;
 }
 

@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Transferir llamada',
-				numberLabel: 'Transferir al número',
-				numberPlaceholder: 'Introduzca el número de teléfono',
+				phoneLabel: 'Transferir al número',
+				phonePlaceholder: 'Introduzca el número de teléfono',
 				modes: {
 					blind: 'Ciega',
 					consult: 'Con consulta',

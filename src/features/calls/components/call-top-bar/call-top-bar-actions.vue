@@ -62,7 +62,7 @@
 			icon="call-transfer--filled"
 			size="sm"
 			:disabled="!canTransfer"
-			@click="callTransferStore.open(call.id)"
+			@click="callTransferPopupStore.open(call.id)"
 		/>
 		<wt-button
 			:aria-label="t('ui.call.activeCall.actions.hangup')"
@@ -79,7 +79,7 @@ import { ButtonVariant } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
-import { useCallTransferStore } from '../../../../ui/call/modules/call-transfer/store/callTransfer';
+import { useCallTransferPopupStore } from '../../../../ui/call/modules/call-transfer/store/callTransferPopup';
 import { canTransferCall } from '../../scripts/canTransferCall';
 import { useCallsStore } from '../../store/calls';
 
@@ -89,7 +89,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const callsStore = useCallsStore();
-const callTransferStore = useCallTransferStore();
+const callTransferPopupStore = useCallTransferPopupStore();
 
 const isMuted = computed(() => Boolean(props.call.muted));
 const canTransfer = computed(() => canTransferCall(props.call));

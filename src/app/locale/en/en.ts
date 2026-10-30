@@ -158,8 +158,8 @@ export default {
 			},
 			transfer: {
 				title: 'Transfer Call',
-				numberLabel: 'Transfer to number',
-				numberPlaceholder: 'Enter phone number',
+				phoneLabel: 'Transfer to number',
+				phonePlaceholder: 'Enter phone number',
 				modes: {
 					blind: 'Blind',
 					consult: 'Consult',

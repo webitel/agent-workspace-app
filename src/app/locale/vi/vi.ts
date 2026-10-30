@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Chuyển cuộc gọi',
-				numberLabel: 'Chuyển đến số',
-				numberPlaceholder: 'Nhập số điện thoại',
+				phoneLabel: 'Chuyển đến số',
+				phonePlaceholder: 'Nhập số điện thoại',
 				modes: {
 					blind: 'Chuyển thẳng',
 					consult: 'Chuyển có tham vấn',
