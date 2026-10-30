@@ -32,7 +32,7 @@
 	"dependencies": {
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.12",
-		"@webitel/chat-web-sdk": "^0.0.22",
+		"@webitel/chat-web-sdk": "^0.0.23",
 		"@webitel/styleguide": "~26.12",
 		"@webitel/ui-chats": "~26.12",
 		"@webitel/ui-datalist": "~26.12",
@@ -73,6 +73,6 @@
 	"overrides": {
 		"vue-router": "^5.1.x",
 		"axios": "^1.17.0",
-		"@webitel/chat-web-sdk": "^0.0.22"
+		"@webitel/chat-web-sdk": "^0.0.23"
 	}
 }

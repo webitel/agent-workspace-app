@@ -258,7 +258,7 @@ test.describe('closed chats', () => {
 	});
 
 	test.describe('closed chat card', () => {
-		test('opens read-only, on the client, with no queue, Reopen or composer', async ({
+		test('opens read-only, on the client and its queue, with no Reopen or composer', async ({
 			page,
 		}) => {
 			await mockLeftThreads(page);
@@ -271,7 +271,9 @@ test.describe('closed chats', () => {
 				topBar.locator('.task-top-bar__identity > .wt-icon'),
 			).toHaveCount(1);
 			await expect(topBar.locator('.task-top-bar__name')).toHaveText('@jane');
-			await expect(topBar.locator('.task-top-bar__subtitle')).toHaveCount(0);
+			await expect(topBar.locator('.task-top-bar__subtitle')).toHaveText(
+				'Queue: Sales',
+			);
 			await expect(
 				page.getByRole('button', {
 					name: 'Reopen',

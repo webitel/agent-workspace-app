@@ -28,10 +28,13 @@ const thread = {
 	],
 } as unknown as ILeftThread;
 
-const mountBar = () => {
+const mountBar = (overrides: Partial<ILeftThread> = {}) => {
 	const wrapper = mount(ClosedChatTopBar, {
 		props: {
-			thread,
+			thread: {
+				...thread,
+				...overrides,
+			} as ILeftThread,
 		},
 		global: {
 			plugins: [
@@ -67,10 +70,26 @@ describe('closed-chat-top-bar', () => {
 		expect(wrapper.text()).toContain('client_username');
 	});
 
-	it('has no queue, no status and no actions', () => {
+	it('shows the queue the agent received the chat through', () => {
+		const wrapper = mountBar({
+			queue: {
+				id: '12',
+				name: 'Sales',
+			},
+		});
+
+		expect(wrapper.find('.task-top-bar__subtitle-value').text()).toBe('Sales');
+	});
+
+	it('has no queue when the backend does not know it', () => {
 		const wrapper = mountBar();
 
 		expect(wrapper.find('.task-top-bar__subtitle').exists()).toBe(false);
+	});
+
+	it('has no status and no actions', () => {
+		const wrapper = mountBar();
+
 		expect(wrapper.find('.task-top-bar__trailing').text()).toBe('');
 		expect(wrapper.find('button').exists()).toBe(false);
 	});
