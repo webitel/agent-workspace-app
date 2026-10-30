@@ -69,7 +69,19 @@ describe('toClosedChatHeader', () => {
 		expect(toClosedChatHeader(thread).name).toBeUndefined();
 	});
 
-	it('never has a queue: a left thread does not carry one', () => {
+	it('shows the queue the agent received the thread through', () => {
+		const thread = {
+			...threadWith([]),
+			queue: {
+				id: '12',
+				name: 'Sales',
+			},
+		} as ILeftThread;
+
+		expect(toClosedChatHeader(thread).queueName).toBe('Sales');
+	});
+
+	it('has no queue when the backend does not know it', () => {
 		const thread = threadWith([
 			{
 				sub: 'client-sub',
