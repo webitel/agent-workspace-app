@@ -19,6 +19,8 @@ const tasks = ref<
 		};
 	}[]
 >([]);
+// undefined until the agent session loads, which is when the feed counts as ready
+const agent = ref<object | undefined>(undefined);
 
 const offers = {
 	initialize: vi.fn(),
@@ -36,7 +38,14 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
 		getClient: getClientMock,
 		tasks,
+		agent,
 	}),
+}));
+
+const disposeClosedChatMock = vi.fn();
+
+vi.mock('../../modules/closed/store/closed-chat', () => ({
+	disposeClosedChat: (threadId: string) => disposeClosedChatMock(threadId),
 }));
 
 const loadMock = vi.fn();
@@ -76,12 +85,14 @@ vi.mock('../chat-account', () => ({
 }));
 
 const receivePreviewMessageMock = vi.fn();
+const receiveUnreadChangedMock = vi.fn();
 const reseedPreviewsMock = vi.fn();
 const loadUnreadMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
 		receiveMessage: receivePreviewMessageMock,
+		receiveUnreadChanged: receiveUnreadChangedMock,
 		reseed: reseedPreviewsMock,
 		loadUnread: loadUnreadMock,
 	}),
@@ -103,6 +114,16 @@ let tagsChangedHandler:
 const onThreadTagsChangedMock = vi.fn(
 	(callback: (changed: { threadId: string; tags: string[] }) => void) => {
 		tagsChangedHandler = callback;
+		return () => {};
+	},
+);
+
+let unreadChangedHandler:
+	| ((changed: { threadId: string; unreadCount: number }) => void)
+	| null = null;
+const onThreadUnreadChangedMock = vi.fn(
+	(callback: (changed: { threadId: string; unreadCount: number }) => void) => {
+		unreadChangedHandler = callback;
 		return () => {};
 	},
 );
@@ -131,6 +152,7 @@ vi.mock('../../composables/useChatsSocket', () => ({
 		onThreadMessage: onThreadMessageMock,
 		onReconnected: onReconnectedMock,
 		onThreadTagsChanged: onThreadTagsChangedMock,
+		onThreadUnreadChanged: onThreadUnreadChangedMock,
 	}),
 }));
 
@@ -214,8 +236,10 @@ describe('chats store', () => {
 		sessionIds.clear();
 		sessionInitialized = false;
 		tasks.value = [];
+		agent.value = undefined;
 		threadMessageHandler = null;
 		tagsChangedHandler = null;
+		unreadChangedHandler = null;
 		reconnectedHandler = null;
 		routerCurrentRoute.value.params = {};
 	});
@@ -296,6 +320,22 @@ describe('chats store', () => {
 				tags: [
 					'snoozed',
 				],
+			});
+		});
+
+		// the backend pushes a chat's unread count whenever it changes
+		it('hands a pushed unread count to the chat previews', () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			unreadChangedHandler?.({
+				threadId: 'chat-1',
+				unreadCount: 2,
+			});
+
+			expect(receiveUnreadChangedMock).toHaveBeenCalledWith({
+				threadId: 'chat-1',
+				unreadCount: 2,
 			});
 		});
 
@@ -695,8 +735,10 @@ describe('chats store', () => {
 			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(new Set());
 		});
 
-		// the task was released, but the agent still has the window open
-		it('keeps the session while the chat that left still has a window', async () => {
+		// the task was released with the window open: the window shows the
+		// closed chat now, which keeps no session (ADR-0010)
+		it('releases the session of a chat whose task leaves while its window is open', async () => {
+			agent.value = {};
 			tasks.value = [
 				buildListed(1, 'chat-1'),
 			];
@@ -707,11 +749,142 @@ describe('chats store', () => {
 			tasks.value = [];
 			await nextTick();
 
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(new Set());
+		});
+
+		// until the feed is back there is no telling a closed chat from an active one
+		it("keeps a window's session while the task feed is not ready", async () => {
+			const store = useChatsStore();
+			store.initialize();
+			store.openChat('chat-1');
+			store.openChat('chat-2', 'minimized');
+
+			store.closeChat('chat-2');
+
 			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(
 				new Set([
 					'chat-1',
 				]),
 			);
+		});
+
+		it('keeps no chat session for a window with no task', () => {
+			agent.value = {};
+			tasks.value = [
+				buildListed(1, 'chat-1'),
+			];
+			const store = useChatsStore();
+			store.openChat('chat-1');
+			store.openChat('chat-9', 'minimized');
+			store.openChat('chat-2', 'minimized');
+
+			store.closeChat('chat-2');
+
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(
+				new Set([
+					'chat-1',
+				]),
+			);
+		});
+
+		// an offer opened from the card body is not a closed chat
+		it('keeps the session of a window over an offered chat', () => {
+			agent.value = {};
+			tasks.value = [
+				{
+					...buildListed(1, 'chat-1'),
+					bridgedAt: 0,
+				},
+			];
+			const store = useChatsStore();
+			store.openChat('chat-1');
+			store.openChat('chat-2', 'minimized');
+
+			store.closeChat('chat-2');
+
+			expect(retainChatSessionsMock).toHaveBeenLastCalledWith(
+				new Set([
+					'chat-1',
+				]),
+			);
+		});
+
+		it('does not start a session for a closed chat it opens', () => {
+			agent.value = {};
+			const store = useChatsStore();
+
+			store.openChat('chat-9');
+
+			expect(store.isOpen('chat-9')).toBe(true);
+			expect(useChatSessionStoreMock).not.toHaveBeenCalled();
+		});
+
+		// the agent rejoined the thread with its closed chat open
+		it('starts the session of an open window once a task backs it', async () => {
+			agent.value = {};
+			const store = useChatsStore();
+			store.initialize();
+			store.openChat('chat-9');
+
+			tasks.value = [
+				buildListed(1, 'chat-9'),
+			];
+			await nextTick();
+
+			expect(useChatSessionStoreMock).toHaveBeenCalledWith('chat-9');
+			expect(loadMock).toHaveBeenCalledOnce();
+		});
+
+		it('drops the closed chat of a window that closes', () => {
+			agent.value = {};
+			const store = useChatsStore();
+			store.openChat('chat-9');
+
+			store.closeChat('chat-9');
+
+			expect(disposeClosedChatMock).toHaveBeenCalledWith('chat-9');
+		});
+
+		// read before the agent rejoined, it misses the period they are in now;
+		// the window need not be open, or on that chat, when the task comes back
+		it('drops the closed chat of a thread that gets a task again', async () => {
+			agent.value = {};
+			const store = useChatsStore();
+			store.initialize();
+
+			tasks.value = [
+				buildListed(1, 'chat-9'),
+			];
+			await nextTick();
+
+			expect(disposeClosedChatMock).toHaveBeenCalledWith('chat-9');
+		});
+	});
+
+	describe('task feed readiness', () => {
+		it('is not ready until the agent session loads', async () => {
+			const store = useChatsStore();
+			expect(store.isTaskFeedReady).toBe(false);
+
+			agent.value = {};
+			await nextTick();
+
+			expect(store.isTaskFeedReady).toBe(true);
+		});
+
+		it('tells which threads a chat task backs, offered ones included', () => {
+			tasks.value = [
+				buildListed(1, 'chat-1'),
+				{
+					...buildListed(2, 'chat-2'),
+					bridgedAt: 0,
+				},
+			];
+			const store = useChatsStore();
+
+			expect(store.hasChatTask('chat-1')).toBe(true);
+			expect(store.hasChatTask('chat-2')).toBe(true);
+			expect(store.hasChatTask('chat-9')).toBe(false);
 		});
 	});
 	describe('ending a chat', () => {

@@ -16,18 +16,6 @@ vi.mock('../../../../api/chatSdk', () => ({
 	},
 }));
 
-const accountStore = {
-	account: {
-		contact: {
-			sub: '42',
-			iss: 'webitel',
-		},
-	} as unknown,
-};
-vi.mock('../../../../store/chat-account', () => ({
-	useChatAccountStore: () => accountStore,
-}));
-
 import { useChatPreviewsStore } from '../chat-previews';
 
 const buildMessage = (overrides: Record<string, unknown> = {}) =>
@@ -55,12 +43,6 @@ describe('chat-previews store', () => {
 	beforeEach(() => {
 		fetchMessageHistoryMock.mockReset();
 		fetchThreadsMock.mockReset();
-		accountStore.account = {
-			contact: {
-				sub: '42',
-				iss: 'webitel',
-			},
-		};
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -189,99 +171,65 @@ describe('chat-previews store', () => {
 			expect(store.hasUnreadData).toBe(false);
 		});
 
-		describe('counted from the socket', () => {
-			it("raises the count for someone else's message on a listed chat", () => {
+		describe('pushed by the backend', () => {
+			it('takes the count of a listed chat', () => {
 				const store = useChatPreviewsStore();
 				store.sync([
 					't1',
 				]);
 
-				store.receiveMessage(buildMessage());
-				store.receiveMessage(
-					buildMessage({
-						id: 'm2',
-					}),
-				);
+				store.receiveUnreadChanged({
+					threadId: 't1',
+					unreadCount: 2,
+				});
 
 				expect(store.unreadByThread.t1).toBe(2);
 			});
 
-			it("does not count the agent's own message", () => {
+			// the count replaces the held one, so a read elsewhere clears it here
+			it('replaces the count held, down to zero when read elsewhere', () => {
 				const store = useChatPreviewsStore();
 				store.sync([
 					't1',
 				]);
+				store.receiveUnreadChanged({
+					threadId: 't1',
+					unreadCount: 3,
+				});
 
-				store.receiveMessage(
-					buildMessage({
-						sender: {
-							contact: {
-								sub: '42',
-								iss: 'webitel',
-							},
-						},
-					}),
-				);
+				store.receiveUnreadChanged({
+					threadId: 't1',
+					unreadCount: 0,
+				});
 
-				expect(store.unreadByThread.t1).toBeUndefined();
+				expect(store.unreadByThread.t1).toBe(0);
+				expect(store.isUnread('t1')).toBe(false);
 			});
 
-			// ADR-0001: no guess about who wrote it while the account is unknown
-			it('does not count while the agent’s account is unknown', () => {
-				accountStore.account = null;
+			it('does not take the count of a chat the list does not hold', () => {
 				const store = useChatPreviewsStore();
 				store.sync([
 					't1',
 				]);
 
-				store.receiveMessage(buildMessage());
-
-				expect(store.unreadByThread.t1).toBeUndefined();
-			});
-
-			// an edit, or the echo of a message already counted
-			it('does not count the same message twice', () => {
-				const store = useChatPreviewsStore();
-				store.sync([
-					't1',
-				]);
-
-				store.receiveMessage(buildMessage());
-				store.receiveMessage(buildMessage());
-
-				expect(store.unreadByThread.t1).toBe(1);
-			});
-
-			it('does not count a notice, which is nobody’s message', () => {
-				const store = useChatPreviewsStore();
-				store.sync([
-					't1',
-				]);
-
-				store.receiveMessage(
-					buildMessage({
-						system: {
-							memberJoined: {},
-						},
-					}),
-				);
-
-				expect(store.unreadByThread.t1).toBeUndefined();
-			});
-
-			it('does not count a chat the list does not hold', () => {
-				const store = useChatPreviewsStore();
-				store.sync([
-					't1',
-				]);
-
-				store.receiveMessage(
-					buildMessage({
-						threadId: 't9',
-					}),
-				);
+				store.receiveUnreadChanged({
+					threadId: 't9',
+					unreadCount: 1,
+				});
 
 				expect(store.unreadByThread.t9).toBeUndefined();
+			});
+
+			// the agent's messages are the backend's to leave out; nothing is guessed
+			it('does not count a message that arrives on its own', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+
+				expect(store.unreadByThread.t1).toBeUndefined();
 			});
 		});
 
@@ -296,19 +244,21 @@ describe('chat-previews store', () => {
 				expect(store.isUnread('t1')).toBe(false);
 			});
 
-			it('counts again from zero when something new arrives', () => {
+			it('takes the next count the backend pushes', () => {
 				const store = useChatPreviewsStore();
 				store.sync([
 					't1',
 				]);
-				store.receiveMessage(buildMessage());
+				store.receiveUnreadChanged({
+					threadId: 't1',
+					unreadCount: 2,
+				});
 				store.markRead('t1');
 
-				store.receiveMessage(
-					buildMessage({
-						id: 'm2',
-					}),
-				);
+				store.receiveUnreadChanged({
+					threadId: 't1',
+					unreadCount: 1,
+				});
 
 				expect(store.unreadByThread.t1).toBe(1);
 			});
@@ -319,7 +269,10 @@ describe('chat-previews store', () => {
 			store.sync([
 				't1',
 			]);
-			store.receiveMessage(buildMessage());
+			store.receiveUnreadChanged({
+				threadId: 't1',
+				unreadCount: 2,
+			});
 
 			store.sync([]);
 

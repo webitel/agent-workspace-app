@@ -5,9 +5,11 @@ const disconnectMock = vi.fn();
 // Captures the SDK-level ThreadMessage callback so tests can emit an event.
 let sdkMessageHandler: ((data: unknown) => void) | null = null;
 let sdkTagsChangedHandler: ((data: unknown) => void) | null = null;
+let sdkUnreadChangedHandler: ((data: unknown) => void) | null = null;
 const onMessageMock = vi.fn((event: string, cb: (data: unknown) => void) => {
 	if (event === 'messageEvent') sdkMessageHandler = cb;
 	if (event === 'threadTagsChangedEvent') sdkTagsChangedHandler = cb;
+	if (event === 'threadUnreadChangedEvent') sdkUnreadChangedHandler = cb;
 });
 // Captures the SDK's reconnected callback so tests can report a recovery.
 let sdkReconnectedHandler: ((payload: { attempt: number }) => void) | null =
@@ -30,6 +32,7 @@ vi.mock('@webitel/chat-web-sdk', () => ({
 	ChatsSocketMessage: {
 		ThreadMessage: 'messageEvent',
 		ThreadTagsChanged: 'threadTagsChangedEvent',
+		ThreadUnreadChanged: 'threadUnreadChangedEvent',
 	},
 	createChatsSocketClient: (...args: unknown[]) =>
 		createChatsSocketClientMock(...args),
@@ -49,6 +52,7 @@ describe('useChatsSocket', () => {
 		vi.clearAllMocks();
 		sdkMessageHandler = null;
 		sdkTagsChangedHandler = null;
+		sdkUnreadChangedHandler = null;
 		sdkReconnectedHandler = null;
 		// clearAllMocks keeps queued once-answers; a test that leaves one unused
 		// must not hand it to the next test's connect
@@ -168,6 +172,24 @@ describe('useChatsSocket', () => {
 		sdkTagsChangedHandler?.(changed);
 		stop();
 		sdkTagsChangedHandler?.(changed);
+
+		expect(handler).toHaveBeenCalledOnce();
+		expect(handler).toHaveBeenCalledWith(changed);
+	});
+
+	it('hands a thread unread count change to every registered handler', async () => {
+		const { connect, onThreadUnreadChanged } = useChatsSocket();
+		await connect();
+		const handler = vi.fn();
+		const stop = onThreadUnreadChanged(handler);
+
+		const changed = {
+			threadId: 'chat-1',
+			unreadCount: 3,
+		};
+		sdkUnreadChangedHandler?.(changed);
+		stop();
+		sdkUnreadChangedHandler?.(changed);
 
 		expect(handler).toHaveBeenCalledOnce();
 		expect(handler).toHaveBeenCalledWith(changed);

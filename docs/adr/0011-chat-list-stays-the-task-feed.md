@@ -33,29 +33,27 @@ are left out by construction rather than by a filter that has to be kept right.
 
 **Unread is the one thing read from the thread list.** Every thread with unread
 messages is read once, with `unread=true` (ids and counts, every page), when the
-chats feature starts and again after the chats socket reconnects. The socket keeps
-the counts current in between: a message someone else wrote raises its chat's
-count, the agent's own does not, and the agent's account has to be known to say
-which is which. Seeing a chat's messages clears its count at once, as the thread
-view marks them read.
+chats feature starts and again after the chats socket reconnects. In between, the
+backend pushes a thread's unread count over the chats socket whenever it changes,
+because a message arrived or the agent read the thread on any device, and the app
+replaces the count it holds. The app counts nothing itself, so it has no need to
+tell the agent's messages from the others. Seeing a chat's messages still clears
+its count at once, as the thread view marks them read, rather than waiting for the
+push.
 
 **The unread filter appears once that first read has answered.** Before then
 "nothing is unread" would be a gap and not a fact, and the filter would empty the
 list for no reason. An empty answer is an answer: the filter shows, and nothing is
 unread. A failed read keeps what is held and shows no filter on its first try.
 
-**Paging and search are over the tasks, on the client.** The feed arrives whole, so
-the list shows a window of twenty chats that grows when its bottom scrolls into
-view, narrowed by a search on the client's name or username. The window is there to
-bound the work per shown chat, not a download: the previews read one history
-request for each chat they are asked about, and an agent with a couple of hundred
-chats would otherwise open the page to a couple of hundred requests.
+**Search is over the tasks, on the client, and there is no paging.** The task feed
+arrives whole from the call-center socket, so the list shows every chat in it and
+narrows by a search on the client's name or username. Paging belongs to the chats
+table in the central panel, whose rows are read from REST a page at a time.
 
-**The previews are told two sets.** Every chat the agent has is *listed*, so its
-unread count follows the socket whether or not the window shows it, and a chat that
-the search, the filter or the window hides is not forgotten. Only the chats *shown*
-have their last message read, and a chat that leaves the window keeps its message,
-so scrolling back does not read it again.
+**The previews follow every chat the agent has.** Each is counted for unread, so
+its count follows the socket whether or not the search or the filter hides it, and
+each has its last message read once.
 
 **The tab indicators stay exact.** The task feed is whole, so a tab's grey number
 is its real chat count and the green one is the real number of unread chats,
@@ -69,19 +67,27 @@ whatever the search or the filter leaves showing.
   and paging are inexact. It also changes what a chat with no task opens as.
   Rejected.
 - **Unread worked out on the client** from the messages the app sees. A count
-  that restarts from zero on every load reads as fact (ADR-0001). Rejected for the
-  backend's own.
+  that restarts from zero on every load reads as fact (ADR-0001), and it cannot
+  hear a read from another tab or device. Built first, then replaced by the
+  backend's pushed count. Rejected.
+- **A window over the feed** (twenty chats, growing on scroll), to bound the
+  history requests. Built as a trial and dropped: the feed is whole, so paging it
+  only hides chats the agent has, and the call-center list is not paged.
+  Rejected.
 - **Hold every chat's last message from one read of the threads** (`ids`, in
   batches) instead of one history request each. Fewer requests, but it would put a
   second source beside the history the chat window already reads. Left as a later
-  option; the window keeps the cost bounded for now.
+  option, for the day an agent's chat count makes one request per chat too many.
 
 ## Consequences
 
-- Another tab or device reading a chat is not heard of until the unread chats are
-  read again: the chats socket has no read event.
+- The pushed count is an event the chat backend is yet to send. `chat-web-sdk`
+  emits it as `ThreadUnreadChanged` (`threadUnreadChangedEvent`, `{ threadId,
+  unreadCount }`), a name and shape asked of the backend and not yet confirmed.
+  Until it ships the counts are the ones read at start and after a reconnect, and a
+  new message does not raise them.
 - A chat the agent can see in the chats table but not in the left panel (an
   internal one) has no unread count in the panel by design.
-- The window follows task-feed order and the spec has no sort, so a chat past the
-  twentieth that gets a new message stays below the fold until scrolled to; the
-  green indicator still counts it.
+- The list costs one history request per chat the agent has, as soon as the chats
+  are listed. A call-center agent holds a bounded number of chats, which is why this
+  is accepted.

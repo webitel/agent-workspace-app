@@ -42,7 +42,7 @@ and should not be carried over wholesale.
   not return.
 - [ADR-0011](docs/adr/0011-chat-list-stays-the-task-feed.md) — the chat list
   stays the task feed (call-center chats only), with unread read from the thread
-  list, and paging and search over the tasks on the client.
+  list, and search over the tasks on the client.
 
 ## Language
 
@@ -155,8 +155,8 @@ Decline as the card.
 the top-right corner. Calls and chats share one design.
 
 **Chat list** — the left panel of the Chats section: the agent's call-center chats
-(their tasks), on an Active and a Snoozed tab, in a window that grows on scroll and
-that a search by the client's name narrows. Internal chats, which have a thread and
+(their tasks), on an Active and a Snoozed tab, every one of them, which a search by
+the client's name narrows. It is not paged: the task feed arrives whole. Internal chats, which have a thread and
 no task, are not in it; they are reached from the chats table (ADR-0011).
 
 **Chat preview** — one row of the chat list: a chat the agent has
@@ -178,7 +178,7 @@ the agent's Webitel user id is.
 
 **Last message** — the newest message in a chat as the Chat preview shows it: its
 text, when it was sent, and whether the agent or the client sent it. Kept for
-every chat the list has shown, whether or not its window is open; it is not read
+every listed chat, whether or not its window is open; it is not read
 from an open chat's message history. The task carries a summary of its thread too, but only as
 it was when the chat was distributed, and nothing refreshes it. It identifies the
 thread, so the chats socket's events can be matched to the chat; its text and its
@@ -187,13 +187,12 @@ read of the Last message answers.
 
 **Unread chat** — a chat with messages the agent has not seen. The chat backend
 counts them per thread for the agent asking, leaving out their own and system
-messages; the app reads that count once and keeps it from the chats socket
-(ADR-0011). The chat list can be narrowed to unread chats, and the agent seeing a
-chat's messages clears its count here at once. The spec words "read" as the agent
+messages; the app reads that count once and takes each change the backend pushes
+over the chats socket (ADR-0011). The chat list can be narrowed to unread chats,
+and the agent seeing a chat's messages clears its count here at once. The spec words "read" as the agent
 having opened the chat and clicked its input field (AC_02.03.03); the app counts it
 read as the thread view marks the messages seen, which is what the backend counts.
-Another tab or device reading the chat is not heard of until the unread chats are
-read again. The narrowing control shows once that first read has answered, since
+A read on another tab or device arrives the same way, as a new count. The narrowing control shows once that first read has answered, since
 before it nothing can be said to be unread.
 
 **Snoozed chat** — a chat the agent has set aside to wait for the client or for

@@ -6,6 +6,7 @@ import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
+import { disposeClosedChat } from '../modules/closed/store/closed-chat';
 import { useChatPreviewsStore } from '../modules/previews/store/chat-previews';
 import { useChatSnoozedStore } from '../modules/previews/store/chat-snoozed';
 import { isChatTask } from '../scripts/isChatTask';
@@ -27,11 +28,12 @@ export const useChatsStore = defineStore('chats', () => {
 	// with `$dispose()`; created from an action it would outlive the store
 	const storeScope = getCurrentScope();
 
-	const { getClient, tasks } = useWebSocketClient();
+	const { getClient, tasks, agent } = useWebSocketClient();
 	const {
 		connect: connectChatsSocket,
 		onThreadMessage,
 		onThreadTagsChanged,
+		onThreadUnreadChanged,
 		onReconnected,
 	} = useChatsSocket();
 	const offersStore = useOffersStore();
@@ -41,6 +43,21 @@ export const useChatsStore = defineStore('chats', () => {
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
 	);
+
+	/**
+	 * Whether the feed holds every task the agent has, so a thread missing from
+	 * it can be taken for a closed chat (ADR-0010). Taken to be once the agent
+	 * session has loaded, on the assumption that the SDK restores the agent's
+	 * tasks along with it — still to be checked on a live instance.
+	 */
+	const isTaskFeedReady = computed(() => agent.value !== undefined);
+
+	// offered chats included: a window opened from the offer card is not closed
+	const taskThreadIds = computed(() =>
+		allChatTasks.value.flatMap((task) => task.thread?.id ?? []),
+	);
+
+	const hasChatTask = (id: string) => taskThreadIds.value.includes(id);
 
 	/**
 	 * Offered chats are deliberately absent: the offer card is the only surface
@@ -86,11 +103,8 @@ export const useChatsStore = defineStore('chats', () => {
 				mode,
 			});
 		setMode(id, mode);
-		const session = useChatSessionStore(id);
-		// a session kept from an earlier window, or one being switched back to,
-		// has its history current from the socket; only its thread is re-read
-		if (session.initialized) session.refreshThread();
-		else session.load();
+		// a closed chat has no session; its window reads the thread it left
+		if (needsChatSession(id)) warmChatSession(id);
 		// main window mirrors the URL; skip the push when already there so a
 		// route-triggered open (deep link, back/forward) doesn't loop back.
 		if (
@@ -101,6 +115,18 @@ export const useChatsStore = defineStore('chats', () => {
 			router.push(`/chats/${id}`);
 		}
 	}
+
+	function warmChatSession(id: string) {
+		const session = useChatSessionStore(id);
+		// a session kept from an earlier window, or one being switched back to,
+		// has its history current from the socket; only its thread is re-read
+		if (session.initialized) session.refreshThread();
+		else session.load();
+	}
+
+	// until the feed is ready, an open window may still turn out to be active
+	const needsChatSession = (id: string) =>
+		!isTaskFeedReady.value || hasChatTask(id);
 
 	function setMode(id: string, mode: ChatWindowMode) {
 		const target = openChats.value.find((chat) => chat.id === id);
@@ -125,23 +151,26 @@ export const useChatsStore = defineStore('chats', () => {
 
 	/**
 	 * Drops the window. The chat's session stays while the chat is listed, so
-	 * reopening it shows the history as it was left (ADR-0007).
+	 * reopening it shows the history as it was left (ADR-0007); a closed chat
+	 * is read again on the next open.
 	 */
 	function closeChat(id: string) {
 		openChats.value = openChats.value.filter((chat) => chat.id !== id);
 		releaseUnusedSessions();
+		disposeClosedChat(id);
 	}
 
 	/**
-	 * A chat session lives while its chat is listed or has a window
-	 * (ADR-0007): a deep-linked chat that was never listed lives as long as its
-	 * window, and a chat that leaves the list keeps it until its window closes.
+	 * A chat session lives while its chat is listed, or has a window over a
+	 * thread a task backs (ADR-0007, ADR-0010): a deep-linked active chat that
+	 * was never listed lives as long as its window, while a window whose task
+	 * left the feed shows the closed chat and keeps no session.
 	 */
 	function releaseUnusedSessions() {
 		retainChatSessions(
 			new Set([
 				...listedThreadIds.value,
-				...openChats.value.map((chat) => chat.id),
+				...openChats.value.map((chat) => chat.id).filter(needsChatSession),
 			]),
 		);
 	}
@@ -202,9 +231,31 @@ export const useChatsStore = defineStore('chats', () => {
 		else register();
 	}
 
-	/** A chat that leaves the list loses its session once it has no window either. */
+	/**
+	 * A chat that leaves the list loses its session unless a task still backs
+	 * its window; a window whose thread gains a task (the agent rejoined it)
+	 * gets one. A closed chat read before the rejoin misses the period that
+	 * follows, so it is dropped, and read afresh once the agent leaves again.
+	 */
+	function syncChatSessions() {
+		releaseUnusedSessions();
+		for (const threadId of taskThreadIds.value) disposeClosedChat(threadId);
+		for (const chat of openChats.value) {
+			if (hasChatTask(chat.id) && !hasChatSession(chat.id))
+				warmChatSession(chat.id);
+		}
+	}
+
 	function subscribeToSessions() {
-		const register = () => watch(listedThreadIds, releaseUnusedSessions);
+		const register = () =>
+			watch(
+				[
+					listedThreadIds,
+					taskThreadIds,
+					isTaskFeedReady,
+				],
+				syncChatSessions,
+			);
 
 		if (storeScope) storeScope.run(register);
 		else register();
@@ -229,13 +280,12 @@ export const useChatsStore = defineStore('chats', () => {
 		// which chats are snoozed lives on the chat backend only (ADR-0008)
 		void snoozedStore.load();
 		// which chats have unread messages, and how many, is the chat backend's to
-		// say too (ADR-0011)
+		// say too (ADR-0011): read once here, then pushed over the socket
 		void previewsStore.loadUnread();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
-			// every listed chat keeps its last message and unread count current,
-			// open or not
+			// every listed chat keeps its last message current, open or not
 			previewsStore.receiveMessage(message);
 			// a session outlives its window while its chat is listed, so it is
 			// kept current whether its window is open or not
@@ -243,6 +293,11 @@ export const useChatsStore = defineStore('chats', () => {
 			useChatSessionStore(message.threadId).receiveMessage(message);
 		});
 		onThreadTagsChanged((changed) => snoozedStore.receiveTagsChanged(changed));
+		// the backend pushes a chat's unread count whenever it changes, whether
+		// a message arrived or the agent read it on any device (ADR-0011)
+		onThreadUnreadChanged((changed) =>
+			previewsStore.receiveUnreadChanged(changed),
+		);
 		onReconnected(() => {
 			// the socket was down, so anything written meanwhile was never pushed:
 			// read the list's last messages and unread counts, the snoozed chats and
@@ -259,6 +314,8 @@ export const useChatsStore = defineStore('chats', () => {
 	return {
 		// getters
 		chatTaskList,
+		isTaskFeedReady,
+		hasChatTask,
 		getTaskByThreadId,
 		incomingOffers,
 		newChatsCount,

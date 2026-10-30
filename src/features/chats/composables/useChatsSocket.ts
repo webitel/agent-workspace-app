@@ -3,6 +3,7 @@ import {
 	createChatsSocketClient,
 	createSocketConfig,
 	type SocketThreadTagsChangedEventPayload,
+	type SocketThreadUnreadChangedEventPayload,
 } from '@webitel/chat-web-sdk';
 import { shallowRef } from 'vue';
 
@@ -18,6 +19,9 @@ const client = shallowRef<ChatsSocketClient | null>(null);
 const messageHandlers = new Set<(message: IMessage) => void>();
 const tagsChangedHandlers = new Set<
 	(changed: SocketThreadTagsChangedEventPayload) => void
+>();
+const unreadChangedHandlers = new Set<
+	(changed: SocketThreadUnreadChangedEventPayload) => void
 >();
 const reconnectHandlers = new Set<() => void>();
 
@@ -52,6 +56,11 @@ export function useChatsSocket() {
 		socketClient.onMessage(ChatsSocketMessage.ThreadTagsChanged, (data) => {
 			tagsChangedHandlers.forEach((handler) => {
 				handler(data as SocketThreadTagsChangedEventPayload);
+			});
+		});
+		socketClient.onMessage(ChatsSocketMessage.ThreadUnreadChanged, (data) => {
+			unreadChangedHandlers.forEach((handler) => {
+				handler(data as SocketThreadUnreadChangedEventPayload);
 			});
 		});
 		// whatever was written while the socket was down was never pushed
@@ -89,6 +98,14 @@ export function useChatsSocket() {
 		return () => tagsChangedHandlers.delete(callback);
 	}
 
+	/** The agent's unread count in a thread changed: a message arrived or was read. */
+	function onThreadUnreadChanged(
+		callback: (changed: SocketThreadUnreadChangedEventPayload) => void,
+	): () => void {
+		unreadChangedHandlers.add(callback);
+		return () => unreadChangedHandlers.delete(callback);
+	}
+
 	/** Called each time the socket is back after a drop, never on the first connect. */
 	function onReconnected(callback: () => void): () => void {
 		reconnectHandlers.add(callback);
@@ -100,6 +117,7 @@ export function useChatsSocket() {
 		disconnect,
 		onThreadMessage,
 		onThreadTagsChanged,
+		onThreadUnreadChanged,
 		onReconnected,
 	};
 }
