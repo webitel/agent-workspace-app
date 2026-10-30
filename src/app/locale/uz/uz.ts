@@ -20,6 +20,10 @@ export default {
 				active: 'Faol',
 				snoozed: 'Kechiktirilgan',
 			},
+			snooze: {
+				action: 'Kechiktirish',
+				error: "Chatni kechiktirib bo'lmadi",
+			},
 		},
 		notifications: {
 			offer: {
@@ -60,6 +64,13 @@ export default {
 					title: 'Kontaktni tanlang',
 					text: 'Kontakt maʼlumotlarini koʼrish uchun tarix roʼyxatidan yozuvni tanlang',
 				},
+				selectOrCreateContact: {
+					title: 'Kontaktni tanlang yoki yangisini yarating',
+					text: 'Maʼlumotlarini koʼrish uchun roʼyxatdan kontaktni tanlang yoki yangisini yarating.',
+				},
+				createContact: 'Kontakt yaratish',
+				addContacts: 'Kontaktlarni qoʼshish',
+				profile: 'Profil',
 			},
 		},
 		pages: {
@@ -70,8 +81,10 @@ export default {
 				tabs: {
 					info: "Ma'lumot",
 					postProcessing: 'Keyingi ishlov',
-					interaction: "O'zaro aloqa",
+					interaction: "O'zaro aloqalar",
+					screenshots: 'Skrinshotlar',
 					contact: 'Kontakt',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -85,6 +98,11 @@ export default {
 					interaction: "O'zaro aloqa",
 					contact: 'Kontakt',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Chatni mahkamlash',
+					transfer: 'Chatni yoʻnaltirish',
+					end: 'Chatni tugatish',
 				},
 			},
 			history: {

@@ -43,6 +43,15 @@ vi.mock(
 	}),
 );
 vi.mock(
+	'../../../../../../features/chats/modules/previews/components/chat-list-search/chat-list-search.vue',
+	() => ({
+		default: {
+			name: 'ChatListSearch',
+			template: '<div class="chat-list-search-stub" />',
+		},
+	}),
+);
+vi.mock(
 	'../../../../../../features/chats/modules/previews/components/chat-unread-filter/chat-unread-filter.vue',
 	() => ({
 		default: {
@@ -67,6 +76,10 @@ describe('the-chat-previews-list', () => {
 	beforeEach(() => {
 		chatListStore.currentTasks = [];
 		chatActiveStore.isUnreadFilterAvailable = false;
+	});
+
+	it('has the search', () => {
+		expect(mountList().find('.chat-list-search-stub').exists()).toBe(true);
 	});
 
 	it('renders a row for every chat', () => {

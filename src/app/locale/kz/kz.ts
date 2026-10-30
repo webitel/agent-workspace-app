@@ -20,6 +20,10 @@ export default {
 				active: 'Белсенді',
 				snoozed: 'Кейінге қалдырылған',
 			},
+			snooze: {
+				action: 'Кейінге қалдыру',
+				error: 'Чатты кейінге қалдыру мүмкін болмады',
+			},
 		},
 		notifications: {
 			offer: {
@@ -60,6 +64,13 @@ export default {
 					title: 'Контактіні таңдаңыз',
 					text: 'Контакт деректерін көру үшін тарих тізімінен жазбаны таңдаңыз',
 				},
+				selectOrCreateContact: {
+					title: 'Контактіні таңдаңыз немесе жаңасын жасаңыз',
+					text: 'Мәліметтерін көру үшін тізімнен контактіні таңдаңыз немесе жаңасын жасаңыз.',
+				},
+				createContact: 'Контакт жасау',
+				addContacts: 'Контактілерді қосу',
+				profile: 'Профиль',
 			},
 		},
 		pages: {
@@ -70,8 +81,10 @@ export default {
 				tabs: {
 					info: 'Ақпарат',
 					postProcessing: 'Кейінгі өңдеу',
-					interaction: 'Өзара әрекет',
+					interaction: 'Өзара әрекеттер',
+					screenshots: 'Скриншоттар',
 					contact: 'Контакт',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -85,6 +98,11 @@ export default {
 					interaction: 'Өзара әрекет',
 					contact: 'Контакт',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Чатты бекіту',
+					transfer: 'Чатты қайта бағыттау',
+					end: 'Чатты аяқтау',
 				},
 			},
 			history: {

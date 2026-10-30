@@ -1,17 +1,22 @@
 <template>
 	<table-action-panel
-		is-search
-		:search-value="searchValue"
 		:headers="shownHeaders"
-		@update:search-value="handleSearch"
 		@refresh="loadDataList()"
 		@update:headers="updateShownHeaders"
-	/>
+	>
+		<dynamic-filter-search
+			:filters-manager="filtersManager"
+			:is-filters-restoring="isFiltersRestoring"
+			@filter:add="addFilter"
+			@filter:update="updateFilter"
+			@filter:delete="deleteFilter"
+		/>
+	</table-action-panel>
 </template>
 
 <script setup lang="ts">
+import { DynamicFilterSearchComponent as DynamicFilterSearch } from '@webitel/ui-datalist/filters';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
 import TableActionPanel from '../../components/table-action-panel.vue';
 import type { useContactsDataListStore } from './modules/contacts/store/contacts';
 import type { useUsersDataListStore } from './modules/users/store/users';
@@ -22,37 +27,14 @@ const props = defineProps<{
 		| ReturnType<typeof useUsersDataListStore>;
 }>();
 
-const { shownHeaders } = storeToRefs(props.store);
+const { shownHeaders, filtersManager, isFiltersRestoring } = storeToRefs(
+	props.store,
+);
 const {
-	hasFilter,
 	addFilter,
 	updateFilter,
 	deleteFilter,
 	updateShownHeaders,
 	loadDataList,
 } = props.store;
-
-const searchValue = ref('');
-
-const handleSearch = (value: string) => {
-	searchValue.value = value;
-
-	if (!value) {
-		if (hasFilter('search'))
-			deleteFilter({
-				name: 'search',
-			});
-		return;
-	}
-
-	hasFilter('search')
-		? updateFilter({
-				name: 'search',
-				value,
-			})
-		: addFilter({
-				name: 'search',
-				value,
-			});
-};
 </script>
