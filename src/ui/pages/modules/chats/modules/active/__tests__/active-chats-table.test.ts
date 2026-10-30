@@ -122,6 +122,7 @@ const chat: ActiveChatRow = {
 	id: '1',
 	name: 'John Doe',
 	username: 'john',
+	source: 'Support bot',
 	message: 'Hello',
 	startedAt: 1790947707140,
 	duration: 65,
