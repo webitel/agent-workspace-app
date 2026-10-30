@@ -119,6 +119,15 @@ function leftThread(id = THREAD_ID) {
 	return {
 		id,
 		subject: 'Jane Doe',
+		channel: {
+			id: 'gate-1',
+			name: 'Support Telegram',
+			type: 'telegram',
+		},
+		queue: {
+			id: '12',
+			name: 'Sales',
+		},
 		members: [
 			AGENT,
 			CLIENT,
@@ -190,7 +199,7 @@ test.describe('closed chats', () => {
 	});
 
 	test.describe('Closed tab', () => {
-		test('lists a left chat by its client, leaving what the backend does not return empty', async ({
+		test('lists a left chat by its client, source and queue, leaving what the backend does not return empty', async ({
 			page,
 		}) => {
 			await mockLeftThreads(page);
@@ -200,8 +209,11 @@ test.describe('closed chats', () => {
 			await expect(chatRows(page)).toHaveCount(1);
 			await expect(await cellUnder(page, 'Name')).toHaveText('Jane Doe');
 			await expect(await cellUnder(page, 'Username')).toHaveText('@jane');
+			await expect(await cellUnder(page, 'Source')).toHaveText(
+				'Support Telegram',
+			);
+			await expect(await cellUnder(page, 'Queue')).toHaveText('Sales');
 			for (const header of [
-				'Queue',
 				'Started at',
 				'Ended at',
 				'Duration',

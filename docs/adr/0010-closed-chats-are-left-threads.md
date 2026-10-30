@@ -20,8 +20,8 @@ nothing left to hang the chat on.
 The chat backend has its own answer: `GET /v1/threads/left` lists the threads the
 caller has left, and `GET /v1/threads/{id}/left_threads/messages` returns their
 history limited to the caller's closed **Membership periods**. Neither is in
-`@webitel/chat-web-sdk` yet. A left thread carries members and variables, but no
-queue, no source, and nothing about when the agent joined or left.
+`@webitel/chat-web-sdk` yet. A left thread carries members, variables, its channel
+and, since WS-96, a queue, but nothing about when the agent joined or left.
 
 The spec says "closed" for two different things: a chat whose interaction is
 over but which still sits on the Active list (AC_02.03.05–06), and the history on
@@ -54,9 +54,10 @@ left-thread history, and returns a thread that cannot send and messages that
 cannot be marked read.
 
 **What the backend does not return is left out, not approximated** (as in
-ADR-0001): no queue, no Started/Ended/Duration from `thread.created_at`, no
-Message from `thread.last_msg`, Duration not sortable, search hidden until it
-exists. The client is the member whose contact the chat backend issued as
+ADR-0001): no Started/Ended/Duration from `thread.created_at`, no Message
+from `thread.last_msg`, Duration not sortable, search hidden until it exists.
+Source and Queue come from the thread's `channel` and `queue` (added on WS-96
+after this was first written), and only they sort, as the endpoint does. The client is the member whose contact the chat backend issued as
 neither `webitel` (agents) nor `bot` (WS-96), so a transfer that leaves other
 agents in the thread does not confuse it.
 
