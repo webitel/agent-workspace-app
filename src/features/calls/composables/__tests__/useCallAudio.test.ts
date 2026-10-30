@@ -85,6 +85,20 @@ describe('useCallAudio', () => {
 		expect(playedElements).toHaveLength(2);
 	});
 
+	/** The PeerStream event and the call-state watcher may both offer it. */
+	it('keeps the element playing when offered the same stream again', () => {
+		const { playRemoteAudio } = useCallAudio();
+		const call = buildCall([
+			buildStream(),
+		]);
+
+		playRemoteAudio(call);
+		playRemoteAudio(call);
+
+		expect(playedElements).toHaveLength(1);
+		expect(pausedElements).toHaveLength(0);
+	});
+
 	it('stops the remote audio of the ended call only', () => {
 		const { playRemoteAudio, stopRemoteAudio } = useCallAudio();
 		playRemoteAudio(

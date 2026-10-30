@@ -1,5 +1,5 @@
 <template>
-	<div class="history-sidebar-panel">
+	<div class="history-panel">
 		<sidebar-section-header
 			:title="t('objects.contact', 2)"
 		/>
@@ -19,7 +19,7 @@ const { t } = useI18n();
 </script>
 
 <style scoped>
-.history-sidebar-panel {
+.history-panel {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-xs);

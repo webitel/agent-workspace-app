@@ -20,6 +20,10 @@ export default {
 				active: 'Активные',
 				snoozed: 'Отложенные',
 			},
+			snooze: {
+				action: 'Отложить',
+				error: 'Не удалось отложить чат',
+			},
 		},
 		notifications: {
 			offer: {
@@ -60,6 +64,13 @@ export default {
 					title: 'Выберите контакт',
 					text: 'Выберите запись из списка истории, чтобы увидеть данные контакта',
 				},
+				selectOrCreateContact: {
+					title: 'Выберите контакт или создайте новый',
+					text: 'Выберите контакт из списка, чтобы увидеть его данные, или создайте новый.',
+				},
+				createContact: 'Создать контакт',
+				addContacts: 'Добавить контакты',
+				profile: 'Профиль',
 			},
 		},
 		pages: {
@@ -70,8 +81,10 @@ export default {
 				tabs: {
 					info: 'Инфо',
 					postProcessing: 'Постобработка',
-					interaction: 'Взаимодействие',
+					interaction: 'Взаимодействия',
+					screenshots: 'Скриншоты',
 					contact: 'Контакт',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -85,6 +98,11 @@ export default {
 					interaction: 'Взаимодействие',
 					contact: 'Контакт',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Закрепить чат',
+					transfer: 'Перевести чат',
+					end: 'Завершить чат',
 				},
 			},
 			history: {
