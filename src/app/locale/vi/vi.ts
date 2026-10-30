@@ -20,6 +20,10 @@ export default {
 				active: 'Đang hoạt động',
 				snoozed: 'Đã tạm hoãn',
 			},
+			snooze: {
+				action: 'Tạm hoãn',
+				error: 'Không thể tạm hoãn cuộc trò chuyện',
+			},
 		},
 		notifications: {
 			offer: {
@@ -60,6 +64,13 @@ export default {
 					title: 'Chọn một liên hệ',
 					text: 'Chọn một bản ghi trong danh sách lịch sử để xem thông tin chi tiết của liên hệ',
 				},
+				selectOrCreateContact: {
+					title: 'Chọn một liên hệ hoặc tạo mới',
+					text: 'Chọn một liên hệ trong danh sách để xem thông tin chi tiết hoặc tạo liên hệ mới.',
+				},
+				createContact: 'Tạo liên hệ',
+				addContacts: 'Thêm liên hệ',
+				profile: 'Hồ sơ',
 			},
 		},
 		pages: {
@@ -71,7 +82,9 @@ export default {
 					info: 'Thông tin',
 					postProcessing: 'Xử lý sau',
 					interaction: 'Tương tác',
+					screenshots: 'Ảnh chụp màn hình',
 					contact: 'Liên hệ',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -85,6 +98,11 @@ export default {
 					interaction: 'Tương tác',
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Ghim cuộc trò chuyện',
+					transfer: 'Chuyển cuộc trò chuyện',
+					end: 'Kết thúc cuộc trò chuyện',
 				},
 			},
 			history: {

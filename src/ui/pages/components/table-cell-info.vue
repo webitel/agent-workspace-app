@@ -57,4 +57,8 @@ const chipItems = computed(() =>
   align-items: center;
   gap: var(--spacing-xs);
 }
+
+.wt-icon {
+		flex-shrink: 0;
+}
 </style>

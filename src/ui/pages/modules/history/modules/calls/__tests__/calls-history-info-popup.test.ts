@@ -106,6 +106,13 @@ const tabsOf = (wrapper: ReturnType<typeof mountPopup>) =>
 		name: 'WtTabs',
 	});
 
+const tabValuesOf = (wrapper: ReturnType<typeof mountPopup>) =>
+	(
+		tabsOf(wrapper).props('tabs') as {
+			value: CallInfoTab;
+		}[]
+	).map(({ value }) => value);
+
 const activeTabOf = (wrapper: ReturnType<typeof mountPopup>) =>
 	wrapper.find('.tab');
 
@@ -163,8 +170,9 @@ describe('calls-history-info-popup', () => {
 		expect(activeTabOf(wrapper).exists()).toBe(true);
 	});
 
-	it('offers variables, postprocessing and transcription tabs', () => {
+	it('offers variables, postprocessing and transcription tabs', async () => {
 		const wrapper = mountPopup();
+		await settle();
 
 		const tabs = tabsOf(wrapper).props('tabs') as {
 			value: CallInfoTab;
@@ -227,6 +235,29 @@ describe('calls-history-info-popup', () => {
 			forms: callInfo.forms,
 			agentDescription: callInfo.agentDescription,
 		});
+	});
+
+	it('hides the transcription tab until the info arrives', () => {
+		const wrapper = mountPopup();
+
+		expect(tabValuesOf(wrapper)).toEqual([
+			CallInfoTab.Variables,
+			CallInfoTab.Postprocessing,
+		]);
+	});
+
+	it('hides the transcription tab for a call without transcripts', async () => {
+		getCallInfo.mockResolvedValue({
+			...callInfo,
+			transcripts: [],
+		});
+		const wrapper = mountPopup();
+		await settle();
+
+		expect(tabValuesOf(wrapper)).toEqual([
+			CallInfoTab.Variables,
+			CallInfoTab.Postprocessing,
+		]);
 	});
 
 	it('shows transcripts on the transcription tab', async () => {
