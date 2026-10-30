@@ -1,9 +1,8 @@
+import type { SocketThreadUnreadChangedEventPayload } from '@webitel/chat-web-sdk';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, shallowRef } from 'vue';
 
 import { messagesService, threadsService } from '../../../api/chatSdk';
-import { isSelfContact } from '../../../scripts/isSelfContact';
-import { useChatAccountStore } from '../../../store/chat-account';
 import type { IMessage } from '../../../types/ChatSession.types';
 import { toLastMessage } from '../scripts/toLastMessage';
 import type { LastMessage } from '../types/ChatPreview.types';
@@ -33,20 +32,16 @@ const UNREAD_PAGE_SIZE = 100;
 export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// reassigned, never mutated, so shallow reactivity is enough
 	const lastMessages = shallowRef<Record<string, LastMessage>>({});
-	const accountStore = useChatAccountStore();
 	// threads the list is showing: the socket carries every thread the agent is
 	// in, and only these are worth keeping and counting
 	const tracked = new Set<string>();
 	const seeded = new Set<string>();
-	// the newest message counted per thread, so an edit or the echo of a message
-	// already counted is not counted again
-	const lastCounted = new Map<string, string>();
 
 	/**
 	 * Unread message count per thread, from the backend: every thread with
-	 * unread messages is read once, and the socket keeps the counts current after
-	 * that. Nothing here is worked out from guesses (ADR-0001): a message counts
-	 * only when someone else wrote it and the agent's account says so.
+	 * unread messages is read once, and the backend pushes a thread's count over
+	 * the socket whenever it changes after that. Nothing here is worked out on the
+	 * client (ADR-0001).
 	 */
 	const unreadByThread = shallowRef<Record<string, number>>({});
 	// the first read has answered, so "nothing unread" is a fact and not a gap
@@ -63,8 +58,8 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 
 	/**
 	 * Reads every thread that has unread messages and replaces the counts. A
-	 * failed read keeps what is held: the socket still counts, and the next
-	 * reconnect reads again.
+	 * failed read keeps what is held: the socket still pushes changes, and the
+	 * next reconnect reads again.
 	 */
 	async function loadUnread() {
 		const found: Record<string, number> = {};
@@ -96,15 +91,15 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		setUnreadCount(threadId, 0);
 	}
 
-	function countUnread(threadId: string, lastMessage: LastMessage) {
-		if (lastCounted.get(threadId) === lastMessage.id) return;
-		lastCounted.set(threadId, lastMessage.id);
-
-		const account = accountStore.account;
-		if (!account?.contact?.sub) return;
-		if (isSelfContact(lastMessage.senderContact, account)) return;
-
-		setUnreadCount(threadId, (unreadByThread.value[threadId] ?? 0) + 1);
+	/**
+	 * The backend pushed a thread's unread count: a message arrived, or the agent
+	 * read it on this or another device. The count replaces the one held.
+	 */
+	function receiveUnreadChanged(
+		changed: SocketThreadUnreadChangedEventPayload,
+	) {
+		if (!tracked.has(changed.threadId)) return;
+		setUnreadCount(changed.threadId, changed.unreadCount);
 	}
 
 	const isUnread = (threadId: string) =>
@@ -136,9 +131,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		const lastMessage = toLastMessage(message);
 		if (!lastMessage) return;
 
-		if (!tracked.has(threadId)) return;
-		countUnread(threadId, lastMessage);
-		keepNewest(threadId, lastMessage);
+		if (tracked.has(threadId)) keepNewest(threadId, lastMessage);
 	}
 
 	async function seed(threadId: string) {
@@ -176,7 +169,6 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			if (current.has(threadId)) continue;
 			tracked.delete(threadId);
 			seeded.delete(threadId);
-			lastCounted.delete(threadId);
 			const { [threadId]: _dropped, ...rest } = lastMessages.value;
 			lastMessages.value = rest;
 			const { [threadId]: _unread, ...counts } = unreadByThread.value;
@@ -214,6 +206,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		markRead,
 		sync,
 		receiveMessage,
+		receiveUnreadChanged,
 		reseed,
 	};
 });

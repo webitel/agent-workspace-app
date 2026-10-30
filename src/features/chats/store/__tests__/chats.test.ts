@@ -76,12 +76,14 @@ vi.mock('../chat-account', () => ({
 }));
 
 const receivePreviewMessageMock = vi.fn();
+const receiveUnreadChangedMock = vi.fn();
 const reseedPreviewsMock = vi.fn();
 const loadUnreadMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
 		receiveMessage: receivePreviewMessageMock,
+		receiveUnreadChanged: receiveUnreadChangedMock,
 		reseed: reseedPreviewsMock,
 		loadUnread: loadUnreadMock,
 	}),
@@ -103,6 +105,16 @@ let tagsChangedHandler:
 const onThreadTagsChangedMock = vi.fn(
 	(callback: (changed: { threadId: string; tags: string[] }) => void) => {
 		tagsChangedHandler = callback;
+		return () => {};
+	},
+);
+
+let unreadChangedHandler:
+	| ((changed: { threadId: string; unreadCount: number }) => void)
+	| null = null;
+const onThreadUnreadChangedMock = vi.fn(
+	(callback: (changed: { threadId: string; unreadCount: number }) => void) => {
+		unreadChangedHandler = callback;
 		return () => {};
 	},
 );
@@ -131,6 +143,7 @@ vi.mock('../../composables/useChatsSocket', () => ({
 		onThreadMessage: onThreadMessageMock,
 		onReconnected: onReconnectedMock,
 		onThreadTagsChanged: onThreadTagsChangedMock,
+		onThreadUnreadChanged: onThreadUnreadChangedMock,
 	}),
 }));
 
@@ -216,6 +229,7 @@ describe('chats store', () => {
 		tasks.value = [];
 		threadMessageHandler = null;
 		tagsChangedHandler = null;
+		unreadChangedHandler = null;
 		reconnectedHandler = null;
 		routerCurrentRoute.value.params = {};
 	});
@@ -296,6 +310,22 @@ describe('chats store', () => {
 				tags: [
 					'snoozed',
 				],
+			});
+		});
+
+		// the backend pushes a chat's unread count whenever it changes
+		it('hands a pushed unread count to the chat previews', () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			unreadChangedHandler?.({
+				threadId: 'chat-1',
+				unreadCount: 2,
+			});
+
+			expect(receiveUnreadChangedMock).toHaveBeenCalledWith({
+				threadId: 'chat-1',
+				unreadCount: 2,
 			});
 		});
 
