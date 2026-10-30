@@ -33,11 +33,13 @@ are left out by construction rather than by a filter that has to be kept right.
 
 **Unread is the one thing read from the thread list.** Every thread with unread
 messages is read once, with `unread=true` (ids and counts, every page), when the
-chats feature starts and again after the chats socket reconnects. The socket keeps
-the counts current in between: a message someone else wrote raises its chat's
-count, the agent's own does not, and the agent's account has to be known to say
-which is which. Seeing a chat's messages clears its count at once, as the thread
-view marks them read.
+chats feature starts and again after the chats socket reconnects. In between, the
+backend pushes a thread's unread count over the chats socket whenever it changes,
+because a message arrived or the agent read the thread on any device, and the app
+replaces the count it holds. The app counts nothing itself, so it has no need to
+tell the agent's messages from the others. Seeing a chat's messages still clears
+its count at once, as the thread view marks them read, rather than waiting for the
+push.
 
 **The unread filter appears once that first read has answered.** Before then
 "nothing is unread" would be a gap and not a fact, and the filter would empty the
@@ -65,8 +67,9 @@ whatever the search or the filter leaves showing.
   and paging are inexact. It also changes what a chat with no task opens as.
   Rejected.
 - **Unread worked out on the client** from the messages the app sees. A count
-  that restarts from zero on every load reads as fact (ADR-0001). Rejected for the
-  backend's own.
+  that restarts from zero on every load reads as fact (ADR-0001), and it cannot
+  hear a read from another tab or device. Built first, then replaced by the
+  backend's pushed count. Rejected.
 - **A window over the feed** (twenty chats, growing on scroll), to bound the
   history requests. Built as a trial and dropped: the feed is whole, so paging it
   only hides chats the agent has, and the call-center list is not paged.
@@ -78,8 +81,11 @@ whatever the search or the filter leaves showing.
 
 ## Consequences
 
-- Another tab or device reading a chat is not heard of until the unread chats are
-  read again: the chats socket has no read event.
+- The pushed count is an event the chat backend is yet to send. `chat-web-sdk`
+  emits it as `ThreadUnreadChanged` (`threadUnreadChangedEvent`, `{ threadId,
+  unreadCount }`), a name and shape asked of the backend and not yet confirmed.
+  Until it ships the counts are the ones read at start and after a reconnect, and a
+  new message does not raise them.
 - A chat the agent can see in the chats table but not in the left panel (an
   internal one) has no unread count in the panel by design.
 - The list costs one history request per chat the agent has, as soon as the chats

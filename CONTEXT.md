@@ -187,13 +187,12 @@ read of the Last message answers.
 
 **Unread chat** — a chat with messages the agent has not seen. The chat backend
 counts them per thread for the agent asking, leaving out their own and system
-messages; the app reads that count once and keeps it from the chats socket
-(ADR-0011). The chat list can be narrowed to unread chats, and the agent seeing a
-chat's messages clears its count here at once. The spec words "read" as the agent
+messages; the app reads that count once and takes each change the backend pushes
+over the chats socket (ADR-0011). The chat list can be narrowed to unread chats,
+and the agent seeing a chat's messages clears its count here at once. The spec words "read" as the agent
 having opened the chat and clicked its input field (AC_02.03.03); the app counts it
 read as the thread view marks the messages seen, which is what the backend counts.
-Another tab or device reading the chat is not heard of until the unread chats are
-read again. The narrowing control shows once that first read has answered, since
+A read on another tab or device arrives the same way, as a new count. The narrowing control shows once that first read has answered, since
 before it nothing can be said to be unread.
 
 **Snoozed chat** — a chat the agent has set aside to wait for the client or for
