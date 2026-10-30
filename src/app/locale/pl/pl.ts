@@ -71,6 +71,10 @@ export default {
 				createContact: 'Utwórz kontakt',
 				addContacts: 'Dodaj kontakty',
 				profile: 'Profil',
+				info: 'Informacje',
+				groups: 'Grupy',
+				attributes: 'Atrybuty',
+				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
 			},
 		},
 		pages: {
