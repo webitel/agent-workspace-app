@@ -37,6 +37,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import ChatSnoozeButton from '../../../../../features/chats/components/chat-snooze-button/chat-snooze-button.vue';
+import { useChatPreviewsStore } from '../../../../../features/chats/modules/previews/store/chat-previews';
 import { useChatSnoozedStore } from '../../../../../features/chats/modules/previews/store/chat-snoozed';
 import { useChatSessionStore } from '../../../../../features/chats/store/chat-session';
 
@@ -62,6 +63,7 @@ const hasMore = computed(() => chatSession.value.hasMore);
 const selfMemberId = computed(() => chatSession.value.selfMemberId);
 
 const snoozedStore = useChatSnoozedStore();
+const previewsStore = useChatPreviewsStore();
 // AC_03.02.01: an active chat offers Snooze after its newest message, unless
 // it is already snoozed or is not a contact-center chat
 const isSnoozeOffered = computed(
@@ -79,6 +81,8 @@ const chatActions = [
 // ui-chats never calls SDK methods; the store holds IMessage instances, which
 // can mark themselves read.
 function handleSeen(message: MessageModel) {
+	// what the agent has seen is read, so the list stops counting it
+	previewsStore.markRead(threadId.value);
 	void (
 		message as MessageModel & {
 			markRead?: () => Promise<void>;
