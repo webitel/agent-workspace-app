@@ -28,11 +28,12 @@
 				{{ convertDuration(item.duration) }}
 			</template>
 
-			<template #actions>
+			<template #actions="{ item }">
 				<wt-icon-btn
 					icon="ws-chat"
 					:size="ComponentSize.SM"
 					color="chat"
+					@click="chatsStore.openChat(item.id)"
 				/>
 			</template>
 		</wt-table>
@@ -46,10 +47,12 @@ import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useChatsStore } from '../../../../../../features/chats/store/chats';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import { useActiveChatsDataListStore } from './store/active-chats';
 
 const store = useActiveChatsDataListStore();
+const chatsStore = useChatsStore();
 
 const {
 	initialize,

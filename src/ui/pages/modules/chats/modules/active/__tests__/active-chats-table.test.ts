@@ -51,6 +51,13 @@ vi.mock('../store/active-chats', () => ({
 	useActiveChatsDataListStore: () => mockStore,
 }));
 
+const openChatMock = vi.fn();
+vi.mock('../../../../../../../features/chats/store/chats', () => ({
+	useChatsStore: () => ({
+		openChat: openChatMock,
+	}),
+}));
+
 vi.mock('@webitel/ui-sdk/components', () => ({
 	WtTable: {
 		name: 'WtTable',
@@ -85,7 +92,10 @@ const stubs = {
 		props: [
 			'icon',
 		],
-		template: '<button class="chat-btn" />',
+		emits: [
+			'click',
+		],
+		template: '<button class="chat-btn" @click="$emit(\'click\')" />',
 	},
 	UsernameTableCell: {
 		name: 'UsernameTableCell',
@@ -135,6 +145,7 @@ describe('active-chats-table', () => {
 	let finishInitialize: () => Promise<void>;
 
 	beforeEach(() => {
+		openChatMock.mockClear();
 		({ store: mockStore, finishInitialize } = createStore());
 	});
 
@@ -238,6 +249,21 @@ describe('active-chats-table', () => {
 
 			expect(buttons).toHaveLength(2);
 			expect(buttons[0].props('icon')).toBe('ws-chat');
+		});
+
+		it('opens the chat of the row when its chat action is clicked', async () => {
+			mockStore.dataList = [
+				chat,
+				{
+					...chat,
+					id: '2',
+				},
+			];
+			const wrapper = mountTable();
+
+			await wrapper.findAll('.chat-btn')[1].trigger('click');
+
+			expect(openChatMock).toHaveBeenCalledExactlyOnceWith('2');
 		});
 	});
 
