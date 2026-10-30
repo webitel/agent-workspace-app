@@ -45,6 +45,11 @@ const thread = (overrides: Record<string, unknown> = {}) => ({
 	last_msg: {
 		body: 'Hello',
 	},
+	channel: {
+		id: 'gate-1',
+		name: 'Support bot',
+		type: 'THREAD_CHANNEL_TYPE_WHATSAPP',
+	},
 	...overrides,
 });
 
@@ -89,6 +94,7 @@ describe('activeChatsApiModule.getList', () => {
 					'created_at',
 					'members',
 					'last_msg',
+					'channel',
 				],
 			});
 		});
@@ -150,6 +156,7 @@ describe('activeChatsApiModule.getList', () => {
 						id: 'thread-1',
 						name: 'John Doe',
 						username: 'john',
+						source: 'Support bot',
 						message: 'Hello',
 						startedAt: CREATED_AT,
 						duration: 90,
@@ -201,6 +208,21 @@ describe('activeChatsApiModule.getList', () => {
 				username: '',
 				message: '',
 			});
+		});
+
+		// an internal thread has no channel to come in through
+		it('leaves the source empty when the thread has no channel', async () => {
+			respond({
+				items: [
+					thread({
+						channel: undefined,
+					}),
+				],
+			});
+
+			const { items } = await getList();
+
+			expect(items[0].source).toBe('');
 		});
 
 		it('returns an empty list when the response has no items', async () => {

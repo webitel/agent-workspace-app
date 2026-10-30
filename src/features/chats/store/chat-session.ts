@@ -2,6 +2,7 @@ import { MessageAttachmentType } from '@webitel/chat-web-sdk';
 import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
+import { useUserinfoStore } from '../../userinfo/stores/userinfoStore';
 import { threadsService } from '../api/chatSdk';
 import { findSelfMemberId } from '../scripts/findSelfMemberId';
 import { mergeMessages } from '../scripts/mergeMessages';
@@ -32,9 +33,15 @@ function createStoreDefinition(chatId: string) {
 		const thread = shallowRef<IThread | null>(null);
 		const messages = shallowRef<IMessage[]>([]);
 		const accountStore = useChatAccountStore();
-		// the operator's own member in this thread, for delivery ticks
+		const userinfoStore = useUserinfoStore();
+		// the operator's own member in this thread: which side a message is on,
+		// and its delivery ticks
 		const selfMemberId = computed(() =>
-			findSelfMemberId(thread.value, accountStore.account),
+			findSelfMemberId({
+				thread: thread.value,
+				account: accountStore.account,
+				webitelUserId: userinfoStore.userId,
+			}),
 		);
 		const isLoading = ref(false);
 		const error = ref<unknown>(null);
