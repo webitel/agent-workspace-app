@@ -111,6 +111,10 @@ export default {
 					transfer: 'Transfer chat',
 					end: 'End chat',
 				},
+				closed: {
+					notFound: 'Chat not found',
+					loadError: "Couldn't load the chat",
+				},
 			},
 			history: {
 				tabs: {
