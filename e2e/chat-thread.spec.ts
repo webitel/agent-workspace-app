@@ -34,6 +34,34 @@ const CLIENT = {
 	},
 };
 
+// the mocked user the app signs in as is 1 (`e2e/fixtures/mocks.ts`)
+const SIGNED_IN_AGENT = {
+	...AGENT,
+	contact: {
+		...AGENT.contact,
+		sub: '1',
+	},
+};
+const COLLEAGUE = {
+	id: 'm-colleague',
+	contact: {
+		name: 'Oleh Bondar',
+		type: 'webitel',
+		sub: '7',
+		iss: 'webitel',
+	},
+};
+const BOT = {
+	id: 'm-bot',
+	contact: {
+		name: 'Helper',
+		type: 'webchat',
+		sub: 'bot-1',
+		iss: 'bot',
+		is_bot: true,
+	},
+};
+
 const now = Date.now();
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -90,9 +118,21 @@ async function mockThread(
 		sendStatus = 200,
 		history = HISTORY,
 		older,
+		members = [
+			AGENT,
+			CLIENT,
+		],
+		account = AGENT,
+		accountStatus = 200,
 	}: {
 		sendStatus?: number;
 		history?: HistoryMessage[];
+		/** who is in the thread */
+		members?: Record<string, unknown>[];
+		/** the operator's own account in the chat backend */
+		account?: typeof AGENT;
+		/** anything but 200 leaves the account unknown */
+		accountStatus?: number;
 		/** served for the next request that carries a cursor; the first page then links to it */
 		older?: HistoryMessage[];
 	} = {},
@@ -111,11 +151,17 @@ async function mockThread(
 	});
 	await page.route('**/api/v1/auth/token', async (route) => {
 		await route.fulfill({
-			status: 200,
+			status: accountStatus,
 			contentType: 'application/json',
-			body: JSON.stringify({
-				contact: AGENT.contact,
-			}),
+			body: JSON.stringify(
+				accountStatus === 200
+					? {
+							contact: account.contact,
+						}
+					: {
+							message: 'failed',
+						},
+			),
 		});
 	});
 	await page.route(`**/api/v1/threads/${THREAD_ID}`, async (route) => {
@@ -125,10 +171,7 @@ async function mockThread(
 			body: JSON.stringify({
 				id: THREAD_ID,
 				subject: 'Jane Doe',
-				members: [
-					AGENT,
-					CLIENT,
-				],
+				members,
 				read_states: [
 					{
 						member_id: CLIENT.id,
@@ -291,6 +334,71 @@ test.describe('chat thread', () => {
 				'.chat-message:not(.chat-message--outgoing) .message-status',
 			),
 		).toHaveCount(0);
+	});
+
+	test.describe('between colleagues', () => {
+		const internalMembers = [
+			SIGNED_IN_AGENT,
+			COLLEAGUE,
+			BOT,
+		];
+		const internalHistory = [
+			{
+				id: 'msg-3',
+				seq: '3',
+				created_at: String(now - 60_000),
+				sender: SIGNED_IN_AGENT,
+				body: 'Mine',
+			},
+			{
+				id: 'msg-2',
+				seq: '2',
+				created_at: String(now - 120_000),
+				sender: BOT,
+				body: 'From the bot',
+			},
+			{
+				id: 'msg-1',
+				seq: '1',
+				created_at: String(now - 180_000),
+				sender: COLLEAGUE,
+				body: 'From the colleague',
+			},
+		];
+
+		test('puts only the operator’s own messages on the outgoing side', async ({
+			page,
+			socket,
+		}) => {
+			await mockThread(page, {
+				members: internalMembers,
+				history: internalHistory,
+				account: SIGNED_IN_AGENT,
+			});
+			await openChat(page, socket);
+
+			await expect(page.locator('.chat-message')).toHaveCount(3);
+			const own = page.locator('.chat-message--outgoing');
+			await expect(own).toHaveCount(1);
+			await expect(own).toContainText('Mine');
+		});
+
+		test('still tells them apart when the chat account does not load', async ({
+			page,
+			socket,
+		}) => {
+			await mockThread(page, {
+				members: internalMembers,
+				history: internalHistory,
+				accountStatus: 500,
+			});
+			await openChat(page, socket);
+
+			await expect(page.locator('.chat-message')).toHaveCount(3);
+			const own = page.locator('.chat-message--outgoing');
+			await expect(own).toHaveCount(1);
+			await expect(own).toContainText('Mine');
+		});
 	});
 
 	test('clears the field once a message is sent', async ({ page, socket }) => {

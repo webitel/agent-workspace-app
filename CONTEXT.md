@@ -169,6 +169,13 @@ currently open there is shown selected.
 **Offer card** for the notification. The SDK's `ThreadPreview` is its own name
 for the summary carried on a task and is neither of these.
 
+**Own message** — a message in a chat that the agent sent, as opposed to one from
+the client, a bot, a colleague or the system. The chat window shows it on the
+agent's side, the other messages on the other. In an internal chat the other
+side is the colleague. A member is the agent when their contact is the agent's
+chat account; while that account is unknown, a webitel contact whose subject is
+the agent's Webitel user id is.
+
 **Last message** — the newest message in a chat as the Chat preview shows it: its
 text, when it was sent, and whether the agent or the client sent it. Kept for
 every chat the list has shown, whether or not its window is open; it is not read
@@ -200,6 +207,10 @@ the agent did not send (client, bot, another agent or a system message), which i
 wider than "a new client message" in AC_02.02.05, or when the agent leaves the
 thread (transfer, removal). Rejoining does not restore it. The chat backend keeps
 it as a tag on the thread; the call-center side (the **Task**) knows nothing of it.
+
+Only contact-center chats can be snoozed. The backend would tag any thread, but
+an internal chat (one with no task) is never offered **Snooze** — so the Snoozed
+tab and the backend's snoozed set never disagree about what counts.
 
 **Ended chat** — a chat whose interaction is over (the client closed it, it
 timed out, or the agent sent **End chat**) while the agent is still a member of
