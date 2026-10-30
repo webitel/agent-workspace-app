@@ -2,9 +2,9 @@ import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { useCallTransferStore } from '../callTransfer';
+import { useCallTransferPopupStore } from '../callTransferPopup';
 
-describe('useCallTransferStore', () => {
+describe('useCallTransferPopupStore', () => {
 	beforeEach(() => {
 		setActivePinia(
 			createTestingPinia({
@@ -14,28 +14,28 @@ describe('useCallTransferStore', () => {
 	});
 
 	it('is closed by default', () => {
-		const store = useCallTransferStore();
+		const store = useCallTransferPopupStore();
 
-		expect(store.isOpen).toBe(false);
+		expect(store.isOpenTransferPopup).toBe(false);
 		expect(store.transferCallId).toBeNull();
 	});
 
 	it('opens for a call', () => {
-		const store = useCallTransferStore();
+		const store = useCallTransferPopupStore();
 
 		store.open('call-1');
 
-		expect(store.isOpen).toBe(true);
+		expect(store.isOpenTransferPopup).toBe(true);
 		expect(store.transferCallId).toBe('call-1');
 	});
 
 	it('closes', () => {
-		const store = useCallTransferStore();
+		const store = useCallTransferPopupStore();
 		store.open('call-1');
 
 		store.close();
 
-		expect(store.isOpen).toBe(false);
+		expect(store.isOpenTransferPopup).toBe(false);
 		expect(store.transferCallId).toBeNull();
 	});
 });

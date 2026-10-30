@@ -158,14 +158,14 @@ export default {
 			},
 			transfer: {
 				title: 'Transfer Call',
-				numberLabel: 'Transfer to number',
-				numberPlaceholder: 'Enter phone number',
 				emptyList: 'Nothing found',
 				columns: {
 					name: 'Name',
 					status: 'Status',
 					team: 'Team',
 				},
+				phoneLabel: 'Transfer to number',
+				phonePlaceholder: 'Enter phone number',
 				modes: {
 					blind: 'Blind',
 					consult: 'Consult',

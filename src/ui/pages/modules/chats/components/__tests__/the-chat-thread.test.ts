@@ -47,12 +47,13 @@ vi.mock('@webitel/ui-chats/v2', () => ({
 	},
 }));
 
-const snoozedThreadIds = new Set<string>();
+// why a chat cannot snooze is the store's to decide; the view only asks
+const unsnoozableThreadIds = new Set<string>();
 vi.mock(
 	'../../../../../../features/chats/modules/previews/store/chat-snoozed',
 	() => ({
 		useChatSnoozedStore: () => ({
-			isSnoozed: (threadId: string) => snoozedThreadIds.has(threadId),
+			canSnooze: (threadId: string) => !unsnoozableThreadIds.has(threadId),
 		}),
 	}),
 );
@@ -98,7 +99,7 @@ const withThread = async (wrapper: ReturnType<typeof mountThread>) => {
 describe('the-chat-thread', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		snoozedThreadIds.clear();
+		unsnoozableThreadIds.clear();
 	});
 
 	// AC_03.02.01: Snooze sits after the newest message of an active chat
@@ -126,8 +127,8 @@ describe('the-chat-thread', () => {
 			expect(snoozeButton(wrapper).exists()).toBe(false);
 		});
 
-		it('offers no Snooze once the chat is snoozed', async () => {
-			snoozedThreadIds.add('chat-1');
+		it('offers no Snooze in a chat that cannot snooze', async () => {
+			unsnoozableThreadIds.add('chat-1');
 			const wrapper = mountThread({
 				mode: 'active',
 			});

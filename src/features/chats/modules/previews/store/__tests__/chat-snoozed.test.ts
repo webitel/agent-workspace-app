@@ -15,6 +15,8 @@ vi.mock('../../../../store/chats', () => ({
 		get chatTaskList() {
 			return chatTaskList.value;
 		},
+		getTaskByThreadId: (threadId: string) =>
+			chatTaskList.value.find((task) => task.thread?.id === threadId),
 	}),
 }));
 
@@ -205,6 +207,36 @@ describe('chat-snoozed store', () => {
 			expect(store.isSnoozed('t1')).toBe(false);
 		});
 	});
+
+	describe('canSnooze', () => {
+		it('lets a contact-center chat snooze', () => {
+			chatTaskList.value = buildChats('t1');
+			const store = useChatSnoozedStore();
+
+			expect(store.canSnooze('t1')).toBe(true);
+		});
+
+		// only contact-center chats snooze (WS-57)
+		it('does not let an internal chat, which has no task, snooze', () => {
+			const store = useChatSnoozedStore();
+
+			expect(store.canSnooze('internal-thread')).toBe(false);
+		});
+
+		it('does not let a snoozed chat snooze again', async () => {
+			chatTaskList.value = buildChats('t1');
+			fetchThreadsMock.mockResolvedValue(
+				page([
+					't1',
+				]),
+			);
+			const store = useChatSnoozedStore();
+			await store.load();
+
+			expect(store.canSnooze('t1')).toBe(false);
+		});
+	});
+
 	// AC_03.02.03: the chat moves to Snoozed at once, the agent stays on it
 	describe('snooze', () => {
 		it('moves the chat to Snoozed before the backend answers', async () => {

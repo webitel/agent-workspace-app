@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Przekieruj połączenie',
-				numberLabel: 'Przekieruj na numer',
-				numberPlaceholder: 'Wpisz numer telefonu',
+				phoneLabel: 'Przekieruj na numer',
+				phonePlaceholder: 'Wpisz numer telefonu',
 				modes: {
 					blind: 'Bez konsultacji',
 					consult: 'Z konsultacją',

@@ -21,7 +21,7 @@ vi.mock('../../../../../../features/calls/store/calls', () => ({
 	}),
 }));
 
-import { useCallTransferStore } from '../../store/callTransfer';
+import { useCallTransferPopupStore } from '../../store/callTransferPopup';
 import CallTransferPopup from '../call-transfer-popup.vue';
 
 const stubs = {
@@ -46,7 +46,7 @@ const stubs = {
 			'update:modelValue',
 		],
 		template:
-			'<input class="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+			'<input class="phone" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
 	'wt-button': {
 		props: [
@@ -93,7 +93,7 @@ const mountPopup = () =>
 type Wrapper = ReturnType<typeof mountPopup>;
 
 const topButtons = (wrapper: Wrapper) =>
-	wrapper.findAll('.call-transfer-popup__number button');
+	wrapper.findAll('.call-transfer-popup__phone button');
 
 const bottomButtons = (wrapper: Wrapper) =>
 	wrapper.findAll('.popup-actions button');
@@ -115,7 +115,7 @@ describe('call-transfer-popup', () => {
 			answeredAt: 1,
 			hangupAt: 0,
 		};
-		useCallTransferStore().open('call-1');
+		useCallTransferPopupStore().open('call-1');
 	});
 
 	it('titles itself and offers the four destination tabs, Agents first (AC_13.07.01)', () => {
@@ -143,7 +143,7 @@ describe('call-transfer-popup', () => {
 	it('enables the buttons beside the field once a number is typed, not the bottom ones (AC_13.07.02, .12)', async () => {
 		const wrapper = mountPopup();
 
-		await wrapper.find('.number').setValue('1001');
+		await wrapper.find('.phone').setValue('1001');
 
 		expect(topButtons(wrapper).every(isDisabled)).toBe(false);
 		expect(bottomButtons(wrapper).slice(0, 2).every(isDisabled)).toBe(true);
@@ -151,7 +151,7 @@ describe('call-transfer-popup', () => {
 
 	it('blind-transfers the call to the typed number, sanitized like a dialled one', async () => {
 		const wrapper = mountPopup();
-		await wrapper.find('.number').setValue(' +380 (67) 123-45-67 ');
+		await wrapper.find('.phone').setValue(' +380 (67) 123-45-67 ');
 
 		await topButtons(wrapper)[0].trigger('click');
 
@@ -167,37 +167,37 @@ describe('call-transfer-popup', () => {
 			}),
 		);
 		const wrapper = mountPopup();
-		await wrapper.find('.number').setValue('1001');
+		await wrapper.find('.phone').setValue('1001');
 
 		await topButtons(wrapper)[0].trigger('click');
 
 		expect(topButtons(wrapper).every(isDisabled)).toBe(true);
-		expect(isDisabled(wrapper.find('.number'))).toBe(true);
+		expect(isDisabled(wrapper.find('.phone'))).toBe(true);
 
 		finishTransfer(false);
 		await flushPromises();
 
 		expect(topButtons(wrapper).every(isDisabled)).toBe(false);
-		expect(isDisabled(wrapper.find('.number'))).toBe(false);
+		expect(isDisabled(wrapper.find('.phone'))).toBe(false);
 	});
 
 	it('stays open with the typed number when the transfer fails', async () => {
 		blindTransferMock.mockResolvedValue(false);
 		const wrapper = mountPopup();
-		await wrapper.find('.number').setValue('1001');
+		await wrapper.find('.phone').setValue('1001');
 
 		await topButtons(wrapper)[0].trigger('click');
 		await flushPromises();
 
-		expect(useCallTransferStore().isOpen).toBe(true);
-		expect((wrapper.find('.number').element as HTMLInputElement).value).toBe(
+		expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(true);
+		expect((wrapper.find('.phone').element as HTMLInputElement).value).toBe(
 			'1001',
 		);
 	});
 
 	it('only requests a consult transfer to the typed number, it is not executed yet', async () => {
 		const wrapper = mountPopup();
-		await wrapper.find('.number').setValue('1001');
+		await wrapper.find('.phone').setValue('1001');
 
 		await topButtons(wrapper)[1].trigger('click');
 
@@ -209,12 +209,12 @@ describe('call-transfer-popup', () => {
 
 	it('keeps the typed number and clears the search when the tab changes', async () => {
 		const wrapper = mountPopup();
-		await wrapper.find('.number').setValue('1001');
+		await wrapper.find('.phone').setValue('1001');
 		await wrapper.find('.search').setValue('mon');
 
 		await wrapper.find('[data-tab="queues"]').trigger('click');
 
-		expect((wrapper.find('.number').element as HTMLInputElement).value).toBe(
+		expect((wrapper.find('.phone').element as HTMLInputElement).value).toBe(
 			'1001',
 		);
 		expect((wrapper.find('.search').element as HTMLInputElement).value).toBe(
@@ -223,19 +223,19 @@ describe('call-transfer-popup', () => {
 	});
 
 	it('closes from the cancel button and the close icon', async () => {
-		const store = useCallTransferStore();
+		const store = useCallTransferPopupStore();
 		const wrapper = mountPopup();
 
 		await bottomButtons(wrapper)[2].trigger('click');
-		expect(store.isOpen).toBe(false);
+		expect(store.isOpenTransferPopup).toBe(false);
 
 		store.open('call-1');
 		await wrapper.find('.popup-close').trigger('click');
-		expect(store.isOpen).toBe(false);
+		expect(store.isOpenTransferPopup).toBe(false);
 	});
 
 	it('closes when the call being transferred ends', async () => {
-		const store = useCallTransferStore();
+		const store = useCallTransferPopupStore();
 		mountPopup();
 
 		callState.call = {
@@ -245,16 +245,16 @@ describe('call-transfer-popup', () => {
 		};
 		await flushPromises();
 
-		expect(store.isOpen).toBe(false);
+		expect(store.isOpenTransferPopup).toBe(false);
 	});
 
 	it('closes when the call being transferred is gone', async () => {
-		const store = useCallTransferStore();
+		const store = useCallTransferPopupStore();
 		mountPopup();
 
 		callState.call = undefined;
 		await flushPromises();
 
-		expect(store.isOpen).toBe(false);
+		expect(store.isOpenTransferPopup).toBe(false);
 	});
 });

@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Transfer apel',
-				numberLabel: 'Transfer la numărul',
-				numberPlaceholder: 'Introduceți numărul de telefon',
+				phoneLabel: 'Transfer la numărul',
+				phonePlaceholder: 'Introduceți numărul de telefon',
 				modes: {
 					blind: 'Direct',
 					consult: 'Cu consultare',

@@ -158,14 +158,14 @@ export default {
 			},
 			transfer: {
 				title: 'Переведення дзвінка',
-				numberLabel: 'Перевести на номер',
-				numberPlaceholder: 'Введіть номер телефону',
 				emptyList: 'Нічого не знайдено',
 				columns: {
 					name: "Ім'я",
 					status: 'Статус',
 					team: 'Команда',
 				},
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введіть номер телефону',
 				modes: {
 					blind: 'Сліпий',
 					consult: 'Консультативний',

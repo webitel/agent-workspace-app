@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Қоңырауды ауыстыру',
-				numberLabel: 'Нөмірге ауыстыру',
-				numberPlaceholder: 'Телефон нөмірін енгізіңіз',
+				phoneLabel: 'Нөмірге ауыстыру',
+				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
 				modes: {
 					blind: 'Тікелей',
 					consult: 'Кеңесумен',

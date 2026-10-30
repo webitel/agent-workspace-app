@@ -151,8 +151,8 @@ export default {
 			},
 			transfer: {
 				title: 'Qoʻngʻiroqni oʻtkazish',
-				numberLabel: 'Raqamga oʻtkazish',
-				numberPlaceholder: 'Telefon raqamini kiriting',
+				phoneLabel: 'Raqamga oʻtkazish',
+				phonePlaceholder: 'Telefon raqamini kiriting',
 				modes: {
 					blind: 'Toʻgʻridan-toʻgʻri',
 					consult: 'Maslahat bilan',

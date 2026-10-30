@@ -29,6 +29,11 @@ export const useChatSnoozedStore = defineStore('chat-snoozed', () => {
 
 	const isSnoozed = (threadId: string) => threadIds.value.has(threadId);
 
+	// only contact-center chats snooze (WS-57): an internal chat has no task,
+	// though the backend would tag its thread all the same
+	const canSnooze = (threadId: string) =>
+		Boolean(chatsStore.getTaskByThreadId(threadId)) && !isSnoozed(threadId);
+
 	// a snoozed thread with no task is not on the list at all
 	const tasks = computed<Task[]>(() =>
 		chatsStore.chatTaskList.filter((task) => isSnoozed(task.thread?.id ?? '')),
@@ -104,6 +109,7 @@ export const useChatSnoozedStore = defineStore('chat-snoozed', () => {
 
 		// getters
 		isSnoozed,
+		canSnooze,
 		tasks,
 		count,
 

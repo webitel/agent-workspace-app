@@ -12,22 +12,22 @@ import type { TransferActionAvailability } from '../types/CallTransfer.types';
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 export function getTransferActionAvailability({
-	number,
+	phone,
 	tab,
 	hasSelection,
 }: {
-	number: string;
+	phone: string;
 	tab: TransferTab;
 	hasSelection: boolean;
 }): TransferActionAvailability {
-	const isNumberSendable =
-		sanitizeDestination(number).length > 0 && !hasSelection;
+	const isPhoneSendable =
+		sanitizeDestination(phone).length > 0 && !hasSelection;
 	const modesOfTab = TRANSFER_MODES_BY_TAB[tab];
 
 	return {
-		byNumber: {
-			[TransferMode.Blind]: isNumberSendable,
-			[TransferMode.Consult]: isNumberSendable,
+		byPhone: {
+			[TransferMode.Blind]: isPhoneSendable,
+			[TransferMode.Consult]: isPhoneSendable,
 		},
 		bySelection: {
 			[TransferMode.Blind]:

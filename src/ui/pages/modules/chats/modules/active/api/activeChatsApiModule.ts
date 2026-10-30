@@ -32,12 +32,15 @@ const API_FIELDS = [
 	'created_at',
 	'members',
 	'last_msg',
+	'channel',
 ];
 
 export interface ActiveChatRow {
 	id: string;
 	name: string;
 	username: string;
+	/** The gate or application the client reached the thread through. */
+	source: string;
 	message: string;
 	startedAt: number;
 	duration: number;
@@ -56,6 +59,7 @@ const toActiveChatRow =
 			id: thread.id ?? '',
 			name: client?.name || client?.username || '',
 			username: client?.username ?? '',
+			source: thread.channel?.name ?? '',
 			message: thread.lastMsg?.body ?? '',
 			startedAt,
 			duration: Math.floor((loadedAt - startedAt) / 1000),
