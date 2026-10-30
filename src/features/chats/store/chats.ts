@@ -28,7 +28,7 @@ export const useChatsStore = defineStore('chats', () => {
 	// with `$dispose()`; created from an action it would outlive the store
 	const storeScope = getCurrentScope();
 
-	const { getClient, tasks, agent } = useWebSocketClient();
+	const { getClient, tasks, isTaskFeedReady } = useWebSocketClient();
 	const {
 		connect: connectChatsSocket,
 		onThreadMessage,
@@ -42,14 +42,6 @@ export const useChatsStore = defineStore('chats', () => {
 	const allChatTasks = computed<Task[]>(
 		() => (tasks.value ?? []).filter(isChatTask) as Task[],
 	);
-
-	/**
-	 * Whether the feed holds every task the agent has, so a thread missing from
-	 * it can be taken for a closed chat (ADR-0010). Taken to be once the agent
-	 * session has loaded: the SDK loads the agent's active tasks before it
-	 * resolves, and the workspace store awaits it before this store initializes.
-	 */
-	const isTaskFeedReady = computed(() => agent.value !== undefined);
 
 	// offered chats included: a window opened from the offer card is not closed
 	const taskThreadIds = computed(() =>
