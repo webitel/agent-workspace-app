@@ -20,6 +20,10 @@ export default {
 				active: 'Activos',
 				snoozed: 'Pospuestos',
 			},
+			snooze: {
+				action: 'Posponer',
+				error: 'No se pudo posponer el chat',
+			},
 		},
 		notifications: {
 			offer: {
@@ -94,6 +98,11 @@ export default {
 					interaction: 'Interacción',
 					contact: 'Contacto',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Anclar chat',
+					transfer: 'Transferir chat',
+					end: 'Finalizar chat',
 				},
 			},
 			history: {

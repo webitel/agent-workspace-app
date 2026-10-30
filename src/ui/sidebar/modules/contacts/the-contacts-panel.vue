@@ -25,25 +25,25 @@
 
 <script setup lang="ts">
 import { WtButton } from '@webitel/ui-sdk/components';
+import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ContactCard from '../../components/contact/contact-card.vue';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../components/sidebar-section-header.vue';
+import { useSidebarSelectionStore } from '../../store/sidebar-selection';
 import { ContactsSidebarMode } from './enums/ContactsSidebarMode.enum';
 
-const props = defineProps<{
-	contactId?: string;
-}>();
-
 const { t } = useI18n();
+
+const { contactId } = storeToRefs(useSidebarSelectionStore());
 
 const isCreateFormOpen = ref(false);
 
 const mode = computed<ContactsSidebarMode>(() => {
 	if (isCreateFormOpen.value) return ContactsSidebarMode.Create;
-	if (props.contactId) return ContactsSidebarMode.View;
+	if (contactId.value) return ContactsSidebarMode.View;
 	return ContactsSidebarMode.Empty;
 });
 
@@ -63,12 +63,9 @@ function closeCreateForm() {
 	isCreateFormOpen.value = false;
 }
 
-watch(
-	() => props.contactId,
-	(contactId) => {
-		if (contactId) closeCreateForm();
-	},
-);
+watch(contactId, (id) => {
+	if (id) closeCreateForm();
+});
 </script>
 
 <style scoped>

@@ -20,6 +20,10 @@ export default {
 				active: 'Faol',
 				snoozed: 'Kechiktirilgan',
 			},
+			snooze: {
+				action: 'Kechiktirish',
+				error: "Chatni kechiktirib bo'lmadi",
+			},
 		},
 		notifications: {
 			offer: {
@@ -94,6 +98,11 @@ export default {
 					interaction: "O'zaro aloqa",
 					contact: 'Kontakt',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Chatni mahkamlash',
+					transfer: 'Chatni yoʻnaltirish',
+					end: 'Chatni tugatish',
 				},
 			},
 			history: {

@@ -20,6 +20,10 @@ export default {
 				active: 'Активні',
 				snoozed: 'Відкладені',
 			},
+			snooze: {
+				action: 'Відкласти',
+				error: 'Не вдалося відкласти чат',
+			},
 		},
 		notifications: {
 			offer: {
@@ -103,6 +107,7 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Закріпити чат',
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 				},

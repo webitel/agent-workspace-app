@@ -157,14 +157,23 @@ agent lands on that section's list instead.
 **Offer** — a chat or call that has been distributed to the agent and is waiting
 for them to accept or decline. An offered chat is not in the agent's chat list
 yet and the agent is not a member of its thread. It joins the list once
-accepted.
+accepted. Clicking the body of its **Offer card** opens the chat in the central
+panel as a read-only preview, and its top bar carries the same Accept and
+Decline as the card.
 
 **Offer card** — the incoming-interaction notification that presents an Offer in
 the top-right corner. Calls and chats share one design.
 
 **Chat preview** — one row of the chat list's Active tab: a chat the agent has
 accepted, summarised before they open it. It shows who the client is, the
-channel and queue, and the **Last message**. Opening it brings the chat into the
+channel and queue, and the **Own message** — a message in a chat that the agent sent, as opposed to one from
+the client, a bot, a colleague or the system. The chat window shows it on the
+agent's side, the other messages on the other. In an internal chat the other
+side is the colleague. A member is the agent when their contact is the agent's
+chat account; while that account is unknown, a webitel contact whose subject is
+the agent's Webitel user id is.
+
+**Last message**. Opening it brings the chat into the
 central panel, and the row of the chat currently open there is shown selected.
 
 "Preview" on its own is ambiguous — say **Chat preview** for the list row and
@@ -199,6 +208,10 @@ the agent did not send (client, bot, another agent or a system message), which i
 wider than "a new client message" in AC_02.02.05, or when the agent leaves the
 thread (transfer, removal). Rejoining does not restore it. The chat backend keeps
 it as a tag on the thread; the call-center side (the **Task**) knows nothing of it.
+
+Only contact-center chats can be snoozed. The backend would tag any thread, but
+an internal chat (one with no task) is never offered **Snooze** — so the Snoozed
+tab and the backend's snoozed set never disagree about what counts.
 
 **Ended chat** — a chat whose interaction is over (the client closed it, it
 timed out, or the agent sent **End chat**) while the agent is still a member of
