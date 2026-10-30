@@ -47,6 +47,7 @@ export default {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
 			startedAt: 'Початок',
+			endedAt: 'Завершено',
 			username: "Ім'я користувача",
 			message: 'Повідомлення',
 			phoneNumber: 'Номер телефону',
@@ -97,6 +98,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Активні',
+					closed: 'Закриті',
 				},
 				tabs: {
 					chat: 'Чат',

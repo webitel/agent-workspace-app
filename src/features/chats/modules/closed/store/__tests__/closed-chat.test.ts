@@ -15,7 +15,11 @@ import type {
 	ILeftThread,
 	IMessage,
 } from '../../../../types/ChatSession.types';
-import { disposeClosedChat, useClosedChatStore } from '../closed-chat';
+import {
+	disposeClosedChat,
+	seedClosedChat,
+	useClosedChatStore,
+} from '../closed-chat';
 
 const message = (id: string) =>
 	({
@@ -59,6 +63,18 @@ describe('closed-chat store', () => {
 			expect(fetchMessageHistory).toHaveBeenCalledWith({
 				size: 30,
 			});
+			expect(store.thread).toStrictEqual(seed);
+		});
+
+		it('reads from a thread seeded beforehand when load gets none', async () => {
+			const seed = createLeftThread();
+			seedClosedChat(seed);
+			const store = useClosedChatStore('t-1');
+
+			await store.load();
+
+			expect(findLeftThreadMock).not.toHaveBeenCalled();
+			expect(seed.fetchMessageHistory).toHaveBeenCalledTimes(1);
 			expect(store.thread).toStrictEqual(seed);
 		});
 

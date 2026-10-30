@@ -304,6 +304,7 @@ export const useChatsStore = defineStore('chats', () => {
 	return {
 		// getters
 		chatTaskList,
+		taskThreadIds,
 		isTaskFeedReady,
 		hasChatTask,
 		getTaskByThreadId,
