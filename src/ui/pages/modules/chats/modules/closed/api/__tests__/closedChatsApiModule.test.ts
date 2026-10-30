@@ -66,11 +66,10 @@ describe('closedChatsApiModule.getList', () => {
 		});
 	});
 
-	it('passes page and size only, whatever the store passes', async () => {
+	it('passes page and size, but no search text', async () => {
 		await getList({
 			page: 2,
 			size: 20,
-			sort: '-created_at',
 			search: 'john',
 			q: 'john',
 		});
@@ -78,7 +77,52 @@ describe('closedChatsApiModule.getList', () => {
 		expect(requestParams()).toEqual({
 			page: 2,
 			size: 20,
+			sort: undefined,
 		});
+	});
+
+	it.each([
+		'+queue_name',
+		'-queue_name',
+		'+channel_name',
+		'-channel_name',
+	])('passes the %s sort', async (sort) => {
+		await getList({
+			sort,
+		});
+
+		expect(requestParams().sort).toBe(sort);
+	});
+
+	it('drops a sort the endpoint does not take', async () => {
+		await getList({
+			sort: '-created_at',
+		});
+
+		expect(requestParams().sort).toBeUndefined();
+	});
+
+	it('shows the channel as the source and the queue by name', async () => {
+		respond({
+			items: [
+				thread({
+					channel: {
+						id: 'gate-1',
+						name: 'Support Telegram',
+						type: 'telegram',
+					},
+					queue: {
+						id: '12',
+						name: 'Sales',
+					},
+				}),
+			],
+		});
+
+		const { items } = await getList();
+
+		expect(items[0].source).toBe('Support Telegram');
+		expect(items[0].queue).toBe('Sales');
 	});
 
 	it('maps the client to name and username', async () => {

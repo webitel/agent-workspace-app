@@ -1,6 +1,7 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
+import { SortSymbols } from '@webitel/ui-sdk/scripts/sortQueryAdapters';
 
-// no `sort` on any header: the left threads endpoint is not sortable from here
+// sortable only where the left threads endpoint sorts: source and queue, by name
 export const headers: DatalistTableHeader[] = [
 	{
 		value: 'name',
@@ -12,7 +13,8 @@ export const headers: DatalistTableHeader[] = [
 		value: 'source',
 		locale: 'cases.source',
 		show: true,
-		field: 'source',
+		field: 'channel_name',
+		sort: SortSymbols.NONE,
 	},
 	{
 		value: 'queue',
@@ -21,7 +23,8 @@ export const headers: DatalistTableHeader[] = [
 			1,
 		],
 		show: true,
-		field: 'queue',
+		field: 'queue_name',
+		sort: SortSymbols.NONE,
 	},
 	{
 		value: 'startedAt',

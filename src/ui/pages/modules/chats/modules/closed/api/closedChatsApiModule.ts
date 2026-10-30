@@ -15,9 +15,9 @@ import { findClientContact } from '../../../../../../../features/chats/scripts/f
 
 /**
  * Columns the backend does not return for a left thread yet stay empty:
- * source, queue, startedAt, endedAt, duration and message. They are never
- * approximated from `createdAt` or `lastMsg`, which describe the whole thread,
- * not the agent's membership period.
+ * startedAt, endedAt, duration and message. They are never approximated from
+ * `createdAt` or `lastMsg`, which describe the whole thread, not the agent's
+ * membership period.
  */
 export interface ClosedChatRow {
 	id: string;
@@ -41,19 +41,33 @@ const toClosedChatRow = (
 		id: thread.id ?? '',
 		name: client?.name || client?.username || '',
 		username: client?.username ?? '',
+		source: thread.channel?.name || undefined,
+		queue: thread.queue?.name || undefined,
 		thread: thread as ThreadModel,
 	};
 };
 
 /**
+ * The only keys ThreadManagement.SearchLeft sorts by that the table has a
+ * column for: source (the channel) and queue, by name.
+ */
+const SORTABLE_FIELDS = new Set([
+	'channel_name',
+	'queue_name',
+]);
+
+const toApiSort = (sort?: string) =>
+	sort && SORTABLE_FIELDS.has(sort.replace(/^[+-]/, '')) ? sort : undefined;
+
+/**
  * Adapts datalist table store params to ThreadManagement.SearchLeft, which
- * takes paging only: no search text, no sort.
+ * takes paging and a sort, but no search text.
  *
  * A thread a task backs is an active chat (ADR-0010), offered or accepted, so
  * it is dropped from the closed ones: the chat window treats it the same way.
  */
 const getList = async (params: Record<string, unknown> = {}) => {
-	const { page, size, taskThreadIds } = params;
+	const { page, size, sort, taskThreadIds } = params;
 
 	const activeThreadIds = new Set(taskThreadIds as string[] | undefined);
 
@@ -68,6 +82,7 @@ const getList = async (params: Record<string, unknown> = {}) => {
 				{
 					page: page as number | undefined,
 					size: size as number | undefined,
+					sort: toApiSort(sort as string | undefined),
 				},
 			);
 
