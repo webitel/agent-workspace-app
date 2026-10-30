@@ -23,6 +23,7 @@ vi.mock('../../api/chatSdk', () => ({
 	messagesService: {},
 }));
 
+import { useUserinfoStore } from '../../../userinfo/stores/userinfoStore';
 import { useChatAccountStore } from '../chat-account';
 import {
 	chatSessionIds,
@@ -137,6 +138,37 @@ describe('chat-session store', () => {
 			// the chats store loads the account at startup; the session only reads it
 			await useChatAccountStore().load();
 			const store = useChatSessionStore('chat-self');
+
+			await store.load();
+			await flushPromises();
+
+			expect(store.selfMemberId).toBe('m-agent');
+		});
+
+		it('resolves the operator’s own member by the user id while the account is unknown', async () => {
+			fetchThreadMock.mockResolvedValue({
+				...(thread() as object),
+				members: [
+					{
+						id: 'm-colleague',
+						contact: {
+							sub: '7',
+							iss: 'webitel',
+						},
+					},
+					{
+						id: 'm-agent',
+						contact: {
+							sub: '42',
+							iss: 'webitel',
+						},
+					},
+				],
+			});
+			fetchMessageHistoryMock.mockResolvedValue(historyPage([], null));
+			// the account is never loaded here, as when its request failed
+			useUserinfoStore().userId = '42';
+			const store = useChatSessionStore('chat-self-by-user-id');
 
 			await store.load();
 			await flushPromises();
