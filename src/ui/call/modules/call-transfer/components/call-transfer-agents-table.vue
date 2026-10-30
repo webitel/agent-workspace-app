@@ -30,11 +30,13 @@
 				class="call-transfer-agents-table__cell"
 				@click="onRowClick(item.id)"
 			>
+<!-- TODO refactor after badge migrate -->
 				<wt-badge
 					:hidden="!item.status"
 					:icon-badge="item.status"
 					:color-variable="getBadgeColorVariable(item.status)"
 				/>
+				{{ getStatusLabel(item.status) }}
 			</div>
 		</template>
 
@@ -61,6 +63,7 @@ import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTransferAgentList } from '../composables/useTransferAgentList';
 import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../constants/transferAgentStatusColors';
+import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../constants/transferAgentStatusLabelKeys';
 import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 
@@ -97,6 +100,10 @@ function getBadgeColorVariable(
 	status?: TransferAgentStatus,
 ): string | undefined {
 	return status && TRANSFER_AGENT_BADGE_COLOR_VARIABLES[status];
+}
+
+function getStatusLabel(status?: TransferAgentStatus): string {
+	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
 }
 
 function getRowClass(row: TransferAgentRow): string {
