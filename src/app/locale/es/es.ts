@@ -149,6 +149,15 @@ export default {
 					openFullView: 'Abrir vista completa',
 				},
 			},
+			transfer: {
+				title: 'Transferir llamada',
+				phoneLabel: 'Transferir al número',
+				phonePlaceholder: 'Introduzca el número de teléfono',
+				modes: {
+					blind: 'Ciega',
+					consult: 'Con consulta',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sonando',
 				noAnswer: 'Sin respuesta',

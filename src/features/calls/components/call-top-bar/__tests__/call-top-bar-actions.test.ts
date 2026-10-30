@@ -15,6 +15,17 @@ vi.mock('../../../store/calls', () => ({
 	}),
 }));
 
+const openTransferMock = vi.fn();
+
+vi.mock(
+	'../../../../../ui/call/modules/call-transfer/store/callTransferPopup',
+	() => ({
+		useCallTransferPopupStore: () => ({
+			open: (...args: unknown[]) => openTransferMock(...args),
+		}),
+	}),
+);
+
 import CallTopBarActions from '../call-top-bar-actions.vue';
 
 const buildCall = (overrides: Record<string, unknown> = {}): Call =>
@@ -22,6 +33,9 @@ const buildCall = (overrides: Record<string, unknown> = {}): Call =>
 		id: 'call-1',
 		muted: false,
 		isHold: false,
+		answeredAt: 1_700_000_000_000,
+		hangupAt: 0,
+		allowTransfer: true,
 		...overrides,
 	}) as unknown as Call;
 
@@ -53,16 +67,34 @@ describe('call-top-bar-actions', () => {
 		toggleMuteMock.mockClear();
 		toggleHoldMock.mockClear();
 		hangupMock.mockClear();
+		openTransferMock.mockClear();
 	});
 
-	it('holds a place for the actions not built yet, disabled (AC_13.01.03, .05, .07, .08)', () => {
+	it('opens the transfer popup for this call (AC_13.01.08)', async () => {
+		await findAction(mountActions(), 'transfer').trigger('click');
+
+		expect(openTransferMock).toHaveBeenCalledWith('call-1');
+	});
+
+	it('disables transfer when the call cannot be transferred', () => {
+		const wrapper = mountActions(
+			buildCall({
+				allowTransfer: false,
+			}),
+		);
+
+		expect(
+			findAction(wrapper, 'transfer').attributes('disabled'),
+		).toBeDefined();
+	});
+
+	it('holds a place for the actions not built yet, disabled (AC_13.01.03, .05, .07)', () => {
 		const wrapper = mountActions();
 
 		for (const name of [
 			'numpad',
 			'camera',
 			'message',
-			'transfer',
 		]) {
 			expect(findAction(wrapper, name).attributes('disabled')).toBeDefined();
 		}

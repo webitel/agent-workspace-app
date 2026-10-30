@@ -7,6 +7,7 @@ export interface ActiveCallContent {
 	answeredAt: number;
 	isHold: boolean;
 	isMuted: boolean;
+	canTransfer: boolean;
 	/** The DTMF digits the server has confirmed for this call, in order. */
 	dtmfDigits: string;
 }

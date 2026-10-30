@@ -149,6 +149,15 @@ export default {
 					openFullView: 'Deschide vizualizarea completă',
 				},
 			},
+			transfer: {
+				title: 'Transfer apel',
+				phoneLabel: 'Transfer la numărul',
+				phonePlaceholder: 'Introduceți numărul de telefon',
+				modes: {
+					blind: 'Direct',
+					consult: 'Cu consultare',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',

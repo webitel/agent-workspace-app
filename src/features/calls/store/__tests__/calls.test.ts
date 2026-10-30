@@ -1080,6 +1080,63 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('blindTransfer', () => {
+		const buildTransferableCall = (overrides: Partial<Call> = {}): Call =>
+			buildCall({
+				answeredAt: 1_700_000_000_000,
+				hangupAt: 0,
+				allowTransfer: true,
+				blindTransfer: vi.fn().mockResolvedValue({}),
+				...overrides,
+			} as Partial<Call>);
+
+		it('transfers the call to the destination and reports success', async () => {
+			const call = buildTransferableCall();
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.blindTransfer('call-1', '1001')).toBe(true);
+			expect(call.blindTransfer).toHaveBeenCalledWith('1001');
+			expect(mockEmit).not.toHaveBeenCalled();
+		});
+
+		it('notifies and reports failure when the backend refuses', async () => {
+			calls.value = [
+				buildTransferableCall({
+					blindTransfer: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(await store.blindTransfer('call-1', '1001')).toBe(false);
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.transferFailed',
+			});
+		});
+
+		it('does nothing for a call that cannot be transferred', async () => {
+			const call = buildTransferableCall({
+				allowTransfer: false,
+			});
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.blindTransfer('call-1', '1001')).toBe(false);
+			expect(call.blindTransfer).not.toHaveBeenCalled();
+		});
+
+		it('does nothing for an unknown call', async () => {
+			const store = useCallsStore();
+
+			expect(await store.blindTransfer('missing', '1001')).toBe(false);
+		});
+	});
+
 	describe('sendDtmf', () => {
 		it('sends the digit on the call', async () => {
 			const call = buildCall({

@@ -149,6 +149,15 @@ export default {
 					openFullView: 'Otwórz pełny widok',
 				},
 			},
+			transfer: {
+				title: 'Przekieruj połączenie',
+				phoneLabel: 'Przekieruj na numer',
+				phonePlaceholder: 'Wpisz numer telefonu',
+				modes: {
+					blind: 'Bez konsultacji',
+					consult: 'Z konsultacją',
+				},
+			},
 			outboundCall: {
 				ringing: 'Dzwonienie',
 				noAnswer: 'Brak odpowiedzi',

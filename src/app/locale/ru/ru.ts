@@ -149,6 +149,15 @@ export default {
 					openFullView: 'Открыть полный вид',
 				},
 			},
+			transfer: {
+				title: 'Перевод звонка',
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введите номер телефона',
+				modes: {
+					blind: 'Слепой',
+					consult: 'Консультативный',
+				},
+			},
 			outboundCall: {
 				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',

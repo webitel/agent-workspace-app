@@ -111,6 +111,19 @@ answers, the attempt ends and the call carries on in the active-call window.
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
 
+**Blind transfer** — handing an Active call to a destination (a number, a user,
+a queue, a dialplan) without speaking to it first. The agent is out of the call
+the moment it is sent.
+
+**Consult transfer** — handing an Active call to a destination (a number, an
+agent, a queue) after speaking to it first: the original call is put on hold,
+the agent places a **Consult call** to the destination, and then either bridges
+the two or cancels the consult and goes back to the original call.
+
+**Consult call** — the call to the destination of a Consult transfer, placed
+while the original call is on hold. It is a call of its own, not the original;
+once the destination answers it is an Active call like any other.
+
 **Call window** — the central-area card for one call, the call's counterpart of
 the chat window. It hosts the call while it is an **Active call** and stays on
 through the call's **Post-processing** after hangup, until the agent leaves it or

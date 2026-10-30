@@ -56,13 +56,13 @@
 			variant="vertical"
 		/>
 
-		<!-- the transfer flow is WS-95's -->
 		<wt-button
 			:aria-label="t('ui.call.activeCall.actions.transfer')"
 			color="transfer"
 			icon="call-transfer--filled"
 			size="sm"
-			disabled
+			:disabled="!canTransfer"
+			@click="callTransferPopupStore.open(call.id)"
 		/>
 		<wt-button
 			:aria-label="t('ui.call.activeCall.actions.hangup')"
@@ -79,6 +79,8 @@ import { ButtonVariant } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
+import { useCallTransferPopupStore } from '../../../../ui/call/modules/call-transfer/store/callTransferPopup';
+import { canTransferCall } from '../../scripts/canTransferCall';
 import { useCallsStore } from '../../store/calls';
 
 const props = defineProps<{
@@ -87,8 +89,10 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const callsStore = useCallsStore();
+const callTransferPopupStore = useCallTransferPopupStore();
 
 const isMuted = computed(() => Boolean(props.call.muted));
+const canTransfer = computed(() => canTransferCall(props.call));
 
 // wt-button has no pressed state of its own; the dock's actions mark one by
 // filling the button, and the bar follows suit

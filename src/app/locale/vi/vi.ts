@@ -149,6 +149,15 @@ export default {
 					openFullView: 'Mở chế độ xem đầy đủ',
 				},
 			},
+			transfer: {
+				title: 'Chuyển cuộc gọi',
+				phoneLabel: 'Chuyển đến số',
+				phonePlaceholder: 'Nhập số điện thoại',
+				modes: {
+					blind: 'Chuyển thẳng',
+					consult: 'Chuyển có tham vấn',
+				},
+			},
 			outboundCall: {
 				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',
