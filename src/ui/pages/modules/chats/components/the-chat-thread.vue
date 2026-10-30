@@ -64,12 +64,12 @@ const selfMemberId = computed(() => chatSession.value.selfMemberId);
 
 const snoozedStore = useChatSnoozedStore();
 const previewsStore = useChatPreviewsStore();
-// AC_03.02.01: an active chat offers Snooze after its newest message, and a
-// snoozed one has nothing left to offer
+// AC_03.02.01: an active chat offers Snooze after its newest message, unless
+// it is already snoozed or is not a contact-center chat
 const isSnoozeOffered = computed(
 	() =>
 		props.mode === ChatThreadMode.Active &&
-		!snoozedStore.isSnoozed(threadId.value),
+		snoozedStore.canSnooze(threadId.value),
 );
 
 const chatActions = [
