@@ -80,9 +80,11 @@ export const useChatsStore = defineStore('chats', () => {
 	const newChatsCount = computed(() => 5);
 
 	// The route param threadId equals task.thread.id, so the open chat's SDK task
-	// (carrying its processing form) is looked up by thread id.
+	// (carrying its processing form) is looked up by thread id. An offered chat is
+	// found too, though it is not listed: its window, opened from the offer card,
+	// needs the task for its Accept / Decline.
 	const getTaskByThreadId = (id: string) =>
-		chatTaskList.value?.find((task) => task.thread?.id === id);
+		allChatTasks.value.find((task) => task.thread?.id === id);
 
 	const openChats = ref<OpenChat[]>([]);
 	const mainChat = computed(() =>

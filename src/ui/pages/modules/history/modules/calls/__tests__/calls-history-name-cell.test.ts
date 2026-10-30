@@ -75,16 +75,20 @@ describe('calls-history-name-cell', () => {
 			).toBe('0501112233');
 		});
 
-		it('ignores the contact', () => {
+		it('shows the contact name first', () => {
 			expect(
 				getName({
 					direction: CallDirection.Outbound,
 					contact: {
 						name: 'Contact',
 					},
-					destination: '0501112233',
+					to: {
+						name: '0501112233',
+						number: '0501112233',
+					},
+					destination: '+380501112233',
 				}),
-			).toBe('0501112233');
+			).toBe('Contact');
 		});
 	});
 
@@ -128,15 +132,74 @@ describe('calls-history-name-cell', () => {
 		});
 	});
 
-	it('passes the shown name to the avatar', () => {
-		const wrapper = mountCell({
-			direction: CallDirection.Inbound,
-			from: {
-				name: 'Caller',
-			},
+	describe('avatar', () => {
+		it('shows the letter avatar by the name', () => {
+			const avatar = mountCell({
+				direction: CallDirection.Inbound,
+				from: {
+					name: 'Caller',
+					number: '380501112233',
+				},
+			}).find('.avatar');
+
+			expect(avatar.text()).toBe('Caller');
+			expect(avatar.attributes('data-src')).toBeUndefined();
 		});
 
-		expect(wrapper.find('.avatar').text()).toBe('Caller');
+		it('shows the unknown contact avatar without the name', () => {
+			const avatar = mountCell({
+				direction: CallDirection.Inbound,
+				from: {
+					number: '380501112233',
+				},
+			}).find('.avatar');
+
+			expect(avatar.text()).toBe('');
+			expect(avatar.attributes('data-src')).toContain(
+				'ws-unknown-contact-avatar',
+			);
+		});
+
+		it.each([
+			[
+				'outbound',
+				{
+					direction: CallDirection.Outbound,
+					to: {
+						name: '0501112233',
+						number: '0501112233',
+					},
+				},
+			],
+			[
+				'inbound',
+				{
+					direction: CallDirection.Inbound,
+					from: {
+						name: '0501112233',
+						number: '0501112233',
+					},
+				},
+			],
+		])('treats the %s counterpart name equal to its number as no name', (_, item) => {
+			const wrapper = mountCell(item);
+
+			expect(wrapper.find('p').text()).toBe('0501112233');
+			expect(wrapper.find('.avatar').text()).toBe('');
+			expect(wrapper.find('.avatar').attributes('data-src')).toContain(
+				'ws-unknown-contact-avatar',
+			);
+		});
+
+		it('prefers the queue avatar over the unknown contact one', () => {
+			const avatar = mountCell({
+				direction: CallDirection.Outbound,
+				queue,
+				destination: '0501112233',
+			}).find('.avatar');
+
+			expect(avatar.attributes('data-src')).toContain('ws-queue-avatar');
+		});
 	});
 
 	it.each([
@@ -179,7 +242,9 @@ describe('calls-history-name-cell', () => {
 		});
 
 		expect(wrapper.classes()).toContain('calls-history-name-cell--queue');
-		expect(wrapper.find('.avatar').attributes('data-src')).toBeTruthy();
+		expect(wrapper.find('.avatar').attributes('data-src')).toContain(
+			'ws-queue-avatar',
+		);
 	});
 
 	it('shows a regular avatar once the queue call is answered', () => {
@@ -187,6 +252,9 @@ describe('calls-history-name-cell', () => {
 			direction: CallDirection.Outbound,
 			queue,
 			bridgedAt: '1790947707140',
+			to: {
+				name: 'John',
+			},
 		});
 
 		expect(wrapper.classes()).not.toContain('calls-history-name-cell--queue');

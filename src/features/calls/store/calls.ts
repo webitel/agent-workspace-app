@@ -91,6 +91,48 @@ export const useCallsStore = defineStore('calls', () => {
 	 * dock (WS-87). Where they were is kept as the call's Return target.
 	 */
 	async function acceptOffer(callId: string) {
+		/**
+		 * @author Oleksandr Palonnyi
+		 * accepting from the offer's own window leaves everything as it is: the
+		 * agent is already where the call opens, and the target taken when they
+		 * opened it stands. Taking one here would make that window its own target
+		 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+		 */
+		if (isOnCallWindow(callId)) {
+			await answer(callId);
+			return;
+		}
+
+		rememberReturnTarget(callId);
+		if (!(await answer(callId))) {
+			returnTargets.delete(callId);
+			return;
+		}
+		openWindowOnceConnected(callId);
+	}
+
+	function isOnCallWindow(callId: string): boolean {
+		const route = router.currentRoute.value;
+		return route.name === 'call-window' && route.params.callId === callId;
+	}
+
+	/**
+	 * Clicking the offer card's body opens the call's window to look at the call
+	 * before answering it (AC_13.08.01); declining there, or the call leaving,
+	 * takes the agent back to where they clicked from.
+	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+	 */
+	function openOfferWindow(callId: string) {
+		rememberReturnTarget(callId);
+		router.push({
+			name: 'call-window',
+			params: {
+				callId,
+			},
+		});
+	}
+
+	function rememberReturnTarget(callId: string) {
 		// a target is only ever taken while its window is open, so one whose call
 		// has gone is never going to be
 		for (const id of returnTargets.keys()) {
@@ -98,11 +140,20 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 
 		returnTargets.set(callId, router.currentRoute.value.fullPath);
-		if (!(await answer(callId))) {
-			returnTargets.delete(callId);
-			return;
-		}
-		openWindowOnceConnected(callId);
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * a target taken by opening the offer's window belongs to that visit: left in
+	 * place after the agent walks away, a pickup elsewhere (desk phone, another tab)
+	 * would later close the call's window onto a screen they were on long ago.
+	 * A connected call keeps its target, it is the one the window gives way to
+	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+	 */
+	function forgetReturnTargetOfUnansweredCall(callId: string) {
+		if (hasCallWindow(getCallById(callId))) return;
+
+		returnTargets.delete(callId);
 	}
 
 	function openWindowOnceConnected(callId: string) {
@@ -292,6 +343,14 @@ export const useCallsStore = defineStore('calls', () => {
 						content: () => toCallOfferContent(call),
 						onAccept: () => acceptOffer(call.id),
 						onDecline: () => hangup(call.id),
+						onBodyClick: () => openOfferWindow(call.id),
+						/**
+						 * @author Oleksandr Palonnyi
+						 * the window carries the same Accept / Decline, so the card would only
+						 * cover its content; it returns when the agent leaves the window
+						 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+						 */
+						isHidden: () => isOnCallWindow(call.id),
 					});
 				}
 			},
@@ -316,6 +375,34 @@ export const useCallsStore = defineStore('calls', () => {
 		);
 	}
 
+	/**
+	 * `PeerStream` alone is not enough. The SDK fires it only for a call whose
+	 * SIP session is already bound, and when the media is up before the call's
+	 * `ringing` binds it (an echo test answers that fast) the stream lands on
+	 * the call with no event at all. Playing whatever stream a live call carries
+	 * covers that path; the event stays, and playback ignores a repeat.
+	 */
+	function subscribeToRemoteAudio() {
+		const callsWithRemoteStream = () =>
+			callList.value.filter(
+				(call) => !call.hangupAt && call.peerStreams?.length > 0,
+			);
+
+		const register = () =>
+			watch(
+				() => callsWithRemoteStream().map((call) => call.peerStreams.at(-1)),
+				() => {
+					for (const call of callsWithRemoteStream()) playRemoteAudio(call);
+				},
+				{
+					immediate: true,
+				},
+			);
+
+		if (storeScope) storeScope.run(register);
+		else register();
+	}
+
 	function onCallEvent(action: CallActions, changedCall: Call) {
 		switch (action) {
 			case CallActions.PeerStream:
@@ -331,6 +418,7 @@ export const useCallsStore = defineStore('calls', () => {
 	function initialize() {
 		const client = getClient();
 		client.subscribeCall(onCallEvent, null);
+		subscribeToRemoteAudio();
 
 		offersStore.initialize();
 		subscribeToCallInProgress();
@@ -350,6 +438,7 @@ export const useCallsStore = defineStore('calls', () => {
 		call,
 		answer,
 		takeReturnTarget,
+		forgetReturnTargetOfUnansweredCall,
 		toggleMute,
 		toggleHold,
 		sendDtmf,

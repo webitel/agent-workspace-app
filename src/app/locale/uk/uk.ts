@@ -20,6 +20,10 @@ export default {
 				active: 'Активні',
 				snoozed: 'Відкладені',
 			},
+			snooze: {
+				action: 'Відкласти',
+				error: 'Не вдалося відкласти чат',
+			},
 		},
 		notifications: {
 			offer: {
@@ -68,6 +72,13 @@ export default {
 					title: 'Виберіть контакт',
 					text: 'Виберіть запис зі списку історії, щоб переглянути дані контакту',
 				},
+				selectOrCreateContact: {
+					title: 'Виберіть контакт або створіть новий',
+					text: 'Виберіть контакт зі списку, щоб переглянути його дані, або створіть новий.',
+				},
+				createContact: 'Створити контакт',
+				addContacts: 'Додати контакти',
+				profile: 'Профіль',
 			},
 		},
 		pages: {
@@ -78,8 +89,10 @@ export default {
 				tabs: {
 					info: 'Інфо',
 					postProcessing: 'Постобробка',
-					interaction: 'Взаємодія',
+					interaction: 'Взаємодії',
+					screenshots: 'Скріншоти',
 					contact: 'Контакт',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -96,6 +109,7 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Закріпити чат',
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
 				},

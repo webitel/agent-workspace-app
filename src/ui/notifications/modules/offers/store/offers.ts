@@ -34,6 +34,16 @@ export const useOffersStore = defineStore('offers', () => {
 	const hasOffers = computed(() => offers.value.length > 0);
 
 	/**
+	 * @author Oleksandr Palonnyi
+	 * the cards on screen: a producer hides its own while the agent is already
+	 * looking at the offer elsewhere, where a card in the corner only covers content
+	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+	 */
+	const visibleOffers = computed(() =>
+		offers.value.filter((offer) => !offer.isHidden?.()),
+	);
+
+	/**
 	 * Set by the calls feature while the agent hears a call. Offer sounds stay
 	 * silent meanwhile: the conversation (or its ringback) is the only sound.
 	 * The card and the OS notification still carry the offer.
@@ -54,6 +64,10 @@ export const useOffersStore = defineStore('offers', () => {
 
 	function find(id: string): Offer | undefined {
 		return offers.value.find((offer) => offer.id === id);
+	}
+
+	function hasOffer(id: string): boolean {
+		return Boolean(find(id));
 	}
 
 	function kindOf(offer: Offer): OfferKind {
@@ -209,6 +223,7 @@ export const useOffersStore = defineStore('offers', () => {
 	return {
 		offers,
 		hasOffers,
+		visibleOffers,
 		isCallInProgress,
 
 		initialize,
@@ -217,6 +232,7 @@ export const useOffersStore = defineStore('offers', () => {
 		dismiss,
 		retainOnly,
 		pendingAction,
+		hasOffer,
 		accept,
 		decline,
 		openBody,

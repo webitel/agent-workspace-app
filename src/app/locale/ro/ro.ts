@@ -20,6 +20,10 @@ export default {
 				active: 'Active',
 				snoozed: 'Amânate',
 			},
+			snooze: {
+				action: 'Amână',
+				error: 'Chatul nu a putut fi amânat',
+			},
 		},
 		notifications: {
 			offer: {
@@ -60,6 +64,13 @@ export default {
 					title: 'Selectați un contact',
 					text: 'Alegeți o înregistrare din lista istoricului pentru a vedea detaliile contactului',
 				},
+				selectOrCreateContact: {
+					title: 'Selectați un contact sau creați unul',
+					text: 'Alegeți un contact din listă pentru a vedea detaliile acestuia sau creați unul nou.',
+				},
+				createContact: 'Creați un contact',
+				addContacts: 'Adăugați contacte',
+				profile: 'Profil',
 			},
 		},
 		pages: {
@@ -70,8 +81,10 @@ export default {
 				tabs: {
 					info: 'Informații',
 					postProcessing: 'Post-procesare',
-					interaction: 'Interacțiune',
+					interaction: 'Interacțiuni',
+					screenshots: 'Capturi de ecran',
 					contact: 'Contact',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -85,6 +98,11 @@ export default {
 					interaction: 'Interacțiune',
 					contact: 'Contact',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Fixează chatul',
+					transfer: 'Transferă chatul',
+					end: 'Încheie chatul',
 				},
 			},
 			history: {

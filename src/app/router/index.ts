@@ -13,6 +13,7 @@ import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-wind
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import { ChatsPageTab } from '../../ui/pages/modules/chats/enums/ChatsPageTab.enum';
 import TheChatsPage from '../../ui/pages/modules/chats/the-chats-page.vue';
+import { ContactsPageTab } from '../../ui/pages/modules/contacts/enums/ContactsPageTab.enum';
 import TheContactsPage from '../../ui/pages/modules/contacts/the-contacts-page.vue';
 import { HistoryPageTab } from '../../ui/pages/modules/history/enums/HistoryPageTab.enum';
 import TheHistoryPage from '../../ui/pages/modules/history/the-history-page.vue';
@@ -89,12 +90,12 @@ const routes: RouteRecordRaw[] = [
 				children: [
 					{
 						path: '',
-						name: 'contacts',
+						name: ContactsPageTab.Contacts,
 						component: NoopRouteComponent,
 					},
 					{
 						path: 'users',
-						name: 'users',
+						name: ContactsPageTab.Users,
 						component: NoopRouteComponent,
 					},
 				],

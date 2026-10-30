@@ -20,6 +20,10 @@ export default {
 				active: 'Aktywne',
 				snoozed: 'Odłożone',
 			},
+			snooze: {
+				action: 'Odłóż',
+				error: 'Nie udało się odłożyć czatu',
+			},
 		},
 		notifications: {
 			offer: {
@@ -60,6 +64,13 @@ export default {
 					title: 'Wybierz kontakt',
 					text: 'Wybierz rekord z listy historii, aby zobaczyć szczegóły kontaktu',
 				},
+				selectOrCreateContact: {
+					title: 'Wybierz kontakt lub utwórz nowy',
+					text: 'Wybierz kontakt z listy, aby zobaczyć jego szczegóły, lub utwórz nowy.',
+				},
+				createContact: 'Utwórz kontakt',
+				addContacts: 'Dodaj kontakty',
+				profile: 'Profil',
 			},
 		},
 		pages: {
@@ -70,8 +81,10 @@ export default {
 				tabs: {
 					info: 'Informacje',
 					postProcessing: 'Przetwarzanie końcowe',
-					interaction: 'Interakcja',
+					interaction: 'Interakcje',
+					screenshots: 'Zrzuty ekranu',
 					contact: 'Kontakt',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -85,6 +98,11 @@ export default {
 					interaction: 'Interakcja',
 					contact: 'Kontakt',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Przypnij czat',
+					transfer: 'Przekieruj czat',
+					end: 'Zakończ czat',
 				},
 			},
 			history: {
