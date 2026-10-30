@@ -21,6 +21,7 @@ import { ChatThread, ChatThreadMode } from '@webitel/ui-chats/v2';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { useUserinfoStore } from '../../../../userinfo/stores/userinfoStore';
 import { findSelfMemberId } from '../../../scripts/findSelfMemberId';
 import { useChatAccountStore } from '../../../store/chat-account';
 import { useClosedChatStore } from '../store/closed-chat';
@@ -28,6 +29,7 @@ import { useClosedChatStore } from '../store/closed-chat';
 const route = useRoute();
 const threadId = computed(() => route.params.threadId as string);
 const accountStore = useChatAccountStore();
+const userinfoStore = useUserinfoStore();
 
 // Resolve reactively so the window rebinds when threadId changes; a destructured
 // storeToRefs would stay pinned to the first chat's store.
@@ -37,7 +39,11 @@ const messages = computed(() => closedChat.value.messages);
 const hasMore = computed(() => closedChat.value.hasMore);
 // the agent's own messages are still told from the client's after they left
 const selfMemberId = computed(() =>
-	findSelfMemberId(thread.value, accountStore.account),
+	findSelfMemberId({
+		thread: thread.value,
+		account: accountStore.account,
+		webitelUserId: userinfoStore.userId,
+	}),
 );
 </script>
 
