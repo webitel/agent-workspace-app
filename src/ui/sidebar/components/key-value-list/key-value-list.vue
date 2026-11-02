@@ -33,17 +33,12 @@
 </template>
 
 <script setup lang="ts">
-export interface KeyValueListItem {
-	/** unique within the list, used as the `v-for` key */
-	id: string;
-	key: string;
-	value: string;
-}
+import type { VariableRow } from '../../../../features/variables/types/Variables.types';
 
 withDefaults(
 	defineProps<{
 		title?: string;
-		items: KeyValueListItem[];
+		items: VariableRow[];
 		/** shown instead of the rows when there are none */
 		emptyText?: string;
 	}>(),
