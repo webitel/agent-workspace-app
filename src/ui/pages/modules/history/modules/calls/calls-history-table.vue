@@ -185,8 +185,11 @@ const onLoading = async () => {
 };
 
 const openContact = ({ contact }: EngineHistoryCall) => {
-	if (contact?.id) selectContact(contact.id);
-	else selectUnknownContact();
+	if (!contact?.id) {
+		selectUnknownContact();
+		return;
+	}
+	selectContact(contact.id);
 };
 
 const openCallInfo = (item: EngineHistoryCall) => {
