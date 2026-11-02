@@ -335,6 +335,44 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the original call goes on hold first, as in cc-workspaces, so the client
+	 * does not hear the agent talk to the colleague. If it cannot be held the
+	 * consult is not placed. A refused consult leaves the original on hold: the
+	 * agent resumes it by hand. The Consult call arrives through the call feed
+	 * as a call of its own, nothing is stored here
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function consultTransferToAgent(
+		callId: string,
+		agentId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const agentNumericId = Number(agentId);
+		if (!canTransferCall(call) || !Number.isInteger(agentNumericId)) {
+			return false;
+		}
+
+		try {
+			if (!call.isHold) await call.hold();
+		} catch (err) {
+			console.warn('[calls] holding the call before a consult failed', err);
+			notifyCallError('holdToggleFailed');
+			return false;
+		}
+
+		try {
+			await call.processTransferAgent(agentNumericId, {
+				disableStun: !getStunEnabled(),
+			});
+			return true;
+		} catch {
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
 	async function sendDtmf(callId: string, digit: string) {
 		const call = getCallById(callId);
 		if (!call?.allowDtmf) return;
@@ -467,6 +505,7 @@ export const useCallsStore = defineStore('calls', () => {
 		toggleMute,
 		toggleHold,
 		blindTransfer,
+		consultTransferToAgent,
 		sendDtmf,
 		hangup,
 	};
