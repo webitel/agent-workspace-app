@@ -13,15 +13,19 @@ const callState = reactive({
 });
 
 const blindTransferMock = vi.fn();
+const consultTransferToAgentMock = vi.fn();
 
 vi.mock('../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({
 		getCallById: () => callState.call,
 		blindTransfer: (...args: unknown[]) => blindTransferMock(...args),
+		consultTransferToAgent: (...args: unknown[]) =>
+			consultTransferToAgentMock(...args),
 	}),
 }));
 
 import { useCallTransferPopupStore } from '../../store/callTransferPopup';
+import CallTransferAgentsTable from '../call-transfer-agents-table.vue';
 import CallTransferPopup from '../call-transfer-popup.vue';
 
 const stubs = {
@@ -105,6 +109,8 @@ describe('call-transfer-popup', () => {
 	beforeEach(() => {
 		blindTransferMock.mockReset();
 		blindTransferMock.mockResolvedValue(true);
+		consultTransferToAgentMock.mockReset();
+		consultTransferToAgentMock.mockResolvedValue(true);
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -205,6 +211,60 @@ describe('call-transfer-popup', () => {
 			mode: 'consult',
 		});
 		expect(blindTransferMock).not.toHaveBeenCalled();
+		expect(consultTransferToAgentMock).not.toHaveBeenCalled();
+	});
+
+	describe('consult to a selected agent', () => {
+		const selectAgent = async (wrapper: Wrapper, agentId: string) => {
+			wrapper
+				.findComponent(CallTransferAgentsTable)
+				.vm.$emit('update:selectedRowId', agentId);
+			await flushPromises();
+		};
+
+		it('consults the agent of the selected row and closes the popup', async () => {
+			const wrapper = mountPopup();
+			await selectAgent(wrapper, '42');
+
+			await bottomButtons(wrapper)[1].trigger('click');
+			await flushPromises();
+
+			expect(consultTransferToAgentMock).toHaveBeenCalledWith('call-1', '42');
+			expect(wrapper.emitted('transfer')).toBeUndefined();
+			expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(false);
+		});
+
+		it('stays open with the selection when the consult is refused', async () => {
+			consultTransferToAgentMock.mockResolvedValue(false);
+			const wrapper = mountPopup();
+			await selectAgent(wrapper, '42');
+
+			await bottomButtons(wrapper)[1].trigger('click');
+			await flushPromises();
+
+			expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(true);
+			expect(isDisabled(bottomButtons(wrapper)[1])).toBe(false);
+		});
+
+		it('locks the buttons while the consult is in flight', async () => {
+			let finishConsult: (isPlaced: boolean) => void = () => {};
+			consultTransferToAgentMock.mockReturnValue(
+				new Promise<boolean>((resolve) => {
+					finishConsult = resolve;
+				}),
+			);
+			const wrapper = mountPopup();
+			await selectAgent(wrapper, '42');
+
+			await bottomButtons(wrapper)[1].trigger('click');
+
+			expect(isDisabled(bottomButtons(wrapper)[1])).toBe(true);
+
+			finishConsult(false);
+			await flushPromises();
+
+			expect(isDisabled(bottomButtons(wrapper)[1])).toBe(false);
+		});
 	});
 
 	it('keeps the typed number and clears the search when the tab changes', async () => {
