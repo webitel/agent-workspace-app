@@ -30,6 +30,7 @@ export default {
 				title: {
 					call: 'Incoming call request',
 					chat: 'Incoming chat request',
+					task: 'Incoming task request',
 				},
 				unknownContact: 'Unknown contact',
 				queue: 'Queue',

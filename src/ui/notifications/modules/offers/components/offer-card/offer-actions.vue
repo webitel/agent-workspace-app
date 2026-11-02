@@ -51,10 +51,20 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const isChat = computed(() => kind === OfferKind.Chat);
+const ACCEPT_ICONS: Record<OfferKind, string> = {
+	[OfferKind.Call]: 'call',
+	[OfferKind.Chat]: 'chat',
+	[OfferKind.Task]: 'job--accept',
+};
 
-const acceptIcon = computed(() => (isChat.value ? 'chat' : 'call'));
-const declineIcon = computed(() => (isChat.value ? 'chat-end' : 'call-end'));
+const DECLINE_ICONS: Record<OfferKind, string> = {
+	[OfferKind.Call]: 'call-end',
+	[OfferKind.Chat]: 'chat-end',
+	[OfferKind.Task]: 'job--end',
+};
+
+const acceptIcon = computed(() => ACCEPT_ICONS[kind]);
+const declineIcon = computed(() => DECLINE_ICONS[kind]);
 </script>
 
 <style scoped>

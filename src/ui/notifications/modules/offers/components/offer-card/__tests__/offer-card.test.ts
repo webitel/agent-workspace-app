@@ -61,6 +61,26 @@ describe('offer-card', () => {
 		);
 	});
 
+	// the task mock has no avatar, so it swaps the identity block, not just its data
+	it('renders a task offer through the task identity, with its queue line', () => {
+		const wrapper = mountCard({
+			content: buildContent({
+				kind: OfferKind.Task,
+				destination: 'Callback request',
+				source: {
+					label: 'Queue',
+					value: 'Support',
+				},
+			}),
+		});
+
+		expect(wrapper.find('.offer-task-identity').text()).toContain(
+			'Callback request',
+		);
+		expect(wrapper.find('.offer-identity').exists()).toBe(false);
+		expect(wrapper.find('.offer-card__queue').text()).toContain('Support');
+	});
+
 	it('shows the last message only when the channel has one', () => {
 		expect(mountCard().find('.offer-last-message').exists()).toBe(false);
 

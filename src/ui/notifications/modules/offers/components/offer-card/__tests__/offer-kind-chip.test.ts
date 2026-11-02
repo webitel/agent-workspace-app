@@ -14,6 +14,10 @@ describe('offer-kind-chip', () => {
 			OfferKind.Chat,
 			'ui.notifications.offer.title.chat',
 		],
+		[
+			OfferKind.Task,
+			'ui.notifications.offer.title.task',
+		],
 	])('names the channel being offered: %s', (kind, key) => {
 		const wrapper = mount(OfferKindChip, {
 			props: {

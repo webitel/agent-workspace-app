@@ -10,6 +10,7 @@ import type { MaybeRefOrGetter } from 'vue';
 export const OfferKind = {
 	Call: 'call',
 	Chat: 'chat',
+	Task: 'task',
 } as const;
 
 export type OfferKind = (typeof OfferKind)[keyof typeof OfferKind];
@@ -25,7 +26,7 @@ export interface OfferSource {
 
 export interface OfferCardContent {
 	kind: OfferKind;
-	/** Contact/member/schema name. Undefined renders as "Unknown contact" + N/A avatar. */
+	/** Contact/member/schema name (task: queue member name). Undefined renders as "Unknown contact" + N/A avatar. */
 	name?: string;
 	/**
 	 * How many *further* contacts matched, beyond the one named above. Contact
@@ -42,6 +43,8 @@ export interface OfferCardContent {
 	source?: OfferSource;
 	/** Last customer message — chats only. */
 	body?: string;
+	/** Queue member destination — tasks only. */
+	destination?: string;
 	/**
 	 * Epoch ms the customer started waiting; the timer ticks from this. Optional
 	 * because not every channel can supply one: chat tasks expose no queue-entry

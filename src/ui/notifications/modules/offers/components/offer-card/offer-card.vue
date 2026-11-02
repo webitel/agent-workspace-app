@@ -10,7 +10,13 @@
         >
             <offer-kind-chip :kind="content.kind" />
 
+            <offer-task-identity
+                v-if="isTask"
+                :name="content.name"
+                :destination="content.destination"
+            />
             <offer-identity
+                v-else
                 :name="content.name"
                 :additional-contacts="content.additionalContacts"
                 :identifier="content.identifier"
@@ -64,6 +70,7 @@ import OfferIdentity from './offer-identity.vue';
 import OfferKindChip from './offer-kind-chip.vue';
 import OfferLastMessage from './offer-last-message.vue';
 import OfferSourceLine from './offer-source-line.vue';
+import OfferTaskIdentity from './offer-task-identity.vue';
 import OfferWaitingTime from './offer-waiting-time.vue';
 
 /**
@@ -89,6 +96,8 @@ const emit = defineEmits<{
 }>();
 
 const isChat = computed(() => content.kind === OfferKind.Chat);
+
+const isTask = computed(() => content.kind === OfferKind.Task);
 
 /** Chats name their gateway inside the identity block, beside the username. */
 const channelSource = computed(() =>
