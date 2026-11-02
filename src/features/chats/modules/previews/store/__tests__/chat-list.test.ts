@@ -2,14 +2,16 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
 
-const chatTaskList = ref<
-	{
-		id: number;
-		thread?: {
-			id: string;
-		};
-	}[]
->([]);
+type FakeTask = {
+	id: number;
+	displayName?: string;
+	displayNumber?: string;
+	thread?: {
+		id: string;
+	};
+};
+
+const chatTaskList = ref<FakeTask[]>([]);
 vi.mock('../../../../store/chats', () => ({
 	useChatsStore: () => ({
 		get chatTaskList() {
@@ -25,11 +27,7 @@ vi.mock('../chat-previews', () => ({
 	}),
 }));
 
-const activeTasks = ref<
-	{
-		id: number;
-	}[]
->([]);
+const activeTasks = ref<FakeTask[]>([]);
 const activeUnreadCount = ref(0);
 vi.mock('../chat-active', () => ({
 	useChatActiveStore: () => ({
@@ -45,11 +43,7 @@ vi.mock('../chat-active', () => ({
 	}),
 }));
 
-const snoozedTasks = ref<
-	{
-		id: number;
-	}[]
->([]);
+const snoozedTasks = ref<FakeTask[]>([]);
 vi.mock('../chat-snoozed', () => ({
 	useChatSnoozedStore: () => ({
 		get tasks() {
@@ -65,18 +59,21 @@ import { ChatListTab } from '../../enums/ChatListTab.enum';
 import { useChatListStore } from '../chat-list';
 
 // `null`, not `undefined`: passing undefined would re-apply the default
-const buildChats = (count: number, firstId = 1) =>
+const buildChats = (count: number, firstId = 1): FakeTask[] =>
 	Array.from(
 		{
 			length: count,
 		},
 		(_, index) => ({
 			id: firstId + index,
+			displayName: `Client ${firstId + index}`,
 			thread: {
 				id: `t${firstId + index}`,
 			},
 		}),
 	);
+
+const idsOf = (tasks: FakeTask[]) => tasks.map((task) => task.id);
 
 describe('chat-list store', () => {
 	beforeEach(() => {
@@ -140,75 +137,114 @@ describe('chat-list store', () => {
 
 	describe('tabs', () => {
 		it('opens on the Active tab', () => {
-			const store = useChatListStore();
-
-			expect(store.currentTab).toBe(ChatListTab.Active);
+			expect(useChatListStore().currentTab).toBe(ChatListTab.Active);
 		});
 
 		it('shows the active chats on the Active tab', () => {
-			activeTasks.value = [
-				{
-					id: 1,
-				},
-				{
-					id: 2,
-				},
-			];
-			snoozedTasks.value = [
-				{
-					id: 9,
-				},
-			];
+			activeTasks.value = buildChats(2);
+			snoozedTasks.value = buildChats(1, 9);
 			const store = useChatListStore();
 
-			expect(store.currentTasks.map((task) => task.id)).toEqual([
+			expect(idsOf(store.currentTasks)).toEqual([
 				1,
 				2,
 			]);
 		});
 
 		it('shows the snoozed chats on the Snoozed tab', () => {
-			activeTasks.value = [
-				{
-					id: 1,
-				},
-			];
-			snoozedTasks.value = [
-				{
-					id: 9,
-				},
-			];
+			activeTasks.value = buildChats(1);
+			snoozedTasks.value = buildChats(1, 9);
 			const store = useChatListStore();
 
 			store.setTab(ChatListTab.Snoozed);
 
-			expect(store.currentTasks.map((task) => task.id)).toEqual([
+			expect(idsOf(store.currentTasks)).toEqual([
 				9,
 			]);
 		});
 	});
 
-	describe('tab indicators', () => {
-		it('counts the chats of each tab', () => {
+	describe('search', () => {
+		beforeEach(() => {
 			activeTasks.value = [
 				{
 					id: 1,
+					displayName: 'Jane Doe',
+					displayNumber: '@jane',
 				},
 				{
 					id: 2,
-				},
-				{
-					id: 3,
+					displayName: 'John Smith',
+					displayNumber: '@john',
 				},
 			];
 			snoozedTasks.value = [
 				{
 					id: 9,
-				},
-				{
-					id: 10,
+					displayName: 'Janet Smith',
 				},
 			];
+		});
+
+		it('narrows the tab to the chats whose client matches', () => {
+			const store = useChatListStore();
+
+			store.setQuery('jane');
+
+			expect(idsOf(store.currentTasks)).toEqual([
+				1,
+			]);
+		});
+
+		it('trims what was typed', () => {
+			const store = useChatListStore();
+
+			store.setQuery('  john ');
+
+			expect(store.query).toBe('john');
+			expect(idsOf(store.currentTasks)).toEqual([
+				2,
+			]);
+		});
+
+		it('searches the Snoozed tab too', () => {
+			const store = useChatListStore();
+			store.setTab(ChatListTab.Snoozed);
+
+			store.setQuery('janet');
+
+			expect(idsOf(store.currentTasks)).toEqual([
+				9,
+			]);
+		});
+
+		it('lists the whole tab again once the search is cleared', () => {
+			const store = useChatListStore();
+			store.setQuery('jane');
+
+			store.setQuery('');
+
+			expect(idsOf(store.currentTasks)).toEqual([
+				1,
+				2,
+			]);
+		});
+
+		// the indicator is the tab's chat count, not what the search leaves of it
+		it('does not change the tab indicators', () => {
+			const store = useChatListStore();
+
+			store.setQuery('jane');
+
+			expect(store.activeCount).toBe(2);
+			expect(store.snoozedCount).toBe(1);
+		});
+	});
+
+	describe('tab indicators', () => {
+		it('counts the chats of each tab', () => {
+			activeTasks.value = buildChats(3);
+			snoozedTasks.value = buildChats(2, 9);
 			const store = useChatListStore();
 
 			expect(store.activeCount).toBe(3);

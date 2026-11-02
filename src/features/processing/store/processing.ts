@@ -1,9 +1,9 @@
 import { eventBus } from '@webitel/ui-sdk/scripts';
-import { defineStore, getActivePinia } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { JobState, type Task } from 'webitel-sdk';
 
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
+import { defineKeyedStore } from '../../../app/scripts/defineKeyedStore';
 
 import type {
 	FormBodyElement,
@@ -17,15 +17,6 @@ import { initFormValues } from '../utils/initFormValues';
 
 type AttemptId = Task['id'];
 
-const storeId = (attemptId: AttemptId) => `processing:${attemptId}`;
-
-// Same caching as chat-session: repeated useProcessingStore(task) calls reuse
-// one defineStore wrapper instead of minting a fresh one each time.
-const storeDefinitions = new Map<
-	string,
-	ReturnType<typeof createStoreDefinition>
->();
-
 function notifyError(err: unknown) {
 	eventBus.$emit('notification', {
 		type: 'error',
@@ -35,8 +26,9 @@ function notifyError(err: unknown) {
 
 // See ADR-0004: field values live on the SDK form; this store only holds what
 // the SDK does not model, for exactly one task attempt.
-function createStoreDefinition(task: Task) {
-	return defineStore(storeId(task.id), () => {
+const processingStores = defineKeyedStore(
+	'processing',
+	(_id: AttemptId, task: Task) => {
 		// the action in flight; every action is locked while one is
 		const submittingActionId = ref<string | null>(null);
 		const isSubmitting = computed(() => submittingActionId.value !== null);
@@ -155,31 +147,17 @@ function createStoreDefinition(task: Task) {
 			tableAction,
 			renew,
 		};
-	});
-}
+	},
+);
 
 // One store per task attempt, for any channel: created by whoever renders the
 // attempt, disposed by `watchProcessingDisposal`; components only read it.
 export function useProcessingStore(task: Task) {
-	const id = storeId(task.id);
-	let useStore = storeDefinitions.get(id);
-	if (!useStore) {
-		useStore = createStoreDefinition(task);
-		storeDefinitions.set(id, useStore);
-	}
-	return useStore();
+	return processingStores.use(task.id, task);
 }
 
-// $dispose() leaves a setup store's state in pinia.state.value — delete it too,
-// and drop the cached definition so an id is never served a stale wrapper.
 export function disposeProcessing(attemptId: AttemptId) {
-	const id = storeId(attemptId);
-	const useStore = storeDefinitions.get(id);
-	if (!useStore) return;
-	useStore().$dispose();
-	const pinia = getActivePinia();
-	if (pinia) delete pinia.state.value[id];
-	storeDefinitions.delete(id);
+	processingStores.dispose(attemptId);
 }
 
 /**

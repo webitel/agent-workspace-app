@@ -47,6 +47,7 @@ export default {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
 			startedAt: 'Початок',
+			endedAt: 'Завершено',
 			username: "Ім'я користувача",
 			message: 'Повідомлення',
 			phoneNumber: 'Номер телефону',
@@ -97,6 +98,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Активні',
+					closed: 'Закриті',
 				},
 				tabs: {
 					chat: 'Чат',
@@ -110,6 +112,13 @@ export default {
 					pin: 'Закріпити чат',
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
+				},
+				closed: {
+					notFound: 'Чат не знайдено',
+					loadError: 'Не вдалося завантажити чат',
+					retry: 'Спробувати ще раз',
+					taskVariablesUnavailable:
+						'Змінні контакт-центру для закритих чатів недоступні',
 				},
 			},
 			history: {

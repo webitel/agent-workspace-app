@@ -2,7 +2,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { flushPromises } from '@vue/test-utils';
 import { setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 /**
  * The chat session and chat previews stores, driven together through the chats
@@ -119,6 +119,8 @@ const reportReconnected = () =>
 // --- app singletons ----------------------------------------------------------
 
 const tasks = ref<unknown[]>([]);
+// the agent session is loaded, so the task feed counts as ready
+const agent = ref<object | undefined>({});
 
 vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 	useWebSocketClient: () => ({
@@ -126,6 +128,7 @@ vi.mock('../../../../app/api/socket/composables/useWebSocketClient', () => ({
 			subscribeTask: vi.fn(),
 		}),
 		tasks,
+		isTaskFeedReady: computed(() => agent.value !== undefined),
 	}),
 }));
 
@@ -182,6 +185,7 @@ describe('chat session and chat previews, together', () => {
 		setActivePinia(pinia);
 		vi.clearAllMocks();
 		tasks.value = [];
+		agent.value = {};
 		histories.clear();
 		olderPages.clear();
 		holdSessionHistory = null;
@@ -327,7 +331,9 @@ describe('chat session and chat previews, together', () => {
 			expect(pinia.state.value['chat-variables:t1']).toBeUndefined();
 		});
 
+		// opened before the feed was ready, so it could still have turned out active
 		it('disposes a deep-linked chat that was never listed when its window closes', async () => {
+			agent.value = undefined;
 			const chats = useChatsStore();
 			chats.initialize();
 			chats.openChat('t9');

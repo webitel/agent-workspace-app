@@ -47,6 +47,7 @@ export default {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
 			startedAt: 'Started at',
+			endedAt: 'Ended at',
 			username: 'Username',
 			message: 'Message',
 			phoneNumber: 'Phone number',
@@ -97,6 +98,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Active',
+					closed: 'Closed',
 				},
 				tabs: {
 					chat: 'Chat',
@@ -110,6 +112,13 @@ export default {
 					pin: 'Pin chat',
 					transfer: 'Transfer chat',
 					end: 'End chat',
+				},
+				closed: {
+					notFound: 'Chat not found',
+					loadError: "Couldn't load the chat",
+					retry: 'Try again',
+					taskVariablesUnavailable:
+						'Contact center variables are not available for closed chats',
 				},
 			},
 			history: {
