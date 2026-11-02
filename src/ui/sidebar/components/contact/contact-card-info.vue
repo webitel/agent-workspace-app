@@ -21,9 +21,8 @@ import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import KeyValueList, {
-	type KeyValueListItem,
-} from '../key-value-list/key-value-list.vue';
+import type { VariableRow } from '../../../../features/variables/types/Variables.types';
+import KeyValueList from '../key-value-list/key-value-list.vue';
 import { toContactInfo } from './scripts/toContactInfo';
 
 const props = defineProps<{
@@ -34,7 +33,7 @@ const { t } = useI18n();
 
 const info = computed(() => toContactInfo(props.contact));
 
-const infoItems = computed<KeyValueListItem[]>(() => [
+const infoItems = computed<VariableRow[]>(() => [
 	{
 		id: 'timezone',
 		key: t('date.timezone'),
@@ -60,6 +59,7 @@ const infoItems = computed<KeyValueListItem[]>(() => [
 	gap: var(--spacing-xs);
 }
 
+/* TODO: temporary value until the designer provides a token for the attributes block height */
 .contact-card-info__attributes {
 	max-height: 120px;
 }
