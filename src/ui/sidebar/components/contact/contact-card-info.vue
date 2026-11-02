@@ -58,9 +58,4 @@ const infoItems = computed<VariableRow[]>(() => [
 	flex-direction: column;
 	gap: var(--spacing-xs);
 }
-
-/* TODO: temporary value until the designer provides a token for the attributes block height */
-.contact-card-info__attributes {
-	max-height: 120px;
-}
 </style>
