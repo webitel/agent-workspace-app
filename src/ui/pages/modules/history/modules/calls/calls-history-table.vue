@@ -17,7 +17,10 @@
 			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
-				<calls-history-name-cell :item="item" />
+				<calls-history-name-cell
+					:item="item"
+					@click="openContact(item)"
+				/>
 			</template>
 
 			<template #createdAt="{ item }">
@@ -122,6 +125,7 @@ import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useThemedImage } from '../../../../../../app/composables/useThemedImage';
+import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import PhoneCallTableCell from '../../../../components/phone-call-table-cell.vue';
 import CallsHistoryInfoPopup from './calls-history-info-popup.vue';
 import CallsHistoryNameCell from './calls-history-name-cell.vue';
@@ -145,6 +149,8 @@ const {
 } = store;
 const { dataList, shownHeaders, next, isLoading, filtersManager } =
 	storeToRefs(store);
+
+const { selectContact, selectUnknownContact } = useSidebarSelectionStore();
 
 const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 	usePlayCallRecording();
@@ -176,6 +182,11 @@ const variableHeaders = computed(() =>
 const onLoading = async () => {
 	if (isInitializing.value || isLoading.value || !next.value) return;
 	await appendToDataList();
+};
+
+const openContact = ({ contact }: EngineHistoryCall) => {
+	if (contact?.id) selectContact(contact.id);
+	else selectUnknownContact();
 };
 
 const openCallInfo = (item: EngineHistoryCall) => {

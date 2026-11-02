@@ -1,9 +1,11 @@
 <template>
-	<div
+	<button
 		:class="{
 			'calls-history-name-cell--queue': isUnansweredQueueCall,
 		}"
 		class="calls-history-name-cell"
+		type="button"
+		@click="emit('click')"
 	>
 		<wt-avatar
 			:src="avatarSrc"
@@ -11,8 +13,8 @@
 			size="sm"
 		/>
 		<wt-icon :icon="callIcon.icon" size="sm" :color="callIcon.color" />
-		<p>{{ displayName }}</p>
-	</div>
+		<span class="calls-history-name-cell__name">{{ displayName }}</span>
+	</button>
 </template>
 
 <script setup lang="ts">
@@ -29,6 +31,10 @@ import { isUnansweredQueueCall as checkUnansweredQueueCall } from './scripts/isU
 
 const props = defineProps<{
 	item: EngineHistoryCall;
+}>();
+
+const emit = defineEmits<{
+	click: [];
 }>();
 
 // backend fills `name` with the number itself when there is no member/schema name
@@ -85,9 +91,11 @@ const avatarSrc = computed(() => {
 	align-items: center;
 	gap: var(--spacing-xs);
 	width: 0;
+	text-align: start;
+	cursor: pointer;
 }
 
-.calls-history-name-cell p {
+.calls-history-name-cell__name {
 	flex-grow: 1;
 	width: 0;
 	overflow: hidden;
@@ -99,7 +107,7 @@ const avatarSrc = computed(() => {
 	flex-shrink: 0;
 }
 
-.calls-history-name-cell--queue p {
+.calls-history-name-cell--queue .calls-history-name-cell__name {
 	color: var(--wt-ws-avatar-colors-unknown-user-color);
 }
 </style>

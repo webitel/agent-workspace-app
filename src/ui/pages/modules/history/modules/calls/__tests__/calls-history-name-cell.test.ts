@@ -37,7 +37,8 @@ const mountCell = (item: EngineHistoryCall) =>
 		},
 	});
 
-const getName = (item: EngineHistoryCall) => mountCell(item).find('p').text();
+const getName = (item: EngineHistoryCall) =>
+	mountCell(item).find('.calls-history-name-cell__name').text();
 
 describe('calls-history-name-cell', () => {
 	describe('outbound call name', () => {
@@ -184,7 +185,9 @@ describe('calls-history-name-cell', () => {
 		])('treats the %s counterpart name equal to its number as no name', (_, item) => {
 			const wrapper = mountCell(item);
 
-			expect(wrapper.find('p').text()).toBe('0501112233');
+			expect(wrapper.find('.calls-history-name-cell__name').text()).toBe(
+				'0501112233',
+			);
 			expect(wrapper.find('.avatar').text()).toBe('');
 			expect(wrapper.find('.avatar').attributes('data-src')).toContain(
 				'ws-unknown-contact-avatar',
@@ -259,5 +262,15 @@ describe('calls-history-name-cell', () => {
 
 		expect(wrapper.classes()).not.toContain('calls-history-name-cell--queue');
 		expect(wrapper.find('.avatar').attributes('data-src')).toBeUndefined();
+	});
+
+	it('emits click when the cell is clicked', async () => {
+		const wrapper = mountCell({
+			direction: CallDirection.Inbound,
+		});
+
+		await wrapper.trigger('click');
+
+		expect(wrapper.emitted('click')).toHaveLength(1);
 	});
 });
