@@ -31,6 +31,12 @@ function toVariablesMap(
 	);
 }
 
+/**
+ * Maps a contact onto the card's Info block. Timezone and owner are taken
+ * from the first entry, the same way webitel/crm shows them: CRM edits them
+ * with a single select that overwrites the list with one entry and never
+ * sets `primary`, so `primary` can't be relied on here.
+ */
 export function toContactInfo(contact: WebitelContactsContact): ContactInfo {
 	return {
 		timezone: contact.timezones?.data?.[0]?.timezone?.name ?? '',
