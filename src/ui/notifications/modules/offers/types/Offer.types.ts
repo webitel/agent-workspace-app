@@ -1,10 +1,10 @@
 import type { MaybeRefOrGetter } from 'vue';
 
 /**
- * Channel-neutral contract between the domain stores (calls, chats) and this
+ * Channel-neutral contract between the domain stores (calls, chats, tasks) and this
  * module. Producers map their SDK objects onto it; nothing here knows about
  * `webitel-sdk` or `@webitel/chat-web-sdk`, which is what keeps the offer card
- * shared between WS-32 (call offer) and WS-19 (chat offer).
+ * shared between WS-32 (call offer), WS-19 (chat offer) and the task offer.
  */
 
 export const OfferKind = {
@@ -26,7 +26,7 @@ export interface OfferSource {
 
 export interface OfferCardContent {
 	kind: OfferKind;
-	/** Contact/member/schema name (task: queue member name). Undefined renders as "Unknown contact" + N/A avatar. */
+	/** Contact/member/schema name (task: queue member name). Undefined renders as "Unknown contact" + N/A avatar (no avatar for tasks). */
 	name?: string;
 	/**
 	 * How many *further* contacts matched, beyond the one named above. Contact
@@ -37,14 +37,12 @@ export interface OfferCardContent {
 	 * WS-16. Absent renders no chip, which reads the same as "exactly one match".
 	 */
 	additionalContacts?: number;
-	/** Masked phone number (calls) or username (chats). */
+	/** Masked phone number (calls), username (chats) or member destination (tasks). */
 	identifier?: string;
-	/** Queue name (calls) or gateway name (chats). */
+	/** Queue name (calls, tasks) or gateway name (chats). */
 	source?: OfferSource;
 	/** Last customer message — chats only. */
 	body?: string;
-	/** Queue member destination — tasks only. */
-	destination?: string;
 	/**
 	 * Epoch ms the customer started waiting; the timer ticks from this. Optional
 	 * because not every channel can supply one: chat tasks expose no queue-entry

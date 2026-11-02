@@ -1,6 +1,7 @@
 <template>
     <div class="offer-identity">
         <wt-avatar
+            v-if="!hideAvatar"
             :username="name"
             size="lg"
         />
@@ -43,14 +44,16 @@ import OfferSourceLine from './offer-source-line.vue';
 
 /**
  * Who is calling or writing. Channel-neutral: `identifier` is a masked phone
- * number for calls and a username for chats, and `channel` is only ever passed
- * for chats, which name their gateway beside the contact.
+ * number for calls, a username for chats and the member's destination for
+ * tasks, and `channel` is only ever passed for chats, which name their gateway
+ * beside the contact.
  */
 defineProps<{
 	name?: string;
 	additionalContacts?: number;
 	identifier?: string;
 	channel?: OfferSource;
+	hideAvatar?: boolean;
 }>();
 
 const { t } = useI18n();

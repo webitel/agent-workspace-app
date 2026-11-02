@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { WtAvatar } from '@webitel/ui-sdk/components';
 import { describe, expect, it } from 'vitest';
 
 import { type OfferCardContent, OfferKind } from '../../../types/Offer.types';
@@ -61,12 +62,12 @@ describe('offer-card', () => {
 		);
 	});
 
-	// the task mock has no avatar, so it swaps the identity block, not just its data
-	it('renders a task offer through the task identity, with its queue line', () => {
+	// a task names its destination where a call shows the number, with no avatar
+	it('renders a task offer without an avatar, with its queue line', () => {
 		const wrapper = mountCard({
 			content: buildContent({
 				kind: OfferKind.Task,
-				destination: 'Callback request',
+				identifier: 'Callback request',
 				source: {
 					label: 'Queue',
 					value: 'Support',
@@ -74,11 +75,15 @@ describe('offer-card', () => {
 			}),
 		});
 
-		expect(wrapper.find('.offer-task-identity').text()).toContain(
+		expect(wrapper.find('.offer-identity__identifier').text()).toBe(
 			'Callback request',
 		);
-		expect(wrapper.find('.offer-identity').exists()).toBe(false);
+		expect(wrapper.findComponent(WtAvatar).exists()).toBe(false);
 		expect(wrapper.find('.offer-card__queue').text()).toContain('Support');
+	});
+
+	it('keeps the avatar for a call offer', () => {
+		expect(mountCard().findComponent(WtAvatar).exists()).toBe(true);
 	});
 
 	it('shows the last message only when the channel has one', () => {

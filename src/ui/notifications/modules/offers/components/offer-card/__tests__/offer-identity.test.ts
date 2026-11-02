@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { WtAvatar } from '@webitel/ui-sdk/components';
 import { describe, expect, it } from 'vitest';
 
 import OfferIdentity from '../offer-identity.vue';
@@ -68,6 +69,27 @@ describe('offer-identity', () => {
 		});
 
 		expect(wrapper.find('.offer-source-line').text()).toContain('Telegram');
+	});
+
+	// the task offer mock shows no avatar
+	it.each([
+		[
+			false,
+			true,
+		],
+		[
+			true,
+			false,
+		],
+	])('with hideAvatar %s renders the avatar: %s', (hideAvatar, shown) => {
+		const wrapper = mount(OfferIdentity, {
+			props: {
+				name: 'John Smith',
+				hideAvatar,
+			},
+		});
+
+		expect(wrapper.findComponent(WtAvatar).exists()).toBe(shown);
 	});
 
 	it('renders no gateway line for a channel-less offer', () => {

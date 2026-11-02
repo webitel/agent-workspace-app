@@ -30,6 +30,7 @@ export default {
 				title: {
 					call: 'Вхідний дзвінок',
 					chat: 'Вхідний чат',
+					task: 'Вхідна задача',
 				},
 				unknownContact: 'Невідомий контакт',
 				queue: 'Черга',
