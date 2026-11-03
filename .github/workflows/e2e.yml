@@ -30,13 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # No `cache: npm`: on this runner the cache restore took up to 13 minutes
-      # and the post-job save another 5-7, against ~2 minutes of tests and about
+      # No `actions/setup-node`: the runner image already ships Node, and
+      # `lts/*` now resolves to Node 26, whose binary needs libatomic.so.1 that
+      # this image lacks, so `npm ci` died with exit 127 before any test ran.
+      # Nor `cache: npm` before that: the cache restore took up to 13 minutes and
+      # the post-job save another 5-7, against ~2 minutes of tests and about
       # 10 seconds for a cold `npm ci`, which pushed the job past its timeout.
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-
       - run: npm ci
 
       # Keyed on the installed Playwright version: browser builds are pinned to

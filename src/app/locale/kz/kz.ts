@@ -71,6 +71,10 @@ export default {
 				createContact: 'Контакт жасау',
 				addContacts: 'Контактілерді қосу',
 				profile: 'Профиль',
+				info: 'Ақпарат',
+				groups: 'Топтар',
+				attributes: 'Атрибуттар',
+				noAttributes: 'Пайдаланушы айнымалылары анықталмаған',
 			},
 		},
 		pages: {

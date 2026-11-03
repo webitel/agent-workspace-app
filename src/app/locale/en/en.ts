@@ -79,6 +79,10 @@ export default {
 				createContact: 'Create a contact',
 				addContacts: 'Add contacts',
 				profile: 'Profile',
+				info: 'Info',
+				groups: 'Groups',
+				attributes: 'Attributes',
+				noAttributes: 'No custom variables defined',
 			},
 		},
 		pages: {
