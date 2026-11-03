@@ -10,6 +10,10 @@
 			<wt-divider />
 
 			<contact-card-info :contact="contact" />
+
+			<wt-divider />
+
+			<contact-card-communication :contact="contact" />
 		</div>
 	</div>
 </template>
@@ -17,6 +21,7 @@
 <script setup lang="ts">
 import { toRef } from 'vue';
 import { useContact } from './composables/useContact';
+import ContactCardCommunication from './contact-card-communication.vue';
 import ContactCardHeader from './contact-card-header.vue';
 import ContactCardInfo from './contact-card-info.vue';
 

@@ -75,6 +75,7 @@ export default {
 				groups: 'Guruhlar',
 				attributes: 'Atributlar',
 				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
+				communicationOptions: 'Aloqa usullari',
 			},
 		},
 		pages: {

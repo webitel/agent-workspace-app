@@ -75,6 +75,7 @@ export default {
 				groups: 'Grupy',
 				attributes: 'Atrybuty',
 				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
+				communicationOptions: 'Opcje komunikacji',
 			},
 		},
 		pages: {

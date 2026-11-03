@@ -83,6 +83,7 @@ export default {
 				groups: 'Групи',
 				attributes: 'Атрибути',
 				noAttributes: 'Користувацькі змінні не задано',
+				communicationOptions: "Способи зв'язку",
 			},
 		},
 		pages: {
