@@ -94,6 +94,7 @@ import { getTransferActionAvailability } from '../scripts/getTransferActionAvail
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
 import CallTransferAgentsTable from './call-transfer-agents-table.vue';
+import CallTransferQueuesTable from './call-transfer-queues-table.vue';
 
 const emit = defineEmits<{
 	transfer: [
@@ -135,6 +136,7 @@ const tabs = computed<
 	{
 		value: TransferTab.Queues,
 		text: t('objects.queue.queue', 2),
+		component: CallTransferQueuesTable,
 	},
 	{
 		value: TransferTab.Users,
@@ -206,14 +208,20 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 
 /**
  * @author Oleksandr Palonnyi
- * only a consult to an Agents row is executed so far, the other tabs are later
- * stories and still just emit the request. Unlike a blind transfer the original
+ * only a consult to an Agents row is executed here, a Queues row goes through
+ * requestTransferToQueue, Users and Dialplans are later stories and still just
+ * emit the request. Unlike a blind transfer the original
  * call stays in the list, so the popup is closed here on success instead of
  * waiting for the call to leave
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 async function requestTransferToRow(mode: TransferMode): Promise<void> {
 	if (selectedRowId.value === null) return;
+
+	if (activeTab.value === TransferTab.Queues) {
+		await requestTransferToQueue(mode, selectedRowId.value);
+		return;
+	}
 
 	if (mode === TransferMode.Consult && activeTab.value === TransferTab.Agents) {
 		const { transferCallId } = callTransferPopupStore;
@@ -240,6 +248,38 @@ async function requestTransferToRow(mode: TransferMode): Promise<void> {
 			rowId: selectedRowId.value,
 		},
 	});
+}
+
+/**
+ * @author Oleksandr Palonnyi
+ * a blind transfer to a queue ends the call, so the popup is left open and
+ * closes when the call leaves the list, as for a number; a consult keeps the
+ * original in the list, so the popup is closed here on success. Kept apart from
+ * requestTransferToRow so the Agents branch, still in review, is not touched
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+async function requestTransferToQueue(
+	mode: TransferMode,
+	queueId: string,
+): Promise<void> {
+	const { transferCallId } = callTransferPopupStore;
+	if (isSubmitting.value || transferCallId === null) return;
+
+	isSubmitting.value = true;
+	try {
+		if (mode === TransferMode.Blind) {
+			await callsStore.blindTransferToQueue(transferCallId, queueId);
+			return;
+		}
+
+		const isConsultPlaced = await callsStore.consultTransferToQueue(
+			transferCallId,
+			queueId,
+		);
+		if (isConsultPlaced) callTransferPopupStore.close();
+	} finally {
+		isSubmitting.value = false;
+	}
 }
 
 const isTransferredCallActive = computed(() =>

@@ -13,6 +13,7 @@ import wsNavigationTasks from './ws-navigation-tasks.svg?raw';
 import wsOpenFullView from './ws-open-full-view.svg?raw';
 import wsOutboundCall from './ws-outbound-call.svg?raw';
 import wsPlayVideo from './ws-play-video.svg?raw';
+import wsRobot from './ws-robot.svg?raw';
 import wsSidebarClose from './ws-sidebar-close.svg?raw';
 import wsSidebarOpen from './ws-sidebar-open.svg?raw';
 import wtCallNoAnswer from './wt-call-no-answer.svg?raw';
@@ -35,6 +36,7 @@ const icons = {
 	'ws-chat': wsChat,
 	'wt-call-no-answer': wtCallNoAnswer,
 	'ws-navigation-email': wsNavigationEmail,
+	'ws-robot': wsRobot,
 };
 
 fillIconsRepository({

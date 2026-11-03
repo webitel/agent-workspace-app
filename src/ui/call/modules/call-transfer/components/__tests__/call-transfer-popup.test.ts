@@ -14,6 +14,8 @@ const callState = reactive({
 
 const blindTransferMock = vi.fn();
 const consultTransferToAgentMock = vi.fn();
+const blindTransferToQueueMock = vi.fn();
+const consultTransferToQueueMock = vi.fn();
 
 vi.mock('../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({
@@ -21,15 +23,21 @@ vi.mock('../../../../../../features/calls/store/calls', () => ({
 		blindTransfer: (...args: unknown[]) => blindTransferMock(...args),
 		consultTransferToAgent: (...args: unknown[]) =>
 			consultTransferToAgentMock(...args),
+		blindTransferToQueue: (...args: unknown[]) =>
+			blindTransferToQueueMock(...args),
+		consultTransferToQueue: (...args: unknown[]) =>
+			consultTransferToQueueMock(...args),
 	}),
 }));
 
 import { useCallTransferPopupStore } from '../../store/callTransferPopup';
 import CallTransferAgentsTable from '../call-transfer-agents-table.vue';
 import CallTransferPopup from '../call-transfer-popup.vue';
+import CallTransferQueuesTable from '../call-transfer-queues-table.vue';
 
 const stubs = {
 	CallTransferAgentsTable: true,
+	CallTransferQueuesTable: true,
 	'wt-popup': {
 		emits: [
 			'close',
@@ -111,6 +119,10 @@ describe('call-transfer-popup', () => {
 		blindTransferMock.mockResolvedValue(true);
 		consultTransferToAgentMock.mockReset();
 		consultTransferToAgentMock.mockResolvedValue(true);
+		blindTransferToQueueMock.mockReset();
+		blindTransferToQueueMock.mockResolvedValue(true);
+		consultTransferToQueueMock.mockReset();
+		consultTransferToQueueMock.mockResolvedValue(true);
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -264,6 +276,73 @@ describe('call-transfer-popup', () => {
 			await flushPromises();
 
 			expect(isDisabled(bottomButtons(wrapper)[1])).toBe(false);
+		});
+	});
+
+	describe('transfer to a selected queue', () => {
+		const selectQueue = async (wrapper: Wrapper, queueId: string) => {
+			await wrapper.find('[data-tab="queues"]').trigger('click');
+			wrapper
+				.findComponent(CallTransferQueuesTable)
+				.vm.$emit('update:selectedRowId', queueId);
+			await flushPromises();
+		};
+
+		it('blind-transfers to the queue of the selected row and leaves the popup open', async () => {
+			const wrapper = mountPopup();
+			await selectQueue(wrapper, '7');
+
+			await bottomButtons(wrapper)[0].trigger('click');
+			await flushPromises();
+
+			expect(blindTransferToQueueMock).toHaveBeenCalledWith('call-1', '7');
+			expect(wrapper.emitted('transfer')).toBeUndefined();
+			expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(true);
+		});
+
+		it('consults the queue of the selected row and closes the popup', async () => {
+			const wrapper = mountPopup();
+			await selectQueue(wrapper, '7');
+
+			await bottomButtons(wrapper)[1].trigger('click');
+			await flushPromises();
+
+			expect(consultTransferToQueueMock).toHaveBeenCalledWith('call-1', '7');
+			expect(consultTransferToAgentMock).not.toHaveBeenCalled();
+			expect(wrapper.emitted('transfer')).toBeUndefined();
+			expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(false);
+		});
+
+		it('stays open with the selection when the consult is refused', async () => {
+			consultTransferToQueueMock.mockResolvedValue(false);
+			const wrapper = mountPopup();
+			await selectQueue(wrapper, '7');
+
+			await bottomButtons(wrapper)[1].trigger('click');
+			await flushPromises();
+
+			expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(true);
+			expect(isDisabled(bottomButtons(wrapper)[1])).toBe(false);
+		});
+
+		it('locks the buttons while the transfer is in flight', async () => {
+			let finishTransfer: (isTransferred: boolean) => void = () => {};
+			blindTransferToQueueMock.mockReturnValue(
+				new Promise<boolean>((resolve) => {
+					finishTransfer = resolve;
+				}),
+			);
+			const wrapper = mountPopup();
+			await selectQueue(wrapper, '7');
+
+			await bottomButtons(wrapper)[0].trigger('click');
+
+			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(true);
+
+			finishTransfer(false);
+			await flushPromises();
+
+			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(false);
 		});
 	});
 

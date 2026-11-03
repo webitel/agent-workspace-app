@@ -176,6 +176,7 @@ export default {
 					name: "Ім'я",
 					status: 'Статус',
 					team: 'Команда',
+					description: 'Опис',
 				},
 				phoneLabel: 'Перевести на номер',
 				phonePlaceholder: 'Введіть номер телефону',

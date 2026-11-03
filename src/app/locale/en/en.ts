@@ -176,6 +176,7 @@ export default {
 					name: 'Name',
 					status: 'Status',
 					team: 'Team',
+					description: 'Description',
 				},
 				phoneLabel: 'Transfer to number',
 				phonePlaceholder: 'Enter phone number',
