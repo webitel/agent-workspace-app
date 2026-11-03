@@ -71,6 +71,10 @@ export default {
 				createContact: 'Kontakt yaratish',
 				addContacts: 'Kontaktlarni qoʼshish',
 				profile: 'Profil',
+				info: 'Maʼlumot',
+				groups: 'Guruhlar',
+				attributes: 'Atributlar',
+				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
 			},
 		},
 		pages: {

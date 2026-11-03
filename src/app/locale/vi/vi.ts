@@ -71,6 +71,10 @@ export default {
 				createContact: 'Tạo liên hệ',
 				addContacts: 'Thêm liên hệ',
 				profile: 'Hồ sơ',
+				info: 'Thông tin',
+				groups: 'Nhóm',
+				attributes: 'Thuộc tính',
+				noAttributes: 'Chưa xác định biến tùy chỉnh',
 			},
 		},
 		pages: {

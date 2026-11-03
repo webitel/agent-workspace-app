@@ -71,6 +71,10 @@ export default {
 				createContact: 'Создать контакт',
 				addContacts: 'Добавить контакты',
 				profile: 'Профиль',
+				info: 'Информация',
+				groups: 'Группы',
+				attributes: 'Атрибуты',
+				noAttributes: 'Пользовательские переменные не заданы',
 			},
 		},
 		pages: {
