@@ -3,6 +3,7 @@ import { ref } from 'vue';
 
 import { ContactsPageTab } from '../../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../../pages/modules/history/enums/HistoryPageTab.enum';
+import TheCallPanel from '../../modules/call/the-call-panel.vue';
 import TheContactsPanel from '../../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../../modules/history/the-history-panel.vue';
 import { useSidebarContent } from '../useSidebarContent';
@@ -15,6 +16,12 @@ vi.mock('vue-router', () => ({
 			return routeName.value;
 		},
 	}),
+}));
+
+// The real calls store imports the router, which leads back here through the
+// layout's sidebar; the map only needs the panel component to exist.
+vi.mock('../../../../features/calls/store/calls', () => ({
+	useCallsStore: vi.fn(),
 }));
 
 describe('useSidebarContent', () => {
@@ -33,6 +40,15 @@ describe('useSidebarContent', () => {
 
 		expect(content.value).toEqual({
 			component: TheContactsPanel,
+		});
+	});
+
+	it('returns the call panel for the call window', () => {
+		routeName.value = 'call-window';
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: TheCallPanel,
 		});
 	});
 

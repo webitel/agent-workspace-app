@@ -2,6 +2,7 @@ import { type ComputedRef, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { ContactsPageTab } from '../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../pages/modules/history/enums/HistoryPageTab.enum';
+import TheCallPanel from '../modules/call/the-call-panel.vue';
 import TheContactsPanel from '../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../modules/history/the-history-panel.vue';
 import type { SidebarContent } from '../types/SidebarContent.types';
@@ -12,6 +13,9 @@ const sidebarContentByRouteName: Partial<Record<string, SidebarContent>> = {
 	},
 	[ContactsPageTab.Contacts]: {
 		component: TheContactsPanel,
+	},
+	'call-window': {
+		component: TheCallPanel,
 	},
 };
 

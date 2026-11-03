@@ -160,6 +160,9 @@ export default {
 				retryCall: 'Qayta qoʻngʻiroq qilish',
 				backToDialpad: 'Raqam terishga qaytish',
 			},
+			direction: {
+				inbound: 'Kiruvchi qoʼngʼiroq',
+			},
 		},
 	},
 	error: {

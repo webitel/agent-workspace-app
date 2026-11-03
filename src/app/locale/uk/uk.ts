@@ -176,6 +176,9 @@ export default {
 				retryCall: 'Повторити дзвінок',
 				backToDialpad: 'Назад до набору номера',
 			},
+			direction: {
+				inbound: 'Вхідний дзвінок',
+			},
 		},
 	},
 	error: {

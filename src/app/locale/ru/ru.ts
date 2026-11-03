@@ -160,6 +160,9 @@ export default {
 				retryCall: 'Повторить звонок',
 				backToDialpad: 'Назад к набору номера',
 			},
+			direction: {
+				inbound: 'Входящий звонок',
+			},
 		},
 	},
 	error: {

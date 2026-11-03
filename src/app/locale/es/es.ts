@@ -161,6 +161,9 @@ export default {
 				retryCall: 'Reintentar llamada',
 				backToDialpad: 'Volver al teclado',
 			},
+			direction: {
+				inbound: 'Llamada entrante',
+			},
 		},
 	},
 	error: {
