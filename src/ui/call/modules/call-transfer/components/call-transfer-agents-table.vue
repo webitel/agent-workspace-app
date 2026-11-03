@@ -118,6 +118,17 @@ function onRowClick({ data: row }: { data: TransferAgentRow }): void {
 </script>
 
 <style scoped>
+/**
+ * @author Oleksandr Palonnyi
+ * The row token is workspace-scoped, so the selected-row style lives here and not in the shared
+ * wt-table; the class is set by getRowClass on the rendered tr and its cells
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+.call-transfer-agents-table :deep(tr.wt-table__row--selected),
+.call-transfer-agents-table :deep(tr.wt-table__row--selected > td) {
+	background: var(--wt-ws-table-colors-row-selected-background);
+}
+
 .call-transfer-agents-table__cell {
 	display: flex;
 	align-items: center;
