@@ -17,6 +17,7 @@ import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
+import { isRingingConsultCall } from '../scripts/isRingingConsultCall';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
@@ -56,6 +57,10 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const ringingConsultCalls = computed(() =>
+		callList.value.filter((call) => isRingingConsultCall(call, callList.value)),
+	);
 
 	// Active calls plus the ended ones still in post-processing (WS-91).
 	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
@@ -492,6 +497,7 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		ringingConsultCalls,
 		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
