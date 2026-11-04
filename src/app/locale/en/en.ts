@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Show only unread chats',
 		},
+		chatList: {
+			tabs: {
+				active: 'Active',
+				snoozed: 'Snoozed',
+			},
+			snooze: {
+				action: 'Snooze',
+				error: "Couldn't snooze the chat",
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -37,6 +47,7 @@ export default {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
 			startedAt: 'Started at',
+			endedAt: 'Ended at',
 			username: 'Username',
 			message: 'Message',
 			phoneNumber: 'Phone number',
@@ -55,16 +66,44 @@ export default {
 			empty: 'No variables',
 			loadError: "Couldn't load the variables",
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Select a contact',
+					text: "Choose a record from the history list to view the contact's details",
+				},
+				selectOrCreateContact: {
+					title: 'Select a contact or create one',
+					text: 'Choose a contact from the list to view their details, or create a new one.',
+				},
+				createContact: 'Create a contact',
+				addContacts: 'Add contacts',
+				profile: 'Profile',
+				info: 'Info',
+				groups: 'Groups',
+				attributes: 'Attributes',
+				noAttributes: 'No custom variables defined',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Missed',
 					offline: 'Offline',
 				},
+				tabs: {
+					info: 'Info',
+					postProcessing: 'Post-processing',
+					interaction: 'Interactions',
+					screenshots: 'Screenshots',
+					contact: 'Contact',
+					iframe: 'iFrame',
+				},
 			},
 			chats: {
 				pageTabs: {
 					active: 'Active',
+					closed: 'Closed',
 				},
 				tabs: {
 					chat: 'Chat',
@@ -75,8 +114,16 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Pin chat',
 					transfer: 'Transfer chat',
 					end: 'End chat',
+				},
+				closed: {
+					notFound: 'Chat not found',
+					loadError: "Couldn't load the chat",
+					retry: 'Try again',
+					taskVariablesUnavailable:
+						'Contact center variables are not available for closed chats',
 				},
 			},
 			history: {
@@ -109,6 +156,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'In call',
+				onHold: 'On hold',
+				actions: {
+					numpad: 'Numpad',
+					mute: 'Mute',
+					hold: 'Hold',
+					camera: 'Camera',
+					message: 'Message',
+					transfer: 'Transfer',
+					hangup: 'End call',
+					openFullView: 'Open full view',
+				},
+			},
 			outboundCall: {
 				ringing: 'Ringing',
 				noAnswer: 'No answer',
@@ -122,6 +183,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'The call could not be placed. Please try again.',
+			holdToggleFailed:
+				'The call could not be put on hold or resumed. Please try again.',
+			dtmfFailed: 'The digit could not be sent. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

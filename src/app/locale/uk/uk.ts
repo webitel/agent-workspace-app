@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Лише непрочитані чати',
 		},
+		chatList: {
+			tabs: {
+				active: 'Активні',
+				snoozed: 'Відкладені',
+			},
+			snooze: {
+				action: 'Відкласти',
+				error: 'Не вдалося відкласти чат',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -37,6 +47,7 @@ export default {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
 			startedAt: 'Початок',
+			endedAt: 'Завершено',
 			username: "Ім'я користувача",
 			message: 'Повідомлення',
 			phoneNumber: 'Номер телефону',
@@ -55,16 +66,44 @@ export default {
 			empty: 'Змінних немає',
 			loadError: 'Не вдалося завантажити змінні',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Виберіть контакт',
+					text: 'Виберіть запис зі списку історії, щоб переглянути дані контакту',
+				},
+				selectOrCreateContact: {
+					title: 'Виберіть контакт або створіть новий',
+					text: 'Виберіть контакт зі списку, щоб переглянути його дані, або створіть новий.',
+				},
+				createContact: 'Створити контакт',
+				addContacts: 'Додати контакти',
+				profile: 'Профіль',
+				info: 'Інформація',
+				groups: 'Групи',
+				attributes: 'Атрибути',
+				noAttributes: 'Користувацькі змінні не задано',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Пропущені',
 					offline: 'Офлайн',
 				},
+				tabs: {
+					info: 'Інфо',
+					postProcessing: 'Постобробка',
+					interaction: 'Взаємодії',
+					screenshots: 'Скріншоти',
+					contact: 'Контакт',
+					iframe: 'iFrame',
+				},
 			},
 			chats: {
 				pageTabs: {
 					active: 'Активні',
+					closed: 'Закриті',
 				},
 				tabs: {
 					chat: 'Чат',
@@ -75,8 +114,16 @@ export default {
 					iframe: 'Iframe',
 				},
 				topBar: {
+					pin: 'Закріпити чат',
 					transfer: 'Перевести чат',
 					end: 'Завершити чат',
+				},
+				closed: {
+					notFound: 'Чат не знайдено',
+					loadError: 'Не вдалося завантажити чат',
+					retry: 'Спробувати ще раз',
+					taskVariablesUnavailable:
+						'Змінні контакт-центру для закритих чатів недоступні',
 				},
 			},
 			history: {
@@ -109,6 +156,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'У розмові',
+				onHold: 'На утриманні',
+				actions: {
+					numpad: 'Клавіатура',
+					mute: 'Вимкнути мікрофон',
+					hold: 'Утримання',
+					camera: 'Камера',
+					message: 'Повідомлення',
+					transfer: 'Переадресація',
+					hangup: 'Завершити дзвінок',
+					openFullView: 'Відкрити повний вигляд',
+				},
+			},
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',
@@ -121,6 +182,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Не вдалося здійснити дзвінок. Спробуйте ще раз.',
+			holdToggleFailed:
+				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
+			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

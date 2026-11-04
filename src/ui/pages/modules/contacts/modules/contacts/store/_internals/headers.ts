@@ -7,6 +7,7 @@ export const headers: DatalistTableHeader[] = [
 		locale: 'reusable.name',
 		show: true,
 		field: 'name',
+		width: '256px',
 		sort: SortSymbols.NONE,
 	},
 	{
@@ -14,16 +15,37 @@ export const headers: DatalistTableHeader[] = [
 		locale: 'reusable.group',
 		show: true,
 		field: 'groups',
-		width: '170px',
+		width: '300px',
+		sort: SortSymbols.NONE,
 	},
 	{
 		value: 'phones',
 		locale: [
-			'vocabulary.phones',
+			'ui.reusable.phoneNumber',
 			2,
 		],
 		show: true,
 		field: 'phones',
-		sort: SortSymbols.NONE,
+		width: '220px',
+	},
+	{
+		value: 'imclients',
+		locale: [
+			'objects.chat.chat',
+			1,
+		],
+		show: true,
+		field: 'imclients',
+		width: '220px',
+	},
+	{
+		value: 'emails',
+		locale: [
+			'vocabulary.emails',
+			1,
+		],
+		show: true,
+		field: 'emails',
+		width: '220px',
 	},
 ];

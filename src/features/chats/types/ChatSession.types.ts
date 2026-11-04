@@ -1,5 +1,6 @@
 // SDK domain types re-exported for a single feature-level import surface.
 export type {
+	ILeftThread,
 	IMessage,
 	IThread,
 	MessageHistorySearchParams,

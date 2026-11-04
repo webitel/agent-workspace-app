@@ -12,7 +12,9 @@ import { beforeEach, vi } from 'vitest';
 export const mockT = vi.fn((key: string) => key);
 export const mockTe = vi.fn((_key: string) => true);
 
-vi.mock('vue-i18n', () => ({
+// [Claude] spread the real module: ui-sdk creates its own i18n instance (createI18n) on import
+vi.mock('vue-i18n', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	useI18n: () => ({
 		t: mockT,
 		te: mockTe,

@@ -34,6 +34,24 @@ export const useOffersStore = defineStore('offers', () => {
 	const hasOffers = computed(() => offers.value.length > 0);
 
 	/**
+	 * @author Oleksandr Palonnyi
+	 * the cards on screen: a producer hides its own while the agent is already
+	 * looking at the offer elsewhere, where a card in the corner only covers content
+	 * [WS-105](https://webitel.atlassian.net/browse/WS-105)
+	 */
+	const visibleOffers = computed(() =>
+		offers.value.filter((offer) => !offer.isHidden?.()),
+	);
+
+	/**
+	 * Set by the calls feature while the agent hears a call. Offer sounds stay
+	 * silent meanwhile: the conversation (or its ringback) is the only sound.
+	 * The card and the OS notification still carry the offer.
+	 * [WS-133](https://webitel.atlassian.net/browse/WS-133)
+	 */
+	const isCallInProgress = ref(false);
+
+	/**
 	 * Which action is in flight per offer, so the card can disable both buttons
 	 * and show progress on the one that was pressed. A `Map` inside a `ref` is
 	 * reactive through Vue's collection handlers.
@@ -46,6 +64,10 @@ export const useOffersStore = defineStore('offers', () => {
 
 	function find(id: string): Offer | undefined {
 		return offers.value.find((offer) => offer.id === id);
+	}
+
+	function hasOffer(id: string): boolean {
+		return Boolean(find(id));
 	}
 
 	function kindOf(offer: Offer): OfferKind {
@@ -97,6 +119,10 @@ export const useOffersStore = defineStore('offers', () => {
 			offer,
 		];
 
+		pushOsNotification(offer);
+
+		if (isCallInProgress.value) return;
+
 		if (kindOf(offer) === OfferKind.Call) {
 			// one ring for any number of offers
 			ringtone.start();
@@ -104,8 +130,19 @@ export const useOffersStore = defineStore('offers', () => {
 			// a call has a deadline and a text chat does not: never talk over it
 			chirp.play();
 		}
+	}
 
-		pushOsNotification(offer);
+	/**
+	 * A call that starts silences a running ring; one that ends brings it back
+	 * for call offers still waiting, so the agent hears what they are free to
+	 * take. A chat that arrived during the call does not chirp late.
+	 */
+	function setCallInProgress(inProgress: boolean) {
+		if (isCallInProgress.value === inProgress) return;
+		isCallInProgress.value = inProgress;
+
+		if (inProgress) ringtone.stop();
+		else if (hasRingingOffer()) ringtone.start();
 	}
 
 	function dismiss(id: string) {
@@ -186,12 +223,16 @@ export const useOffersStore = defineStore('offers', () => {
 	return {
 		offers,
 		hasOffers,
+		visibleOffers,
+		isCallInProgress,
 
 		initialize,
 		notify,
+		setCallInProgress,
 		dismiss,
 		retainOnly,
 		pendingAction,
+		hasOffer,
 		accept,
 		decline,
 		openBody,

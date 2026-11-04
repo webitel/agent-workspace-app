@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Solo chats no leídos',
 		},
+		chatList: {
+			tabs: {
+				active: 'Activos',
+				snoozed: 'Pospuestos',
+			},
+			snooze: {
+				action: 'Posponer',
+				error: 'No se pudo posponer el chat',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -48,11 +58,38 @@ export default {
 			empty: 'Sin variables',
 			loadError: 'No se pudieron cargar las variables',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Selecciona un contacto',
+					text: 'Elige un registro de la lista del historial para ver los detalles del contacto',
+				},
+				selectOrCreateContact: {
+					title: 'Selecciona un contacto o crea uno',
+					text: 'Elige un contacto de la lista para ver sus detalles o crea uno nuevo.',
+				},
+				createContact: 'Crear un contacto',
+				addContacts: 'Añadir contactos',
+				profile: 'Perfil',
+				info: 'Información',
+				groups: 'Grupos',
+				attributes: 'Atributos',
+				noAttributes: 'No hay variables personalizadas definidas',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Perdidas',
 					offline: 'Fuera de línea',
+				},
+				tabs: {
+					info: 'Información',
+					postProcessing: 'Posprocesamiento',
+					interaction: 'Interacciones',
+					screenshots: 'Capturas de pantalla',
+					contact: 'Contacto',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -66,6 +103,11 @@ export default {
 					interaction: 'Interacción',
 					contact: 'Contacto',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Anclar chat',
+					transfer: 'Transferir chat',
+					end: 'Finalizar chat',
 				},
 			},
 			history: {
@@ -98,6 +140,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'En llamada',
+				onHold: 'En espera',
+				actions: {
+					numpad: 'Teclado',
+					mute: 'Silenciar',
+					hold: 'Poner en espera',
+					camera: 'Cámara',
+					message: 'Mensaje',
+					transfer: 'Transferir',
+					hangup: 'Finalizar llamada',
+					openFullView: 'Abrir vista completa',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sonando',
 				noAnswer: 'Sin respuesta',
@@ -111,6 +167,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'No se pudo realizar la llamada. Inténtalo de nuevo.',
+			holdToggleFailed:
+				'No se pudo poner la llamada en espera ni reanudarla. Inténtalo de nuevo.',
+			dtmfFailed: 'No se pudo enviar el dígito. Inténtalo de nuevo.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

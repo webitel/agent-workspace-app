@@ -132,6 +132,17 @@ export async function mockAppApis(page: Page) {
 			});
 		},
 	);
+	// the calls page lands on its Missed tab, which lists call history; unmocked,
+	// the request reaches the real instance and its 401 sends the app to login
+	await page.route('**/api/calls/history**', async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				items: [],
+			}),
+		});
+	});
 }
 
 /** Per-action reply bodies; everything unmodelled still gets an empty object. */
@@ -297,12 +308,18 @@ export function callRingingFrame({
 	number = '380671234678',
 	queueName = 'Support',
 	hideNumber = false,
+	attemptId = 1,
+	payload = {},
 }: {
 	id?: string;
 	name?: string;
 	number?: string;
 	queueName?: string;
 	hideNumber?: boolean;
+	/** the queue attempt; a task distributed first under it becomes `call.task` */
+	attemptId?: number;
+	/** the call's variables, as the flow exported them */
+	payload?: Record<string, string>;
 } = {}) {
 	return {
 		call: {
@@ -320,7 +337,7 @@ export function callRingingFrame({
 					type: 'sip',
 				},
 				queue: {
-					attempt_id: 1,
+					attempt_id: attemptId,
 					member_id: '1',
 					queue_id: '1',
 					queue_name: queueName,
@@ -328,9 +345,23 @@ export function callRingingFrame({
 					reporting: '',
 				},
 				params: {},
-				payload: {},
+				payload,
 				hide_number: hideNumber,
 			},
+		},
+	};
+}
+
+/** An `active` frame: the call is answered, so it becomes an Active call. */
+export function callActiveFrame({ id = 'e2e-call-1' }: { id?: string } = {}) {
+	return {
+		call: {
+			id,
+			app_id: 'e2e',
+			cc_app_id: '',
+			event: 'active',
+			timestamp: Date.now(),
+			data: {},
 		},
 	};
 }

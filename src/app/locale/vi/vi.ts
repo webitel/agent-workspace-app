@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
 		},
+		chatList: {
+			tabs: {
+				active: 'Đang hoạt động',
+				snoozed: 'Đã tạm hoãn',
+			},
+			snooze: {
+				action: 'Tạm hoãn',
+				error: 'Không thể tạm hoãn cuộc trò chuyện',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -48,11 +58,38 @@ export default {
 			empty: 'Không có biến',
 			loadError: 'Không thể tải các biến',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Chọn một liên hệ',
+					text: 'Chọn một bản ghi trong danh sách lịch sử để xem thông tin chi tiết của liên hệ',
+				},
+				selectOrCreateContact: {
+					title: 'Chọn một liên hệ hoặc tạo mới',
+					text: 'Chọn một liên hệ trong danh sách để xem thông tin chi tiết hoặc tạo liên hệ mới.',
+				},
+				createContact: 'Tạo liên hệ',
+				addContacts: 'Thêm liên hệ',
+				profile: 'Hồ sơ',
+				info: 'Thông tin',
+				groups: 'Nhóm',
+				attributes: 'Thuộc tính',
+				noAttributes: 'Chưa xác định biến tùy chỉnh',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Cuộc gọi nhỡ',
 					offline: 'Ngoại tuyến',
+				},
+				tabs: {
+					info: 'Thông tin',
+					postProcessing: 'Xử lý sau',
+					interaction: 'Tương tác',
+					screenshots: 'Ảnh chụp màn hình',
+					contact: 'Liên hệ',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -66,6 +103,11 @@ export default {
 					interaction: 'Tương tác',
 					contact: 'Liên hệ',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Ghim cuộc trò chuyện',
+					transfer: 'Chuyển cuộc trò chuyện',
+					end: 'Kết thúc cuộc trò chuyện',
 				},
 			},
 			history: {
@@ -98,6 +140,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Đang gọi',
+				onHold: 'Đang giữ máy',
+				actions: {
+					numpad: 'Bàn phím',
+					mute: 'Tắt micrô',
+					hold: 'Giữ máy',
+					camera: 'Camera',
+					message: 'Tin nhắn',
+					transfer: 'Chuyển cuộc gọi',
+					hangup: 'Kết thúc cuộc gọi',
+					openFullView: 'Mở chế độ xem đầy đủ',
+				},
+			},
 			outboundCall: {
 				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',
@@ -110,6 +166,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Không thể thực hiện cuộc gọi. Vui lòng thử lại.',
+			holdToggleFailed:
+				'Không thể giữ máy hoặc tiếp tục cuộc gọi. Vui lòng thử lại.',
+			dtmfFailed: 'Không thể gửi chữ số. Vui lòng thử lại.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

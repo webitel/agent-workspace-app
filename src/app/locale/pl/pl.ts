@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Tylko nieprzeczytane czaty',
 		},
+		chatList: {
+			tabs: {
+				active: 'Aktywne',
+				snoozed: 'Odłożone',
+			},
+			snooze: {
+				action: 'Odłóż',
+				error: 'Nie udało się odłożyć czatu',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -48,11 +58,38 @@ export default {
 			empty: 'Brak zmiennych',
 			loadError: 'Nie udało się wczytać zmiennych',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Wybierz kontakt',
+					text: 'Wybierz rekord z listy historii, aby zobaczyć szczegóły kontaktu',
+				},
+				selectOrCreateContact: {
+					title: 'Wybierz kontakt lub utwórz nowy',
+					text: 'Wybierz kontakt z listy, aby zobaczyć jego szczegóły, lub utwórz nowy.',
+				},
+				createContact: 'Utwórz kontakt',
+				addContacts: 'Dodaj kontakty',
+				profile: 'Profil',
+				info: 'Informacje',
+				groups: 'Grupy',
+				attributes: 'Atrybuty',
+				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Nieodebrane',
 					offline: 'Offline',
+				},
+				tabs: {
+					info: 'Informacje',
+					postProcessing: 'Przetwarzanie końcowe',
+					interaction: 'Interakcje',
+					screenshots: 'Zrzuty ekranu',
+					contact: 'Kontakt',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -66,6 +103,11 @@ export default {
 					interaction: 'Interakcja',
 					contact: 'Kontakt',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Przypnij czat',
+					transfer: 'Przekieruj czat',
+					end: 'Zakończ czat',
 				},
 			},
 			history: {
@@ -98,6 +140,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'W rozmowie',
+				onHold: 'Wstrzymane',
+				actions: {
+					numpad: 'Klawiatura',
+					mute: 'Wycisz',
+					hold: 'Wstrzymaj',
+					camera: 'Kamera',
+					message: 'Wiadomość',
+					transfer: 'Przekieruj',
+					hangup: 'Zakończ połączenie',
+					openFullView: 'Otwórz pełny widok',
+				},
+			},
 			outboundCall: {
 				ringing: 'Dzwonienie',
 				noAnswer: 'Brak odpowiedzi',
@@ -111,6 +167,9 @@ export default {
 		calls: {
 			outboundCallFailed:
 				'Nie udało się nawiązać połączenia. Spróbuj ponownie.',
+			holdToggleFailed:
+				'Nie udało się wstrzymać ani wznowić połączenia. Spróbuj ponownie.',
+			dtmfFailed: 'Nie udało się wysłać cyfry. Spróbuj ponownie.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

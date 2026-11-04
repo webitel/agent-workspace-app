@@ -17,6 +17,8 @@ export function useCallAudio() {
 	function playRemoteAudio(call: Call): void {
 		const remoteStream = call.peerStreams?.at(-1);
 		if (!remoteStream) return;
+		// the PeerStream event and the call-state watcher may both offer it
+		if (remoteAudioByCallId.get(call.id)?.srcObject === remoteStream) return;
 
 		stopRemoteAudio(call.id);
 

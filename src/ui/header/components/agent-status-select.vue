@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import { useNow } from '@vueuse/core';
 import { WtCcAgentStatusSelect } from '@webitel/ui-sdk/modules/AgentStatusSelect';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { storeToRefs } from 'pinia';
@@ -18,22 +17,18 @@ import { computed } from 'vue';
 import { useWebSocketClient } from '../../../app/api/socket/composables/useWebSocketClient';
 import { WebSocketConnectionState } from '../../../app/api/socket/enums/WebSocketConnectionState.enum';
 import { useAgentStore } from '../../../features/agent/store/agent';
+import { useElapsedSec } from '../../composables/useElapsedSec';
 
 const { agentId, status, lastStatusChange } = storeToRefs(useAgentStore());
 const { state: socketState } = useWebSocketClient();
-
-const now = useNow({
-	interval: 1000,
-});
 
 /*
  * `Agent.stateDuration` exists but is a plain getter, so it never re-renders;
  * the elapsed time has to come from a ticking clock instead.
  */
-const statusDuration = computed(() => {
-	const elapsed = now.value.getTime() - (lastStatusChange.value ?? Date.now());
-	return convertDuration(Math.max(elapsed, 0) / 1000);
-});
+const statusElapsedSec = useElapsedSec(lastStatusChange);
+
+const statusDuration = computed(() => convertDuration(statusElapsedSec.value));
 
 const isDisabled = computed(
 	() =>

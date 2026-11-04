@@ -10,7 +10,6 @@ vi.mock('@webitel/api-services/gen-wire', () => ({
 
 import { activeChatsApiModule } from '../activeChatsApiModule';
 
-const USER_ID = 'agent';
 const NOW = 1790947800000;
 const CREATED_AT = NOW - 90_000;
 
@@ -20,6 +19,7 @@ const member = (contact: Record<string, unknown>) => ({
 
 const client = member({
 	sub: 'client',
+	iss: 'telegram',
 	name: 'John Doe',
 	username: 'john',
 });
@@ -31,17 +31,24 @@ const thread = (overrides: Record<string, unknown> = {}) => ({
 	members: [
 		member({
 			sub: 'bot',
+			iss: 'bot',
 			name: 'Bot',
 			is_bot: true,
 		}),
 		member({
-			sub: USER_ID,
+			sub: 'agent',
+			iss: 'webitel',
 			name: 'Agent',
 		}),
 		client,
 	],
 	last_msg: {
 		body: 'Hello',
+	},
+	channel: {
+		id: 'gate-1',
+		name: 'Support bot',
+		type: 'THREAD_CHANNEL_TYPE_WHATSAPP',
 	},
 	...overrides,
 });
@@ -52,10 +59,7 @@ const respond = (data: Record<string, unknown>) =>
 	});
 
 const getList = (params: Record<string, unknown> = {}) =>
-	activeChatsApiModule.getList({
-		userId: USER_ID,
-		...params,
-	});
+	activeChatsApiModule.getList(params);
 
 const requestParams = () => mockThreadManagementSearch.mock.calls[0][0];
 
@@ -90,6 +94,7 @@ describe('activeChatsApiModule.getList', () => {
 					'created_at',
 					'members',
 					'last_msg',
+					'channel',
 				],
 			});
 		});
@@ -151,6 +156,7 @@ describe('activeChatsApiModule.getList', () => {
 						id: 'thread-1',
 						name: 'John Doe',
 						username: 'john',
+						source: 'Support bot',
 						message: 'Hello',
 						startedAt: CREATED_AT,
 						duration: 90,
@@ -185,7 +191,8 @@ describe('activeChatsApiModule.getList', () => {
 					thread({
 						members: [
 							member({
-								sub: USER_ID,
+								sub: 'agent',
+								iss: 'webitel',
 								name: 'Agent',
 							}),
 						],
@@ -201,6 +208,21 @@ describe('activeChatsApiModule.getList', () => {
 				username: '',
 				message: '',
 			});
+		});
+
+		// an internal thread has no channel to come in through
+		it('leaves the source empty when the thread has no channel', async () => {
+			respond({
+				items: [
+					thread({
+						channel: undefined,
+					}),
+				],
+			});
+
+			const { items } = await getList();
+
+			expect(items[0].source).toBe('');
 		});
 
 		it('returns an empty list when the response has no items', async () => {

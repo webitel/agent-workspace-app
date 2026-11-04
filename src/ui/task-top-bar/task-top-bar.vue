@@ -2,13 +2,12 @@
 	<header class="task-top-bar">
 		<div class="task-top-bar__identity">
 			<slot name="leading" />
-			<wt-avatar
-				:username="name"
-				size="sm"
-			/>
 			<div class="task-top-bar__info">
-				<span class="task-top-bar__name typo-body-2-bold">
-					{{ name || t('ui.notifications.offer.unknownContact') }}
+				<span class="task-top-bar__name-line">
+					<span class="task-top-bar__name typo-body-2-bold">
+						{{ name || t('ui.notifications.offer.unknownContact') }}
+					</span>
+					<slot name="name-append" />
 				</span>
 				<span
 					v-if="subtitle"
@@ -40,11 +39,12 @@ import { useI18n } from 'vue-i18n';
 /**
  * The header row of a task's window, a call or a chat: who it is with, a
  * status area (a timer) and an actions area. Channel-neutral, like the offer card — chats
- * and calls fill it from their own objects and bring their own timer and
- * actions through the slots, so nothing here knows about either SDK.
+ * and calls fill it from their own objects and bring their own leading icon or
+ * avatar, timer and actions through the slots, so nothing here knows about
+ * either SDK.
  */
 defineProps<{
-	/** Absent renders "Unknown contact" beside an N/A avatar. */
+	/** Absent renders "Unknown contact". */
 	name?: string;
 	/** A username, a masked number, a queue — whatever the channel leads with. */
 	subtitle?: string;
@@ -90,6 +90,13 @@ const { t } = useI18n();
 	color: var(--text-main-color);
 }
 
+.task-top-bar__name-line {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-2xs);
+	min-width: 0;
+}
+
 .task-top-bar__name {
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -115,8 +122,11 @@ const { t } = useI18n();
 	white-space: nowrap;
 }
 
+/* never squeezed: once the line runs out it wraps under the identity instead,
+   and squeezing it collapsed the action buttons' icons */
 .task-top-bar__trailing {
 	display: flex;
+	flex-shrink: 0;
 	align-items: center;
 	gap: var(--wt-ws-chat-page-sizes-top-bar-gap);
 	margin-left: auto;

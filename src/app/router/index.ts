@@ -6,17 +6,20 @@ import {
 	type NavigationGuard,
 	type RouteRecordRaw,
 } from 'vue-router';
+import TheCallWorkspace from '../../ui/pages/modules/calls/components/the-call-workspace.vue';
 import { CallsPageTab } from '../../ui/pages/modules/calls/enums/CallsPageTab.enum';
 import TheCallsPage from '../../ui/pages/modules/calls/the-calls-page.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
 import { ChatsPageTab } from '../../ui/pages/modules/chats/enums/ChatsPageTab.enum';
 import TheChatsPage from '../../ui/pages/modules/chats/the-chats-page.vue';
+import { ContactsPageTab } from '../../ui/pages/modules/contacts/enums/ContactsPageTab.enum';
 import TheContactsPage from '../../ui/pages/modules/contacts/the-contacts-page.vue';
 import { HistoryPageTab } from '../../ui/pages/modules/history/enums/HistoryPageTab.enum';
 import TheHistoryPage from '../../ui/pages/modules/history/the-history-page.vue';
 import TheTasksWorkspace from '../../ui/pages/modules/tasks/components/the-tasks-workspace.vue';
 import AgentWorkspace from '../components/the-agent-workspace.vue';
+import { createAuthGuard } from './authGuard';
 
 // Contacts tabs render entirely inside TheContactsPage (no <router-view>),
 // so these child routes only need to exist for route.name matching/navigation.
@@ -50,6 +53,11 @@ const routes: RouteRecordRaw[] = [
 				],
 			},
 			{
+				path: '/calls/:callId',
+				name: 'call-window',
+				component: TheCallWorkspace,
+			},
+			{
 				path: '/chats',
 				component: TheChatsWorkspace,
 				children: [
@@ -60,6 +68,11 @@ const routes: RouteRecordRaw[] = [
 							{
 								path: '',
 								name: ChatsPageTab.Active,
+								component: NoopRouteComponent,
+							},
+							{
+								path: 'closed',
+								name: ChatsPageTab.Closed,
 								component: NoopRouteComponent,
 							},
 						],
@@ -82,12 +95,12 @@ const routes: RouteRecordRaw[] = [
 				children: [
 					{
 						path: '',
-						name: 'contacts',
+						name: ContactsPageTab.Contacts,
 						component: NoopRouteComponent,
 					},
 					{
 						path: 'users',
-						name: 'users',
+						name: ContactsPageTab.Users,
 						component: NoopRouteComponent,
 					},
 				],
@@ -127,30 +140,11 @@ export const initRouter = async ({
 		},
 	});
 
-	router.beforeEach((to, _, next) => {
-		if (!localStorage.getItem('access-token') && !to.query.accessToken) {
-			// @author @Lear24
-			// remove flag about shown notifications from localStorage
-			onUnauthorized();
-			const desiredUrl = encodeURIComponent(window.location.href);
-			const authUrl = import.meta.env.VITE_AUTH_URL;
-			window.location.href = `${authUrl}?redirectTo=${desiredUrl}`;
-			return;
-		}
-		if (to.query.accessToken) {
-			// assume that access token was set from query before app initialization in main.js
-			const newQuery = {
-				...to.query,
-			};
-			delete newQuery.accessToken;
-			return next({
-				...to,
-				query: newQuery,
-			});
-		}
-
-		next();
-	});
+	router.beforeEach(
+		createAuthGuard({
+			onUnauthorized,
+		}),
+	);
 
 	beforeEach.forEach((guard) => {
 		router.beforeEach(guard);

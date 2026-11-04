@@ -72,6 +72,12 @@ export interface Offer {
 	 */
 	onAccept: () => unknown;
 	onDecline: () => unknown;
+	/**
+	 * Read while rendering, so it may depend on reactive state. A hidden offer
+	 * stays live — it still rings and still notifies the OS — and its card comes
+	 * back as soon as this turns false again.
+	 */
+	isHidden?: () => boolean;
 	/** Chats open the conversation when the card body is clicked (AC_06.01.04). */
 	onBodyClick?: () => void;
 }

@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Только непрочитанные чаты',
 		},
+		chatList: {
+			tabs: {
+				active: 'Активные',
+				snoozed: 'Отложенные',
+			},
+			snooze: {
+				action: 'Отложить',
+				error: 'Не удалось отложить чат',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -48,11 +58,38 @@ export default {
 			empty: 'Переменных нет',
 			loadError: 'Не удалось загрузить переменные',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Выберите контакт',
+					text: 'Выберите запись из списка истории, чтобы увидеть данные контакта',
+				},
+				selectOrCreateContact: {
+					title: 'Выберите контакт или создайте новый',
+					text: 'Выберите контакт из списка, чтобы увидеть его данные, или создайте новый.',
+				},
+				createContact: 'Создать контакт',
+				addContacts: 'Добавить контакты',
+				profile: 'Профиль',
+				info: 'Информация',
+				groups: 'Группы',
+				attributes: 'Атрибуты',
+				noAttributes: 'Пользовательские переменные не заданы',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Пропущенные',
 					offline: 'Оффлайн',
+				},
+				tabs: {
+					info: 'Инфо',
+					postProcessing: 'Постобработка',
+					interaction: 'Взаимодействия',
+					screenshots: 'Скриншоты',
+					contact: 'Контакт',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -66,6 +103,11 @@ export default {
 					interaction: 'Взаимодействие',
 					contact: 'Контакт',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Закрепить чат',
+					transfer: 'Перевести чат',
+					end: 'Завершить чат',
 				},
 			},
 			history: {
@@ -98,6 +140,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'В разговоре',
+				onHold: 'На удержании',
+				actions: {
+					numpad: 'Клавиатура',
+					mute: 'Выключить микрофон',
+					hold: 'Удержание',
+					camera: 'Камера',
+					message: 'Сообщение',
+					transfer: 'Переадресация',
+					hangup: 'Завершить звонок',
+					openFullView: 'Открыть полный вид',
+				},
+			},
 			outboundCall: {
 				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',
@@ -110,6 +166,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Не удалось совершить звонок. Попробуйте ещё раз.',
+			holdToggleFailed:
+				'Не удалось поставить звонок на удержание или снять с него. Попробуйте ещё раз.',
+			dtmfFailed: 'Не удалось отправить цифру. Попробуйте ещё раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

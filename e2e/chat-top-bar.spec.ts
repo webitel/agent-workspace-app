@@ -73,6 +73,46 @@ function startPostProcessing(socket: MockedSocket, timeoutInSec: number) {
 	);
 }
 
+/** Puts an offered, not yet accepted chat in the feed and opens its window. */
+async function openOfferedChat(page: Page, socket: MockedSocket) {
+	await mockChatThread(page, THREAD);
+	await page.goto('chats');
+
+	await expect(
+		page.getByRole('combobox', {
+			name: 'Online',
+		}),
+	).toBeVisible({
+		timeout: 30_000,
+	});
+
+	socket.send(
+		'channel',
+		chatTaskFrame('distribute', {
+			attemptId: ATTEMPT_ID,
+			distribute: chatDistribute({
+				threadId: THREAD.id,
+				subject: THREAD.subject,
+			}),
+		}),
+	);
+	socket.send(
+		'channel',
+		chatTaskFrame('offering', {
+			attemptId: ATTEMPT_ID,
+		}),
+	);
+
+	// the card's body, not its buttons (AC_06.01.04)
+	await page.locator('.offer-card').click({
+		position: {
+			x: 20,
+			y: 20,
+		},
+	});
+	await expect(page.locator('.chat-top-bar')).toBeVisible();
+}
+
 const endButton = (page: Page) =>
 	page.getByRole('button', {
 		name: 'End chat',
@@ -92,6 +132,28 @@ test.describe('chat top bar', () => {
 		const bar = page.locator('.chat-top-bar');
 		await expect(bar).toContainText('@jane');
 		await expect(bar).toContainText('Chat support');
+	});
+
+	test('offers accept and decline while the chat is only an offer (AC_06.01.04)', async ({
+		page,
+		socket,
+	}) => {
+		await openOfferedChat(page, socket);
+
+		const bar = page.locator('.chat-top-bar');
+		await expect(bar).toContainText('@jane');
+		await expect(bar).toContainText('Chat support');
+		await expect(
+			bar.getByRole('button', {
+				name: 'Accept',
+			}),
+		).toBeVisible();
+		await expect(
+			bar.getByRole('button', {
+				name: 'Decline',
+			}),
+		).toBeVisible();
+		await expect(endButton(page)).toHaveCount(0);
 	});
 
 	test('keeps transfer in place but disabled', async ({ page, socket }) => {

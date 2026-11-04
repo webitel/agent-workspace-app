@@ -104,6 +104,7 @@ vi.mock('../../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({}),
 }));
 
+import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import CallsHistoryTable from '../calls-history-table.vue';
 
 const stubs = {
@@ -132,7 +133,16 @@ const stubs = {
 		],
 		template: '<div class="video-player" />',
 	},
-	CallsHistoryNameCell: true,
+	CallsHistoryNameCell: {
+		name: 'CallsHistoryNameCell',
+		props: [
+			'item',
+		],
+		emits: [
+			'click',
+		],
+		template: '<div class="name-cell" />',
+	},
 	CallsHistoryPhoneCell: true,
 	CallsHistoryRowActions: {
 		name: 'CallsHistoryRowActions',
@@ -363,6 +373,46 @@ describe('calls-history-table', () => {
 
 		expect(mockStore.columnResize).toHaveBeenCalledWith('resize-event');
 		expect(mockStore.columnReorder).toHaveBeenCalledWith('reorder-event');
+	});
+
+	describe('name cell click', () => {
+		const clickNameCell = async (item: EngineHistoryCall) => {
+			mockStore.dataList = [
+				item,
+			];
+			showColumns('name');
+			const wrapper = mountTable();
+
+			await wrapper
+				.findComponent({
+					name: 'CallsHistoryNameCell',
+				})
+				.vm.$emit('click');
+		};
+
+		it('selects the call contact', async () => {
+			await clickNameCell({
+				id: '1',
+				contact: {
+					id: '42',
+					name: 'John',
+				},
+			});
+			const selectionStore = useSidebarSelectionStore();
+
+			expect(selectionStore.selectContact).toHaveBeenCalledWith('42');
+			expect(selectionStore.selectUnknownContact).not.toHaveBeenCalled();
+		});
+
+		it('selects an unknown contact when the call has no contact', async () => {
+			await clickNameCell({
+				id: '1',
+			});
+			const selectionStore = useSidebarSelectionStore();
+
+			expect(selectionStore.selectUnknownContact).toHaveBeenCalledTimes(1);
+			expect(selectionStore.selectContact).not.toHaveBeenCalled();
+		});
 	});
 
 	describe('call info popup', () => {

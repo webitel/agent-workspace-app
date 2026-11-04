@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Doar conversațiile necitite',
 		},
+		chatList: {
+			tabs: {
+				active: 'Active',
+				snoozed: 'Amânate',
+			},
+			snooze: {
+				action: 'Amână',
+				error: 'Chatul nu a putut fi amânat',
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -48,11 +58,38 @@ export default {
 			empty: 'Nu există variabile',
 			loadError: 'Nu s-au putut încărca variabilele',
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Selectați un contact',
+					text: 'Alegeți o înregistrare din lista istoricului pentru a vedea detaliile contactului',
+				},
+				selectOrCreateContact: {
+					title: 'Selectați un contact sau creați unul',
+					text: 'Alegeți un contact din listă pentru a vedea detaliile acestuia sau creați unul nou.',
+				},
+				createContact: 'Creați un contact',
+				addContacts: 'Adăugați contacte',
+				profile: 'Profil',
+				info: 'Informații',
+				groups: 'Grupuri',
+				attributes: 'Atribute',
+				noAttributes: 'Nu sunt definite variabile personalizate',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Pierdute',
 					offline: 'Offline',
+				},
+				tabs: {
+					info: 'Informații',
+					postProcessing: 'Post-procesare',
+					interaction: 'Interacțiuni',
+					screenshots: 'Capturi de ecran',
+					contact: 'Contact',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -66,6 +103,11 @@ export default {
 					interaction: 'Interacțiune',
 					contact: 'Contact',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Fixează chatul',
+					transfer: 'Transferă chatul',
+					end: 'Încheie chatul',
 				},
 			},
 			history: {
@@ -98,6 +140,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'În apel',
+				onHold: 'În așteptare',
+				actions: {
+					numpad: 'Tastatură',
+					mute: 'Dezactivează microfonul',
+					hold: 'Pune în așteptare',
+					camera: 'Cameră',
+					message: 'Mesaj',
+					transfer: 'Transferă',
+					hangup: 'Închide apelul',
+					openFullView: 'Deschide vizualizarea completă',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',
@@ -110,6 +166,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Apelul nu a putut fi efectuat. Încearcă din nou.',
+			holdToggleFailed:
+				'Apelul nu a putut fi pus în așteptare sau reluat. Încearcă din nou.',
+			dtmfFailed: 'Cifra nu a putut fi trimisă. Încearcă din nou.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

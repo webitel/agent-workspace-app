@@ -9,6 +9,7 @@
 			:lazy="true"
 			:selectable="false"
 			:on-loading="onLoading"
+			:grid-actions="false"
 			data-key="id"
 			sortable
 			resizable-columns
@@ -21,14 +22,13 @@
 				<username-table-cell :name="item.name" />
 			</template>
 
-			<template #presence="{ item }">
+			<template #status="{ item }">
 				<wt-indicator v-bind="getStatus(item)" />
 			</template>
 
-			<!-- TODO: uncomment together with the team header when UsersAPI starts returning team -->
-			<!-- <template #team="{ item }">
+			<template #team="{ item }">
 				{{ item.team?.name }}
-			</template> -->
+			</template>
 
 			<template #extension="{ item }">
 				<table-cell-info
@@ -64,16 +64,13 @@ const {
 	columnResize,
 	columnReorder,
 } = props.store;
-const { dataList, shownHeaders, next } = storeToRefs(props.store);
+const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
-const isFirstLoad = ref(false);
 const isInitializing = ref(true);
 
 const onLoading = async () => {
-	if (isInitializing.value) return;
-	if (!next.value && isFirstLoad.value) return;
+	if (isInitializing.value || isLoading.value || !next.value) return;
 	await appendToDataList();
-	isFirstLoad.value = true;
 };
 
 function getStatus(item: ApiUser) {

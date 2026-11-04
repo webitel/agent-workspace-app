@@ -58,6 +58,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
+import { useChatVariablesStore } from '../../../store/chat-variables';
 import ChatInfo from '../chat-info.vue';
 
 const taskWith = (variables: Record<string, unknown>) =>
@@ -77,7 +78,13 @@ const threadVariables = (variables: Record<string, unknown>) => ({
 });
 
 /** Mounts the panel under KeepAlive, as the chat window does. */
-function mountInfo(props: { task?: unknown; threadId?: string } = {}) {
+function mountInfo(
+	props: {
+		task?: unknown;
+		threadId?: string;
+		closedThreadVariables?: Record<string, unknown>;
+	} = {},
+) {
 	const propsRef = reactive({
 		threadId: 'thread-1',
 		...props,
@@ -291,5 +298,82 @@ describe('chat-info', () => {
 		await flushPromises();
 
 		expect(keySort()).toBe(SortSymbols.NONE);
+	});
+
+	describe('of a closed chat', () => {
+		const closedVariables = (variables: Record<string, unknown>) =>
+			threadVariables(variables).variables;
+
+		it('lists the left thread variables alone, without the REST read', async () => {
+			const { wrapper } = mountInfo({
+				task: taskWith({
+					CustomerID: '458732',
+				}),
+				closedThreadVariables: closedVariables({
+					Region: 'EU',
+				}),
+			});
+			await flushPromises();
+
+			expect(rowsOf(wrapper)).toEqual([
+				{
+					key: 'Region',
+					value: 'EU',
+				},
+			]);
+			expect(locateVariablesMock).not.toHaveBeenCalled();
+		});
+
+		it('does not read again on a return to the tab', async () => {
+			const { isShown } = mountInfo({
+				closedThreadVariables: closedVariables({
+					Region: 'EU',
+				}),
+			});
+			await flushPromises();
+
+			isShown.value = false;
+			await nextTick();
+			isShown.value = true;
+			await flushPromises();
+
+			expect(locateVariablesMock).not.toHaveBeenCalled();
+		});
+
+		it('never refreshes the live variables store', async () => {
+			const { wrapper } = mountInfo({
+				closedThreadVariables: closedVariables({}),
+			});
+			await flushPromises();
+
+			expect(useChatVariablesStore('thread-1').refresh).not.toHaveBeenCalled();
+			// no loader while waiting on nothing: a closed chat has what it has
+			expect(wrapper.find('.loader').exists()).toBe(false);
+			expect(wrapper.find('.empty').exists()).toBe(true);
+		});
+
+		it('says the contact center variables are not available', async () => {
+			const { wrapper } = mountInfo({
+				closedThreadVariables: closedVariables({
+					Region: 'EU',
+				}),
+			});
+			await flushPromises();
+
+			expect(wrapper.find('.message').text()).toContain(
+				'ui.pages.chats.closed.taskVariablesUnavailable',
+			);
+		});
+	});
+
+	it('shows no such notice for an active chat', async () => {
+		const { wrapper } = mountInfo({
+			task: taskWith({
+				CustomerID: '458732',
+			}),
+		});
+		await flushPromises();
+
+		expect(wrapper.find('.message').exists()).toBe(false);
 	});
 });

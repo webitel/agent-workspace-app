@@ -1,10 +1,10 @@
 <template>
     <div
-        v-if="store.hasOffers"
+        v-if="store.visibleOffers.length"
         class="the-offers"
     >
         <offer-card
-            v-for="offer in store.offers"
+            v-for="offer in store.visibleOffers"
             :key="offer.id"
             :content="toValue(offer.content)"
             :clickable="!!offer.onBodyClick"

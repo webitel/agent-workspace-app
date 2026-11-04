@@ -61,7 +61,8 @@ class FakeClient {
 	}
 }
 
-vi.mock('webitel-sdk', () => ({
+vi.mock('webitel-sdk', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
 	Client: FakeClient,
 }));
 
@@ -227,6 +228,23 @@ describe('useWebSocketClient', () => {
 			});
 		});
 
+		it('forwards the SDK system_settings_changed event to registered listeners', async () => {
+			const api = await loadModule();
+			const onSystemSettingsChanged = vi.fn();
+			api.on(api.Event.SystemSettingsChanged, onSystemSettingsChanged);
+
+			const cli = await connectCli(api);
+			cli.fire('system_settings_changed', {
+				name: 'show_full_contact',
+				value: true,
+			});
+
+			expect(onSystemSettingsChanged).toHaveBeenCalledWith({
+				name: 'show_full_contact',
+				value: true,
+			});
+		});
+
 		it('emits a notification on the SDK show_message event', async () => {
 			const api = await loadModule();
 			const cli = await connectCli(api);
@@ -333,6 +351,18 @@ describe('useWebSocketClient', () => {
 			// slices going undefined proves the instance was torn down
 			expect(api.calls.value).toBeUndefined();
 			expect(api.tasks.value).toBeUndefined();
+		});
+
+		it('reports the task feed ready once the agent session loads', async () => {
+			const api = await loadModule();
+			expect(api.isTaskFeedReady.value).toBe(false);
+
+			await connectCli(api);
+			await api.getAgentSession();
+			expect(api.isTaskFeedReady.value).toBe(true);
+
+			await api.destroyClient();
+			expect(api.isTaskFeedReady.value).toBe(false);
 		});
 
 		it('getAgentSession resolves the agent and wraps it once', async () => {

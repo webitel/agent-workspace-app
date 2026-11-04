@@ -1,6 +1,7 @@
-import { useNow } from '@vueuse/core';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { computed, type MaybeRefOrGetter, toValue } from 'vue';
+
+import { useElapsedSec } from '../../../../composables/useElapsedSec';
 
 /**
  * Ticking "waiting time" plus the queue-wait progress bar (AC_14.01.04 /
@@ -18,24 +19,14 @@ export const WaitingLevel = {
 
 export type WaitingLevel = (typeof WaitingLevel)[keyof typeof WaitingLevel];
 
-const TICK_MS = 1000;
 export function useWaitingTime(
 	waitingSince: MaybeRefOrGetter<number | undefined>,
 	maxWaitSec: MaybeRefOrGetter<number | undefined>,
 ) {
-	// `useNow` owns the ticking clock and stops it when the scope is disposed
-	const now = useNow({
-		interval: TICK_MS,
-	});
-
 	/** False when the producer has no trustworthy epoch — the consumer hides the block. */
 	const hasWaitingTime = computed(() => !!toValue(waitingSince));
 
-	const elapsedSec = computed(() => {
-		const since = toValue(waitingSince);
-		if (!since) return 0;
-		return Math.max(0, Math.floor((now.value.getTime() - since) / 1000));
-	});
+	const elapsedSec = useElapsedSec(waitingSince);
 
 	/**
 	 * `convertDuration` is what every other live timer in the product uses, so the

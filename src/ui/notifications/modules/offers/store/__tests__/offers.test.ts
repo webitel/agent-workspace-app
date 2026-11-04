@@ -78,6 +78,50 @@ describe('useOffersStore', () => {
 		expect(osNotifications.show).toHaveBeenCalledTimes(1);
 	});
 
+	describe('an offer its producer hides', () => {
+		it('leaves the visible cards but keeps ringing and notifying', () => {
+			const store = useOffersStore();
+			const isHidden = ref(true);
+
+			store.notify({
+				...buildOffer('call-1'),
+				isHidden: () => isHidden.value,
+			});
+			store.notify(buildOffer('call-2'));
+
+			expect(store.visibleOffers.map((offer) => offer.id)).toEqual([
+				'call-2',
+			]);
+			expect(store.offers).toHaveLength(2);
+			expect(ringtone.start).toHaveBeenCalled();
+			expect(osNotifications.show).toHaveBeenCalledTimes(2);
+		});
+
+		it('brings its card back once it is no longer hidden', () => {
+			const store = useOffersStore();
+			const isHidden = ref(true);
+
+			store.notify({
+				...buildOffer('call-1'),
+				isHidden: () => isHidden.value,
+			});
+			isHidden.value = false;
+
+			expect(store.visibleOffers.map((offer) => offer.id)).toEqual([
+				'call-1',
+			]);
+		});
+	});
+
+	it('tells whether an interaction is currently offered', () => {
+		const store = useOffersStore();
+
+		store.notify(buildOffer());
+
+		expect(store.hasOffer('call-1')).toBe(true);
+		expect(store.hasOffer('call-2')).toBe(false);
+	});
+
 	it('ignores a repeat offer for the same interaction', () => {
 		const store = useOffersStore();
 
@@ -310,6 +354,78 @@ describe('useOffersStore', () => {
 			store.dismiss('chat-1');
 
 			expect(ringtone.stop).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	/** The conversation is the only sound while the agent hears a call. */
+	describe('during a call in progress', () => {
+		const buildChatInteraction = (id = 'chat-1') => ({
+			...buildOffer(id),
+			content: buildContent({
+				kind: OfferKind.Chat,
+			}),
+		});
+
+		it('does not ring for a call offer, but still shows it', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+
+			store.notify(buildOffer('call-1'));
+
+			expect(ringtone.start).not.toHaveBeenCalled();
+			expect(store.offers).toHaveLength(1);
+			expect(osNotifications.show).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not chirp for a chat offer', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+
+			store.notify(buildChatInteraction());
+
+			expect(chirp.play).not.toHaveBeenCalled();
+			expect(osNotifications.show).toHaveBeenCalledTimes(1);
+		});
+
+		it('silences a ring that was already running', () => {
+			const store = useOffersStore();
+			store.notify(buildOffer('call-1'));
+
+			store.setCallInProgress(true);
+
+			expect(ringtone.stop).toHaveBeenCalledTimes(1);
+		});
+
+		it('rings again once the call ends with a call offer still waiting', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+			store.notify(buildOffer('call-1'));
+
+			store.setCallInProgress(false);
+
+			expect(ringtone.start).toHaveBeenCalledTimes(1);
+		});
+
+		it('stays quiet once the call ends with only a chat offer waiting', () => {
+			const store = useOffersStore();
+			store.setCallInProgress(true);
+			store.notify(buildChatInteraction());
+
+			store.setCallInProgress(false);
+
+			expect(ringtone.start).not.toHaveBeenCalled();
+			expect(chirp.play).not.toHaveBeenCalled();
+		});
+
+		it('ignores a repeat of the same state', () => {
+			const store = useOffersStore();
+			store.notify(buildOffer('call-1'));
+			ringtone.start.mockClear();
+
+			store.setCallInProgress(false);
+
+			expect(ringtone.start).not.toHaveBeenCalled();
+			expect(ringtone.stop).not.toHaveBeenCalled();
 		});
 	});
 

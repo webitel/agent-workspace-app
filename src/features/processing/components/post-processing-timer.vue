@@ -31,12 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { useNow } from '@vueuse/core';
-import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Task } from 'webitel-sdk';
-import { useProcessingStore } from '../store/processing';
+import { usePostProcessingCountdown } from '../composables/usePostProcessingCountdown';
 import { getPostProcessingTone } from '../utils/postProcessingTone';
 
 const props = defineProps<{
@@ -45,28 +43,8 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const processing = computed(() => useProcessingStore(props.task));
-
-// `useNow` owns the ticking clock and stops it with the component
-const now = useNow({
-	interval: 1000,
-});
-
-const secondsLeft = computed(() =>
-	Math.max(
-		0,
-		Math.floor(
-			((processing.value.processingTimeoutAt ?? 0) - now.value.getTime()) /
-				1000,
-		),
-	),
-);
-
-// DES-711 shows `00:59`: no hours segment for a phase measured in minutes
-const timeLeft = computed(() =>
-	convertDuration(secondsLeft.value, {
-		alwaysShowHours: false,
-	}),
+const { processing, secondsLeft, timeLeft } = usePostProcessingCountdown(
+	() => props.task,
 );
 
 const tone = computed(() =>

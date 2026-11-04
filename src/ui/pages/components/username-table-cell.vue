@@ -5,13 +5,37 @@
 			:username="name"
 		/>
 
-		{{ name }}
+		<button
+			v-if="clickable"
+			type="button"
+			class="username-table-cell__name username-table-cell__name--clickable"
+			@click="emit('click')"
+		>
+			{{ name }}
+		</button>
+		<span
+			v-else
+			class="username-table-cell__name"
+		>
+			{{ name }}
+		</span>
 	</div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
-	name?: string;
+withDefaults(
+	defineProps<{
+		name?: string;
+		clickable?: boolean;
+	}>(),
+	{
+		name: '',
+		clickable: false,
+	},
+);
+
+const emit = defineEmits<{
+	click: [];
 }>();
 </script>
 
@@ -24,5 +48,10 @@ defineProps<{
 
 .wt-avatar {
 	flex-shrink: 0;
+}
+
+.username-table-cell__name--clickable {
+	text-align: start;
+	cursor: pointer;
 }
 </style>

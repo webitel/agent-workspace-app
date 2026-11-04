@@ -122,3 +122,22 @@ lock. The cross-tab locks and the ring-versus-chirp rules above are unchanged.
 
 Call audio is not a cue but the conversation itself, and stays on an `<audio>`
 element fed by the remote stream.
+
+## Amendment (2026-10-21): offer sounds stay silent while a call is audible
+
+[WS-133](https://webitel.atlassian.net/browse/WS-133). The ring played on top of
+the agent's own call: a second offer arriving mid-conversation, or while the
+agent's manual dial was ringing back, mixed `ringing.mp3` with the call audio.
+
+While any call is audible — connected and not on hold, or the agent's own
+outbound dial before the callee answers (`features/calls/scripts/isCallAudible.ts`)
+— neither the ring nor the chirp plays. The calls feature reports this to the
+offers store, which stays SDK-free. The card and the OS notification still carry
+the offer. A ring already running stops when the call starts, and comes back when
+the call ends if a call offer is still waiting; a chat that arrived meanwhile does
+not chirp late.
+
+A held call does not count: the agent hears nothing on it and must hear the ring.
+This also makes the consequence above literal — an agent mid-call gets no audible
+cue for an incoming chat, now by rule rather than only when a ring happened to be
+running.

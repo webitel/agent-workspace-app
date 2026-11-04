@@ -15,6 +15,16 @@ export default {
 		chatPreview: {
 			onlyUnread: 'Faqat o‘qilmagan chatlar',
 		},
+		chatList: {
+			tabs: {
+				active: 'Faol',
+				snoozed: 'Kechiktirilgan',
+			},
+			snooze: {
+				action: 'Kechiktirish',
+				error: "Chatni kechiktirib bo'lmadi",
+			},
+		},
 		notifications: {
 			offer: {
 				title: {
@@ -48,11 +58,38 @@ export default {
 			empty: "O'zgaruvchilar yo'q",
 			loadError: "O'zgaruvchilarni yuklab bo'lmadi",
 		},
+		sidebar: {
+			contact: {
+				selectContact: {
+					title: 'Kontaktni tanlang',
+					text: 'Kontakt maʼlumotlarini koʼrish uchun tarix roʼyxatidan yozuvni tanlang',
+				},
+				selectOrCreateContact: {
+					title: 'Kontaktni tanlang yoki yangisini yarating',
+					text: 'Maʼlumotlarini koʼrish uchun roʼyxatdan kontaktni tanlang yoki yangisini yarating.',
+				},
+				createContact: 'Kontakt yaratish',
+				addContacts: 'Kontaktlarni qoʼshish',
+				profile: 'Profil',
+				info: 'Maʼlumot',
+				groups: 'Guruhlar',
+				attributes: 'Atributlar',
+				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
+			},
+		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Oʼtkazib yuborilgan',
 					offline: 'Oflayn',
+				},
+				tabs: {
+					info: "Ma'lumot",
+					postProcessing: 'Keyingi ishlov',
+					interaction: "O'zaro aloqalar",
+					screenshots: 'Skrinshotlar',
+					contact: 'Kontakt',
+					iframe: 'iFrame',
 				},
 			},
 			chats: {
@@ -66,6 +103,11 @@ export default {
 					interaction: "O'zaro aloqa",
 					contact: 'Kontakt',
 					iframe: 'Iframe',
+				},
+				topBar: {
+					pin: 'Chatni mahkamlash',
+					transfer: 'Chatni yoʻnaltirish',
+					end: 'Chatni tugatish',
 				},
 			},
 			history: {
@@ -98,6 +140,20 @@ export default {
 			},
 		},
 		call: {
+			activeCall: {
+				inCall: 'Suhbatda',
+				onHold: 'Kutishda',
+				actions: {
+					numpad: 'Klaviatura',
+					mute: 'Mikrofonni oʻchirish',
+					hold: 'Kutishga qoʻyish',
+					camera: 'Kamera',
+					message: 'Xabar',
+					transfer: 'Yoʻnaltirish',
+					hangup: 'Qoʻngʻiroqni tugatish',
+					openFullView: 'Toʻliq koʻrinishni ochish',
+				},
+			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',
 				noAnswer: 'Javob yoʻq',
@@ -110,6 +166,9 @@ export default {
 	error: {
 		calls: {
 			outboundCallFailed: 'Qoʻngʻiroq qilib boʻlmadi. Qaytadan urinib koʻring.',
+			holdToggleFailed:
+				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
+			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
