@@ -8,10 +8,11 @@ import {
 import { expect, test } from './fixtures/test';
 
 /**
- * The chat list's Active tab (US_02.01): every chat the agent has accepted, and
- * the unread control, which has to stay out of sight until the backend says how
- * many unread messages a chat has. Also its tab indicators (US_02.12) and the
- * Snoozed tab (US_02.02), fed by the chat backend's snoozed threads (ADR-0008).
+ * The chat list's Active tab (US_02.01): every chat the agent has accepted,
+ * searchable by the client's name, and the unread control, which has to stay
+ * out of sight until the backend says how many unread messages a chat has. Also
+ * its tab indicators (US_02.12) and the Snoozed tab (US_02.02), fed by the chat
+ * backend's snoozed threads (ADR-0008).
  */
 
 const firstAttemptId = 200;
@@ -87,6 +88,30 @@ test.describe('chat list', () => {
 		acceptChats(socket, 45);
 
 		await expect(page.locator('.chat-preview')).toHaveCount(45);
+	});
+
+	test('searches the chats by the client’s name', async ({ page, socket }) => {
+		await openChats(page);
+		acceptChats(socket, 3);
+		await expect(page.locator('.chat-preview')).toHaveCount(3);
+
+		await page.locator('.chat-list-search input').fill('client 2');
+
+		await expect(page.locator('.chat-preview')).toHaveCount(1);
+	});
+
+	test('lists every chat again once the search is cleared', async ({
+		page,
+		socket,
+	}) => {
+		await openChats(page);
+		acceptChats(socket, 3);
+		await page.locator('.chat-list-search input').fill('client 2');
+		await expect(page.locator('.chat-preview')).toHaveCount(1);
+
+		await page.locator('.chat-list-search input').fill('');
+
+		await expect(page.locator('.chat-preview')).toHaveCount(3);
 	});
 
 	test('shows no unread filter while there is no unread data', async ({

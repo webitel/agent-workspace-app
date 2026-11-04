@@ -4,6 +4,7 @@
             <chat-list-tabs />
             <chat-unread-filter v-if="chatActiveStore.isUnreadFilterAvailable" />
         </header>
+        <chat-list-search class="the-chat-previews-list__search" />
         <ul>
             <li
                 v-for="chat in chatListStore.currentTasks"
@@ -22,6 +23,7 @@
 >
 import { WtDivider } from '@webitel/ui-sdk/components';
 import { type Task } from 'webitel-sdk';
+import ChatListSearch from '../../../../../features/chats/modules/previews/components/chat-list-search/chat-list-search.vue';
 import ChatListTabs from '../../../../../features/chats/modules/previews/components/chat-list-tabs/chat-list-tabs.vue';
 import ChatPreview from '../../../../../features/chats/modules/previews/components/chat-preview/chat-preview.vue';
 import ChatUnreadFilter from '../../../../../features/chats/modules/previews/components/chat-unread-filter/chat-unread-filter.vue';
@@ -42,5 +44,9 @@ const chatActiveStore = useChatActiveStore();
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-xs);
+}
+
+.the-chat-previews-list__search {
+    padding: 0 var(--spacing-xs);
 }
 </style>

@@ -6,6 +6,10 @@
 			class="contact-card__content"
 		>
 			<contact-card-header :contact="contact" />
+
+			<wt-divider />
+
+			<contact-card-info :contact="contact" />
 		</div>
 	</div>
 </template>
@@ -14,6 +18,7 @@
 import { toRef } from 'vue';
 import { useContact } from './composables/useContact';
 import ContactCardHeader from './contact-card-header.vue';
+import ContactCardInfo from './contact-card-info.vue';
 
 const props = defineProps<{
 	contactId: string;
@@ -27,6 +32,12 @@ const { contact, isLoading } = useContact(toRef(props, 'contactId'));
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+}
+
+.contact-card__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-xs);
 }
 
 .contact-card .wt-loader {

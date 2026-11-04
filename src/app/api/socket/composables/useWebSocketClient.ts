@@ -28,6 +28,14 @@ const tasks = computed(() => client.value?.allTask());
 // populated by getAgentSession(); undefined until then.
 const agent = computed(() => client.value?.agent);
 
+/**
+ * Whether `tasks` holds every task the agent has, so a task missing from it
+ * is not the agent's (ADR-0010). Taken to be once the agent session has
+ * loaded: the SDK reads the agent's active tasks before getAgentSession()
+ * resolves.
+ */
+const isTaskFeedReady = computed(() => agent.value !== undefined);
+
 const readonlyState = readonly(state);
 
 export function useWebSocketClient() {
@@ -47,6 +55,7 @@ export function useWebSocketClient() {
 		calls,
 		tasks,
 		agent,
+		isTaskFeedReady,
 
 		// domain operation: seals access to the private SDK latency() (WTEL-8733)
 		latency,

@@ -353,6 +353,18 @@ describe('useWebSocketClient', () => {
 			expect(api.tasks.value).toBeUndefined();
 		});
 
+		it('reports the task feed ready once the agent session loads', async () => {
+			const api = await loadModule();
+			expect(api.isTaskFeedReady.value).toBe(false);
+
+			await connectCli(api);
+			await api.getAgentSession();
+			expect(api.isTaskFeedReady.value).toBe(true);
+
+			await api.destroyClient();
+			expect(api.isTaskFeedReady.value).toBe(false);
+		});
+
 		it('getAgentSession resolves the agent and wraps it once', async () => {
 			const api = await loadModule();
 
