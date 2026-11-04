@@ -1,6 +1,6 @@
 import { type Call, CallDirection } from 'webitel-sdk';
 
-import type { CallPanelInfo } from '../types/CallPanelInfo.types';
+import type { CallInfoPanelContent } from '../types/CallInfoPanelContent.types';
 import { maskNumber } from './toCallOfferContent';
 
 const callDirections: readonly string[] = Object.values(CallDirection);
@@ -17,7 +17,7 @@ function resolveNumber(call: Call, side: 'from' | 'to'): string | undefined {
 	return call.hideNumber && side === clientSide ? maskNumber(number) : number;
 }
 
-export function toCallPanelInfo(call: Call): CallPanelInfo {
+export function toCallInfoPanelContent(call: Call): CallInfoPanelContent {
 	return {
 		direction: isCallDirection(call.direction) ? call.direction : undefined,
 		from: resolveNumber(call, 'from'),

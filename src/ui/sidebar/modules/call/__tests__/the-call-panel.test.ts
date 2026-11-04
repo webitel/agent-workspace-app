@@ -24,14 +24,14 @@ vi.mock('../../../../../features/calls/store/calls', () => ({
 }));
 
 vi.mock(
-	'../../../../../features/calls/components/call-panel-info/call-panel-info.vue',
+	'../../../../../features/calls/components/call-info-panel/call-info-panel.vue',
 	() => ({
 		default: {
-			name: 'CallPanelInfo',
+			name: 'CallInfoPanel',
 			props: [
-				'info',
+				'content',
 			],
-			template: '<div class="call-panel-info-stub" />',
+			template: '<div class="call-info-panel-stub" />',
 		},
 	}),
 );
@@ -87,9 +87,9 @@ describe('the-call-panel', () => {
 		expect(
 			wrapper
 				.findComponent({
-					name: 'CallPanelInfo',
+					name: 'CallInfoPanel',
 				})
-				.props('info'),
+				.props('content'),
 		).toMatchObject({
 			direction: CallDirection.Inbound,
 			from: '+12023417842',

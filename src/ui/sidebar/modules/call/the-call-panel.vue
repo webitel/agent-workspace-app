@@ -1,9 +1,9 @@
 <template>
 	<div
-		v-if="info"
+		v-if="content"
 		class="call-panel"
 	>
-		<call-panel-info :info="info" />
+		<call-info-panel :content="content" />
 		<!-- identification is the next PR: until then no contact is ever found -->
 		<contact-identification :contact-ids="[]" />
 	</div>
@@ -12,8 +12,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import CallPanelInfo from '../../../../features/calls/components/call-panel-info/call-panel-info.vue';
-import { toCallPanelInfo } from '../../../../features/calls/scripts/toCallPanelInfo';
+import CallInfoPanel from '../../../../features/calls/components/call-info-panel/call-info-panel.vue';
+import { toCallInfoPanelContent } from '../../../../features/calls/scripts/toCallInfoPanelContent';
 import { useCallsStore } from '../../../../features/calls/store/calls';
 import ContactIdentification from '../../components/contact/contact-identification.vue';
 
@@ -24,7 +24,9 @@ const call = computed(() =>
 	callsStore.getCallById(route.params.callId as string),
 );
 
-const info = computed(() => call.value && toCallPanelInfo(call.value));
+const content = computed(
+	() => call.value && toCallInfoPanelContent(call.value),
+);
 </script>
 
 <style scoped>

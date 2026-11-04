@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { type Call, CallDirection } from 'webitel-sdk';
 
-import { toCallPanelInfo } from '../toCallPanelInfo';
+import { toCallInfoPanelContent } from '../toCallInfoPanelContent';
 
 // the shared i18n instance can't be constructed under the global vue-i18n mock
 vi.mock('../../../../app/locale/i18n', () => ({
@@ -32,9 +32,9 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 		...overrides,
 	}) as unknown as Call;
 
-describe('toCallPanelInfo', () => {
+describe('toCallInfoPanelContent', () => {
 	it('maps an inbound call', () => {
-		expect(toCallPanelInfo(buildCall())).toEqual({
+		expect(toCallInfoPanelContent(buildCall())).toEqual({
 			direction: CallDirection.Inbound,
 			from: '+12023417842',
 			to: '1001',
@@ -45,7 +45,7 @@ describe('toCallPanelInfo', () => {
 	});
 
 	it('masks the caller on an inbound call with a hidden number', () => {
-		const info = toCallPanelInfo(
+		const info = toCallInfoPanelContent(
 			buildCall({
 				hideNumber: true,
 			}),
@@ -56,7 +56,7 @@ describe('toCallPanelInfo', () => {
 	});
 
 	it('masks the callee on an outbound call with a hidden number', () => {
-		const info = toCallPanelInfo(
+		const info = toCallInfoPanelContent(
 			buildCall({
 				direction: CallDirection.Outbound,
 				from: {
@@ -76,7 +76,7 @@ describe('toCallPanelInfo', () => {
 	});
 
 	it('leaves out what the call does not have', () => {
-		const info = toCallPanelInfo(
+		const info = toCallInfoPanelContent(
 			buildCall({
 				from: {
 					type: 'dest',
@@ -100,7 +100,7 @@ describe('toCallPanelInfo', () => {
 	});
 
 	it('leaves out a direction the SDK does not know', () => {
-		const info = toCallPanelInfo(
+		const info = toCallInfoPanelContent(
 			buildCall({
 				direction: 'internal',
 			}),
