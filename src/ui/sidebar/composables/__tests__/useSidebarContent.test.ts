@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 
+import { CallsRouteName } from '../../../pages/modules/calls/enums/CallsRouteName.enum';
 import { ContactsPageTab } from '../../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../../pages/modules/history/enums/HistoryPageTab.enum';
 import TheCallPanel from '../../modules/call/the-call-panel.vue';
@@ -44,7 +45,7 @@ describe('useSidebarContent', () => {
 	});
 
 	it('returns the call panel for the call window', () => {
-		routeName.value = 'call-window';
+		routeName.value = CallsRouteName.CallWindow;
 		const { content } = useSidebarContent();
 
 		expect(content.value).toEqual({

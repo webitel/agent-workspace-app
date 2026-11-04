@@ -42,6 +42,7 @@ import { useCallsStore } from '../../../features/calls/store/calls';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
+import { CallsRouteName } from '../../pages/modules/calls/enums/CallsRouteName.enum';
 import { useTaskDockStore } from '../store/task-dock';
 
 const taskDockStore = useTaskDockStore();
@@ -67,7 +68,7 @@ function onHangup(callId: string): void {
 
 function openCallWindow(callId: string) {
 	router.push({
-		name: 'call-window',
+		name: CallsRouteName.CallWindow,
 		params: {
 			callId,
 		},
