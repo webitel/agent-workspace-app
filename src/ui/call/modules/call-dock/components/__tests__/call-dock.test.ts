@@ -15,6 +15,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	canTransfer: true,
 	dtmfDigits: '',
 	...overrides,
 });

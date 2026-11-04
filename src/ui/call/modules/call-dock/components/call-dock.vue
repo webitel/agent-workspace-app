@@ -69,9 +69,11 @@
 			:is-numpad-open="isNumpadOpen"
 			:is-muted="preview.isMuted"
 			:is-hold="preview.isHold"
+			:can-transfer="preview.canTransfer"
 			@toggle-numpad="isNumpadOpen = !isNumpadOpen"
 			@toggle-mute="emit('toggleMute')"
 			@toggle-hold="emit('toggleHold')"
+			@transfer="emit('transfer')"
 			@hangup="emit('hangup')"
 		/>
 	</div>
@@ -97,6 +99,7 @@ const props = defineProps<{
 const emit = defineEmits<{
 	toggleMute: [];
 	toggleHold: [];
+	transfer: [];
 	hangup: [];
 	openFullView: [];
 	sendDigit: [

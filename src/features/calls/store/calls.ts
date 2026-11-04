@@ -12,6 +12,7 @@ import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useCallAudio } from '../composables/useCallAudio';
+import { canTransferCall } from '../scripts/canTransferCall';
 import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
@@ -310,6 +311,30 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * resolves true once the backend accepted the transfer, which is not yet
+	 * the end of the call: the SDK drops it from the list afterwards, and that
+	 * is what closes its window. A failure is reported here, not thrown, so the
+	 * popup that asked can stay open with the number the agent typed
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function blindTransfer(
+		callId: string,
+		destination: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		if (!canTransferCall(call)) return false;
+
+		try {
+			await call.blindTransfer(destination);
+			return true;
+		} catch {
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
 	async function sendDtmf(callId: string, digit: string) {
 		const call = getCallById(callId);
 		if (!call?.allowDtmf) return;
@@ -441,12 +466,15 @@ export const useCallsStore = defineStore('calls', () => {
 		forgetReturnTargetOfUnansweredCall,
 		toggleMute,
 		toggleHold,
+		blindTransfer,
 		sendDtmf,
 		hangup,
 	};
 });
 
-function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
+function notifyCallError(
+	errorKey: 'holdToggleFailed' | 'dtmfFailed' | 'transferFailed',
+): void {
 	eventBus.$emit('notification', {
 		type: 'error',
 		text: i18n.global.t(`error.calls.${errorKey}`),
