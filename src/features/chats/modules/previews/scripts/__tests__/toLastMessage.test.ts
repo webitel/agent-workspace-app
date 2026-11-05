@@ -78,6 +78,52 @@ describe('toLastMessage', () => {
 		).toBeUndefined();
 	});
 
+	it('drops a message with no id, as nothing tells it from the next one', () => {
+		expect(
+			toLastMessage(
+				buildMessage({
+					id: undefined,
+				}),
+			),
+		).toBeUndefined();
+	});
+
+	// a page of the chat list brings the thread's lastMsg, not a socket message
+	it("reads a thread's last message from the thread list the same way", () => {
+		const lastMsg = {
+			id: 'm9',
+			body: 'from the list',
+			createdAt: '1760000000500',
+			threadId: 't1',
+			sender: {
+				id: 'member-client',
+				contact: {
+					sub: 'client-1',
+					iss: 'telegram',
+					name: 'Anna',
+				},
+			},
+		};
+
+		expect(toLastMessage(lastMsg)).toEqual({
+			id: 'm9',
+			body: 'from the list',
+			at: 1760000000500,
+			senderContact: {
+				sub: 'client-1',
+				iss: 'telegram',
+			},
+		});
+		expect(
+			toLastMessage({
+				...lastMsg,
+				system: {
+					memberJoined: {},
+				},
+			}),
+		).toBeUndefined();
+	});
+
 	it.each([
 		[
 			'no sender',

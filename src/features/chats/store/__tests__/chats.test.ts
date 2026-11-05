@@ -85,14 +85,22 @@ vi.mock('../chat-account', () => ({
 }));
 
 const receivePreviewMessageMock = vi.fn();
-const reseedPreviewsMock = vi.fn();
 const loadUnreadMock = vi.fn();
 
 vi.mock('../../modules/previews/store/chat-previews', () => ({
 	useChatPreviewsStore: () => ({
 		receiveMessage: receivePreviewMessageMock,
-		reseed: reseedPreviewsMock,
 		loadUnread: loadUnreadMock,
+	}),
+}));
+
+const receiveListMessageMock = vi.fn();
+const reloadListMock = vi.fn();
+
+vi.mock('../../modules/previews/store/chat-list', () => ({
+	useChatListStore: () => ({
+		receiveMessage: receiveListMessageMock,
+		reload: reloadListMock,
 	}),
 }));
 
@@ -284,7 +292,8 @@ describe('chats store', () => {
 
 			reconnectedHandler?.();
 
-			expect(reseedPreviewsMock).toHaveBeenCalledOnce();
+			// the open tab is read again from its first page (ADR-0012)
+			expect(reloadListMock).toHaveBeenCalledOnce();
 			expect(catchUpMock).toHaveBeenCalledTimes(2);
 		});
 
@@ -358,6 +367,23 @@ describe('chats store', () => {
 			expect(receivePreviewMessageMock).toHaveBeenCalledWith({
 				threadId: 'chat-unknown',
 			});
+		});
+
+		// counted first, so a chat that just turned unread can join a filtered list
+		it('moves the chat in the list after its preview has counted the message', () => {
+			const store = useChatsStore();
+			store.initialize();
+
+			threadMessageHandler?.({
+				threadId: 'chat-1',
+			});
+
+			expect(receiveListMessageMock).toHaveBeenCalledWith({
+				threadId: 'chat-1',
+			});
+			expect(
+				receivePreviewMessageMock.mock.invocationCallOrder[0],
+			).toBeLessThan(receiveListMessageMock.mock.invocationCallOrder[0]);
 		});
 
 		it('ignores a message for a chat with no session', () => {

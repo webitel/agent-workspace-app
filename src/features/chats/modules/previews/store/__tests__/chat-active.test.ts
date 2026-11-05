@@ -58,12 +58,13 @@ describe('chat-active store', () => {
 		setActivePinia(createPinia());
 	});
 
+	// which chats the tab shows is read page by page in chat-list (ADR-0012)
 	describe('chats', () => {
-		it('lists every active chat', () => {
+		it('counts every active chat, not a page of them', () => {
 			chatTaskList.value = buildChats(45);
 			const store = useChatActiveStore();
 
-			expect(store.tasks).toHaveLength(45);
+			expect(store.count).toBe(45);
 		});
 
 		it('counts every chat, whatever the unread filter shows', () => {
@@ -88,10 +89,6 @@ describe('chat-active store', () => {
 			]);
 			const store = useChatActiveStore();
 
-			expect(store.tasks.map((task) => task.id)).toEqual([
-				1,
-				3,
-			]);
 			expect(store.count).toBe(2);
 		});
 
@@ -124,15 +121,12 @@ describe('chat-active store', () => {
 			store.toggleOnlyUnread();
 
 			expect(store.isFilteringUnread).toBe(false);
-			expect(store.tasks).toHaveLength(3);
 		});
 
-		it('keeps only the chats with unread messages', async () => {
+		it('filters once there is unread data behind it', async () => {
 			chatTaskList.value = buildChats(4);
 			unreadByThread.value = {
 				t2: 1,
-				t3: 0,
-				t4: 5,
 			};
 			const store = useChatActiveStore();
 
@@ -140,13 +134,10 @@ describe('chat-active store', () => {
 			await nextTick();
 
 			expect(store.isUnreadFilterAvailable).toBe(true);
-			expect(store.tasks.map((task) => task.id)).toEqual([
-				2,
-				4,
-			]);
+			expect(store.isFilteringUnread).toBe(true);
 		});
 
-		it('lists every chat again once switched off', () => {
+		it('stops filtering once switched off', () => {
 			chatTaskList.value = buildChats(4);
 			unreadByThread.value = {
 				t2: 1,
@@ -156,7 +147,19 @@ describe('chat-active store', () => {
 			store.toggleOnlyUnread();
 			store.toggleOnlyUnread();
 
-			expect(store.tasks).toHaveLength(4);
+			expect(store.isFilteringUnread).toBe(false);
+		});
+
+		it('is set on, not switched, when handed over from Snoozed', () => {
+			unreadByThread.value = {
+				t2: 1,
+			};
+			const store = useChatActiveStore();
+
+			store.setOnlyUnread(true);
+			store.setOnlyUnread(true);
+
+			expect(store.isFilteringUnread).toBe(true);
 		});
 	});
 

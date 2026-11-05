@@ -119,15 +119,25 @@ export async function mockAppApis(page: Page) {
 		});
 	});
 	// the chats page's Active table lists threads; unmocked, the request reaches
-	// the real instance, which answers 401, and the app redirects to its login
+	// the real instance, which answers 401, and the app redirects to its login.
+	// The chat list reads its pages by the ids of the agent's chats (ADR-0012),
+	// so those are answered as one page; nothing is snoozed or unread here
 	await page.route(
 		(url) => url.pathname.endsWith('/api/v1/threads'),
 		async (route) => {
+			const params = new URL(route.request().url()).searchParams;
+			const ids = queryList(params, 'ids');
+			const isNarrowed = params.has('tags') || params.get('unread') === 'true';
 			await route.fulfill({
 				status: 200,
 				contentType: 'application/json',
 				body: JSON.stringify({
-					items: [],
+					items: isNarrowed
+						? []
+						: ids.map((id) => ({
+								id,
+							})),
+					next: false,
 				}),
 			});
 		},
@@ -143,6 +153,22 @@ export async function mockAppApis(page: Page) {
 			}),
 		});
 	});
+}
+
+/**
+ * The values of an array query param, however the client wrote it: repeated
+ * (`ids=a&ids=b`), bracketed (`ids[]=a`) or indexed (`ids[0]=a`).
+ */
+export function queryList(params: URLSearchParams, key: string): string[] {
+	const indexed = new RegExp(`^${key}\\[\\d*\\]$`);
+	return [
+		...params.getAll(key),
+		...[
+			...params.keys(),
+		]
+			.filter((name) => indexed.test(name))
+			.flatMap((name) => params.getAll(name)),
+	].filter((value, index, all) => all.indexOf(value) === index);
 }
 
 /** Per-action reply bodies; everything unmodelled still gets an empty object. */

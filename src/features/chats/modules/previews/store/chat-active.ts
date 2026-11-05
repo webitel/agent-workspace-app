@@ -6,13 +6,10 @@ import { useChatPreviewsStore } from './chat-previews';
 import { useChatSnoozedStore } from './chat-snoozed';
 
 /**
- * The Active tab's chats: every chat the agent has accepted and not snoozed, or
- * the unread ones when the filter is on (AC_02.01.04). The chats themselves
- * belong to the task feed, which `chats` owns; this store is what the Active
- * tab makes of them.
- *
- * Paging on scroll (AC_02.01.02) is deliberately not here yet; the list is every
- * active chat the task feed carries.
+ * The Active tab's chats: every chat the agent has accepted and not snoozed,
+ * counted for the tab's indicators, and the unread filter (AC_02.01.04). The
+ * chats themselves belong to the task feed, which `chats` owns; which of them
+ * the tab shows is read page by page in `chat-list` (ADR-0012).
  */
 export const useChatActiveStore = defineStore('chat-active', () => {
 	const chatsStore = useChatsStore();
@@ -46,12 +43,6 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 		};
 	}) => previewsStore.isUnread(task.thread?.id ?? '');
 
-	const tasks = computed(() =>
-		isFilteringUnread.value
-			? activeTasks.value.filter(isUnread)
-			: activeTasks.value,
-	);
-
 	// the tab's indicator counts its chats, not what the unread filter leaves
 	const count = computed(() => activeTasks.value.length);
 
@@ -80,7 +71,6 @@ export const useChatActiveStore = defineStore('chat-active', () => {
 		// getters
 		isUnreadFilterAvailable,
 		isFilteringUnread,
-		tasks,
 		count,
 		unreadCount,
 

@@ -1,3 +1,4 @@
+import type { IThread } from '@webitel/chat-web-sdk';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, shallowRef } from 'vue';
 
@@ -25,17 +26,18 @@ const UNREAD_PAGE_SIZE = 100;
  * (ADR-0007), while a chat preview must show its last message for every listed
  * chat, opened or not.
  *
- * A chat's last message is seeded once with a single history request, then kept
- * current from the chats socket, so the list costs one request per chat rather
- * than a thread load. Its unread count is read once for every chat that has
- * any, and kept from the socket (ADR-0011).
+ * A chat's last message comes with the page of the chat list that shows it
+ * (ADR-0012), or from a single history request when the page brings none, and
+ * is kept current from the chats socket. Its unread count is read once for every
+ * chat that has any, refreshed by each page, and kept from the socket
+ * (ADR-0011).
  */
 export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// reassigned, never mutated, so shallow reactivity is enough
 	const lastMessages = shallowRef<Record<string, LastMessage>>({});
 	const accountStore = useChatAccountStore();
-	// threads the list is showing: the socket carries every thread the agent is
-	// in, and only these are worth keeping and counting
+	// the agent's listed chats, shown on a page or not: the socket carries every
+	// thread the agent is in, and only these are worth keeping and counting
 	const tracked = new Set<string>();
 	const seeded = new Set<string>();
 	// the newest message counted per thread, so an edit or the echo of a message
@@ -164,8 +166,33 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	}
 
 	/**
-	 * Aligns the store with the chats the list shows: drops the ones that left
-	 * and seeds the ones that arrived.
+	 * A row of a chat list page: the thread's last message and unread count as
+	 * the backend has them at this read. A page that brings no last message falls
+	 * back to one history read, made again on every page that does so, since a
+	 * page is read to bring the row up to date (a reconnect, a search).
+	 */
+	function receiveThread(thread: IThread) {
+		if (!tracked.has(thread.id)) return;
+
+		// the backend leaves a zero count out
+		setUnreadCount(thread.id, thread.unreadCount ?? 0);
+
+		const lastMessage = thread.lastMsg && toLastMessage(thread.lastMsg);
+		if (!lastMessage) {
+			seeded.delete(thread.id);
+			void seed(thread.id);
+			return;
+		}
+		seeded.add(thread.id);
+		// the count above already holds it, should the socket echo it
+		lastCounted.set(thread.id, lastMessage.id);
+		keepNewest(thread.id, lastMessage);
+	}
+
+	/**
+	 * Aligns the store with the agent's listed chats: drops the ones that left
+	 * and follows the ones that arrived. Nothing is read here: a chat's last
+	 * message comes with the page that shows it (`receiveThread`).
 	 */
 	function sync(threadIds: string[]) {
 		const current = new Set(threadIds);
@@ -183,20 +210,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			unreadByThread.value = counts;
 		}
 
-		for (const threadId of current) {
-			tracked.add(threadId);
-			void seed(threadId);
-		}
-	}
-
-	/**
-	 * Reads every listed chat's last message again, for when the chats socket
-	 * was down and may have missed some. `keepNewest` settles a read racing the
-	 * socket, as it does for the first seed.
-	 */
-	function reseed() {
-		seeded.clear();
-		for (const threadId of tracked) void seed(threadId);
+		for (const threadId of current) tracked.add(threadId);
 	}
 
 	return {
@@ -213,8 +227,9 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		loadUnread,
 		markRead,
 		sync,
+		seed,
+		receiveThread,
 		receiveMessage,
-		reseed,
 	};
 });
 

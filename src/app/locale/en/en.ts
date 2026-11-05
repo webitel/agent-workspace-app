@@ -24,6 +24,7 @@ export default {
 				action: 'Snooze',
 				error: "Couldn't snooze the chat",
 			},
+			loadError: "Couldn't load the chats",
 		},
 		notifications: {
 			offer: {

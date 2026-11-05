@@ -7,6 +7,7 @@ import { useOffersStore } from '../../../ui/notifications/modules/offers/store/o
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { useChatsSocket } from '../composables/useChatsSocket';
 import { disposeClosedChat } from '../modules/closed/store/closed-chat';
+import { useChatListStore } from '../modules/previews/store/chat-list';
 import { useChatPreviewsStore } from '../modules/previews/store/chat-previews';
 import { useChatSnoozedStore } from '../modules/previews/store/chat-snoozed';
 import { isChatTask } from '../scripts/isChatTask';
@@ -273,12 +274,18 @@ export const useChatsStore = defineStore('chats', () => {
 		// which chats have unread messages, and how many, is the chat backend's to
 		// say too (ADR-0011)
 		void previewsStore.loadUnread();
+		// resolved here for the same reason; it reads its first page once the
+		// task feed has arrived (ADR-0012)
+		const chatListStore = useChatListStore();
 
 		connectChatsSocket();
 		onThreadMessage((message) => {
 			// every listed chat keeps its last message and unread count current,
 			// open or not
 			previewsStore.receiveMessage(message);
+			// after the count, so a chat that just turned unread can join the list
+			// while the unread filter is on
+			chatListStore.receiveMessage(message);
 			// a session outlives its window while its chat is listed, so it is
 			// kept current whether its window is open or not
 			if (!message.threadId || !hasChatSession(message.threadId)) return;
@@ -287,9 +294,9 @@ export const useChatsStore = defineStore('chats', () => {
 		onThreadTagsChanged((changed) => snoozedStore.receiveTagsChanged(changed));
 		onReconnected(() => {
 			// the socket was down, so anything written meanwhile was never pushed:
-			// read the list's last messages and unread counts, the snoozed chats and
+			// read the list's open tab, the unread counts, the snoozed chats and
 			// every session's newest page again
-			previewsStore.reseed();
+			chatListStore.reload();
 			void previewsStore.loadUnread();
 			void snoozedStore.load();
 			for (const threadId of chatSessionIds()) {
