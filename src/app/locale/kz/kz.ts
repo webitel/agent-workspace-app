@@ -81,6 +81,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Қабылданбаған',
+					offline: 'Офлайн',
 				},
 				tabs: {
 					info: 'Ақпарат',

@@ -81,6 +81,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Nieodebrane',
+					offline: 'Offline',
 				},
 				tabs: {
 					info: 'Informacje',

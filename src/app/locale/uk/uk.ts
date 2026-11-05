@@ -89,6 +89,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Пропущені',
+					offline: 'Офлайн',
 				},
 				tabs: {
 					info: 'Інфо',

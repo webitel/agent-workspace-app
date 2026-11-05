@@ -46,6 +46,11 @@ const routes: RouteRecordRaw[] = [
 						name: CallsPageTab.Missed,
 						component: NoopRouteComponent,
 					},
+					{
+						path: 'offline',
+						name: CallsPageTab.Offline,
+						component: NoopRouteComponent,
+					},
 				],
 			},
 			{

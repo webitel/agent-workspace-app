@@ -81,6 +81,7 @@ export default {
 			calls: {
 				pageTabs: {
 					missed: 'Pierdute',
+					offline: 'Offline',
 				},
 				tabs: {
 					info: 'Informații',
