@@ -75,6 +75,7 @@ export default {
 				groups: 'Nhóm',
 				attributes: 'Thuộc tính',
 				noAttributes: 'Chưa xác định biến tùy chỉnh',
+				communicationOptions: 'Tùy chọn liên lạc',
 			},
 		},
 		pages: {

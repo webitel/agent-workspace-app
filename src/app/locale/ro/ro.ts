@@ -75,6 +75,7 @@ export default {
 				groups: 'Grupuri',
 				attributes: 'Atribute',
 				noAttributes: 'Nu sunt definite variabile personalizate',
+				communicationOptions: 'Optiuni de comunicare',
 			},
 		},
 		pages: {

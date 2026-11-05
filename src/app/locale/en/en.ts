@@ -83,6 +83,7 @@ export default {
 				groups: 'Groups',
 				attributes: 'Attributes',
 				noAttributes: 'No custom variables defined',
+				communicationOptions: 'Communication options',
 			},
 		},
 		pages: {
