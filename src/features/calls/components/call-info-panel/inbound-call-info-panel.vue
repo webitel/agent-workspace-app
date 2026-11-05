@@ -1,27 +1,43 @@
 <template>
 	<section class="inbound-call-info-panel">
-		<call-info-panel-header
+		<communication-info-header
 			icon="ws-inbound-call"
-			:tone="IconColor.SUCCESS"
+			:color="IconColor.SUCCESS"
 			:title="t('ui.call.direction.inbound')"
-			:created-at="content.createdAt"
-			:answered-at="content.answeredAt"
-		/>
+		>
+			<template
+				v-if="startedAt"
+				#subtitle
+			>
+				{{ startedAt }}
+			</template>
+			<template
+				v-if="content.answeredAt"
+				#aside
+			>
+				<span class="inbound-call-info-panel__timer typo-heading-6">
+					{{ duration }}
+				</span>
+			</template>
+		</communication-info-header>
 		<wt-divider />
-		<call-info-panel-fields :fields="fields" />
+		<communication-info-fields :fields="fields" />
 	</section>
 </template>
 
 <script setup lang="ts">
 import { WtDivider } from '@webitel/ui-sdk/components';
-import { IconColor } from '@webitel/ui-sdk/enums';
+import { FormatDateMode, IconColor } from '@webitel/ui-sdk/enums';
+import { convertDuration } from '@webitel/ui-sdk/scripts';
+import { formatDate } from '@webitel/ui-sdk/utils';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useElapsedSec } from '../../../../ui/composables/useElapsedSec';
+import CommunicationInfoFields from '../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
+import CommunicationInfoHeader from '../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
+import type { CommunicationInfoField } from '../../../../ui/sidebar/components/communication-info/types/CommunicationInfoField.types';
 import type { CallInfoPanelContent } from '../../types/CallInfoPanelContent.types';
-import type { CallInfoPanelField } from '../../types/CallInfoPanelField.types';
-import CallInfoPanelFields from './call-info-panel-fields.vue';
-import CallInfoPanelHeader from './call-info-panel-header.vue';
 
 const props = defineProps<{
 	content: CallInfoPanelContent;
@@ -29,16 +45,29 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const fields = computed<CallInfoPanelField[]>(() => [
+const startedAt = computed(() =>
+	props.content.createdAt
+		? `${t('ui.reusable.startedAt')}: ${formatDate(props.content.createdAt, FormatDateMode.TIME_SEC)}`
+		: undefined,
+);
+
+// Same format as the call dock's timer: hours always shown.
+const elapsedSec = useElapsedSec(() => props.content.answeredAt);
+const duration = computed(() => convertDuration(elapsedSec.value));
+
+const fields = computed<CommunicationInfoField[]>(() => [
 	{
+		key: 'from',
 		label: t('reusable.from'),
 		value: props.content.from,
 	},
 	{
+		key: 'to',
 		label: t('reusable.to'),
 		value: props.content.to,
 	},
 	{
+		key: 'queue',
 		label: t('objects.queue.queue', 1),
 		value: props.content.queueName,
 	},
