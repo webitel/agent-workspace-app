@@ -47,13 +47,6 @@ vi.mock('../store/offline-calls', () => ({
 	useOfflineCallsDataListStore: () => mockStore,
 }));
 
-const useOfflineCallsAutoRefresh = vi.fn();
-
-vi.mock('../composables/useOfflineCallsAutoRefresh', () => ({
-	useOfflineCallsAutoRefresh: (...args: unknown[]) =>
-		useOfflineCallsAutoRefresh(...args),
-}));
-
 vi.mock('@webitel/ui-sdk/components', () => ({
 	WtTable: {
 		name: 'WtTable',
@@ -155,19 +148,12 @@ describe('offline-calls-table', () => {
 
 	beforeEach(() => {
 		({ store: mockStore, finishInitialize } = createStore());
-		useOfflineCallsAutoRefresh.mockClear();
 	});
 
 	it('initializes the store on mount', () => {
 		mountTable();
 
 		expect(mockStore.initialize).toHaveBeenCalledTimes(1);
-	});
-
-	it('starts the auto refresh with the table store', () => {
-		mountTable();
-
-		expect(useOfflineCallsAutoRefresh).toHaveBeenCalledWith(mockStore);
 	});
 
 	describe('loading the next page on scroll', () => {

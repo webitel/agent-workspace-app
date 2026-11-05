@@ -24,7 +24,7 @@
 			</template>
 
 			<template #phone="{ item }">
-				{{ item.communications[0]?.destination }}
+				<phone-call-table-cell :phone-number="item.communications[0]?.destination" />
 			</template>
 		</wt-table>
 	</div>
@@ -34,8 +34,8 @@
 import { WtTable } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import PhoneCallTableCell from '../../../../components/phone-call-table-cell.vue';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
-import { useOfflineCallsAutoRefresh } from './composables/useOfflineCallsAutoRefresh';
 import { useOfflineCallsDataListStore } from './store/offline-calls';
 
 const store = useOfflineCallsDataListStore();
@@ -59,6 +59,4 @@ const onLoading = async () => {
 initialize().finally(() => {
 	isInitializing.value = false;
 });
-
-useOfflineCallsAutoRefresh(store);
 </script>
