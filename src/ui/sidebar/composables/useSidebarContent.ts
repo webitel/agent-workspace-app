@@ -1,5 +1,6 @@
 import { type ComputedRef, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { type RouteLocationNormalizedLoaded, useRoute } from 'vue-router';
+import { useCallsStore } from '../../../features/calls/store/calls';
 import { CallsRouteName } from '../../pages/modules/calls/enums/CallsRouteName.enum';
 import { ContactsPageTab } from '../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../pages/modules/history/enums/HistoryPageTab.enum';
@@ -8,15 +9,31 @@ import TheContactsPanel from '../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../modules/history/the-history-panel.vue';
 import type { SidebarContent } from '../types/SidebarContent.types';
 
-const sidebarContentByRouteName: Partial<Record<string, SidebarContent>> = {
-	[HistoryPageTab.Calls]: {
+// What the sidebar shows on a route, or null when there is nothing to show
+// (the call page whose call is already gone).
+type SidebarContentResolver = (
+	route: RouteLocationNormalizedLoaded,
+) => SidebarContent | null;
+
+const sidebarContentByRouteName: Partial<
+	Record<string, SidebarContentResolver>
+> = {
+	[HistoryPageTab.Calls]: () => ({
 		component: TheHistoryPanel,
-	},
-	[ContactsPageTab.Contacts]: {
+	}),
+	[ContactsPageTab.Contacts]: () => ({
 		component: TheContactsPanel,
-	},
-	[CallsRouteName.CallWindow]: {
-		component: TheCallPanel,
+	}),
+	[CallsRouteName.CallWindow]: (route) => {
+		const call = useCallsStore().getCallById(route.params.callId as string);
+		return call
+			? {
+					component: TheCallPanel,
+					props: {
+						call,
+					},
+				}
+			: null;
 	},
 };
 
@@ -28,7 +45,7 @@ export function useSidebarContent(): {
 	const content = computed<SidebarContent | null>(() => {
 		const { name } = route;
 		if (typeof name !== 'string') return null;
-		return sidebarContentByRouteName[name] ?? null;
+		return sidebarContentByRouteName[name]?.(route) ?? null;
 	});
 
 	return {

@@ -45,10 +45,10 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const startedAt = computed(() =>
-	props.content.createdAt
-		? `${t('ui.reusable.startedAt')}: ${formatDate(props.content.createdAt, FormatDateMode.TIME_SEC)}`
-		: undefined,
+const startedAt = computed(
+	() =>
+		!!props.content.createdAt &&
+		`${t('ui.reusable.startedAt')}: ${formatDate(props.content.createdAt, FormatDateMode.TIME_SEC)}`,
 );
 
 // Same format as the call dock's timer: hours always shown.

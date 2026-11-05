@@ -1,27 +1,6 @@
 import { mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
-import { CallDirection } from 'webitel-sdk';
-
-const route = reactive({
-	params: {
-		callId: 'call-1',
-	},
-});
-
-vi.mock('vue-router', () => ({
-	useRoute: () => route,
-}));
-
-const callsById = reactive<Record<string, unknown>>({});
-
-// The real calls store pulls the socket client and offers in; the panel only
-// needs the id -> call lookup.
-vi.mock('../../../../../features/calls/store/calls', () => ({
-	useCallsStore: () => ({
-		getCallById: (id: string) => callsById[id],
-	}),
-}));
+import { describe, expect, it, vi } from 'vitest';
+import { type Call, CallDirection } from 'webitel-sdk';
 
 vi.mock(
 	'../../../../../features/calls/components/call-info-panel/call-info-panel.vue',
@@ -49,8 +28,8 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 
 import TheCallPanel from '../the-call-panel.vue';
 
-const makeCall = (id: string) => ({
-	id,
+const call = {
+	id: 'call-1',
 	direction: CallDirection.Inbound,
 	from: {
 		type: 'dest',
@@ -66,23 +45,18 @@ const makeCall = (id: string) => ({
 	},
 	createdAt: 1_700_000_000_000,
 	answeredAt: 1_700_000_015_000,
-});
+} as unknown as Call;
+
+const mountPanel = () =>
+	mount(TheCallPanel, {
+		props: {
+			call,
+		},
+	});
 
 describe('the-call-panel', () => {
-	beforeEach(() => {
-		for (const id of Object.keys(callsById)) delete callsById[id];
-		route.params.callId = 'call-1';
-	});
-
-	it('renders nothing when the route has no such call', () => {
-		const wrapper = mount(TheCallPanel);
-
-		expect(wrapper.find('.call-panel').exists()).toBe(false);
-	});
-
-	it('shows the info of the call open on the page', () => {
-		callsById['call-1'] = makeCall('call-1');
-		const wrapper = mount(TheCallPanel);
+	it('shows the info of the given call', () => {
+		const wrapper = mountPanel();
 
 		expect(
 			wrapper
@@ -98,8 +72,7 @@ describe('the-call-panel', () => {
 	});
 
 	it('shows the identification block with no contacts yet', () => {
-		callsById['call-1'] = makeCall('call-1');
-		const wrapper = mount(TheCallPanel);
+		const wrapper = mountPanel();
 
 		expect(
 			wrapper

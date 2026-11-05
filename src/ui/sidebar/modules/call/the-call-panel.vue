@@ -1,8 +1,5 @@
 <template>
-	<div
-		v-if="content"
-		class="call-panel"
-	>
+	<div class="call-panel">
 		<call-info-panel :content="content" />
 		<!-- identification is the next PR: until then no contact is ever found -->
 		<contact-identification :contact-ids="[]" />
@@ -11,22 +8,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import type { Call } from 'webitel-sdk';
 import CallInfoPanel from '../../../../features/calls/components/call-info-panel/call-info-panel.vue';
 import { toCallInfoPanelContent } from '../../../../features/calls/scripts/toCallInfoPanelContent';
-import { useCallsStore } from '../../../../features/calls/store/calls';
 import ContactIdentification from '../../components/contact/contact-identification.vue';
 
-const route = useRoute();
-const callsStore = useCallsStore();
+// The call open on the page; the sidebar shows this panel only while it exists.
+const props = defineProps<{
+	call: Call;
+}>();
 
-const call = computed(() =>
-	callsStore.getCallById(route.params.callId as string),
-);
-
-const content = computed(
-	() => call.value && toCallInfoPanelContent(call.value),
-);
+const content = computed(() => toCallInfoPanelContent(props.call));
 </script>
 
 <style scoped>
