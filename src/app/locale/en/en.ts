@@ -177,6 +177,9 @@ export default {
 				retryCall: 'Retry call',
 				backToDialpad: 'Back to dialpad',
 			},
+			direction: {
+				inbound: 'Inbound Call',
+			},
 		},
 	},
 	error: {

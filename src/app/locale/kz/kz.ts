@@ -160,6 +160,9 @@ export default {
 				retryCall: 'Қайта қоңырау шалу',
 				backToDialpad: 'Нөмір теруге оралу',
 			},
+			direction: {
+				inbound: 'Кіріс қоңырау',
+			},
 		},
 	},
 	error: {

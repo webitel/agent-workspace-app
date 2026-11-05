@@ -160,6 +160,9 @@ export default {
 				retryCall: 'Reîncearcă apelul',
 				backToDialpad: 'Înapoi la tastatură',
 			},
+			direction: {
+				inbound: 'Apel de intrare',
+			},
 		},
 	},
 	error: {

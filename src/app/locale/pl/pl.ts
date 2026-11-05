@@ -160,6 +160,9 @@ export default {
 				retryCall: 'Ponów połączenie',
 				backToDialpad: 'Wróć do klawiatury',
 			},
+			direction: {
+				inbound: 'Połączenie przychodzące',
+			},
 		},
 	},
 	error: {

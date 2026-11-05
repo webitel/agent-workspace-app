@@ -160,6 +160,9 @@ export default {
 				retryCall: 'Gọi lại',
 				backToDialpad: 'Quay lại bàn phím',
 			},
+			direction: {
+				inbound: 'Cuộc gọi đến',
+			},
 		},
 	},
 	error: {
