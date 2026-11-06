@@ -26,13 +26,13 @@ const callsById = reactive<Record<string, Call>>({});
 const settings = reactive<Record<string, unknown>>({});
 
 // the real stores pull the socket client in; only these slices are read
-vi.mock('../../store/calls', () => ({
+vi.mock('../../../../store/calls', () => ({
 	useCallsStore: () => ({
 		getCallById: (id: string) => callsById[id],
 	}),
 }));
 
-vi.mock('../../../system-settings/store/systemSettings', () => ({
+vi.mock('../../../../../system-settings/store/systemSettings', () => ({
 	useSystemSettingsStore: () => ({
 		settings,
 	}),

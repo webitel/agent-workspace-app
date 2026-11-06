@@ -2,10 +2,10 @@ import { EngineSystemSettingName } from '@webitel/api-services/gen/models';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
 
-import { useSystemSettingsStore } from '../../system-settings/store/systemSettings';
+import { useSystemSettingsStore } from '../../../../system-settings/store/systemSettings';
+import { useCallsStore } from '../../../store/calls';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
-import { useCallsStore } from '../store/calls';
 
 export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
 	const callsStore = useCallsStore();

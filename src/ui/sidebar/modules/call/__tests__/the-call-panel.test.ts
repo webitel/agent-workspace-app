@@ -14,7 +14,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 }));
 
 vi.mock(
-	'../../../../../features/calls/components/call-info-panel/call-info-panel.vue',
+	'../../../../../features/calls/modules/info-panel/components/call-info-panel/call-info-panel.vue',
 	() => ({
 		default: {
 			name: 'CallInfoPanel',
@@ -35,7 +35,7 @@ let identifiedCall: (() => Call) | undefined;
 
 // the identification itself is covered by the composable's own tests
 vi.mock(
-	'../../../../../features/calls/composables/useCallContactIdentification',
+	'../../../../../features/calls/modules/contact-identification/composables/useCallContactIdentification',
 	() => ({
 		useCallContactIdentification: (call: () => Call) => {
 			identifiedCall = call;

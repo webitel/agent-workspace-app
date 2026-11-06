@@ -4,7 +4,7 @@ import { type Call, CallDirection } from 'webitel-sdk';
 import { toCallInfoPanelContent } from '../toCallInfoPanelContent';
 
 // the shared i18n instance can't be constructed under the global vue-i18n mock
-vi.mock('../../../../app/locale/i18n', () => ({
+vi.mock('../../../../../../app/locale/i18n', () => ({
 	default: {
 		global: {
 			t: (key: string) => key,

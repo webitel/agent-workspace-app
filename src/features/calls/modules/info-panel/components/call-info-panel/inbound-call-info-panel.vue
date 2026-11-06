@@ -33,10 +33,10 @@ import { formatDate } from '@webitel/ui-sdk/utils';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useElapsedSec } from '../../../../ui/composables/useElapsedSec';
-import CommunicationInfoFields from '../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
-import CommunicationInfoHeader from '../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
-import type { CommunicationInfoField } from '../../../../ui/sidebar/components/communication-info/types/CommunicationInfoField.types';
+import { useElapsedSec } from '../../../../../../ui/composables/useElapsedSec';
+import CommunicationInfoFields from '../../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
+import CommunicationInfoHeader from '../../../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
+import type { CommunicationInfoField } from '../../../../../../ui/sidebar/components/communication-info/types/CommunicationInfoField.types';
 import type { CallInfoPanelContent } from '../../types/CallInfoPanelContent.types';
 
 const props = defineProps<{

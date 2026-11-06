@@ -4,8 +4,8 @@ import { formatDate } from '@webitel/ui-sdk/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CallDirection } from 'webitel-sdk';
 
-import CommunicationInfoFields from '../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
-import CommunicationInfoHeader from '../../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
+import CommunicationInfoFields from '../../../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
+import CommunicationInfoHeader from '../../../../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
 import type { CallInfoPanelContent } from '../../../types/CallInfoPanelContent.types';
 import InboundCallInfoPanel from '../inbound-call-info-panel.vue';
 
