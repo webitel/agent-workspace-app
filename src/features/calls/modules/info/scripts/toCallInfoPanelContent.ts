@@ -1,7 +1,7 @@
 import { type Call, CallDirection } from 'webitel-sdk';
 
+import { maskNumber } from '../../../scripts/toCallOfferContent';
 import type { CallInfoPanelContent } from '../types/CallInfoPanelContent.types';
-import { maskNumber } from './toCallOfferContent';
 
 const callDirections: readonly string[] = Object.values(CallDirection);
 
