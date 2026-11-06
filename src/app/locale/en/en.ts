@@ -51,6 +51,7 @@ export default {
 			username: 'Username',
 			message: 'Message',
 			phoneNumber: 'Phone number',
+			waitTime: 'Wait time',
 		},
 		numpad: {
 			call: 'Call',
@@ -90,6 +91,7 @@ export default {
 				pageTabs: {
 					missed: 'Missed',
 					offline: 'Offline',
+					selfAssigned: 'Self-assigned',
 				},
 				tabs: {
 					info: 'Info',

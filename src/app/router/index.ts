@@ -47,6 +47,11 @@ const routes: RouteRecordRaw[] = [
 						component: NoopRouteComponent,
 					},
 					{
+						path: 'self-assigned',
+						name: CallsPageTab.SelfAssigned,
+						component: NoopRouteComponent,
+					},
+					{
 						path: 'offline',
 						name: CallsPageTab.Offline,
 						component: NoopRouteComponent,

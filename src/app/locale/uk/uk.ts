@@ -51,6 +51,7 @@ export default {
 			username: "Ім'я користувача",
 			message: 'Повідомлення',
 			phoneNumber: 'Номер телефону',
+			waitTime: 'Час очікування',
 		},
 		numpad: {
 			call: 'Зателефонувати',
@@ -90,6 +91,7 @@ export default {
 				pageTabs: {
 					missed: 'Пропущені',
 					offline: 'Офлайн',
+					selfAssigned: 'Самостійно призначені',
 				},
 				tabs: {
 					info: 'Інфо',
