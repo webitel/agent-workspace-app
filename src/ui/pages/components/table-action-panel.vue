@@ -32,7 +32,7 @@
 			</template>
 		</wt-action-bar>
 
-		<wt-icon-btn :icon="sidebarIcon" @click="toggleSidebar" />
+		<sidebar-toggle-btn />
 	</div>
 </template>
 
@@ -43,10 +43,9 @@ import {
 	useTableVariableHeaders,
 	WtTableVariableColumnSelect,
 } from '@webitel/ui-sdk/modules/TableVariableColumnSelect';
-import { storeToRefs } from 'pinia';
 import { computed, toRef } from 'vue';
-import { useWorkspaceSidebarStore } from '../../sidebar/store/workspace-sidebar';
 import { TableActionPanelAction } from '../enums/TableActionPanelAction.enum';
+import SidebarToggleBtn from './sidebar-toggle-btn.vue';
 
 const props = withDefaults(
 	defineProps<{
@@ -85,14 +84,6 @@ const iconActionByPanelAction: Record<TableActionPanelAction, IconAction> = {
 	[TableActionPanelAction.VariableColumnSelect]: IconAction.VARIABLES,
 	[TableActionPanelAction.Filter]: IconAction.FILTERS,
 };
-
-const sidebarStore = useWorkspaceSidebarStore();
-const { isOpen } = storeToRefs(sidebarStore);
-const { toggle: toggleSidebar } = sidebarStore;
-
-const sidebarIcon = computed(() =>
-	isOpen.value ? 'ws-sidebar-open' : 'ws-sidebar-close',
-);
 
 const includedActions = computed(() =>
 	props.actions.map((action) => iconActionByPanelAction[action]),

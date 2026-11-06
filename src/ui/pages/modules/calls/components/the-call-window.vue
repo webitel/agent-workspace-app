@@ -3,27 +3,30 @@
 		v-if="call"
 		class="the-call-window"
 	>
-		<wt-tabs
-			class="the-call-window__tabs"
-			:current="{ value: activeTab }"
-			:tabs="tabs"
-			@change="handleTabChange"
-		>
-			<!-- WtTabs has no disabled state; its buttons stay clickable, so the
-			     handler ignores these and the span below greys the label out -->
-			<template
-				v-for="tab in disabledTabs"
-				:key="tab.value"
-				#[tab.value]
+		<div class="the-call-window__toolbar">
+			<wt-tabs
+				class="the-call-window__tabs"
+				:current="{ value: activeTab }"
+				:tabs="tabs"
+				@change="handleTabChange"
 			>
-				<span
-					class="the-call-window__tab--disabled"
-					aria-disabled="true"
+				<!-- WtTabs has no disabled state; its buttons stay clickable, so the
+				     handler ignores these and the span below greys the label out -->
+				<template
+					v-for="tab in disabledTabs"
+					:key="tab.value"
+					#[tab.value]
 				>
-					{{ tab.text }}
-				</span>
-			</template>
-		</wt-tabs>
+					<span
+						class="the-call-window__tab--disabled"
+						aria-disabled="true"
+					>
+						{{ tab.text }}
+					</span>
+				</template>
+			</wt-tabs>
+			<sidebar-toggle-btn />
+		</div>
 
 		<wt-divider />
 
@@ -55,6 +58,7 @@ import CallTopBar from '../../../../../features/calls/components/call-top-bar/ca
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
 import { useProcessingStore } from '../../../../../features/processing/store/processing';
+import SidebarToggleBtn from '../../../components/sidebar-toggle-btn.vue';
 
 type CallWindowTab = 'info' | 'processing';
 
@@ -186,17 +190,25 @@ watch(hasForm, (value) => {
 }
 
 /* the page toolbar of DES-730 */
-.the-call-window__tabs {
-	--tab-gap: var(--wt-ws-page-toolbar-sizes-gap);
-	--tab-underline-border-radius: var(--border-radius--pill);
-
+.the-call-window__toolbar {
 	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--wt-ws-page-toolbar-sizes-gap);
 	padding: var(--wt-ws-page-toolbar-sizes-padding-y)
 		var(--wt-ws-page-toolbar-sizes-padding-right)
 		var(--wt-ws-page-toolbar-sizes-padding-y)
 		var(--wt-ws-page-toolbar-sizes-padding-left);
 	border-radius: var(--wt-ws-page-toolbar-sizes-border-radius);
 	background: var(--wt-ws-page-toolbar-colors-background);
+}
+
+.the-call-window__tabs {
+	--tab-gap: var(--wt-ws-page-toolbar-sizes-gap);
+	--tab-underline-border-radius: var(--border-radius--pill);
+
+	flex: 1;
+	min-width: 0;
 }
 
 .the-call-window__tab--disabled {
