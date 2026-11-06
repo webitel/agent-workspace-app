@@ -50,6 +50,7 @@ export default {
 			username: 'Tên người dùng',
 			message: 'Tin nhắn',
 			phoneNumber: 'Số điện thoại',
+			waitTime: 'Thời gian chờ',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -82,6 +83,7 @@ export default {
 				pageTabs: {
 					missed: 'Cuộc gọi nhỡ',
 					offline: 'Ngoại tuyến',
+					selfAssigned: 'Tự gán',
 				},
 				tabs: {
 					info: 'Thông tin',

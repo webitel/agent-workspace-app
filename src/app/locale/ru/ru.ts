@@ -50,6 +50,7 @@ export default {
 			username: 'Имя пользователя',
 			message: 'Сообщение',
 			phoneNumber: 'Номер телефона',
+			waitTime: 'Время ожидания',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -82,6 +83,7 @@ export default {
 				pageTabs: {
 					missed: 'Пропущенные',
 					offline: 'Оффлайн',
+					selfAssigned: 'Самостоятельно назначенные',
 				},
 				tabs: {
 					info: 'Инфо',

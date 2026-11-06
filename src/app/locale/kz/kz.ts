@@ -50,6 +50,7 @@ export default {
 			username: 'Пайдаланушы аты',
 			message: 'Хабарлама',
 			phoneNumber: 'Телефон нөмірі',
+			waitTime: 'Күту уақыты',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -82,6 +83,7 @@ export default {
 				pageTabs: {
 					missed: 'Қабылданбаған',
 					offline: 'Офлайн',
+					selfAssigned: 'Өзіне тағайындалған',
 				},
 				tabs: {
 					info: 'Ақпарат',

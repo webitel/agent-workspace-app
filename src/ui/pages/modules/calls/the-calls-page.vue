@@ -25,9 +25,12 @@ import MissedCallsTable from './modules/missed/missed-calls-table.vue';
 import { useMissedCallsDataListStore } from './modules/missed/store/missed-calls';
 import OfflineCallsTable from './modules/offline/offline-calls-table.vue';
 import { useOfflineCallsDataListStore } from './modules/offline/store/offline-calls';
+import SelfAssignedCallsTable from './modules/self-assigned/self-assigned-calls-table.vue';
+import { useSelfAssignedCallsDataListStore } from './modules/self-assigned/store/self-assigned-calls';
 
 type CallsPageStore =
 	| ReturnType<typeof useMissedCallsDataListStore>
+	| ReturnType<typeof useSelfAssignedCallsDataListStore>
 	| ReturnType<typeof useOfflineCallsDataListStore>;
 
 const { t } = useI18n();
@@ -40,6 +43,13 @@ const tabs = computed<PageTab<CallsPageStore>[]>(() => [
 		pathName: CallsPageTab.Missed,
 		component: MissedCallsTable,
 		store: useMissedCallsDataListStore(),
+	},
+	{
+		text: t('ui.pages.calls.pageTabs.selfAssigned'),
+		value: CallsPageTab.SelfAssigned,
+		pathName: CallsPageTab.SelfAssigned,
+		component: SelfAssignedCallsTable,
+		store: useSelfAssignedCallsDataListStore(),
 	},
 	{
 		text: t('ui.pages.calls.pageTabs.offline'),
