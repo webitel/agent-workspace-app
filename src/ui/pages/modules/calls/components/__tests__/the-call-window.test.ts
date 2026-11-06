@@ -56,7 +56,7 @@ vi.mock(
 );
 
 vi.mock(
-	'../../../../../../features/calls/components/call-info/call-info.vue',
+	'../../../../../../features/calls/modules/info/components/call-info/call-info.vue',
 	() => ({
 		default: {
 			name: 'CallInfo',

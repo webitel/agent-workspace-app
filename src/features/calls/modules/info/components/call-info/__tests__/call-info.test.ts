@@ -4,7 +4,7 @@ import { nextTick, reactive } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 // The table has its own suite; the panel only decides which rows it gets.
-vi.mock('../../../../variables/components/variables-table.vue', () => ({
+vi.mock('../../../../../../variables/components/variables-table.vue', () => ({
 	default: {
 		name: 'VariablesTable',
 		props: [

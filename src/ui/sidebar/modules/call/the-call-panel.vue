@@ -27,9 +27,9 @@ import { WtButton } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
-import { useCallContactIdentification } from '../../../../features/calls/modules/contact-identification/composables/useCallContactIdentification';
-import CallInfoPanel from '../../../../features/calls/modules/info-panel/components/call-info-panel/call-info-panel.vue';
-import { toCallInfoPanelContent } from '../../../../features/calls/modules/info-panel/scripts/toCallInfoPanelContent';
+import { useCallContactIdentification } from '../../../../features/calls/modules/contact/composables/useCallContactIdentification';
+import CallInfoPanel from '../../../../features/calls/modules/info/components/call-info-panel/call-info-panel.vue';
+import { toCallInfoPanelContent } from '../../../../features/calls/modules/info/scripts/toCallInfoPanelContent';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';
 import ContactIdentification from '../../components/contact/contact-identification.vue';
 
