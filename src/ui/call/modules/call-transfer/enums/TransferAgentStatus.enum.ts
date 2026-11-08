@@ -1,9 +1,13 @@
+import { AgentStatus } from '@webitel/ui-sdk/enums';
+
+import { UserStatus } from '../../../../../features/user-status/enums/UserStatus';
+
 export const TransferAgentStatus = {
-	Online: 'online',
-	Pause: 'pause',
-	BreakOut: 'break_out',
-	Offline: 'offline',
-	Dnd: 'dnd',
+	Online: AgentStatus.ONLINE,
+	Pause: AgentStatus.PAUSE,
+	BreakOut: AgentStatus.BREAK_OUT,
+	Offline: AgentStatus.OFFLINE,
+	Dnd: UserStatus.Dnd,
 } as const;
 export type TransferAgentStatus =
 	(typeof TransferAgentStatus)[keyof typeof TransferAgentStatus];

@@ -26,6 +26,15 @@ describe('getTransferAgentStatus', () => {
 		).toBe(TransferAgentStatus.Dnd);
 	});
 
+	it('shows DnD when the presence combines it with another one', () => {
+		expect(
+			getTransferAgentStatus({
+				agentStatus: 'online',
+				presenceStatus: 'sip,dnd',
+			}),
+		).toBe(TransferAgentStatus.Dnd);
+	});
+
 	it('ignores a presence other than DnD', () => {
 		expect(
 			getTransferAgentStatus({

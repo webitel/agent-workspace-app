@@ -55,9 +55,9 @@ export function useTransferAgentList(search: Ref<string>) {
 		}
 	}
 
-	function loadNextPage(): Promise<void> | undefined {
-		if (isLoading.value || !hasNextPage.value) return undefined;
-		return loadPage(loadedPage + 1);
+	async function loadNextPage(): Promise<void> {
+		if (isLoading.value || !hasNextPage.value) return;
+		await loadPage(loadedPage + 1);
 	}
 
 	watch(
@@ -75,7 +75,6 @@ export function useTransferAgentList(search: Ref<string>) {
 	return {
 		rows,
 		isLoading,
-		hasNextPage,
 
 		loadNextPage,
 	};

@@ -70,7 +70,7 @@ describe('useTransferAgentList', () => {
 			]),
 		);
 
-		const { rows, hasNextPage, loadNextPage } = useTransferAgentList(ref(''));
+		const { rows, loadNextPage } = useTransferAgentList(ref(''));
 		await flushPromises();
 		await loadNextPage();
 
@@ -83,8 +83,10 @@ describe('useTransferAgentList', () => {
 			'1',
 			'2',
 		]);
-		expect(hasNextPage.value).toBe(false);
-		expect(loadNextPage()).toBeUndefined();
+
+		await loadNextPage();
+
+		expect(searchAgentsMock).toHaveBeenCalledTimes(2);
 	});
 
 	it('starts over from the first page when the search changes', async () => {
@@ -150,11 +152,12 @@ describe('useTransferAgentList', () => {
 	it('stops paging when a page fails to load', async () => {
 		searchAgentsMock.mockRejectedValue(new Error('boom'));
 
-		const { rows, hasNextPage, isLoading } = useTransferAgentList(ref(''));
+		const { rows, isLoading, loadNextPage } = useTransferAgentList(ref(''));
 		await flushPromises();
+		await loadNextPage();
 
 		expect(rows.value).toEqual([]);
-		expect(hasNextPage.value).toBe(false);
+		expect(searchAgentsMock).toHaveBeenCalledTimes(1);
 		expect(isLoading.value).toBe(false);
 	});
 });
