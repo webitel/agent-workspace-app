@@ -35,6 +35,7 @@
 					:icon-badge="item.status"
 					:color-variable="getBadgeColorVariable(item.status)"
 				/>
+				{{ getStatusLabel(item.status) }}
 			</div>
 		</template>
 
@@ -61,6 +62,7 @@ import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTransferAgentList } from '../composables/useTransferAgentList';
 import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../constants/transferAgentStatusColors';
+import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../constants/transferAgentStatusLabelKeys';
 import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 
@@ -99,6 +101,10 @@ function getBadgeColorVariable(
 	return status && TRANSFER_AGENT_BADGE_COLOR_VARIABLES[status];
 }
 
+function getStatusLabel(status?: TransferAgentStatus): string {
+	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
+}
+
 function getRowClass(row: TransferAgentRow): string {
 	return row.id === selectedRowId.value
 		? 'call-transfer-agents-table__row--selected'
@@ -129,7 +135,16 @@ function onRowClick(rowId: string): void {
 	cursor: pointer;
 }
 
-.call-transfer-agents-table :deep(.call-transfer-agents-table__row--selected) {
-	box-shadow: inset 0 0 0 1px var(--primary-color);
+/**
+ * @author Oleksandr Palonnyi
+ * the row token is workspace-scoped, so the selected-row style lives here and
+ * not in the shared wt-table; the class is set by getRowClass on the rendered
+ * tr and its cells
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+.call-transfer-agents-table :deep(tr.call-transfer-agents-table__row--selected),
+.call-transfer-agents-table
+	:deep(tr.call-transfer-agents-table__row--selected > td) {
+	background: var(--wt-ws-table-colors-row-selected-background);
 }
 </style>
