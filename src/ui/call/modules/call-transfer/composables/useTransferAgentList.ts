@@ -2,7 +2,7 @@ import { type Ref, ref, watch } from 'vue';
 
 import { searchAgents } from '../../../../../features/agents/api/searchAgents';
 import { useUserinfoStore } from '../../../../../features/userinfo/stores/userinfoStore';
-import { toTransferAgentRow } from '../scripts/toTransferAgentRow';
+import { toTransferAgentRows } from '../scripts/toTransferAgentRows';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 
 const AGENTS_PAGE_SIZE = 20;
@@ -43,7 +43,7 @@ export function useTransferAgentList(search: Ref<string>) {
 
 			rows.value = [
 				...(page === 1 ? [] : rows.value),
-				...items.map(toTransferAgentRow),
+				...toTransferAgentRows(items),
 			];
 			loadedPage = page;
 			hasNextPage.value = next;
