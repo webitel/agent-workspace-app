@@ -2,10 +2,10 @@
 	<wt-table
 		class="call-transfer-agents-table"
 		:data="rows"
-		:headers="headers"
+		:headers="shownHeaders"
 		:row-class="getRowClass"
 		:loading="isLoading"
-		:on-loading="loadNextPage"
+		:on-loading="onLoading"
 		:selectable="false"
 		:grid-actions="false"
 		data-key="id"
@@ -45,13 +45,17 @@
 	lang="ts"
 >
 import { ComponentSize } from '@webitel/ui-sdk/enums';
-import { computed, toRef } from 'vue';
+import { storeToRefs } from 'pinia';
+import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useTransferAgentList } from '../composables/useTransferAgentList';
 import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../constants/transferAgentStatusColors';
 import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../constants/transferAgentStatusLabelKeys';
 import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
+import { toTransferAgentRows } from '../scripts/toTransferAgentRows';
+import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
+
+const SEARCH_FILTER_NAME = 'search';
 
 const props = defineProps<{
 	search: string;
@@ -63,24 +67,46 @@ const selectedRowId = defineModel<string | null>('selectedRowId', {
 
 const { t } = useI18n();
 
-const { rows, isLoading, loadNextPage } = useTransferAgentList(
-	toRef(props, 'search'),
-);
+const store = useTransferAgentsDataListStore();
+const { setupStore, appendToDataList, addFilter, $reset } = store;
+const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
-const headers = computed(() => [
-	{
-		value: 'name',
-		text: t('ui.call.transfer.columns.name'),
-	},
-	{
-		value: 'status',
-		text: t('ui.call.transfer.columns.status'),
-	},
-	{
-		value: 'teamName',
-		text: t('ui.call.transfer.columns.team'),
-	},
-]);
+const rows = computed(() => toTransferAgentRows(dataList.value));
+
+/**
+ * @author Oleksandr Palonnyi
+ * the first page is loaded by the store's own filter watcher, which reloads
+ * from page 1 whenever a filter changes once the store is set up. Adding the
+ * search filter after setupStore is that change, so every mount loads exactly
+ * once; `initialize` would load as well and, on a remount, race the watcher.
+ * The store is a singleton and the popup opens many times, so it is reset on
+ * unmount, which also drops the search filter for the next mount to add.
+ * addFilter replaces a filter of the same name, so a search typed while the
+ * store is still being set up needs no separate path
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+function applySearch(search: string): void {
+	addFilter({
+		name: SEARCH_FILTER_NAME,
+		value: search,
+	});
+}
+
+async function loadFirstPage(): Promise<void> {
+	await setupStore();
+	applySearch(props.search);
+}
+
+async function onLoading(): Promise<void> {
+	if (isLoading.value || !next.value) return;
+	await appendToDataList();
+}
+
+watch(() => props.search, applySearch);
+
+loadFirstPage();
+
+onUnmounted($reset);
 
 function getBadgeColorVariable(
 	status?: TransferAgentStatus,
