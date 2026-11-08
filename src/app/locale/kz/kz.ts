@@ -157,6 +157,12 @@ export default {
 				title: 'Қоңырауды ауыстыру',
 				phoneLabel: 'Нөмірге ауыстыру',
 				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
+				emptyList: 'Ештеңе табылмады',
+				columns: {
+					name: 'Аты',
+					status: 'Күйі',
+					team: 'Команда',
+				},
 				modes: {
 					blind: 'Тікелей',
 					consult: 'Кеңесумен',

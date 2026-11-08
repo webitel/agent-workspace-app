@@ -157,6 +157,12 @@ export default {
 				title: 'Przekieruj połączenie',
 				phoneLabel: 'Przekieruj na numer',
 				phonePlaceholder: 'Wpisz numer telefonu',
+				emptyList: 'Nic nie znaleziono',
+				columns: {
+					name: 'Nazwa',
+					status: 'Status',
+					team: 'Zespół',
+				},
 				modes: {
 					blind: 'Bez konsultacji',
 					consult: 'Z konsultacją',

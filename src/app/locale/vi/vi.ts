@@ -157,6 +157,12 @@ export default {
 				title: 'Chuyển cuộc gọi',
 				phoneLabel: 'Chuyển đến số',
 				phonePlaceholder: 'Nhập số điện thoại',
+				emptyList: 'Không tìm thấy kết quả',
+				columns: {
+					name: 'Tên',
+					status: 'Trạng thái',
+					team: 'Nhóm',
+				},
 				modes: {
 					blind: 'Chuyển thẳng',
 					consult: 'Chuyển có tham vấn',
