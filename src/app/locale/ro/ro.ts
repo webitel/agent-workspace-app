@@ -155,6 +155,13 @@ export default {
 			},
 			transfer: {
 				title: 'Transfer apel',
+				emptyList: 'Nu s-a găsit nimic',
+				columns: {
+					name: 'Nume',
+					status: 'Stare',
+					team: 'Echipă',
+					description: 'Descriere',
+				},
 				phoneLabel: 'Transfer la numărul',
 				phonePlaceholder: 'Introduceți numărul de telefon',
 				modes: {
@@ -177,6 +184,7 @@ export default {
 			holdToggleFailed:
 				'Apelul nu a putut fi pus în așteptare sau reluat. Încearcă din nou.',
 			dtmfFailed: 'Cifra nu a putut fi trimisă. Încearcă din nou.',
+			transferFailed: 'Apelul nu a putut fi transferat. Încearcă din nou.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

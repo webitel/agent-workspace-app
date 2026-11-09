@@ -155,6 +155,13 @@ export default {
 			},
 			transfer: {
 				title: 'Transferir llamada',
+				emptyList: 'No se encontró nada',
+				columns: {
+					name: 'Nombre',
+					status: 'Estado',
+					team: 'Equipo',
+					description: 'Descripción',
+				},
 				phoneLabel: 'Transferir al número',
 				phonePlaceholder: 'Introduzca el número de teléfono',
 				modes: {
@@ -178,6 +185,7 @@ export default {
 			holdToggleFailed:
 				'No se pudo poner la llamada en espera ni reanudarla. Inténtalo de nuevo.',
 			dtmfFailed: 'No se pudo enviar el dígito. Inténtalo de nuevo.',
+			transferFailed: 'No se pudo transferir la llamada. Inténtalo de nuevo.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

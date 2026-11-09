@@ -155,6 +155,13 @@ export default {
 			},
 			transfer: {
 				title: 'Қоңырауды ауыстыру',
+				emptyList: 'Ештеңе табылмады',
+				columns: {
+					name: 'Аты',
+					status: 'Мәртебе',
+					team: 'Команда',
+					description: 'Сипаттама',
+				},
 				phoneLabel: 'Нөмірге ауыстыру',
 				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
 				modes: {
@@ -177,6 +184,7 @@ export default {
 			holdToggleFailed:
 				'Қоңырауды күтуге қою немесе жалғастыру мүмкін болмады. Қайталап көріңіз.',
 			dtmfFailed: 'Санды жіберу мүмкін болмады. Қайталап көріңіз.',
+			transferFailed: 'Қоңырауды ауыстыру мүмкін болмады. Қайталап көріңіз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

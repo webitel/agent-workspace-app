@@ -155,6 +155,13 @@ export default {
 			},
 			transfer: {
 				title: 'Перевод звонка',
+				emptyList: 'Ничего не найдено',
+				columns: {
+					name: 'Имя',
+					status: 'Статус',
+					team: 'Команда',
+					description: 'Описание',
+				},
 				phoneLabel: 'Перевести на номер',
 				phonePlaceholder: 'Введите номер телефона',
 				modes: {
@@ -177,6 +184,7 @@ export default {
 			holdToggleFailed:
 				'Не удалось поставить звонок на удержание или снять с него. Попробуйте ещё раз.',
 			dtmfFailed: 'Не удалось отправить цифру. Попробуйте ещё раз.',
+			transferFailed: 'Не удалось перевести звонок. Попробуйте ещё раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
