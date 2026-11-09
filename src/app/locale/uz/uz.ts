@@ -163,6 +163,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Kiruvchi qoʼngʼiroq',
+				outbound: 'Chiquvchi qoʼngʼiroq',
 			},
 		},
 	},

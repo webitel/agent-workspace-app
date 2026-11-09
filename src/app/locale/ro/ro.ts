@@ -163,6 +163,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Apel de intrare',
+				outbound: 'Apel de ieșire',
 			},
 		},
 	},

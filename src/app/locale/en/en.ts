@@ -180,6 +180,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Inbound Call',
+				outbound: 'Outbound Call',
 			},
 		},
 	},

@@ -179,6 +179,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Вхідний дзвінок',
+				outbound: 'Вихідний дзвінок',
 			},
 		},
 	},

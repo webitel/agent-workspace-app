@@ -163,6 +163,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Входящий звонок',
+				outbound: 'Исходящий звонок',
 			},
 		},
 	},

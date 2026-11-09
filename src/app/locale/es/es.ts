@@ -164,6 +164,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Llamada entrante',
+				outbound: 'Llamada saliente',
 			},
 		},
 	},

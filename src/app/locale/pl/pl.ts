@@ -163,6 +163,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Połączenie przychodzące',
+				outbound: 'Połączenie wychodzące',
 			},
 		},
 	},

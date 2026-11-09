@@ -163,6 +163,7 @@ export default {
 			},
 			direction: {
 				inbound: 'Cuộc gọi đến',
+				outbound: 'Cuộc gọi đi',
 			},
 		},
 	},
