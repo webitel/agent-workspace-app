@@ -7,10 +7,10 @@
 			<wt-button
 				icon="close"
 				:size="ComponentSize.SM"
-        color="secondary"
-        icon-color="secondary"
+				:color="ButtonColor.SECONDARY"
+				:icon-color="IconColor.DEFAULT"
 				:aria-label="t('reusable.close')"
-        :variant="ButtonVariant.TEXT"
+				:variant="ButtonVariant.TEXT"
 				@click="emit('close')"
 			/>
 		</div>
