@@ -11,8 +11,10 @@
 			:on-loading="onLoading"
 			data-key="id"
 			fixed-actions
+			sortable
 			resizable-columns
 			reorderable-columns
+			@sort="(column, order) => updateSort(column, order)"
 			@column-resize="columnResize"
 			@column-reorder="columnReorder"
 		>
@@ -141,6 +143,7 @@ const store = useCallsHistoryDataListStore();
 const {
 	initialize,
 	appendToDataList,
+	updateSort,
 	columnResize,
 	columnReorder,
 	addFilter,
