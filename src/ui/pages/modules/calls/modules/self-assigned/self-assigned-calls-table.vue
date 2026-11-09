@@ -1,7 +1,7 @@
 <template>
 	<div class="table-section__table-wrapper">
 		<wt-table
-			:data="waitingCalls"
+			:data="dataList"
 			:headers="shownHeaders"
 			:lazy="true"
 			:selectable="false"
@@ -48,7 +48,7 @@ import { FormatDateMode } from '@webitel/ui-sdk/enums';
 import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { WaitingMemberCall } from 'webitel-sdk';
 import { useWebSocketClient } from '../../../../../../app/api/socket/composables/useWebSocketClient';
 import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
@@ -58,14 +58,12 @@ import { useSelfAssignedCallsDataListStore } from './store/self-assigned-calls';
 
 const store = useSelfAssignedCallsDataListStore();
 
-const { initialize, updateSort, columnResize, columnReorder } = store;
-const { shownHeaders } = storeToRefs(store);
+const { initialize, loadDataList, updateSort, columnResize, columnReorder } =
+	store;
+const { dataList, shownHeaders } = storeToRefs(store);
 
 const { agent } = useWebSocketClient();
 const { selectContact, selectUnknownContact } = useSidebarSelectionStore();
-
-// the SDK updates this list in place on socket pushes, so the table stays live
-const waitingCalls = computed(() => agent.value?.waitingListCalls ?? []);
 
 const isInitializing = ref(true);
 
@@ -92,6 +90,12 @@ const openContact = ({ contact }: WaitingMemberCall) => {
 	}
 	selectContact(String(contact.id));
 };
+
+// the agent session may load after the table, or change on re-login:
+// the store has to take the list of the current agent
+watch(agent, (value) => {
+	if (value) loadDataList();
+});
 
 initialize().finally(() => {
 	isInitializing.value = false;

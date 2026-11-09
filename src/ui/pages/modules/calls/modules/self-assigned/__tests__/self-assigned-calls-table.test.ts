@@ -15,11 +15,13 @@ const createStore = () => {
 	let finishInitialize: () => void = () => {};
 
 	const store = reactive({
+		dataList: ref<WaitingMemberCall[]>([]),
 		shownHeaders: ref<
 			{
 				value: string;
 			}[]
 		>([]),
+		loadDataList: vi.fn(),
 		initialize: vi.fn(
 			() =>
 				new Promise<void>((resolve) => {
@@ -43,7 +45,6 @@ const createStore = () => {
 /** Stand-in for the SDK agent: only what the table reads */
 const createAgent = () =>
 	reactive({
-		waitingListCalls: [] as WaitingMemberCall[],
 		hasMoreWaitingCalls: true,
 		loadMoreWaitingCalls: vi.fn(),
 	});
@@ -153,7 +154,9 @@ const showColumns = (...values: string[]) => {
 };
 
 const showCall = (row: WaitingMemberCall) => {
-	agent.value?.waitingListCalls.splice(0, Infinity, row);
+	mockStore.dataList = [
+		row,
+	];
 };
 
 const tableOf = (wrapper: ReturnType<typeof mountTable>) =>
@@ -183,30 +186,32 @@ describe('self-assigned-calls-table', () => {
 		expect(mockStore.initialize).toHaveBeenCalledTimes(1);
 	});
 
-	describe('data', () => {
-		it('shows the calls from the agent', () => {
-			showCall(call);
+	it('shows the calls from the store', () => {
+		showCall(call);
 
-			const wrapper = mountTable();
+		const wrapper = mountTable();
 
-			expect(wrapper.findAll('.row')).toHaveLength(1);
-		});
+		expect(wrapper.findAll('.row')).toHaveLength(1);
+	});
 
-		it('follows socket updates of the agent list', async () => {
-			const wrapper = mountTable();
+	describe('agent session changes', () => {
+		it('reloads the list when the agent session appears', async () => {
+			agent.value = undefined;
+			mountTable();
 
-			showCall(call);
+			agent.value = createAgent();
 			await flushPromises();
 
-			expect(wrapper.findAll('.row')).toHaveLength(1);
+			expect(mockStore.loadDataList).toHaveBeenCalledTimes(1);
 		});
 
-		it('shows nothing without an agent session', () => {
+		it('does not reload when the agent session is gone', async () => {
+			mountTable();
+
 			agent.value = undefined;
+			await flushPromises();
 
-			const wrapper = mountTable();
-
-			expect(tableOf(wrapper).props('data')).toEqual([]);
+			expect(mockStore.loadDataList).not.toHaveBeenCalled();
 		});
 	});
 
