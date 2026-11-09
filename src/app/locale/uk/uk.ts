@@ -151,6 +151,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Зателефонувати на {number}',
+					moreNumbers: '+{count} ще номер(ів)',
+					noPhone: 'Немає телефону',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Вибрати колонки зі змінними',
@@ -178,6 +185,7 @@ export default {
 				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
 				retryCall: 'Повторити дзвінок',
 				backToDialpad: 'Назад до набору номера',
+				close: 'Закрити',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Вхідний дзвінок',

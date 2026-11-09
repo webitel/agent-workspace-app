@@ -135,6 +135,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: '{number} нөміріне қоңырау шалу',
+					moreNumbers: '+{count} нөмір тағы',
+					noPhone: 'Телефон жоқ',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Айнымалылар бағандарын таңдау',
@@ -162,6 +169,7 @@ export default {
 				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
 				retryCall: 'Қайта қоңырау шалу',
 				backToDialpad: 'Нөмір теруге оралу',
+				close: 'Жабу',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Кіріс қоңырау',

@@ -25,6 +25,7 @@
 				@toggle-mute="outboundCallAttemptsStore.toggleMute(attempt.id)"
 				@hangup="outboundCallAttemptsStore.hangup(attempt.id)"
 				@retry="outboundCallAttemptsStore.retry(attempt.id)"
+				@close="outboundCallAttemptsStore.clearAttempt(attempt.id)"
 				@back-to-dialpad="onBackToDialpad(attempt.id, attempt.destination)"
 			/>
 		</div>

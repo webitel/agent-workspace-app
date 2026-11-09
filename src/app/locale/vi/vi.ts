@@ -135,6 +135,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Gọi {number}',
+					moreNumbers: '+{count} số khác',
+					noPhone: 'Không có số điện thoại',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Chọn cột biến',
@@ -162,6 +169,7 @@ export default {
 				noAnswerDescription: 'Điện thoại người nhận không trả lời cuộc gọi.',
 				retryCall: 'Gọi lại',
 				backToDialpad: 'Quay lại bàn phím',
+				close: 'Đóng',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Cuộc gọi đến',

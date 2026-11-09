@@ -135,6 +135,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: '{number} raqamiga qo‘ng‘iroq qilish',
+					moreNumbers: '+{count} ta raqam yana',
+					noPhone: 'Telefon yo‘q',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'O‘zgaruvchilar ustunini tanlash',
@@ -162,6 +169,7 @@ export default {
 				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
 				retryCall: 'Qayta qoʻngʻiroq qilish',
 				backToDialpad: 'Raqam terishga qaytish',
+				close: 'Yopish',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Kiruvchi qoʼngʼiroq',

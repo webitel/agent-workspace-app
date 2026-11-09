@@ -151,6 +151,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Call {number}',
+					moreNumbers: '+{count} more number(s)',
+					noPhone: 'No phone',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Select variables columns',
@@ -179,6 +186,7 @@ export default {
 					"The recipient's phone did not answer the request.",
 				retryCall: 'Retry call',
 				backToDialpad: 'Back to dialpad',
+				close: 'Close',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Inbound Call',

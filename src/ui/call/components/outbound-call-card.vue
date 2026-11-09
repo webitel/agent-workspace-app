@@ -1,5 +1,20 @@
 <template>
 	<div class="outbound-call-card">
+		<div
+			v-if="!isRinging"
+			class="outbound-call-card__header"
+		>
+			<wt-button
+				icon="close"
+				:size="ComponentSize.SM"
+        color="secondary"
+        icon-color="secondary"
+				:aria-label="t('ui.call.outboundCall.close')"
+        :variant="ButtonVariant.TEXT"
+				@click="emit('close')"
+			/>
+		</div>
+
 		<div class="outbound-call-card__identity">
 			<wt-avatar
 				:username="preview.name"
@@ -125,6 +140,7 @@ const emit = defineEmits<{
 	hangup: [];
 	retry: [];
 	backToDialpad: [];
+	close: [];
 }>();
 
 const { t } = useI18n();
@@ -171,6 +187,13 @@ const statusChipColor = computed(() =>
 		var(--wt-ws-dialer-sizes-root-padding-x);
 	border-radius: var(--wt-ws-dialer-sizes-root-border-radius);
 	background-color: var(--wt-ws-dialer-colors-root-background);
+}
+
+.outbound-call-card__header {
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
+  padding: var(--wt-ws-chat-dock-sizes-header-padding-x);
 }
 
 .outbound-call-card__identity,

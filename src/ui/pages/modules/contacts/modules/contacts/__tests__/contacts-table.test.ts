@@ -4,6 +4,7 @@ import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive, ref } from 'vue';
 
+import { useOutboundCallAttemptsStore } from '../../../../../../../features/calls/store/outboundCallAttempts';
 import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import ContactsTable from '../contacts-table.vue';
 import type { useContactsDataListStore } from '../store/contacts';
@@ -36,6 +37,9 @@ const createStore = (dataList: WebitelContactsContact[]) =>
 			{
 				value: 'name',
 			},
+			{
+				value: 'phones',
+			},
 		]),
 		next: ref(false),
 		initialize: vi.fn(() => Promise.resolve()),
@@ -46,6 +50,16 @@ const createStore = (dataList: WebitelContactsContact[]) =>
 	}) as unknown as ReturnType<typeof useContactsDataListStore>;
 
 const stubs = {
+	ContactPhonesCell: {
+		name: 'ContactPhonesCell',
+		props: [
+			'phones',
+		],
+		emits: [
+			'call',
+		],
+		template: '<div class="phones-cell" />',
+	},
 	UsernameTableCell: {
 		name: 'UsernameTableCell',
 		props: {
@@ -106,5 +120,15 @@ describe('contacts-table', () => {
 		nameCellOf(wrapper).vm.$emit('click');
 
 		expect(useSidebarSelectionStore().selectContact).toHaveBeenCalledWith('1');
+	});
+
+	it('starts an outbound attempt on the number chosen in the phones cell', () => {
+		wrapper
+			.findComponent({
+				name: 'ContactPhonesCell',
+			})
+			.vm.$emit('call', '111');
+
+		expect(useOutboundCallAttemptsStore().start).toHaveBeenCalledWith('111');
 	});
 });

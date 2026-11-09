@@ -135,6 +135,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Zadzwoń na {number}',
+					moreNumbers: '+{count} numer(ów) więcej',
+					noPhone: 'Brak telefonu',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Wybierz kolumny zmiennych',
@@ -162,6 +169,7 @@ export default {
 				noAnswerDescription: 'Telefon odbiorcy nie odpowiedział na połączenie.',
 				retryCall: 'Ponów połączenie',
 				backToDialpad: 'Wróć do klawiatury',
+				close: 'Zamknij',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Połączenie przychodzące',

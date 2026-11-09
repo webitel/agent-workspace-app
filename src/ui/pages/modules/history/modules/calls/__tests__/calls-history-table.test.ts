@@ -98,11 +98,18 @@ vi.mock('@webitel/ui-datalist/filters', () => ({
 	},
 }));
 
-// the stubbed phone cell still imports the calls store, which pulls in
-// the socket client and the i18n singleton
-vi.mock('../../../../../../../features/calls/store/calls', () => ({
-	useCallsStore: () => ({}),
-}));
+/**
+ * @author Oleksandr Palonnyi
+ * The stubbed phone cell still imports the outbound attempts store, which pulls in
+ * the calls store, the socket client and the i18n singleton
+ * [WTEL-WS-27](https://webitel.atlassian.net/browse/WTEL-WS-27)
+ */
+vi.mock(
+	'../../../../../../../features/calls/store/outboundCallAttempts',
+	() => ({
+		useOutboundCallAttemptsStore: () => ({}),
+	}),
+);
 
 import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import CallsHistoryTable from '../calls-history-table.vue';

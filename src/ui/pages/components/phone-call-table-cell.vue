@@ -1,35 +1,48 @@
 <template>
 	<div class="phone-call-table-cell">
-		<wt-button
-			:variant="ButtonVariant.TEXT"
-			class="phone-call-table-cell__button"
-			icon="ws-navigation-calls"
-			:disabled="!phoneNumber || isCalling"
-			@click="startCall"
-		/>
-		<p>{{ phoneNumber }}</p>
+    <wt-button
+        class="phone-call-table-cell__button"
+        icon="ws-navigation-calls"
+        :size="ComponentSize.SM"
+        :color="ButtonColor.SUCCESS"
+        :icon-color="ButtonColor.SUCCESS"
+        :variant="ButtonVariant.TEXT"
+        :disabled="!phoneNumber || isCalling"
+        width-by-content
+        @click="startCall"
+    />
+    <p>{{ phoneNumber }}</p>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ButtonVariant } from '@webitel/ui-sdk/enums';
+import {
+	ButtonColor,
+	ButtonVariant,
+	ComponentSize,
+} from '@webitel/ui-sdk/enums';
 import { ref } from 'vue';
-import { useCallsStore } from '../../../features/calls/store/calls';
+import { useOutboundCallAttemptsStore } from '../../../features/calls/store/outboundCallAttempts';
 
 const props = defineProps<{
 	phoneNumber?: string;
 }>();
 
-const callsStore = useCallsStore();
+/**
+ * @author Oleksandr Palonnyi
+ * Dials through an outbound attempt rather than `callsStore.call`, so the agent
+ * gets the outbound call card and can follow the call (AC_20.03.01); a bare
+ * `callsStore.call` places the call with no UI of its own until it is answered
+ * [WTEL-WS-27](https://webitel.atlassian.net/browse/WTEL-WS-27)
+ */
+const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
 
 const isCalling = ref(false);
 
 async function startCall() {
 	isCalling.value = true;
 	try {
-		await callsStore.call({
-			destination: props.phoneNumber,
-		});
+		await outboundCallAttemptsStore.start(props.phoneNumber);
 	} finally {
 		isCalling.value = false;
 	}

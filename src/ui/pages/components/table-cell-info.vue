@@ -7,13 +7,12 @@
       size="sm"
     />
 
-    <wt-display-chip-items :items="chipItems" />
+    <wt-display-chip-items :items="chipItems" :chip-color="ChipColor.SECONDARY" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { WtDisplayChipItems } from '@webitel/ui-sdk/components';
-import { IconColor } from '@webitel/ui-sdk/enums';
+import { ChipColor, IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 
 type TableCellInfoItem = string | object;
