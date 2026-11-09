@@ -50,6 +50,7 @@ export default {
 			username: 'Nume utilizator',
 			message: 'Mesaj',
 			phoneNumber: 'Număr de telefon',
+			waitTime: 'Timp de așteptare',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -82,6 +83,7 @@ export default {
 				pageTabs: {
 					missed: 'Pierdute',
 					offline: 'Offline',
+					selfAssigned: 'Auto-atribuite',
 				},
 				tabs: {
 					info: 'Informații',

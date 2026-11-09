@@ -1,5 +1,6 @@
 export const CallsPageTab = {
 	Missed: 'calls-missed',
+	SelfAssigned: 'calls-self-assigned',
 	Offline: 'calls-offline',
 } as const;
 
