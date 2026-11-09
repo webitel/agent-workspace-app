@@ -1,7 +1,7 @@
 <template>
 	<wt-table
 		class="call-transfer-agents-table"
-		:data="rows"
+		:data="dataList"
 		:headers="shownHeaders"
 		:row-class="getRowClass"
 		:loading="isLoading"
@@ -15,11 +15,7 @@
 	>
 		<template #name="{ item }">
 			<div class="call-transfer-agents-table__cell">
-				<wt-avatar
-					:size="ComponentSize.SM"
-					:username="item.name"
-				/>
-				{{ item.name }}
+				<username-table-cell :name="item.name" />
 			</div>
 		</template>
 
@@ -44,14 +40,13 @@
 	setup
 	lang="ts"
 >
-import { ComponentSize } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
-import { computed, onUnmounted, watch } from 'vue';
+import { onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
 import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../constants/transferAgentStatusColors';
 import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../constants/transferAgentStatusLabelKeys';
 import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
-import { toTransferAgentRows } from '../scripts/toTransferAgentRows';
 import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 
@@ -70,8 +65,6 @@ const { t } = useI18n();
 const store = useTransferAgentsDataListStore();
 const { setupStore, appendToDataList, addFilter, $reset } = store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
-
-const rows = computed(() => toTransferAgentRows(dataList.value));
 
 /**
  * @author Oleksandr Palonnyi

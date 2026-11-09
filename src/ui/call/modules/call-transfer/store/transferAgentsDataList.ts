@@ -1,9 +1,24 @@
 import { AgentsAPI } from '@webitel/api-services/api';
-import type { EngineAgent } from '@webitel/api-services/gen/models';
+import { applyTransform } from '@webitel/api-services/api/transformers';
+import type { EngineListAgent } from '@webitel/api-services/gen/models';
 import { createTableStore } from '@webitel/ui-datalist';
 
 import { useUserinfoStore } from '../../../../../features/userinfo/stores/userinfoStore';
+import { toTransferAgentRows } from '../scripts/toTransferAgentRows';
+import type { TransferAgentRow } from '../types/CallTransfer.types';
 import { transferAgentsHeaders } from './_internals/transferAgentsHeaders';
+
+function mapItemsToTransferAgentRows(response: EngineListAgent): Omit<
+	EngineListAgent,
+	'items'
+> & {
+	items: TransferAgentRow[];
+} {
+	return {
+		...response,
+		items: toTransferAgentRows(response.items ?? []),
+	};
+}
 
 /**
  * @author Oleksandr Palonnyi
@@ -14,17 +29,16 @@ import { transferAgentsHeaders } from './_internals/transferAgentsHeaders';
  * popup, and its search must not land in the route query of the page beneath
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-export const useTransferAgentsDataListStore = createTableStore<EngineAgent>(
-	'ui/call/transfer/agents/datalist',
-	{
+export const useTransferAgentsDataListStore =
+	createTableStore<TransferAgentRow>('ui/call/transfer/agents/datalist', {
 		apiModule: {
-			getList: ({
+			getList: async ({
 				fields = [],
 				...params
 			}: {
 				fields?: string[];
-			} & Record<string, unknown> = {}) =>
-				AgentsAPI.getList({
+			} & Record<string, unknown> = {}) => {
+				const response = await AgentsAPI.getList({
 					...params,
 					fields: [
 						...fields,
@@ -33,10 +47,14 @@ export const useTransferAgentsDataListStore = createTableStore<EngineAgent>(
 					notUserId: [
 						useUserinfoStore().userId,
 					],
-				}),
+				});
+
+				return applyTransform(response, [
+					mapItemsToTransferAgentRows,
+				]);
+			},
 		},
 		headers: transferAgentsHeaders,
 		isAppendDataList: true,
 		disablePersistence: true,
-	},
-);
+	});

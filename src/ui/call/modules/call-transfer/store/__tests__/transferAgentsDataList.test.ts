@@ -60,4 +60,30 @@ describe('useTransferAgentsDataListStore', () => {
 			}),
 		);
 	});
+
+	it('holds the agents as transfer rows', async () => {
+		getAgentsListMock.mockResolvedValue({
+			items: [
+				{
+					id: '7',
+					name: 'John Doe',
+				},
+			],
+			next: false,
+		});
+		const store = useTransferAgentsDataListStore();
+		await store.setupStore();
+		store.addFilter({
+			name: 'search',
+			value: '',
+		});
+		await flushPromises();
+
+		expect(store.dataList).toEqual([
+			expect.objectContaining({
+				id: '7',
+				name: 'John Doe',
+			}),
+		]);
+	});
 });

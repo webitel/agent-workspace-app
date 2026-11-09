@@ -77,9 +77,10 @@ const stubs = {
 		],
 		emits: [
 			'input',
+			'search',
 		],
 		template:
-			'<input class="search" :value="value" @input="$emit(\'input\', $event.target.value)" />',
+			'<input class="search" :value="value" @input="$emit(\'input\', $event.target.value)" @change="$emit(\'search\', $event.target.value)" />',
 	},
 };
 

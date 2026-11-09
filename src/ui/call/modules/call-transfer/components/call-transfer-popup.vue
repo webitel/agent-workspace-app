@@ -38,8 +38,9 @@
 
 				<wt-search-bar
 					full-width
-					:value="searchQuery"
-					@input="searchQuery = $event"
+					:value="searchInput"
+					@input="searchInput = $event"
+					@search="searchQuery = $event"
 				/>
 
 				<div class="call-transfer-popup__list wt-scrollbar">
@@ -109,6 +110,15 @@ const transferModes = Object.values(TransferMode);
 
 const phone = ref('');
 const activeTab = ref<TransferTab>(TransferTab.Agents);
+
+/**
+ * @author Oleksandr Palonnyi
+ * `searchInput` is the text in the field; `searchQuery` is what the list
+ * searches by. wt-search-bar emits `search` debounced (and on Enter), so the
+ * list is not requested on every typed character, which could race requests
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const searchInput = ref('');
 const searchQuery = ref('');
 const selectedRowId = ref<string | null>(null);
 const isSubmitting = ref(false);
@@ -168,6 +178,7 @@ const availability = computed(() =>
 function onTabChange(tab: { value: TransferTab }): void {
 	activeTab.value = tab.value;
 	selectedRowId.value = null;
+	searchInput.value = '';
 	searchQuery.value = '';
 }
 
