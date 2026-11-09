@@ -5,7 +5,13 @@
 			:logo-href="startPageHref"
 		/>
 		<wt-dark-mode-switcher @changed-mode="setTheme" />
-		<open-flows-action />
+		
+		<!--@author Polina Sukhorukova
+		comment for temporary removing
+		https://webitel.atlassian.net/browse/WS-14?focusedCommentId=800594
+		[WS-14](https://webitel.atlassian.net/browse/WS-14)-->
+		
+		<!--<open-flows-action />-->
 		<wt-chip :color="isPhoneReg ? 'success' : 'primary'">
 			{{ t('ui.header.sip') }}
 		</wt-chip>
