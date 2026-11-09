@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -164,7 +164,8 @@ export default {
 				backToDialpad: 'Raqam terishga qaytish',
 			},
 			direction: {
-				inbound: 'Kiruvchi qoʼngʼiroq',
+				[CallDirection.Inbound]: 'Kiruvchi qoʼngʼiroq',
+				[CallDirection.Outbound]: 'Chiquvchi qoʼngʼiroq',
 			},
 		},
 	},
