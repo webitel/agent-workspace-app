@@ -50,6 +50,7 @@ export default {
 			username: 'Nazwa użytkownika',
 			message: 'Wiadomość',
 			phoneNumber: 'Numer telefonu',
+			waitTime: 'Czas oczekiwania',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -82,6 +83,7 @@ export default {
 				pageTabs: {
 					missed: 'Nieodebrane',
 					offline: 'Offline',
+					selfAssigned: 'Ręcznie przypisane',
 				},
 				tabs: {
 					info: 'Informacje',
