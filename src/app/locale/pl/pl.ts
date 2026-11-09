@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -162,8 +162,8 @@ export default {
 				backToDialpad: 'Wróć do klawiatury',
 			},
 			direction: {
-				inbound: 'Połączenie przychodzące',
-				outbound: 'Połączenie wychodzące',
+				[CallDirection.Inbound]: 'Połączenie przychodzące',
+				[CallDirection.Outbound]: 'Połączenie wychodzące',
 			},
 		},
 	},

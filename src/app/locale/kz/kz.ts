@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -162,8 +162,8 @@ export default {
 				backToDialpad: 'Нөмір теруге оралу',
 			},
 			direction: {
-				inbound: 'Кіріс қоңырау',
-				outbound: 'Шығыс қоңырау',
+				[CallDirection.Inbound]: 'Кіріс қоңырау',
+				[CallDirection.Outbound]: 'Шығыс қоңырау',
 			},
 		},
 	},

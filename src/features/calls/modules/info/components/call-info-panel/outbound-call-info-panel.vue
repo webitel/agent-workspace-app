@@ -3,7 +3,7 @@
 		<communication-info-header
 			icon="ws-outbound-call"
 			:color="IconColor.INFO"
-			:title="t('ui.call.direction.outbound')"
+			:title="t(`ui.call.direction.${CallDirection.Outbound}`)"
 		>
 			<template
 				v-if="startedAt"
@@ -32,6 +32,7 @@ import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CallDirection } from 'webitel-sdk';
 
 import { useElapsedSec } from '../../../../../../ui/composables/useElapsedSec';
 import CommunicationInfoFields from '../../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
