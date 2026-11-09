@@ -112,7 +112,7 @@ describe('outbound-call-card', () => {
 			status: OutboundCallStatus.NoAnswer,
 		});
 
-		await wrapper.find('.wt-icon-btn').trigger('click');
+		await wrapper.find('.outbound-call-card__header button').trigger('click');
 
 		expect(wrapper.emitted('close')).toHaveLength(1);
 	});

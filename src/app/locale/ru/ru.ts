@@ -169,7 +169,6 @@ export default {
 				noAnswerDescription: 'Телефон абонента не ответил на вызов.',
 				retryCall: 'Повторить звонок',
 				backToDialpad: 'Назад к набору номера',
-				close: 'Закрыть',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Входящий звонок',

@@ -169,7 +169,6 @@ export default {
 				noAnswerDescription: 'Telefon odbiorcy nie odpowiedział na połączenie.',
 				retryCall: 'Ponów połączenie',
 				backToDialpad: 'Wróć do klawiatury',
-				close: 'Zamknij',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Połączenie przychodzące',

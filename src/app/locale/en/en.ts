@@ -186,7 +186,6 @@ export default {
 					"The recipient's phone did not answer the request.",
 				retryCall: 'Retry call',
 				backToDialpad: 'Back to dialpad',
-				close: 'Close',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Inbound Call',

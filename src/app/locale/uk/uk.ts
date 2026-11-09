@@ -185,7 +185,6 @@ export default {
 				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
 				retryCall: 'Повторити дзвінок',
 				backToDialpad: 'Назад до набору номера',
-				close: 'Закрити',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Вхідний дзвінок',

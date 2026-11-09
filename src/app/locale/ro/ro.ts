@@ -169,7 +169,6 @@ export default {
 				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
 				retryCall: 'Reîncearcă apelul',
 				backToDialpad: 'Înapoi la tastatură',
-				close: 'Închide',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Apel de intrare',

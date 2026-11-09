@@ -9,7 +9,7 @@
 				:size="ComponentSize.SM"
         color="secondary"
         icon-color="secondary"
-				:aria-label="t('ui.call.outboundCall.close')"
+				:aria-label="t('reusable.close')"
         :variant="ButtonVariant.TEXT"
 				@click="emit('close')"
 			/>

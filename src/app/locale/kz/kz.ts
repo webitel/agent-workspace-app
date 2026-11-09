@@ -169,7 +169,6 @@ export default {
 				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
 				retryCall: 'Қайта қоңырау шалу',
 				backToDialpad: 'Нөмір теруге оралу',
-				close: 'Жабу',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Кіріс қоңырау',

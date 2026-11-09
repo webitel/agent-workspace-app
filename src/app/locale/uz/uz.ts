@@ -169,7 +169,6 @@ export default {
 				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
 				retryCall: 'Qayta qoʻngʻiroq qilish',
 				backToDialpad: 'Raqam terishga qaytish',
-				close: 'Yopish',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Kiruvchi qoʼngʼiroq',
