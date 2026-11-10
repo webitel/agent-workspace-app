@@ -355,8 +355,7 @@ describe('self-assigned-calls-table', () => {
 			await nameCellOf(wrapper).vm.$emit('click');
 			const selectionStore = useSidebarSelectionStore();
 
-			expect(selectionStore.selectContact).toHaveBeenCalledWith('42');
-			expect(selectionStore.selectUnknownContact).not.toHaveBeenCalled();
+			expect(selectionStore.selectContactOrUnknown).toHaveBeenCalledWith(42);
 		});
 
 		it('selects an unknown contact when the call has no contact', async () => {
@@ -369,8 +368,9 @@ describe('self-assigned-calls-table', () => {
 			await nameCellOf(wrapper).vm.$emit('click');
 			const selectionStore = useSidebarSelectionStore();
 
-			expect(selectionStore.selectUnknownContact).toHaveBeenCalledTimes(1);
-			expect(selectionStore.selectContact).not.toHaveBeenCalled();
+			expect(selectionStore.selectContactOrUnknown).toHaveBeenCalledWith(
+				undefined,
+			);
 		});
 	});
 

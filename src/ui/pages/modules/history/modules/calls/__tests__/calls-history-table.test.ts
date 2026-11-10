@@ -400,8 +400,7 @@ describe('calls-history-table', () => {
 			});
 			const selectionStore = useSidebarSelectionStore();
 
-			expect(selectionStore.selectContact).toHaveBeenCalledWith('42');
-			expect(selectionStore.selectUnknownContact).not.toHaveBeenCalled();
+			expect(selectionStore.selectContactOrUnknown).toHaveBeenCalledWith('42');
 		});
 
 		it('selects an unknown contact when the call has no contact', async () => {
@@ -410,8 +409,9 @@ describe('calls-history-table', () => {
 			});
 			const selectionStore = useSidebarSelectionStore();
 
-			expect(selectionStore.selectUnknownContact).toHaveBeenCalledTimes(1);
-			expect(selectionStore.selectContact).not.toHaveBeenCalled();
+			expect(selectionStore.selectContactOrUnknown).toHaveBeenCalledWith(
+				undefined,
+			);
 		});
 	});
 

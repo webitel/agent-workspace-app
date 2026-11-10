@@ -63,7 +63,7 @@ const { initialize, loadDataList, updateSort, columnResize, columnReorder } =
 const { dataList, shownHeaders } = storeToRefs(store);
 
 const { agent } = useWebSocketClient();
-const { selectContact, selectUnknownContact } = useSidebarSelectionStore();
+const { selectContactOrUnknown } = useSidebarSelectionStore();
 
 const isInitializing = ref(true);
 
@@ -84,11 +84,7 @@ const getQueueName = ({ queue }: WaitingMemberCall) =>
 	(queue as WaitingCallQueue).name;
 
 const openContact = ({ contact }: WaitingMemberCall) => {
-	if (!contact?.id) {
-		selectUnknownContact();
-		return;
-	}
-	selectContact(String(contact.id));
+	selectContactOrUnknown(contact?.id);
 };
 
 // the agent session may load after the table, or change on re-login:

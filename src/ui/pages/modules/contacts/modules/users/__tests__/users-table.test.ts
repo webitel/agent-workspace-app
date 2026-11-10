@@ -94,7 +94,7 @@ describe('users-table', () => {
 		});
 	});
 
-	it('selects the linked contact on name click', () => {
+	it('opens the linked contact on name click', () => {
 		const wrapper = mountTable({
 			id: '1',
 			name: 'John Doe',
@@ -105,13 +105,12 @@ describe('users-table', () => {
 
 		nameCellOf(wrapper).vm.$emit('click');
 
-		expect(useSidebarSelectionStore().selectContact).toHaveBeenCalledWith('10');
 		expect(
-			useSidebarSelectionStore().selectUnknownContact,
-		).not.toHaveBeenCalled();
+			useSidebarSelectionStore().selectContactOrUnknown,
+		).toHaveBeenCalledWith('10');
 	});
 
-	it('selects an unknown contact when the user has no contact', () => {
+	it('opens an unknown contact when the user has no contact', () => {
 		const wrapper = mountTable({
 			id: '1',
 			name: 'John Doe',
@@ -119,7 +118,8 @@ describe('users-table', () => {
 
 		nameCellOf(wrapper).vm.$emit('click');
 
-		expect(useSidebarSelectionStore().selectUnknownContact).toHaveBeenCalled();
-		expect(useSidebarSelectionStore().selectContact).not.toHaveBeenCalled();
+		expect(
+			useSidebarSelectionStore().selectContactOrUnknown,
+		).toHaveBeenCalledWith(undefined);
 	});
 });

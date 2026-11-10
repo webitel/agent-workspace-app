@@ -71,7 +71,7 @@ const {
 } = props.store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
-const { selectContact, selectUnknownContact } = useSidebarSelectionStore();
+const { selectContactOrUnknown } = useSidebarSelectionStore();
 
 const isInitializing = ref(true);
 
@@ -81,11 +81,7 @@ const onLoading = async () => {
 };
 
 function openContact({ contact }: ApiUser) {
-	if (contact?.id) {
-		selectContact(contact.id);
-		return;
-	}
-	selectUnknownContact();
+	selectContactOrUnknown(contact?.id);
 }
 
 function getStatus(item: ApiUser) {
