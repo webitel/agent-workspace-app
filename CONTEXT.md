@@ -43,6 +43,9 @@ and should not be carried over wholesale.
 - [ADR-0011](docs/adr/0011-chat-list-stays-the-task-feed.md) — the chat list
   stays the task feed (call-center chats only), with unread read from the thread
   list, and search over the tasks on the client.
+- [ADR-0012](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
+  list is a ui-datalist table store, one table per tab under one search field
+  that applies on the debounced event, and the known race it leaves open.
 
 ## Language
 
@@ -126,6 +129,13 @@ the two or cancels the consult and goes back to the original call.
 **Consult call** — the call to the destination of a Consult transfer, placed
 while the original call is on hold. It is a call of its own, not the original;
 once the destination answers it is an Active call like any other.
+
+**Transfer popup** — the popup an agent uses to pick where an Active call goes,
+opened from the Call window's top bar or from the call dock. It has a number
+field and four tabs of destinations (Agents, Queues, Users, Dialplans) under one
+search; selecting a row and choosing Blind or Consult starts a **Blind transfer**
+or a **Consult transfer**. Which of the two a row allows depends on its tab. It
+works on one call, the one it was opened for.
 
 **Call window** — the central-area card for one call, the call's counterpart of
 the chat window. It hosts the call while it is an **Active call** and stays on

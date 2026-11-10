@@ -1,6 +1,6 @@
 <template>
 	<wt-table
-		class="call-transfer-agents-table"
+		class="transfer-agents-table"
 		:data="dataList"
 		:headers="shownHeaders"
 		:row-class="getRowClass"
@@ -14,13 +14,13 @@
 		@row-click="onRowClick"
 	>
 		<template #name="{ item }">
-			<div class="call-transfer-agents-table__cell">
+			<div class="transfer-agents-table__cell">
 				<username-table-cell :name="item.name" />
 			</div>
 		</template>
 
 		<template #status="{ item }">
-			<div class="call-transfer-agents-table__cell">
+			<div class="transfer-agents-table__cell">
 				<wt-badge
 					:hidden="!item.status"
 					:icon-badge="item.status"
@@ -44,8 +44,8 @@ import { storeToRefs } from 'pinia';
 import { onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
-import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../constants/transferAgentStatusColors';
-import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../constants/transferAgentStatusLabelKeys';
+import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../mappings/transferAgentStatusColors';
+import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../mappings/transferAgentStatusLabelKeys';
 import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
@@ -119,7 +119,7 @@ function getStatusLabel(status?: TransferAgentStatus): string {
 
 function getRowClass(row: TransferAgentRow): string {
 	return row.id === selectedRowId.value
-		? 'call-transfer-agents-table__row--selected'
+		? 'transfer-agents-table__row--selected'
 		: '';
 }
 
@@ -135,13 +135,13 @@ function onRowClick({ data: row }: { data: TransferAgentRow }): void {
 </script>
 
 <style scoped>
-.call-transfer-agents-table__cell {
+.transfer-agents-table__cell {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
 }
 
-.call-transfer-agents-table :deep(tbody tr) {
+.transfer-agents-table :deep(tbody tr) {
 	cursor: pointer;
 }
 
@@ -152,9 +152,9 @@ function onRowClick({ data: row }: { data: TransferAgentRow }): void {
  * cells are coloured too, through the `> td` selector
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-.call-transfer-agents-table :deep(tr.call-transfer-agents-table__row--selected),
-.call-transfer-agents-table
-	:deep(tr.call-transfer-agents-table__row--selected > td) {
+.transfer-agents-table :deep(tr.transfer-agents-table__row--selected),
+.transfer-agents-table
+	:deep(tr.transfer-agents-table__row--selected > td) {
 	background: var(--wt-ws-table-colors-row-selected-background);
 }
 </style>

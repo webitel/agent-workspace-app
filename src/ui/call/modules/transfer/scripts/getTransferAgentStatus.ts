@@ -9,7 +9,7 @@ type KnownAgentStatus = (typeof AgentStatus)[keyof typeof AgentStatus];
 const KNOWN_AGENT_STATUSES: readonly string[] = Object.values(AgentStatus);
 
 function isKnownAgentStatus(status?: string): status is KnownAgentStatus {
-	return status !== undefined && KNOWN_AGENT_STATUSES.includes(status);
+	return !!status && KNOWN_AGENT_STATUSES.includes(status);
 }
 
 /**
