@@ -19,7 +19,11 @@
 			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
-				<username-table-cell :name="item.name" />
+				<username-table-cell
+					:name="item.name"
+					clickable
+					@click="openContact(item)"
+				/>
 			</template>
 
 			<template #status="{ item }">
@@ -49,6 +53,7 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { UserStatusColorMappings } from '../../../../../../features/user-status/enums/UserStatusColorMappings';
 import { getUserStatusByPriority } from '../../../../../../features/user-status/scripts/getUserStatusByPriority';
+import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import TableCellInfo from '../../../../components/table-cell-info.vue';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import type { useUsersDataListStore } from './store/users';
@@ -66,12 +71,22 @@ const {
 } = props.store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
+const { selectContact, selectUnknownContact } = useSidebarSelectionStore();
+
 const isInitializing = ref(true);
 
 const onLoading = async () => {
 	if (isInitializing.value || isLoading.value || !next.value) return;
 	await appendToDataList();
 };
+
+function openContact({ contact }: ApiUser) {
+	if (contact?.id) {
+		selectContact(contact.id);
+		return;
+	}
+	selectUnknownContact();
+}
 
 function getStatus(item: ApiUser) {
 	const status = getUserStatusByPriority({

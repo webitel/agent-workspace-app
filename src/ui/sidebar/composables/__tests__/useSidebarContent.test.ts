@@ -50,6 +50,15 @@ describe('useSidebarContent', () => {
 		});
 	});
 
+	it('returns the contacts panel for the Users tab', () => {
+		route.name = ContactsPageTab.Users;
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: TheContactsPanel,
+		});
+	});
+
 	it('returns the call panel with the call open on the page', () => {
 		const call = {
 			id: 'call-1',
