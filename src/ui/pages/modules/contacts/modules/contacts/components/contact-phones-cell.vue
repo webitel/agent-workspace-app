@@ -6,7 +6,7 @@
 				icon="call--filled"
 				:size="ComponentSize.SM"
 				:color="ButtonColor.SUCCESS"
-				:icon-color="ButtonColor.SUCCESS"
+				:icon-color="IconColor.SUCCESS"
 				:variant="ButtonVariant.TEXT"
 				:aria-label="t('ui.pages.contacts.phones.call', { number: primaryPhoneNumber })"
 				width-by-content

@@ -5,7 +5,7 @@
         icon="ws-navigation-calls"
         :size="ComponentSize.SM"
         :color="ButtonColor.SUCCESS"
-        :icon-color="ButtonColor.SUCCESS"
+        :icon-color="IconColor.SUCCESS"
         :variant="ButtonVariant.TEXT"
         :disabled="!phoneNumber || isCalling"
         width-by-content
@@ -20,6 +20,7 @@ import {
 	ButtonColor,
 	ButtonVariant,
 	ComponentSize,
+	IconColor,
 } from '@webitel/ui-sdk/enums';
 import { ref } from 'vue';
 import { useOutboundCallAttemptsStore } from '../../../features/calls/store/outboundCallAttempts';
