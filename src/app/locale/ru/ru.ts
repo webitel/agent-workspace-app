@@ -136,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Позвонить на {number}',
+					moreNumbers: '+{count} ещё номер(ов)',
+					noPhone: 'Нет телефона',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Выбрать колонки с переменными',

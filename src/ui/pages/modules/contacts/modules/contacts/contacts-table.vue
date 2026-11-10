@@ -32,11 +32,9 @@
 			</template>
 
 			<template #phones="{ item }">
-				<table-cell-info
-					icon="call--filled"
-					:icon-color="IconColor.SUCCESS"
-					:items="item.phones?.data"
-					item-label="number"
+				<contact-phones-cell
+					:phones="item.phones?.data"
+					@call="onCall"
 				/>
 			</template>
 
@@ -70,9 +68,11 @@ import { WtTable } from '@webitel/ui-sdk/components';
 import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useOutboundCallAttemptsStore } from '../../../../../../features/calls/store/outboundCallAttempts';
 import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import TableCellInfo from '../../../../components/table-cell-info.vue';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
+import ContactPhonesCell from './components/contact-phones-cell.vue';
 import type { useContactsDataListStore } from './store/contacts';
 
 const props = defineProps<{
@@ -89,6 +89,19 @@ const {
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
 const { selectContact } = useSidebarSelectionStore();
+
+const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
+
+/**
+ * @author Oleksandr Palonnyi
+ * Dialled through an outbound attempt rather than `callsStore.call`, so the
+ * agent gets the outbound call card (AC_20.03.01); opening the call page per
+ * `open_new_interaction_card` (E28) is not built
+ * [WTEL-WS-27](https://webitel.atlassian.net/browse/WTEL-WS-27)
+ */
+function onCall(number: string): void {
+	outboundCallAttemptsStore.start(number);
+}
 
 const isInitializing = ref(true);
 

@@ -136,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Gọi {number}',
+					moreNumbers: '+{count} số khác',
+					noPhone: 'Không có số điện thoại',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Chọn cột biến',

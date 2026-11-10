@@ -152,6 +152,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Зателефонувати на {number}',
+					moreNumbers: '+{count} ще номер(ів)',
+					noPhone: 'Немає телефону',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Вибрати колонки зі змінними',

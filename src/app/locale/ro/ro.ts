@@ -136,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Apelează {number}',
+					moreNumbers: '+{count} număr(e) în plus',
+					noPhone: 'Fără telefon',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Selectează coloanele variabile',

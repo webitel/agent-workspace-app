@@ -239,6 +239,16 @@ describe('the-numpad-panel', () => {
 		expect(numpadStore.open).toHaveBeenCalledWith('0671234567');
 	});
 
+	it('clears the attempt of the card that was closed', async () => {
+		const wrapper = mountPanel();
+		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.NoAnswer));
+		await nextTick();
+
+		findOutboundCards(wrapper)[0].vm.$emit('close');
+
+		expect(outboundCallAttemptsStore.clearAttempt).toHaveBeenCalledWith('a1');
+	});
+
 	it('forwards retry, hang up and mute with the id of their own attempt', async () => {
 		const wrapper = mountPanel();
 		showOutboundCalls(

@@ -136,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: '{number} нөміріне қоңырау шалу',
+					moreNumbers: '+{count} нөмір тағы',
+					noPhone: 'Телефон жоқ',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Айнымалылар бағандарын таңдау',

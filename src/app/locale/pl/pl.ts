@@ -136,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Zadzwoń na {number}',
+					moreNumbers: '+{count} numer(ów) więcej',
+					noPhone: 'Brak telefonu',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Wybierz kolumny zmiennych',

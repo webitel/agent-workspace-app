@@ -152,6 +152,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Call {number}',
+					moreNumbers: '+{count} more number(s)',
+					noPhone: 'No phone',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Select variables columns',
