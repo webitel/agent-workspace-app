@@ -109,6 +109,7 @@ describe('ContactCardCommunication', () => {
 
 		expect(tabsOf(wrapper).props('current')).toEqual({
 			value: 'phones',
+			text: 'vocabulary.phones',
 		});
 		expect(itemsOf(wrapper)).toEqual([
 			{
@@ -126,6 +127,7 @@ describe('ContactCardCommunication', () => {
 
 		expect(tabsOf(wrapper).props('current')).toEqual({
 			value: 'messaging',
+			text: 'vocabulary.messaging',
 		});
 		expect(itemsOf(wrapper)).toEqual([
 			{

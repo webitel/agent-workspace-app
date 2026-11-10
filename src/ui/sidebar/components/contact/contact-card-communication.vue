@@ -5,15 +5,15 @@
 		</div>
 
 		<wt-tabs
-			:current="{ value: activeTab }"
+			:current="currentTab"
 			:tabs="tabs"
 			:size="ComponentSize.SM"
-			@change="handleTabChange"
+			@change="currentTab = $event"
 		/>
 
 		<ul class="contact-card-communication__list">
 			<contact-card-communication-item
-				v-for="item of communication[activeTab]"
+				v-for="item of communication[currentTab.value]"
 				:key="item.id"
 				:item="item"
 			/>
@@ -34,10 +34,8 @@ import {
 	toContactCommunication,
 } from './scripts/toContactCommunication';
 
-type CommunicationTab = keyof ContactCommunication;
-
 interface CommunicationTabItem {
-	value: CommunicationTab;
+	value: keyof ContactCommunication;
 	text: string;
 }
 
@@ -48,8 +46,6 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const communication = computed(() => toContactCommunication(props.contact));
-
-const activeTab = ref<CommunicationTab>('phones');
 
 const tabs = computed<CommunicationTabItem[]>(() => [
 	{
@@ -66,9 +62,7 @@ const tabs = computed<CommunicationTabItem[]>(() => [
 	},
 ]);
 
-function handleTabChange(tab: CommunicationTabItem) {
-	activeTab.value = tab.value;
-}
+const currentTab = ref<CommunicationTabItem>(tabs.value[0]);
 </script>
 
 <style scoped>

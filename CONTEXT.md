@@ -43,6 +43,10 @@ and should not be carried over wholesale.
 - [ADR-0011](docs/adr/0011-chat-list-stays-the-task-feed.md) — the chat list
   stays the task feed (call-center chats only), with unread read from the thread
   list, and search over the tasks on the client.
+- [ADR-0012](docs/adr/0012-contact-card-communication.md) — the contact card's
+  Communication section lists the phones, emails and messengers the contact
+  returns, shows a messenger's name as it comes, and a messenger without one as
+  its gateway icon alone.
 
 ## Language
 
@@ -260,6 +264,13 @@ that would be "new activity", not unread, and is deliberately not built.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.
+
+**IM client** — a contact's link to a messenger (`imclients` on the contact),
+shown on the contact card's Messaging tab. It is one of two kinds, never both: a
+legacy chat client, which carries the client's `user` from the external service,
+or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
+backend's im-contact-service) and no name. IM is instant messaging; the gateway
+it comes through is its `protocol` (ADR-0012).
 
 ## Conventions
 
