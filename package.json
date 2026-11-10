@@ -38,6 +38,7 @@
 		"@webitel/ui-datalist": "~26.12",
 		"@webitel/ui-sdk": "~26.12",
 		"axios": "^1.17.0",
+		"decode-uri-component": "^0.5.1",
 		"date-fns": "^4",
 		"dompurify": "^3.4.16",
 		"jszip": "^3.10.2",
@@ -73,6 +74,7 @@
 	"overrides": {
 		"vue-router": "^5.1.x",
 		"axios": "^1.17.0",
+		"decode-uri-component": "^0.5.1",
 		"@webitel/chat-web-sdk": "^0.0.23",
 		"webitel-sdk": {
 			"query-string": "9.5.1"
