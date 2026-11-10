@@ -35,6 +35,7 @@ const createStore = () => {
 				}),
 		),
 		appendToDataList: vi.fn(),
+		updateSort: vi.fn(),
 		columnResize: vi.fn(),
 		columnReorder: vi.fn(),
 		addFilter: vi.fn(),
@@ -66,6 +67,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 			'onLoading',
 		],
 		emits: [
+			'sort',
 			'column-resize',
 			'column-reorder',
 		],
@@ -367,6 +369,17 @@ describe('calls-history-table', () => {
 		const wrapper = mountTable();
 
 		expect(wrapper.find('.empty').text()).toBe('ui.reusable.nothingToShowHere');
+	});
+
+	it('passes sorting to the store', () => {
+		const wrapper = mountTable();
+		const table = wrapper.findComponent({
+			name: 'WtTable',
+		});
+
+		table.vm.$emit('sort', 'column', 'order');
+
+		expect(mockStore.updateSort).toHaveBeenCalledWith('column', 'order');
 	});
 
 	it('passes column resize and reorder to the store', () => {

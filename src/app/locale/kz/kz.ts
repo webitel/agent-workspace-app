@@ -76,6 +76,7 @@ export default {
 				groups: 'Топтар',
 				attributes: 'Атрибуттар',
 				noAttributes: 'Пайдаланушы айнымалылары анықталмаған',
+				communicationOptions: 'Байланыс тәсілдері',
 			},
 		},
 		pages: {
