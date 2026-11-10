@@ -1,3 +1,4 @@
+import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import type { TransferMode } from '../enums/TransferMode.enum';
 import type { TransferTab } from '../enums/TransferTab.enum';
 
@@ -15,6 +16,13 @@ export type TransferDestination =
 export interface TransferRequest {
 	mode: TransferMode;
 	destination: TransferDestination;
+}
+
+export interface TransferAgentRow {
+	id: string;
+	name: string;
+	teamName?: string;
+	status?: TransferAgentStatus;
 }
 
 export type TransferModeAvailability = Record<TransferMode, boolean>;

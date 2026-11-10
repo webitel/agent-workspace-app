@@ -157,6 +157,12 @@ export default {
 				title: 'Qoʻngʻiroqni oʻtkazish',
 				phoneLabel: 'Raqamga oʻtkazish',
 				phonePlaceholder: 'Telefon raqamini kiriting',
+				emptyList: 'Hech narsa topilmadi',
+				columns: {
+					name: 'Ism',
+					status: 'Holat',
+					team: 'Jamoa',
+				},
 				modes: {
 					blind: 'Toʻgʻridan-toʻgʻri',
 					consult: 'Maslahat bilan',

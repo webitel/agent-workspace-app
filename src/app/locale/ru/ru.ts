@@ -157,6 +157,12 @@ export default {
 				title: 'Перевод звонка',
 				phoneLabel: 'Перевести на номер',
 				phonePlaceholder: 'Введите номер телефона',
+				emptyList: 'Ничего не найдено',
+				columns: {
+					name: 'Имя',
+					status: 'Статус',
+					team: 'Команда',
+				},
 				modes: {
 					blind: 'Слепой',
 					consult: 'Консультативный',

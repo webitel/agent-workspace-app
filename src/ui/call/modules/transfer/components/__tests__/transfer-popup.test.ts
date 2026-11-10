@@ -22,9 +22,10 @@ vi.mock('../../../../../../features/calls/store/calls', () => ({
 }));
 
 import { useCallTransferPopupStore } from '../../store/callTransferPopup';
-import CallTransferPopup from '../call-transfer-popup.vue';
+import TransferPopup from '../transfer-popup.vue';
 
 const stubs = {
+	TransferAgentsTable: true,
 	'wt-popup': {
 		emits: [
 			'close',
@@ -76,14 +77,15 @@ const stubs = {
 		],
 		emits: [
 			'input',
+			'search',
 		],
 		template:
-			'<input class="search" :value="value" @input="$emit(\'input\', $event.target.value)" />',
+			'<input class="search" :value="value" @input="$emit(\'input\', $event.target.value)" @change="$emit(\'search\', $event.target.value)" />',
 	},
 };
 
 const mountPopup = () =>
-	mount(CallTransferPopup, {
+	mount(TransferPopup, {
 		global: {
 			stubs,
 		},
@@ -92,7 +94,7 @@ const mountPopup = () =>
 type Wrapper = ReturnType<typeof mountPopup>;
 
 const topButtons = (wrapper: Wrapper) =>
-	wrapper.findAll('.call-transfer-popup__phone button');
+	wrapper.findAll('.transfer-popup__phone button');
 
 const bottomButtons = (wrapper: Wrapper) =>
 	wrapper.findAll('.popup-actions button');
@@ -100,7 +102,7 @@ const bottomButtons = (wrapper: Wrapper) =>
 const isDisabled = (button: { attributes: (name: string) => unknown }) =>
 	button.attributes('disabled') !== undefined;
 
-describe('call-transfer-popup', () => {
+describe('transfer-popup', () => {
 	beforeEach(() => {
 		blindTransferMock.mockReset();
 		blindTransferMock.mockResolvedValue(true);

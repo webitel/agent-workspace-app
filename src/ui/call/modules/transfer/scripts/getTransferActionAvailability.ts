@@ -1,5 +1,5 @@
 import { sanitizeDestination } from '../../../../../features/calls/scripts/sanitizeDestination';
-import { TRANSFER_MODES_BY_TAB } from '../constants/transferModesByTab';
+import { TRANSFER_MODES_BY_TAB } from '../mappings/transferModesByTab';
 import { TransferMode } from '../enums/TransferMode.enum';
 import type { TransferTab } from '../enums/TransferTab.enum';
 import type { TransferActionAvailability } from '../types/CallTransfer.types';

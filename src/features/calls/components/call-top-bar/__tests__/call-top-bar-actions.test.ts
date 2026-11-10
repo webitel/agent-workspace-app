@@ -18,7 +18,7 @@ vi.mock('../../../store/calls', () => ({
 const openTransferMock = vi.fn();
 
 vi.mock(
-	'../../../../../ui/call/modules/call-transfer/store/callTransferPopup',
+	'../../../../../ui/call/modules/transfer/store/callTransferPopup',
 	() => ({
 		useCallTransferPopupStore: () => ({
 			open: (...args: unknown[]) => openTransferMock(...args),

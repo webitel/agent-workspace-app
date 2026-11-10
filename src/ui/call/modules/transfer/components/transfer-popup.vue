@@ -9,11 +9,11 @@
 		</template>
 
 		<template #main>
-			<div class="call-transfer-popup__main">
-				<div class="call-transfer-popup__phone">
+			<div class="transfer-popup__main">
+				<div class="transfer-popup__phone">
 					<wt-input-text
 						v-model="phone"
-						class="call-transfer-popup__phone-input"
+						class="transfer-popup__phone-input"
 						:label="t('ui.call.transfer.phoneLabel')"
 						:placeholder="t('ui.call.transfer.phonePlaceholder')"
 						:disabled="isSubmitting"
@@ -38,11 +38,12 @@
 
 				<wt-search-bar
 					full-width
-					:value="searchQuery"
-					@input="searchQuery = $event"
+					:value="searchInput"
+					@input="searchInput = $event"
+					@search="searchQuery = $event"
 				/>
 
-				<div class="call-transfer-popup__list wt-scrollbar">
+				<div class="transfer-popup__list wt-scrollbar">
 					<component
 						:is="activeTabConfig.component"
 						v-if="activeTabConfig.component"
@@ -93,6 +94,7 @@ import { TransferTab } from '../enums/TransferTab.enum';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
+import TransferAgentsTable from './transfer-agents-table.vue';
 
 const emit = defineEmits<{
 	transfer: [
@@ -108,16 +110,29 @@ const transferModes = Object.values(TransferMode);
 
 const phone = ref('');
 const activeTab = ref<TransferTab>(TransferTab.Agents);
+
+/**
+ * @author Oleksandr Palonnyi
+ * `searchInput` is the text in the field; `searchQuery` is what the list
+ * searches by. wt-search-bar emits `search` debounced (and on Enter), so the
+ * list is not requested on every typed character. The table store applies the
+ * last answer to arrive, not the answer to the last request, so with a request
+ * per character a slow answer to "a" could replace the list for "ab". The
+ * debounce makes that rare, it does not remove it: the fix belongs in
+ * ui-datalist (see docs/adr/0012-transfer-agents-list.md)
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const searchInput = ref('');
 const searchQuery = ref('');
 const selectedRowId = ref<string | null>(null);
 const isSubmitting = ref(false);
 
 /**
  * @author Oleksandr Palonnyi
- * the tab bodies (the lists of agents, queues, users and dialplans) are
- * separate stories and not built yet, so no tab has a component here; a body
- * takes the search text and owns the selected row through
- * `v-model:selected-row-id`
+ * the tab bodies are built one per PR, a tab without a component shows an
+ * empty list area; a body takes the search text and owns the selected row
+ * through `v-model:selected-row-id`
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 const tabs = computed<
@@ -130,6 +145,7 @@ const tabs = computed<
 	{
 		value: TransferTab.Agents,
 		text: t('objects.agent.agent', 2),
+		component: TransferAgentsTable,
 	},
 	{
 		value: TransferTab.Queues,
@@ -167,6 +183,7 @@ const availability = computed(() =>
 function onTabChange(tab: { value: TransferTab }): void {
 	activeTab.value = tab.value;
 	selectedRowId.value = null;
+	searchInput.value = '';
 	searchQuery.value = '';
 }
 
@@ -240,24 +257,24 @@ watch(
 </script>
 
 <style scoped>
-.call-transfer-popup__main {
+.transfer-popup__main {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-xs);
 	height: 100%;
 }
 
-.call-transfer-popup__phone {
+.transfer-popup__phone {
 	display: flex;
 	align-items: flex-end;
 	gap: var(--spacing-xs);
 }
 
-.call-transfer-popup__phone-input {
+.transfer-popup__phone-input {
 	flex: 1;
 }
 
-.call-transfer-popup__list {
+.transfer-popup__list {
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;

@@ -1,7 +1,7 @@
 <template>
     <div class="task-dock-call-lane">
         <the-numpad-panel />
-        <call-transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
+        <transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
 
         <div class="task-dock-call-lane__container">
             <template
@@ -43,8 +43,8 @@ import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCal
 import { useCallsStore } from '../../../features/calls/store/calls';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
-import CallTransferPopup from '../../call/modules/call-transfer/components/call-transfer-popup.vue';
-import { useCallTransferPopupStore } from '../../call/modules/call-transfer/store/callTransferPopup';
+import TransferPopup from '../../call/modules/transfer/components/transfer-popup.vue';
+import { useCallTransferPopupStore } from '../../call/modules/transfer/store/callTransferPopup';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { useTaskDockStore } from '../store/task-dock';
 
