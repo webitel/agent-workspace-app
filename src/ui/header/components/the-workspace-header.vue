@@ -52,7 +52,7 @@ import { useI18n } from 'vue-i18n';
 import packageJson from '../../../../package.json' with { type: 'json' };
 import { getConfig } from '../../../features/appConfig/config';
 import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
-import OpenFlowsAction from '../../../features/flows/components/open-flows-action.vue';
+//import OpenFlowsAction from '../../../features/flows/components/open-flows-action.vue';
 import { useGlobalHandlersStore } from '../../../features/global-handlers/store/globalHandlers';
 import { useUserinfoStore } from '../../../features/userinfo/stores/userinfoStore';
 import { useConnectionQualityStore } from '../modules/connectionQuality/store/connectionQuality';
