@@ -76,6 +76,7 @@ export default {
 				groups: 'Группы',
 				attributes: 'Атрибуты',
 				noAttributes: 'Пользовательские переменные не заданы',
+				communicationOptions: 'Способы связи',
 			},
 		},
 		pages: {
