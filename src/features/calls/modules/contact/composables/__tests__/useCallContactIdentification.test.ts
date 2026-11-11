@@ -348,6 +348,31 @@ describe('useCallContactIdentification', () => {
 			]);
 		});
 
+		it('lets the agent select on another call while a link still hangs', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const firstCall = buildCall({
+				setContact: vi.fn().mockReturnValue(new Promise(() => {})),
+			});
+
+			const { contactIds, selectContact, callRef } = setup(firstCall);
+			await flushPromises();
+			void selectContact('16');
+
+			getList.mockResolvedValueOnce(found('20', '21'));
+			const secondCall = buildCall({
+				id: 'call-2',
+				displayNumber: '+12023417843',
+			});
+			callRef.value = secondCall;
+			await flushPromises();
+			await selectContact('21');
+
+			expect(secondCall.setContact).toHaveBeenCalledWith(21);
+			expect(contactIds.value).toEqual([
+				'21',
+			]);
+		});
+
 		it('does not show the linked contact once another call is opened', async () => {
 			getList.mockResolvedValueOnce(found('15', '16'));
 			const linking = createDeferred<object>();

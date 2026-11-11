@@ -44,9 +44,10 @@ follow one condition in the call panel, so they never disagree.
 **The linked contact shows at once.** After `setContact` succeeds the panel
 shows that contact alone, without waiting for the socket event, as the only
 found contact is linked automatically. The event then brings the same contact,
-so nothing flickers. A second SELECT while the request runs is ignored, and a
-link that completes after another call was opened is not shown on the new
-call's panel.
+so nothing flickers. A second SELECT on the same call while its request runs is
+ignored (kept per call: the SDK's socket requests have no timeout, so a hung
+link must not block other calls), and a link that completes after another call
+was opened is not shown on the new call's panel.
 
 **A failed link is silent.** The found contacts stay, the shown one included, so
 the agent can select again. Only `console.warn` records it. A rejected socket

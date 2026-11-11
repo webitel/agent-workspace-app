@@ -1,6 +1,6 @@
 <template>
 	<div class="contact-switcher">
-		<!-- the arrows keep their place when hidden, so the label does not shift -->
+		<!-- every item has its own grid column, so the label stays centered when an arrow is hidden -->
 		<wt-icon-btn
 			v-if="hasPrev"
 			class="contact-switcher__prev"
