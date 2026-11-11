@@ -4,10 +4,10 @@ import { formatDate } from '@webitel/ui-sdk/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CallDirection } from 'webitel-sdk';
 
-import CommunicationInfoFields from '../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
-import CommunicationInfoHeader from '../../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
+import CommunicationInfoFields from '../../../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
+import CommunicationInfoHeader from '../../../../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
 import type { CallInfoPanelContent } from '../../../types/CallInfoPanelContent.types';
-import InboundCallInfoPanel from '../inbound-call-info-panel.vue';
+import OutboundCallInfoPanel from '../outbound-call-info-panel.vue';
 
 const CREATED_AT = 1_700_000_000_000;
 const ANSWERED_AT = CREATED_AT + 15_000;
@@ -15,10 +15,9 @@ const ANSWERED_AT = CREATED_AT + 15_000;
 const buildContent = (
 	overrides: Partial<CallInfoPanelContent> = {},
 ): CallInfoPanelContent => ({
-	direction: CallDirection.Inbound,
-	from: '+12023417842',
-	to: '1001',
-	queueName: 'Sales',
+	direction: CallDirection.Outbound,
+	from: '1001',
+	to: '+12023417842',
 	createdAt: CREATED_AT,
 	answeredAt: ANSWERED_AT,
 	...overrides,
@@ -38,7 +37,7 @@ const HeaderStub = {
 };
 
 const mountPanel = (content: CallInfoPanelContent) =>
-	mount(InboundCallInfoPanel, {
+	mount(OutboundCallInfoPanel, {
 		props: {
 			content,
 		},
@@ -51,7 +50,7 @@ const mountPanel = (content: CallInfoPanelContent) =>
 		},
 	});
 
-describe('inbound-call-info-panel', () => {
+describe('outbound-call-info-panel', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(ANSWERED_AT + 65_000);
@@ -61,13 +60,13 @@ describe('inbound-call-info-panel', () => {
 		vi.useRealTimers();
 	});
 
-	it('shows the inbound header', () => {
+	it('shows the outbound header', () => {
 		const wrapper = mountPanel(buildContent());
 
 		expect(wrapper.findComponent(CommunicationInfoHeader).props()).toEqual({
-			icon: 'ws-inbound-call',
-			color: IconColor.SUCCESS,
-			title: 'ui.call.direction.inbound',
+			icon: 'ws-outbound-call',
+			color: IconColor.INFO,
+			title: 'ui.call.direction.outbound',
 		});
 	});
 
@@ -92,26 +91,49 @@ describe('inbound-call-info-panel', () => {
 		expect(wrapper.find('.aside').text()).toBe('');
 	});
 
-	it('shows From, To and Queue in this order', () => {
-		const wrapper = mountPanel(buildContent());
+	it('shows To and then From, without a queue', () => {
+		const wrapper = mountPanel(
+			buildContent({
+				queueName: 'Sales',
+			}),
+		);
 
 		expect(
 			wrapper.findComponent(CommunicationInfoFields).props('fields'),
 		).toEqual([
 			{
-				key: 'from',
-				label: 'reusable.from',
+				key: 'to',
+				label: 'reusable.to',
 				value: '+12023417842',
 			},
 			{
-				key: 'to',
-				label: 'reusable.to',
+				key: 'from',
+				label: 'reusable.from',
 				value: '1001',
 			},
+		]);
+	});
+
+	it('passes absent numbers as undefined for the fields to hide them', () => {
+		const wrapper = mountPanel(
+			buildContent({
+				to: undefined,
+				from: undefined,
+			}),
+		);
+
+		expect(
+			wrapper.findComponent(CommunicationInfoFields).props('fields'),
+		).toEqual([
 			{
-				key: 'queue',
-				label: 'objects.queue.queue',
-				value: 'Sales',
+				key: 'to',
+				label: 'reusable.to',
+				value: undefined,
+			},
+			{
+				key: 'from',
+				label: 'reusable.from',
+				value: undefined,
 			},
 		]);
 	});

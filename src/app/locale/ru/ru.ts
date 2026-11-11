@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -50,6 +50,7 @@ export default {
 			username: 'Имя пользователя',
 			message: 'Сообщение',
 			phoneNumber: 'Номер телефона',
+			waitTime: 'Время ожидания',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -75,6 +76,7 @@ export default {
 				groups: 'Группы',
 				attributes: 'Атрибуты',
 				noAttributes: 'Пользовательские переменные не заданы',
+				communicationOptions: 'Способы связи',
 			},
 		},
 		pages: {
@@ -82,6 +84,7 @@ export default {
 				pageTabs: {
 					missed: 'Пропущенные',
 					offline: 'Оффлайн',
+					selfAssigned: 'Самостоятельно назначенные',
 				},
 				tabs: {
 					info: 'Инфо',
@@ -133,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Позвонить на {number}',
+					moreNumbers: '+{count} ещё номер(ов)',
+					noPhone: 'Нет телефона',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Выбрать колонки с переменными',
@@ -162,7 +172,8 @@ export default {
 				backToDialpad: 'Назад к набору номера',
 			},
 			direction: {
-				inbound: 'Входящий звонок',
+				[CallDirection.Inbound]: 'Входящий звонок',
+				[CallDirection.Outbound]: 'Исходящий звонок',
 			},
 		},
 	},

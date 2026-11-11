@@ -3,7 +3,7 @@
 		<communication-info-header
 			icon="ws-inbound-call"
 			:color="IconColor.SUCCESS"
-			:title="t('ui.call.direction.inbound')"
+			:title="t(`ui.call.direction.${CallDirection.Inbound}`)"
 		>
 			<template
 				v-if="startedAt"
@@ -32,11 +32,12 @@ import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CallDirection } from 'webitel-sdk';
 
-import { useElapsedSec } from '../../../../ui/composables/useElapsedSec';
-import CommunicationInfoFields from '../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
-import CommunicationInfoHeader from '../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
-import type { CommunicationInfoField } from '../../../../ui/sidebar/components/communication-info/types/CommunicationInfoField.types';
+import { useElapsedSec } from '../../../../../../ui/composables/useElapsedSec';
+import CommunicationInfoFields from '../../../../../../ui/sidebar/components/communication-info/communication-info-fields.vue';
+import CommunicationInfoHeader from '../../../../../../ui/sidebar/components/communication-info/communication-info-header.vue';
+import type { CommunicationInfoField } from '../../../../../../ui/sidebar/components/communication-info/types/CommunicationInfoField.types';
 import type { CallInfoPanelContent } from '../../types/CallInfoPanelContent.types';
 
 const props = defineProps<{

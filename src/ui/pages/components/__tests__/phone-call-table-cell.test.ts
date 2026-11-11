@@ -2,13 +2,13 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // the real store pulls in the socket client and the i18n singleton;
-// the cell only needs `call`
-const callsStore = {
-	call: vi.fn(),
+// the cell only needs `start`
+const outboundCallAttemptsStore = {
+	start: vi.fn(),
 };
 
-vi.mock('../../../../features/calls/store/calls', () => ({
-	useCallsStore: () => callsStore,
+vi.mock('../../../../features/calls/store/outboundCallAttempts', () => ({
+	useOutboundCallAttemptsStore: () => outboundCallAttemptsStore,
 }));
 
 import PhoneCallTableCell from '../phone-call-table-cell.vue';
@@ -44,8 +44,8 @@ const mountCell = (phoneNumber?: string) => {
 
 describe('phone-call-table-cell', () => {
 	beforeEach(() => {
-		callsStore.call.mockReset();
-		callsStore.call.mockResolvedValue(true);
+		outboundCallAttemptsStore.start.mockReset();
+		outboundCallAttemptsStore.start.mockResolvedValue(true);
 	});
 
 	it('shows the passed number', () => {
@@ -65,16 +65,16 @@ describe('phone-call-table-cell', () => {
 
 		await button().trigger('click');
 
-		expect(callsStore.call).toHaveBeenCalledWith({
-			destination: '380501112233',
-		});
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith(
+			'380501112233',
+		);
 	});
 
 	it('disables the button while the call is starting', async () => {
 		const { button } = mountCell('380501112233');
-		let finishCall: (result: boolean) => void = () => {};
-		callsStore.call.mockReturnValue(
-			new Promise((resolve) => {
+		let finishCall: () => void = () => {};
+		outboundCallAttemptsStore.start.mockReturnValue(
+			new Promise<void>((resolve) => {
 				finishCall = resolve;
 			}),
 		);
@@ -82,7 +82,7 @@ describe('phone-call-table-cell', () => {
 		await button().trigger('click');
 		expect(button().attributes('disabled')).toBeDefined();
 
-		finishCall(false);
+		finishCall();
 		await flushPromises();
 		expect(button().attributes('disabled')).toBeUndefined();
 	});

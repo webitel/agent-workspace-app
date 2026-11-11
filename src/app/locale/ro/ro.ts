@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -50,6 +50,7 @@ export default {
 			username: 'Nume utilizator',
 			message: 'Mesaj',
 			phoneNumber: 'Număr de telefon',
+			waitTime: 'Timp de așteptare',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -75,6 +76,7 @@ export default {
 				groups: 'Grupuri',
 				attributes: 'Atribute',
 				noAttributes: 'Nu sunt definite variabile personalizate',
+				communicationOptions: 'Optiuni de comunicare',
 			},
 		},
 		pages: {
@@ -82,6 +84,7 @@ export default {
 				pageTabs: {
 					missed: 'Pierdute',
 					offline: 'Offline',
+					selfAssigned: 'Auto-atribuite',
 				},
 				tabs: {
 					info: 'Informații',
@@ -133,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Apelează {number}',
+					moreNumbers: '+{count} număr(e) în plus',
+					noPhone: 'Fără telefon',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Selectează coloanele variabile',
@@ -162,7 +172,8 @@ export default {
 				backToDialpad: 'Înapoi la tastatură',
 			},
 			direction: {
-				inbound: 'Apel de intrare',
+				[CallDirection.Inbound]: 'Apel de intrare',
+				[CallDirection.Outbound]: 'Apel de ieșire',
 			},
 		},
 	},

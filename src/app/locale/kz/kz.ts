@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -50,6 +50,7 @@ export default {
 			username: 'Пайдаланушы аты',
 			message: 'Хабарлама',
 			phoneNumber: 'Телефон нөмірі',
+			waitTime: 'Күту уақыты',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -75,6 +76,7 @@ export default {
 				groups: 'Топтар',
 				attributes: 'Атрибуттар',
 				noAttributes: 'Пайдаланушы айнымалылары анықталмаған',
+				communicationOptions: 'Байланыс тәсілдері',
 			},
 		},
 		pages: {
@@ -82,6 +84,7 @@ export default {
 				pageTabs: {
 					missed: 'Қабылданбаған',
 					offline: 'Офлайн',
+					selfAssigned: 'Өзіне тағайындалған',
 				},
 				tabs: {
 					info: 'Ақпарат',
@@ -133,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: '{number} нөміріне қоңырау шалу',
+					moreNumbers: '+{count} нөмір тағы',
+					noPhone: 'Телефон жоқ',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Айнымалылар бағандарын таңдау',
@@ -162,7 +172,8 @@ export default {
 				backToDialpad: 'Нөмір теруге оралу',
 			},
 			direction: {
-				inbound: 'Кіріс қоңырау',
+				[CallDirection.Inbound]: 'Кіріс қоңырау',
+				[CallDirection.Outbound]: 'Шығыс қоңырау',
 			},
 		},
 	},

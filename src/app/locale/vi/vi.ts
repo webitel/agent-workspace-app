@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -50,6 +50,7 @@ export default {
 			username: 'Tên người dùng',
 			message: 'Tin nhắn',
 			phoneNumber: 'Số điện thoại',
+			waitTime: 'Thời gian chờ',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -75,6 +76,7 @@ export default {
 				groups: 'Nhóm',
 				attributes: 'Thuộc tính',
 				noAttributes: 'Chưa xác định biến tùy chỉnh',
+				communicationOptions: 'Tùy chọn liên lạc',
 			},
 		},
 		pages: {
@@ -82,6 +84,7 @@ export default {
 				pageTabs: {
 					missed: 'Cuộc gọi nhỡ',
 					offline: 'Ngoại tuyến',
+					selfAssigned: 'Tự gán',
 				},
 				tabs: {
 					info: 'Thông tin',
@@ -133,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Gọi {number}',
+					moreNumbers: '+{count} số khác',
+					noPhone: 'Không có số điện thoại',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Chọn cột biến',
@@ -162,7 +172,8 @@ export default {
 				backToDialpad: 'Quay lại bàn phím',
 			},
 			direction: {
-				inbound: 'Cuộc gọi đến',
+				[CallDirection.Inbound]: 'Cuộc gọi đến',
+				[CallDirection.Outbound]: 'Cuộc gọi đi',
 			},
 		},
 	},

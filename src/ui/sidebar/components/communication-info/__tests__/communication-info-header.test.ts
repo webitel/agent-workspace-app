@@ -15,11 +15,14 @@ const WtIconStub = {
 	template: '<i class="wt-icon-stub" />',
 };
 
-const mountHeader = (slots: Record<string, string> = {}) =>
+const mountHeader = (
+	slots: Record<string, string> = {},
+	color: IconColor = IconColor.SUCCESS,
+) =>
 	mount(CommunicationInfoHeader, {
 		props: {
 			icon: 'ws-inbound-call',
-			color: IconColor.SUCCESS,
+			color,
 			title: 'Inbound Call',
 		},
 		slots,
@@ -41,6 +44,15 @@ describe('communication-info-header', () => {
 		});
 		expect(wrapper.find('.communication-info-header__title').text()).toBe(
 			'Inbound Call',
+		);
+	});
+
+	it('takes the info color', () => {
+		const wrapper = mountHeader({}, IconColor.INFO);
+
+		expect(wrapper.classes()).toContain('communication-info-header--info');
+		expect(wrapper.findComponent(WtIconStub).props('color')).toBe(
+			IconColor.INFO,
 		);
 	});
 

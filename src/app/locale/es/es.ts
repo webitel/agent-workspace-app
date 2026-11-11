@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -50,6 +50,7 @@ export default {
 			username: 'Nombre de usuario',
 			message: 'Mensaje',
 			phoneNumber: 'Número de teléfono',
+			waitTime: 'Tiempo de espera',
 		},
 		numpad: {
 			call: 'Llamar',
@@ -75,6 +76,7 @@ export default {
 				groups: 'Grupos',
 				attributes: 'Atributos',
 				noAttributes: 'No hay variables personalizadas definidas',
+				communicationOptions: 'Opciones de comunicación',
 			},
 		},
 		pages: {
@@ -82,6 +84,7 @@ export default {
 				pageTabs: {
 					missed: 'Perdidas',
 					offline: 'Fuera de línea',
+					selfAssigned: 'Autoasignadas',
 				},
 				tabs: {
 					info: 'Información',
@@ -133,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: 'Llamar al {number}',
+					moreNumbers: '+{count} número(s) más',
+					noPhone: 'Sin teléfono',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'Seleccionar columnas de variables',
@@ -163,7 +173,8 @@ export default {
 				backToDialpad: 'Volver al teclado',
 			},
 			direction: {
-				inbound: 'Llamada entrante',
+				[CallDirection.Inbound]: 'Llamada entrante',
+				[CallDirection.Outbound]: 'Llamada saliente',
 			},
 		},
 	},

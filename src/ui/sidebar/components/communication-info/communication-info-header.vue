@@ -67,6 +67,14 @@ const slots = defineSlots<{
 	background: var(--success-on-color);
 }
 
+.communication-info-header--info {
+	border-top-color: var(--info-color);
+}
+
+.communication-info-header--info .communication-info-header__icon {
+	background: var(--info-on-color);
+}
+
 .communication-info-header__icon {
 	display: inline-flex;
 	flex: none;

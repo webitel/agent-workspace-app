@@ -5,6 +5,7 @@ import { CallDirection } from 'webitel-sdk';
 import type { CallInfoPanelContent } from '../../../types/CallInfoPanelContent.types';
 import CallInfoPanel from '../call-info-panel.vue';
 import InboundCallInfoPanel from '../inbound-call-info-panel.vue';
+import OutboundCallInfoPanel from '../outbound-call-info-panel.vue';
 
 const mountPanel = (content: CallInfoPanelContent) =>
 	mount(CallInfoPanel, {
@@ -14,6 +15,7 @@ const mountPanel = (content: CallInfoPanelContent) =>
 		global: {
 			stubs: {
 				InboundCallInfoPanel: true,
+				OutboundCallInfoPanel: true,
 			},
 		},
 	});
@@ -31,13 +33,17 @@ describe('call-info-panel', () => {
 		).toEqual(content);
 	});
 
-	it('shows nothing for a direction without its own panel', () => {
-		const wrapper = mountPanel({
+	it('shows the outbound panel for an outbound call', () => {
+		const content: CallInfoPanelContent = {
 			direction: CallDirection.Outbound,
-		});
+			to: '+12023417842',
+		};
+		const wrapper = mountPanel(content);
 
+		expect(
+			wrapper.findComponent(OutboundCallInfoPanel).props('content'),
+		).toEqual(content);
 		expect(wrapper.findComponent(InboundCallInfoPanel).exists()).toBe(false);
-		expect(wrapper.html()).toBe('<!--v-if-->');
 	});
 
 	it('shows nothing for a call without a direction', () => {
