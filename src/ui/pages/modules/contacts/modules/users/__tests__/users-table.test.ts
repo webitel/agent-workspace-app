@@ -4,6 +4,7 @@ import type { ApiUser } from '@webitel/api-services/gen/models';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive, ref } from 'vue';
 
+import { useOutboundCallAttemptsStore } from '../../../../../../../features/calls/store/outboundCallAttempts';
 import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import type { useUsersDataListStore } from '../store/users';
 import UsersTable from '../users-table.vue';
@@ -36,6 +37,9 @@ const createStore = (dataList: ApiUser[]) =>
 			{
 				value: 'name',
 			},
+			{
+				value: 'extension',
+			},
 		]),
 		next: ref(false),
 		initialize: vi.fn(() => Promise.resolve()),
@@ -46,6 +50,16 @@ const createStore = (dataList: ApiUser[]) =>
 	}) as unknown as ReturnType<typeof useUsersDataListStore>;
 
 const stubs = {
+	ContactPhonesCell: {
+		name: 'ContactPhonesCell',
+		props: [
+			'phones',
+		],
+		emits: [
+			'call',
+		],
+		template: '<div class="phones-cell" />',
+	},
 	UsernameTableCell: {
 		name: 'UsernameTableCell',
 		props: {
@@ -79,6 +93,11 @@ const mountTable = (user: ApiUser) =>
 const nameCellOf = (wrapper: ReturnType<typeof mountTable>) =>
 	wrapper.findComponent({
 		name: 'UsernameTableCell',
+	});
+
+const phonesCellOf = (wrapper: ReturnType<typeof mountTable>) =>
+	wrapper.findComponent({
+		name: 'ContactPhonesCell',
 	});
 
 describe('users-table', () => {
@@ -121,5 +140,40 @@ describe('users-table', () => {
 		expect(
 			useSidebarSelectionStore().selectContactOrUnknown,
 		).toHaveBeenCalledWith(undefined);
+	});
+
+	it('passes the user extension to the phones cell', () => {
+		const wrapper = mountTable({
+			id: '1',
+			name: 'John Doe',
+			extension: '101',
+		});
+
+		expect(phonesCellOf(wrapper).props('phones')).toEqual([
+			{
+				number: '101',
+			},
+		]);
+	});
+
+	it('passes no phones when the user has no extension', () => {
+		const wrapper = mountTable({
+			id: '1',
+			name: 'John Doe',
+		});
+
+		expect(phonesCellOf(wrapper).props('phones')).toEqual([]);
+	});
+
+	it('starts an outbound attempt on the extension chosen in the phones cell', () => {
+		const wrapper = mountTable({
+			id: '1',
+			name: 'John Doe',
+			extension: '101',
+		});
+
+		phonesCellOf(wrapper).vm.$emit('call', '101');
+
+		expect(useOutboundCallAttemptsStore().start).toHaveBeenCalledWith('101');
 	});
 });
