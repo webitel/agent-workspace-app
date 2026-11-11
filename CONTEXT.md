@@ -47,6 +47,10 @@ and should not be carried over wholesale.
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
   its gateway icon alone.
+- [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
+  one of several identified contacts while the call is active or on hold, the
+  link shows at once, a failed one is silent, and CREATE follows the same
+  condition as SELECT.
 
 ## Language
 
@@ -271,6 +275,15 @@ legacy chat client, which carries the client's `user` from the external service,
 or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
+
+**Identified contact** — a contact the search by a call's number found. There
+can be none, one or several; with several, the right panel shows them one at a
+time. Being identified does not link the contact to the call.
+
+**Linked contact** — the contact a call is linked to (`call.setContact`), at
+most one. The only identified contact is linked automatically, one of several
+when the agent selects it. Once there is one, the panel shows it alone instead
+of the identified contacts, whoever linked it (ADR-0013).
 
 ## Conventions
 

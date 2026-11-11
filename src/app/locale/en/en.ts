@@ -52,6 +52,7 @@ export default {
 			message: 'Message',
 			phoneNumber: 'Phone number',
 			waitTime: 'Wait time',
+			select: 'Select',
 		},
 		numpad: {
 			call: 'Call',
@@ -85,6 +86,7 @@ export default {
 				attributes: 'Attributes',
 				noAttributes: 'No custom variables defined',
 				communicationOptions: 'Communication options',
+				contactPosition: '{current} of {count} contacts',
 			},
 		},
 		pages: {

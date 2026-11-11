@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, toRaw } from 'vue';
-import { type Call, CallDirection } from 'webitel-sdk';
+import { type Call, CallActions, CallDirection } from 'webitel-sdk';
 
 vi.mock('@webitel/ui-sdk/components', () => ({
 	WtButton: {
@@ -30,6 +30,7 @@ const identification = {
 	contactIds: ref<string[]>([]),
 	isLoading: ref(false),
 	isContactHidden: ref(false),
+	selectContact: vi.fn(),
 };
 let identifiedCall: (() => Call) | undefined;
 
@@ -50,8 +51,13 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 		props: [
 			'contactIds',
 			'isLoading',
+			'canSelect',
 		],
-		template: '<div class="contact-identification-stub" />',
+		emits: [
+			'select',
+		],
+		template:
+			'<div class="contact-identification-stub"><slot name="actions" /></div>',
 	},
 }));
 
@@ -85,6 +91,7 @@ const buildCall = (overrides: Record<string, unknown> = {}) =>
 		},
 		createdAt: 1_700_000_000_000,
 		answeredAt: 1_700_000_015_000,
+		state: CallActions.Active,
 		...overrides,
 	}) as unknown as Call;
 
@@ -118,6 +125,7 @@ describe('the-call-panel', () => {
 		identification.isLoading.value = false;
 		identification.isContactHidden.value = false;
 		identifiedCall = undefined;
+		identification.selectContact.mockClear();
 	});
 
 	it('shows the info of the given call', () => {
@@ -168,16 +176,26 @@ describe('the-call-panel', () => {
 		expect(findCreateButton(wrapper).exists()).toBe(false);
 	});
 
-	it('offers CREATE for an answered call', () => {
-		const wrapper = mountPanel();
+	it.each([
+		CallActions.Active,
+		CallActions.Hold,
+	])('offers CREATE while the call is %s', (state) => {
+		const wrapper = mountPanel(
+			buildCall({
+				state,
+			}),
+		);
 
 		expect(findCreateButton(wrapper).text()).toBe('reusable.create');
 	});
 
-	it('does not offer CREATE while the call is ringing', () => {
+	it.each([
+		CallActions.Ringing,
+		CallActions.Hangup,
+	])('does not offer CREATE when the call is %s', (state) => {
 		const wrapper = mountPanel(
 			buildCall({
-				answeredAt: 0,
+				state,
 			}),
 		);
 
@@ -218,5 +236,39 @@ describe('the-call-panel', () => {
 
 		expect(findCreateForm(wrapper).exists()).toBe(false);
 		expect(findIdentification(wrapper).exists()).toBe(true);
+	});
+
+	it.each([
+		CallActions.Active,
+		CallActions.Hold,
+	])('lets the agent select a contact while the call is %s', (state) => {
+		const wrapper = mountPanel(
+			buildCall({
+				state,
+			}),
+		);
+
+		expect(findIdentification(wrapper).props('canSelect')).toBe(true);
+	});
+
+	it.each([
+		CallActions.Ringing,
+		CallActions.Hangup,
+	])('does not let the agent select a contact when the call is %s', (state) => {
+		const wrapper = mountPanel(
+			buildCall({
+				state,
+			}),
+		);
+
+		expect(findIdentification(wrapper).props('canSelect')).toBe(false);
+	});
+
+	it('links the contact selected in the block', () => {
+		const wrapper = mountPanel();
+
+		findIdentification(wrapper).vm.$emit('select', '16');
+
+		expect(identification.selectContact).toHaveBeenCalledWith('16');
 	});
 });

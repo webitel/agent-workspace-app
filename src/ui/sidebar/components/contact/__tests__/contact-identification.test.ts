@@ -1,25 +1,69 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
+
+vi.mock('@webitel/ui-sdk/components', () => ({
+	WtButton: {
+		name: 'WtButton',
+		props: [
+			'color',
+		],
+		emits: [
+			'click',
+		],
+		template: '<button @click="$emit(\'click\')"><slot /></button>',
+	},
+}));
 
 import ContactCard from '../contact-card.vue';
 import ContactIdentification from '../contact-identification.vue';
 import ContactPanelEmpty from '../contact-panel-empty.vue';
+import ContactSwitcher from '../contact-switcher.vue';
 
 const WtLoaderStub = {
 	name: 'WtLoader',
 	template: '<div class="wt-loader-stub" />',
 };
 
-const mountBlock = (props: { contactIds: string[]; isLoading?: boolean }) =>
+type BlockProps = {
+	contactIds: string[];
+	isLoading?: boolean;
+	canSelect?: boolean;
+};
+
+const mountBlock = (props: BlockProps, slots: Record<string, string> = {}) =>
 	mount(ContactIdentification, {
 		props,
+		slots,
 		global: {
 			stubs: {
 				WtLoader: WtLoaderStub,
 				ContactCard: true,
 				ContactPanelEmpty: true,
+				ContactSwitcher: true,
 			},
 		},
+	});
+
+const findCard = (wrapper: ReturnType<typeof mountBlock>) =>
+	wrapper.findComponent(ContactCard);
+
+const findSwitcher = (wrapper: ReturnType<typeof mountBlock>) =>
+	wrapper.findComponent(ContactSwitcher);
+
+const findSelectButton = (wrapper: ReturnType<typeof mountBlock>) =>
+	wrapper.findComponent({
+		name: 'WtButton',
+	});
+
+const severalFound = (overrides: Partial<BlockProps> = {}) =>
+	mountBlock({
+		contactIds: [
+			'101',
+			'102',
+			'103',
+		],
+		...overrides,
 	});
 
 describe('contact-identification', () => {
@@ -32,7 +76,7 @@ describe('contact-identification', () => {
 		});
 
 		expect(wrapper.findComponent(WtLoaderStub).exists()).toBe(true);
-		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
+		expect(findCard(wrapper).exists()).toBe(false);
 	});
 
 	it('shows the not found state when no contact matches', () => {
@@ -43,29 +87,152 @@ describe('contact-identification', () => {
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
 	});
 
-	it('shows the card of the only match', () => {
+	it('shows the card of the only match, without the switcher', () => {
 		const wrapper = mountBlock({
 			contactIds: [
 				'101',
 			],
+			canSelect: true,
 		});
 
-		expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('101');
-		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
+		expect(findCard(wrapper).props('contactId')).toBe('101');
+		expect(findSwitcher(wrapper).exists()).toBe(false);
+		expect(findSelectButton(wrapper).exists()).toBe(false);
 	});
 
-	it('shows the placeholder for several matches instead of a card', () => {
-		const wrapper = mountBlock({
-			contactIds: [
+	it('hides the parent actions while identifying', () => {
+		const wrapper = mountBlock(
+			{
+				contactIds: [],
+				isLoading: true,
+			},
+			{
+				actions: '<button class="parent-action" />',
+			},
+		);
+
+		expect(wrapper.find('.parent-action').exists()).toBe(false);
+	});
+
+	it('shows the parent actions in every result', async () => {
+		const wrapper = mountBlock(
+			{
+				contactIds: [],
+				isLoading: true,
+			},
+			{
+				actions: '<button class="parent-action" />',
+			},
+		);
+
+		for (const contactIds of [
+			[],
+			[
+				'101',
+			],
+			[
 				'101',
 				'102',
 			],
+		]) {
+			await wrapper.setProps({
+				contactIds,
+				isLoading: false,
+			});
+			expect(wrapper.find('.parent-action').exists()).toBe(true);
+		}
+	});
+
+	describe('several matches', () => {
+		it('shows the first contact by default', () => {
+			const wrapper = severalFound();
+
+			expect(findCard(wrapper).props('contactId')).toBe('101');
+			expect(findSwitcher(wrapper).props()).toEqual({
+				position: 1,
+				count: 3,
+			});
 		});
 
-		expect(wrapper.find('.contact-identification__multiple').exists()).toBe(
-			true,
-		);
-		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
-		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
+		it('switches the shown contact forward and back', async () => {
+			const wrapper = severalFound();
+
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+
+			expect(findCard(wrapper).props('contactId')).toBe('103');
+			expect(findSwitcher(wrapper).props('position')).toBe(3);
+
+			findSwitcher(wrapper).vm.$emit('prev');
+			await nextTick();
+
+			expect(findCard(wrapper).props('contactId')).toBe('102');
+			expect(findSwitcher(wrapper).props('position')).toBe(2);
+		});
+
+		it('starts from the first contact of a new result', async () => {
+			const wrapper = severalFound();
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+
+			await wrapper.setProps({
+				contactIds: [
+					'201',
+					'202',
+				],
+			});
+
+			expect(findCard(wrapper).props('contactId')).toBe('201');
+			expect(findSwitcher(wrapper).props()).toEqual({
+				position: 1,
+				count: 2,
+			});
+		});
+
+		it('emits select with the shown contact', async () => {
+			const wrapper = severalFound({
+				canSelect: true,
+			});
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+
+			await findSelectButton(wrapper).trigger('click');
+
+			expect(findSelectButton(wrapper).text()).toBe('ui.reusable.select');
+			expect(wrapper.emitted('select')).toEqual([
+				[
+					'102',
+				],
+			]);
+		});
+
+		it('puts select after the parent actions, in one row', () => {
+			const wrapper = mountBlock(
+				{
+					contactIds: [
+						'101',
+						'102',
+					],
+					canSelect: true,
+				},
+				{
+					actions: '<button class="parent-action" />',
+				},
+			);
+
+			const row = wrapper.find('.contact-identification__actions');
+			const buttons = row.findAll('button');
+			expect(buttons).toHaveLength(2);
+			expect(buttons[0].classes()).toContain('parent-action');
+			expect(buttons[1].text()).toBe('ui.reusable.select');
+		});
+
+		it('offers no select without canSelect', () => {
+			const wrapper = severalFound();
+
+			expect(findSelectButton(wrapper).exists()).toBe(false);
+		});
 	});
 });

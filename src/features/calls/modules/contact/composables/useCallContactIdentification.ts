@@ -67,6 +67,32 @@ export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
 		}
 	};
 
+	let isSelecting = false;
+
+	/**
+	 * Links the contact the agent chose among several found. Shown at once, as
+	 * the only found contact is, without waiting for the socket event.
+	 */
+	const selectContact = async (contactId: string) => {
+		if (isSelecting) return;
+		isSelecting = true;
+		// a search started meanwhile (another call opened) owns the result
+		const requestId = lastRequestId;
+
+		try {
+			await toValue(call).setContact(Number(contactId));
+			if (requestId === lastRequestId)
+				showResult([
+					contactId,
+				]);
+		} catch (err) {
+			// as in cc-workspaces, the agent is not notified; the list stays to try again
+			console.warn('[calls] linking the selected contact failed', err);
+		} finally {
+			isSelecting = false;
+		}
+	};
+
 	watch(
 		[
 			() => toValue(call).id,
@@ -83,5 +109,6 @@ export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
 		contactIds,
 		isLoading,
 		isContactHidden,
+		selectContact,
 	};
 }
