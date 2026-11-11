@@ -50,6 +50,9 @@ and should not be carried over wholesale.
 - [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
   list is a ui-datalist table store, one table per tab under one search field
   that applies on the debounced event, and the known race it leaves open.
+- [ADR-0014](docs/adr/0014-transfer-queues-list.md) — the transfer popup's queues
+  list pages through its own composable for now, and its selected row is painted
+  by `wt-table`'s `active-row` rather than by a token that does not exist.
 
 ## Language
 
