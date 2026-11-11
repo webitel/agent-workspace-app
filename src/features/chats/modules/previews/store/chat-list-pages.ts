@@ -126,5 +126,3 @@ export function createChatListPages(
 		remove,
 	};
 }
-
-export type ChatListPages = ReturnType<typeof createChatListPages>;

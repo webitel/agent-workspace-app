@@ -1,6 +1,6 @@
 import type { IThread } from '@webitel/chat-web-sdk';
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed, shallowRef } from 'vue';
+import { shallowRef } from 'vue';
 
 import { messagesService, threadsService } from '../../../api/chatSdk';
 import { isSelfContact } from '../../../scripts/isSelfContact';
@@ -52,8 +52,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	 */
 	const unreadByThread = shallowRef<Record<string, number>>({});
 	// the first read has answered, so "nothing unread" is a fact and not a gap
-	const isUnreadLoaded = shallowRef(false);
-	const hasUnreadData = computed(() => isUnreadLoaded.value);
+	const hasUnreadData = shallowRef(false);
 
 	function setUnreadCount(threadId: string, count: number) {
 		if ((unreadByThread.value[threadId] ?? 0) === count) return;
@@ -86,7 +85,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			return;
 		}
 		unreadByThread.value = found;
-		isUnreadLoaded.value = true;
+		hasUnreadData.value = true;
 	}
 
 	/**
@@ -133,12 +132,11 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 
 	function receiveMessage(message: IMessage) {
 		const threadId = message.threadId;
-		if (!threadId) return;
+		if (!threadId || !tracked.has(threadId)) return;
 
 		const lastMessage = toLastMessage(message);
 		if (!lastMessage) return;
 
-		if (!tracked.has(threadId)) return;
 		countUnread(threadId, lastMessage);
 		keepNewest(threadId, lastMessage);
 	}

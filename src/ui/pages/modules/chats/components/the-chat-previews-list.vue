@@ -8,6 +8,7 @@
             <chat-unread-filter v-if="chatActiveStore.isUnreadFilterAvailable" />
         </header>
         <chat-list-search class="the-chat-previews-list__search" />
+        <wt-divider />
         <ul>
             <li
                 v-for="chat in chatListStore.currentTasks"
@@ -98,6 +99,10 @@ watch(
 
 <style scoped>
 .the-chat-previews-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    padding: var(--spacing-2xs);
     overflow-y: auto;
 }
 
@@ -105,7 +110,8 @@ watch(
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+    padding: 0 var(--spacing-xs);
 }
 
 .the-chat-previews-list__search {
