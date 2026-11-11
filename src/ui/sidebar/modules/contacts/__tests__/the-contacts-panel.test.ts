@@ -5,6 +5,7 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import ContactCard from '../../../components/contact/contact-card.vue';
+import ContactCardUnknown from '../../../components/contact/contact-card-unknown.vue';
 import ContactCreateForm from '../../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../../components/sidebar-section-header.vue';
@@ -40,6 +41,11 @@ const openCreateForm = async (wrapper: ReturnType<typeof mountPanel>) => {
 
 const selectContact = async (id: string) => {
 	useSidebarSelectionStore().selectContact(id);
+	await nextTick();
+};
+
+const selectUnknownContact = async () => {
+	useSidebarSelectionStore().selectUnknownContact();
 	await nextTick();
 };
 
@@ -101,5 +107,26 @@ describe('the-contacts-panel', () => {
 		expect(wrapper.findComponent(ContactCreateForm).exists()).toBe(false);
 		expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('2');
 		expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
+	});
+
+	it('shows the unknown contact card when an unknown contact is selected', async () => {
+		const wrapper = mountPanel();
+
+		await selectUnknownContact();
+
+		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(true);
+		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
+		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
+		expect(getTitle(wrapper)).toBe('objects.contact');
+	});
+
+	it('closes the create form when an unknown contact is selected', async () => {
+		const wrapper = mountPanel();
+		await openCreateForm(wrapper);
+
+		await selectUnknownContact();
+
+		expect(wrapper.findComponent(ContactCreateForm).exists()).toBe(false);
+		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(true);
 	});
 });
