@@ -11,8 +11,8 @@
 import { computed } from 'vue';
 import type { Call } from 'webitel-sdk';
 
-import VariablesTable from '../../../variables/components/variables-table.vue';
-import { toVariableRows } from '../../../variables/scripts/toVariableRows';
+import VariablesTable from '../../../../../variables/components/variables-table.vue';
+import { toVariableRows } from '../../../../../variables/scripts/toVariableRows';
 
 const props = defineProps<{
 	call: Call;

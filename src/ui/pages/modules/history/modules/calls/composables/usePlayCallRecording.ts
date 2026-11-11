@@ -4,6 +4,7 @@ import {
 	EngineCallFileType,
 } from '@webitel/api-services/gen/models';
 import { computed, ref } from 'vue';
+import { getMediaUrlAuth } from '../../../../../../../app/scripts/getMediaUrlAuth';
 
 export const usePlayCallRecording = () => {
 	const playingFile = ref<EngineCallFile | null>(null);
@@ -11,7 +12,9 @@ export const usePlayCallRecording = () => {
 	const playingSrc = computed(() =>
 		playingFile.value?.id
 			? {
-					src: getCallMediaUrl(playingFile.value.id),
+					src: getCallMediaUrl(playingFile.value.id, {
+						auth: getMediaUrlAuth(),
+					}),
 					type: playingFile.value.mimeType,
 				}
 			: undefined,

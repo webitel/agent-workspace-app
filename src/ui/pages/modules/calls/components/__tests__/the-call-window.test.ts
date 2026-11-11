@@ -56,7 +56,7 @@ vi.mock(
 );
 
 vi.mock(
-	'../../../../../../features/calls/components/call-info/call-info.vue',
+	'../../../../../../features/calls/modules/info/components/call-info/call-info.vue',
 	() => ({
 		default: {
 			name: 'CallInfo',
@@ -80,6 +80,13 @@ vi.mock(
 		},
 	}),
 );
+
+vi.mock('../../../../components/sidebar-toggle-btn.vue', () => ({
+	default: {
+		name: 'SidebarToggleBtn',
+		template: '<button class="sidebar-toggle-btn-stub" />',
+	},
+}));
 
 import TheCallWindow from '../the-call-window.vue';
 
@@ -178,6 +185,18 @@ describe('the-call-window', () => {
 		expect(info.exists()).toBe(true);
 		expect(info.props('call')).toStrictEqual(call);
 		expect(wrapper.find('.top-bar-stub').exists()).toBe(true);
+	});
+
+	it('has the sidebar toggle in the tabs toolbar', () => {
+		callsById['call-1'] = makeCall('call-1', makeTask());
+
+		const wrapper = mountWindow();
+
+		expect(
+			wrapper
+				.find('.the-call-window__toolbar .sidebar-toggle-btn-stub')
+				.exists(),
+		).toBe(true);
 	});
 
 	it('labels the tabs from the locale', () => {

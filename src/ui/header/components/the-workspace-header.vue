@@ -5,7 +5,13 @@
 			:logo-href="startPageHref"
 		/>
 		<wt-dark-mode-switcher @changed-mode="setTheme" />
-		<open-flows-action />
+		
+		<!--@author Polina Sukhorukova
+		comment for temporary removing
+		https://webitel.atlassian.net/browse/WS-14?focusedCommentId=800594
+		[WS-14](https://webitel.atlassian.net/browse/WS-14)-->
+		
+		<!--<open-flows-action />-->
 		<wt-chip :color="isPhoneReg ? 'success' : 'primary'">
 			{{ t('ui.header.sip') }}
 		</wt-chip>
@@ -46,7 +52,6 @@ import { useI18n } from 'vue-i18n';
 import packageJson from '../../../../package.json' with { type: 'json' };
 import { getConfig } from '../../../features/appConfig/config';
 import { useAppearanceStore } from '../../../features/appearance/store/appearanceStore';
-import OpenFlowsAction from '../../../features/flows/components/open-flows-action.vue';
 import { useGlobalHandlersStore } from '../../../features/global-handlers/store/globalHandlers';
 import { useUserinfoStore } from '../../../features/userinfo/stores/userinfoStore';
 import { useConnectionQualityStore } from '../modules/connectionQuality/store/connectionQuality';

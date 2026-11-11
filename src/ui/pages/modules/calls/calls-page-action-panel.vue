@@ -15,9 +15,14 @@ import { DynamicFilterSearchComponent as DynamicFilterSearch } from '@webitel/ui
 import { storeToRefs } from 'pinia';
 import TableActionPanel from '../../components/table-action-panel.vue';
 import type { useMissedCallsDataListStore } from './modules/missed/store/missed-calls';
+import type { useOfflineCallsDataListStore } from './modules/offline/store/offline-calls';
+import type { useSelfAssignedCallsDataListStore } from './modules/self-assigned/store/self-assigned-calls';
 
 const props = defineProps<{
-	store: ReturnType<typeof useMissedCallsDataListStore>;
+	store:
+		| ReturnType<typeof useMissedCallsDataListStore>
+		| ReturnType<typeof useSelfAssignedCallsDataListStore>
+		| ReturnType<typeof useOfflineCallsDataListStore>;
 }>();
 
 const { filtersManager, isFiltersRestoring } = storeToRefs(props.store);
