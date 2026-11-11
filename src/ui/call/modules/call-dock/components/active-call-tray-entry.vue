@@ -10,6 +10,7 @@
 			<call-dock
 				:preview="preview"
 				:displayed-time="timer.formatted.value"
+				@open-full-view="emit('openFullView')"
 				@toggle-mute="emit('toggleMute')"
 				@toggle-hold="emit('toggleHold')"
 				@transfer="emit('transfer')"

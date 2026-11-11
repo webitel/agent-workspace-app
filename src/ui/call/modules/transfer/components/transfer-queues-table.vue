@@ -3,7 +3,7 @@
 		class="transfer-queues-table"
 		:data="rows"
 		:headers="headers"
-		:row-class="getRowClass"
+		:active-row="selectedRow"
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -66,9 +66,9 @@ const headers = computed(() => [
 	},
 ]);
 
-function getRowClass(row: TransferQueueRow): string {
-	return row.id === selectedRowId.value ? 'wt-table__row--selected' : '';
-}
+const selectedRow = computed(
+	() => rows.value.find((row) => row.id === selectedRowId.value) ?? null,
+);
 
 async function onLoading(): Promise<void> {
 	await loadNextPage();
@@ -86,18 +86,6 @@ function onRowClick({ data: row }: { data: TransferQueueRow }): void {
 </script>
 
 <style scoped>
-/**
- * @author Oleksandr Palonnyi
- * the row token is workspace-scoped, so the selected-row style lives here and
- * not in the shared wt-table; the class is set by getRowClass on the rendered
- * tr and its cells
- * [WS-95](https://webitel.atlassian.net/browse/WS-95)
- */
-.transfer-queues-table :deep(tr.wt-table__row--selected),
-.transfer-queues-table :deep(tr.wt-table__row--selected > td) {
-	background: var(--wt-ws-table-colors-row-selected-background);
-}
-
 .transfer-queues-table__cell {
 	display: flex;
 	align-items: center;
