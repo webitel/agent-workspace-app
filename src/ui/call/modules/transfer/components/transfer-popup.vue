@@ -40,7 +40,7 @@
 					full-width
 					:value="searchInput"
 					@input="searchInput = $event"
-					@search="searchQuery = $event"
+					@search="onSearch"
 				/>
 
 				<div class="transfer-popup__list wt-scrollbar">
@@ -120,7 +120,7 @@ const activeTab = ref<TransferTab>(TransferTab.Agents);
  * last answer to arrive, not the answer to the last request, so with a request
  * per character a slow answer to "a" could replace the list for "ab". The
  * debounce makes that rare, it does not remove it: the fix belongs in
- * ui-datalist (see docs/adr/0012-transfer-agents-list.md)
+ * ui-datalist (see docs/adr/0013-transfer-agents-list.md)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 const searchInput = ref('');
@@ -174,6 +174,18 @@ const availability = computed(() =>
 		hasSelection: selectedRowId.value !== null,
 	}),
 );
+
+/**
+ * @author Oleksandr Palonnyi
+ * a new search replaces the list the selected row came from, so a row the
+ * agent can no longer see must not stay selected as the target of Blind or
+ * Consult
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+function onSearch(search: string): void {
+	searchQuery.value = search;
+	selectedRowId.value = null;
+}
 
 /**
  * @author Oleksandr Palonnyi

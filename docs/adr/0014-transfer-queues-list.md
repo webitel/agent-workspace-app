@@ -58,5 +58,5 @@ workspace token. The table computes the row from its `rows` and `selectedRowId`.
   for agents.
 - The list does not leave out a disabled queue: the list API has no `enabled`
   filter.
-- The Agents table still uses its own rule and is not highlighted. It is left
-  as it was; moving it to `active-row` is the same one-line change.
+- The Agents table was moved to `active-row` in the same branch and drops its
+  own rule, so both tabs highlight the selected row the same way.

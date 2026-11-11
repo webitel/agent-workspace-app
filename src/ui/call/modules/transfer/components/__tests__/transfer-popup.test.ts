@@ -362,6 +362,21 @@ describe('transfer-popup', () => {
 		);
 	});
 
+	it('clears the selected row when the search changes', async () => {
+		const wrapper = mountPopup();
+		await wrapper.find('[data-tab="queues"]').trigger('click');
+		wrapper
+			.findComponent(TransferQueuesTable)
+			.vm.$emit('update:selectedRowId', '7');
+		await flushPromises();
+		expect(isDisabled(bottomButtons(wrapper)[0])).toBe(false);
+
+		await wrapper.find('.search').setValue('mon');
+		await flushPromises();
+
+		expect(isDisabled(bottomButtons(wrapper)[0])).toBe(true);
+	});
+
 	it('closes from the cancel button and the close icon', async () => {
 		const store = useCallTransferPopupStore();
 		const wrapper = mountPopup();

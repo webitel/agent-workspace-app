@@ -47,7 +47,7 @@ and should not be carried over wholesale.
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
   its gateway icon alone.
-- [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
+- [ADR-0013](docs/adr/0013-transfer-agents-list.md) — the transfer popup's agents
   list is a ui-datalist table store, one table per tab under one search field
   that applies on the debounced event, and the known race it leaves open.
 - [ADR-0014](docs/adr/0014-transfer-queues-list.md) — the transfer popup's queues

@@ -3,7 +3,7 @@
 		class="transfer-agents-table"
 		:data="dataList"
 		:headers="shownHeaders"
-		:row-class="getRowClass"
+		:active-row="selectedRow"
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -41,7 +41,7 @@
 	lang="ts"
 >
 import { storeToRefs } from 'pinia';
-import { onUnmounted, watch } from 'vue';
+import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
 import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
@@ -117,11 +117,15 @@ function getStatusLabel(status?: TransferAgentStatus): string {
 	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
 }
 
-function getRowClass(row: TransferAgentRow): string {
-	return row.id === selectedRowId.value
-		? 'transfer-agents-table__row--selected'
-		: '';
-}
+/**
+ * @author Oleksandr Palonnyi
+ * wt-table paints its active row itself (ui-sdk >= 26.12.26), so the selected
+ * row needs no token or class of the table's own, see ADR-0014
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const selectedRow = computed(
+	() => dataList.value.find((row) => row.id === selectedRowId.value) ?? null,
+);
 
 /**
  * @author Oleksandr Palonnyi
@@ -143,18 +147,5 @@ function onRowClick({ data: row }: { data: TransferAgentRow }): void {
 
 .transfer-agents-table :deep(tbody tr) {
 	cursor: pointer;
-}
-
-/**
- * @author Oleksandr Palonnyi
- * the row token is workspace-scoped, so the selected-row style lives here and
- * not in the shared wt-table. getRowClass puts the class on the tr only; the
- * cells are coloured too, through the `> td` selector
- * [WS-95](https://webitel.atlassian.net/browse/WS-95)
- */
-.transfer-agents-table :deep(tr.transfer-agents-table__row--selected),
-.transfer-agents-table
-	:deep(tr.transfer-agents-table__row--selected > td) {
-	background: var(--wt-ws-table-colors-row-selected-background);
 }
 </style>
