@@ -20,6 +20,7 @@ describe('useSidebarSelectionStore', () => {
 
 		expect(store.selection).toBeNull();
 		expect(store.contactId).toBeNull();
+		expect(store.isUnknownSelected).toBe(false);
 	});
 
 	it('selects a contact and opens the sidebar', () => {
@@ -33,6 +34,7 @@ describe('useSidebarSelectionStore', () => {
 			id: '1',
 		});
 		expect(store.contactId).toBe('1');
+		expect(store.isUnknownSelected).toBe(false);
 		expect(sidebarStore.isOpen).toBe(true);
 	});
 
@@ -54,6 +56,7 @@ describe('useSidebarSelectionStore', () => {
 		expect(store.selection).toEqual({
 			type: SidebarSelectionType.Unknown,
 		});
+		expect(store.isUnknownSelected).toBe(true);
 		expect(sidebarStore.isOpen).toBe(true);
 	});
 
@@ -66,6 +69,38 @@ describe('useSidebarSelectionStore', () => {
 		expect(store.contactId).toBeNull();
 	});
 
+	describe('selectContactOrUnknown', () => {
+		it('selects the contact by a string id', () => {
+			const store = useSidebarSelectionStore();
+
+			store.selectContactOrUnknown('1');
+
+			expect(store.contactId).toBe('1');
+		});
+
+		it('selects the contact by a numeric id as a string', () => {
+			const store = useSidebarSelectionStore();
+
+			store.selectContactOrUnknown(42);
+
+			expect(store.contactId).toBe('42');
+		});
+
+		it.each([
+			undefined,
+			null,
+			'',
+		])('selects an unknown contact for id %s', (id) => {
+			const store = useSidebarSelectionStore();
+			const sidebarStore = useWorkspaceSidebarStore();
+
+			store.selectContactOrUnknown(id);
+
+			expect(store.isUnknownSelected).toBe(true);
+			expect(sidebarStore.isOpen).toBe(true);
+		});
+	});
+
 	it('clears the selection without touching the sidebar', () => {
 		const store = useSidebarSelectionStore();
 		const sidebarStore = useWorkspaceSidebarStore();
@@ -75,6 +110,7 @@ describe('useSidebarSelectionStore', () => {
 
 		expect(store.selection).toBeNull();
 		expect(store.contactId).toBeNull();
+		expect(store.isUnknownSelected).toBe(false);
 		expect(sidebarStore.isOpen).toBe(true);
 	});
 });

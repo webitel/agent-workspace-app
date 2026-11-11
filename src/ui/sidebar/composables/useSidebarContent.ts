@@ -24,6 +24,9 @@ const sidebarContentByRouteName: Partial<
 	[ContactsPageTab.Contacts]: () => ({
 		component: TheContactsPanel,
 	}),
+	[ContactsPageTab.Users]: () => ({
+		component: TheContactsPanel,
+	}),
 	[CallsRouteName.CallWindow]: (route) => {
 		const call = useCallsStore().getCallById(route.params.callId as string);
 		return call
