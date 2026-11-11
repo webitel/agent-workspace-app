@@ -157,6 +157,43 @@ describe('client-identity-block', () => {
 		).toBe('12:54');
 	});
 
+	it('puts channel extras at the end of the channel line', () => {
+		const wrapper = mount(ClientIdentityBlock, {
+			props: {
+				size: 'sm',
+				name: 'John Smith',
+				channel: {
+					label: 'Channel',
+					value: 'Telegram',
+				},
+			},
+			slots: {
+				'channel-aside': '<i class="badge">3</i>',
+			},
+		});
+
+		const line = wrapper.find('.client-identity-block__channel');
+		expect(line.text()).toContain('Telegram');
+		expect(line.find('.client-identity-block__aside .badge').text()).toBe('3');
+	});
+
+	// the gateway is not always known, the extras must still show
+	it('keeps the channel line for its extras when there is no channel', () => {
+		const wrapper = mount(ClientIdentityBlock, {
+			props: {
+				size: 'sm',
+				name: 'John Smith',
+			},
+			slots: {
+				'channel-aside': '<i class="badge">3</i>',
+			},
+		});
+
+		const line = wrapper.find('.client-identity-block__channel');
+		expect(line.find('.badge').exists()).toBe(true);
+		expect(line.text()).not.toContain(':');
+	});
+
 	it('renders no extras wrapper when none are given', () => {
 		expect(mountBlock().find('.client-identity-block__aside').exists()).toBe(
 			false,

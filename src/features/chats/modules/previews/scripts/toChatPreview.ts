@@ -1,8 +1,10 @@
+import type { WebitelImApiGatewayV1ThreadChannel } from '@webitel/api-services/gen/models';
 import type { AccountModel } from '@webitel/chat-web-sdk';
 import type { Task } from 'webitel-sdk';
 import { isSelfContact } from '../../../scripts/isSelfContact';
 import { toChatHeader } from '../../../scripts/toChatHeader';
 import type { ChatPreview, LastMessage } from '../types/ChatPreview.types';
+import { toChannelIcon } from './toChannelIcon';
 
 /**
  * Maps an accepted chat's task, and the last message held for it, onto what its
@@ -24,11 +26,15 @@ import type { ChatPreview, LastMessage } from '../types/ChatPreview.types';
  * thread's member list, which at distribution time may not yet include the
  * agent. It stays unknown until the agent's account loads, so a row never calls
  * the agent's message the client's.
+ *
+ * The gateway is the thread's, from the chat list page: the task carries none.
+ * A channel without a name is left out rather than shown as a bare label.
  */
 export function toChatPreview(
 	task: Task,
 	lastMessage: LastMessage | undefined,
 	account: AccountModel | null,
+	channel?: WebitelImApiGatewayV1ThreadChannel,
 ): ChatPreview {
 	const { name, queueName } = toChatHeader(task);
 
@@ -45,6 +51,12 @@ export function toChatPreview(
 	return {
 		name,
 		queueName,
+		channel: channel?.name
+			? {
+					name: channel.name,
+					icon: toChannelIcon(channel.type),
+				}
+			: undefined,
 		lastMessage:
 			body || at !== undefined
 				? {

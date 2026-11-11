@@ -458,6 +458,46 @@ describe('chat-previews store', () => {
 			expect(store.unreadByThread.t1).toBeUndefined();
 		});
 
+		// AC_02.03.02: the task carries no gateway, the page does
+		it('takes the gateway from the page', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+
+			store.receiveThread(
+				thread({
+					channel: {
+						name: 'Support bot',
+						type: 'THREAD_CHANNEL_TYPE_TELEGRAM_BOT',
+					},
+				}),
+			);
+
+			expect(store.channels.t1).toEqual({
+				name: 'Support bot',
+				type: 'THREAD_CHANNEL_TYPE_TELEGRAM_BOT',
+			});
+		});
+
+		it('forgets the gateway of a chat that leaves the list', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.receiveThread(
+				thread({
+					channel: {
+						name: 'Support bot',
+					},
+				}),
+			);
+
+			store.sync([]);
+
+			expect(store.channels.t1).toBeUndefined();
+		});
+
 		it('does not count the page’s last message again when the socket echoes it', () => {
 			const store = useChatPreviewsStore();
 			store.sync([

@@ -17,6 +17,7 @@ vi.mock('../../../../../store/chats', () => ({
 const previewsStore = {
 	lastMessages: {} as Record<string, unknown>,
 	unreadByThread: {} as Record<string, number>,
+	channels: {} as Record<string, unknown>,
 };
 vi.mock('../../../store/chat-previews', () => ({
 	useChatPreviewsStore: () => previewsStore,
@@ -82,7 +83,29 @@ describe('chat-preview', () => {
 			},
 		};
 		previewsStore.unreadByThread = {};
+		previewsStore.channels = {};
 		accountStore.account = account;
+	});
+
+	describe('channel', () => {
+		it('names the gateway the chat came through, with its logo', () => {
+			previewsStore.channels = {
+				t1: {
+					name: 'Support bot',
+					type: 'THREAD_CHANNEL_TYPE_TELEGRAM_BOT',
+				},
+			};
+			const line = mountPreview().find('.client-identity-block__channel');
+
+			expect(line.text()).toContain('Support bot');
+			expect(line.find('.wt-icon').exists()).toBe(true);
+		});
+
+		it('shows no channel line while the gateway is not known', () => {
+			expect(
+				mountPreview().find('.client-identity-block__channel').exists(),
+			).toBe(false);
+		});
 	});
 
 	describe('unread counter', () => {
@@ -92,6 +115,21 @@ describe('chat-preview', () => {
 			};
 
 			expect(mountPreview().find('.wt-badge').attributes('value')).toBe('4');
+		});
+
+		// AC_02.03.03 / Figma: on the channel line, under the time
+		it('sits on the channel line, not beside the time', () => {
+			previewsStore.unreadByThread = {
+				t1: 4,
+			};
+			const wrapper = mountPreview();
+
+			expect(
+				wrapper.find('.client-identity-block__channel .wt-badge').exists(),
+			).toBe(true);
+			expect(
+				wrapper.find('.client-identity-block__name-row .wt-badge').exists(),
+			).toBe(false);
 		});
 
 		it('is absent when everything has been seen', () => {
@@ -158,9 +196,19 @@ describe('chat-preview', () => {
 			const wrapper = mountPreview();
 
 			expect(wrapper.find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--client',
+				'chat-preview-body--client-read',
 			);
 			expect(wrapper.find('.chat-preview-body .wt-avatar').exists()).toBe(true);
+		});
+
+		it("shows the client's message as unread while the chat has unseen messages", () => {
+			previewsStore.unreadByThread = {
+				t1: 2,
+			};
+
+			expect(mountPreview().find('.chat-preview-body').classes()).toContain(
+				'chat-preview-body--client-unread',
+			);
 		});
 
 		it("shows the agent's own message in the agent look", () => {
@@ -178,7 +226,7 @@ describe('chat-preview', () => {
 			const wrapper = mountPreview();
 
 			expect(wrapper.find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--agent',
+				'chat-preview-body--agent-read',
 			);
 		});
 

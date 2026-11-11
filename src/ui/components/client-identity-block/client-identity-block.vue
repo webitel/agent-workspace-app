@@ -39,19 +39,30 @@
                 {{ identifier }}
             </p>
             <p
-                v-if="channel"
+                v-if="channel || $slots['channel-aside']"
                 class="client-identity-block__channel typo-caption"
-                :title="channel.value"
+                :title="channel?.value"
             >
-                <wt-icon
-                    v-if="channel.icon"
-                    :icon="channel.icon"
-                    :size="ComponentSize.XS"
-                />
-                <span class="client-identity-block__channel-label">
-                    {{ channel.label }}:
+                <template v-if="channel">
+                    <wt-icon
+                        v-if="channel.icon"
+                        :icon="channel.icon"
+                        :size="ComponentSize.XS"
+                    />
+                    <span class="client-identity-block__channel-label">
+                        {{ channel.label }}:
+                    </span>
+                    <span class="client-identity-block__channel-value">
+                        {{ channel.value }}
+                    </span>
+                </template>
+                <!-- extras at the end of the channel line, e.g. an unread badge -->
+                <span
+                    v-if="$slots['channel-aside']"
+                    class="client-identity-block__aside"
+                >
+                    <slot name="channel-aside" />
                 </span>
-                {{ channel.value }}
             </p>
         </div>
     </div>
@@ -155,6 +166,17 @@ const { t } = useI18n();
     gap: var(--spacing-2xs, 4px);
     align-items: center;
     max-width: 100%;
+}
+
+.client-identity-block--sm .client-identity-block__channel {
+    width: 100%;
+}
+
+.client-identity-block__channel-value {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .client-identity-block__channel-label {

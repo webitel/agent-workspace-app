@@ -1,3 +1,4 @@
+import type { WebitelImApiGatewayV1ThreadChannel } from '@webitel/api-services/gen/models';
 import type { IThread } from '@webitel/chat-web-sdk';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { shallowRef } from 'vue';
@@ -53,6 +54,14 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	const unreadByThread = shallowRef<Record<string, number>>({});
 	// the first read has answered, so "nothing unread" is a fact and not a gap
 	const hasUnreadData = shallowRef(false);
+
+	/**
+	 * The gateway of each listed chat, from the page that shows it (ADR-0012).
+	 * The task does not carry one, so a chat no page has brought has none yet.
+	 */
+	const channels = shallowRef<
+		Record<string, WebitelImApiGatewayV1ThreadChannel>
+	>({});
 
 	function setUnreadCount(threadId: string, count: number) {
 		if ((unreadByThread.value[threadId] ?? 0) === count) return;
@@ -172,6 +181,12 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	function receiveThread(thread: IThread) {
 		if (!tracked.has(thread.id)) return;
 
+		if (thread.channel)
+			channels.value = {
+				...channels.value,
+				[thread.id]: thread.channel,
+			};
+
 		// the backend leaves a zero count out
 		setUnreadCount(thread.id, thread.unreadCount ?? 0);
 
@@ -206,6 +221,8 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			lastMessages.value = rest;
 			const { [threadId]: _unread, ...counts } = unreadByThread.value;
 			unreadByThread.value = counts;
+			const { [threadId]: _channel, ...kept } = channels.value;
+			channels.value = kept;
 		}
 
 		for (const threadId of current) tracked.add(threadId);
@@ -215,6 +232,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		// state
 		lastMessages,
 		unreadByThread,
+		channels,
 
 		// getters
 		hasUnreadData,

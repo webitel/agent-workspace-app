@@ -179,6 +179,47 @@ describe('toChatPreview', () => {
 		expect(preview.lastMessage?.sender).toBe('client');
 	});
 
+	// AC_02.03.02: the gateway is the thread's, the task carries none
+	describe('channel', () => {
+		it('names the gateway and gives it its logo', () => {
+			expect(
+				toChatPreview(buildTask(), buildLastMessage(), account, {
+					name: 'Support bot',
+					type: 'THREAD_CHANNEL_TYPE_TELEGRAM_BOT',
+				}).channel,
+			).toEqual({
+				name: 'Support bot',
+				icon: 'telegram-bot',
+			});
+		});
+
+		it('keeps the name of a gateway with no logo', () => {
+			expect(
+				toChatPreview(buildTask(), buildLastMessage(), account, {
+					name: 'Gate',
+					type: 'THREAD_CHANNEL_TYPE_UNSPECIFIED',
+				}).channel,
+			).toEqual({
+				name: 'Gate',
+				icon: undefined,
+			});
+		});
+
+		it('leaves out a gateway without a name', () => {
+			expect(
+				toChatPreview(buildTask(), buildLastMessage(), account, {
+					type: 'THREAD_CHANNEL_TYPE_WHATSAPP',
+				}).channel,
+			).toBeUndefined();
+		});
+
+		it('has no channel until the thread is known', () => {
+			expect(
+				toChatPreview(buildTask(), buildLastMessage(), account).channel,
+			).toBeUndefined();
+		});
+	});
+
 	it('tolerates a task with no thread', () => {
 		expect(
 			toChatPreview(

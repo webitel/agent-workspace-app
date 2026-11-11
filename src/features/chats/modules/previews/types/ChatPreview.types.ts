@@ -16,11 +16,19 @@ export interface LastMessage {
 
 export type LastMessageSender = 'client' | 'agent';
 
+/** The gateway a chat came through, as its row names it (AC_02.03.02). */
+export interface PreviewChannel {
+	name: string;
+	/** Absent for a gateway ui-sdk has no icon for. */
+	icon?: string;
+}
+
 /** What a row of the chat list shows for one chat (CONTEXT.md: Chat preview). */
 export interface ChatPreview {
 	/** The client's messenger username, falling back to their name. */
 	name?: string;
 	queueName?: string;
+	channel?: PreviewChannel;
 	lastMessage?: {
 		body?: string;
 		/** Epoch ms. */

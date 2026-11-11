@@ -9,6 +9,7 @@
         <client-identity-block
             size="sm"
             :name="preview.name"
+            :channel="channel"
         >
             <template #aside>
                 <time
@@ -17,9 +18,13 @@
                 >
                     {{ time }}
                 </time>
-                <!-- the messages the agent has not seen (AC_02.03.03) -->
+            </template>
+            <!-- the messages the agent has not seen (AC_02.03.03), under the time -->
+            <template
+                v-if="unreadCount > 0"
+                #channel-aside
+            >
                 <wt-badge-new
-                    v-if="unreadCount > 0"
                     :value="unreadCount"
                     severity="success"
                 />
@@ -30,6 +35,7 @@
             :text="preview.lastMessage.body"
             :sender="preview.lastMessage.sender"
             :name="preview.name"
+            :unread="unreadCount > 0"
         />
         <chat-preview-footer
             v-if="preview.queueName"
@@ -60,7 +66,7 @@ const props = defineProps<{
 const chatsStore = useChatsStore();
 const previewsStore = useChatPreviewsStore();
 const accountStore = useChatAccountStore();
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 
 // the route param threadId equals task.thread.id
 const threadId = computed(() => props.task.thread?.id ?? '');
@@ -70,7 +76,19 @@ const preview = computed(() =>
 		props.task,
 		previewsStore.lastMessages[threadId.value],
 		accountStore.account,
+		previewsStore.channels[threadId.value],
 	),
+);
+
+// the line client-identity-block draws as `Channel: <gateway>`
+const channel = computed(() =>
+	preview.value.channel
+		? {
+				label: t('vocabulary.channel', 1),
+				value: preview.value.channel.name,
+				icon: preview.value.channel.icon,
+			}
+		: undefined,
 );
 
 const unreadCount = computed(

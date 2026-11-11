@@ -1,7 +1,7 @@
 <template>
     <div
         class="chat-preview-body"
-        :class="`chat-preview-body--${sender === 'client' ? 'client' : 'agent'}`"
+        :class="`chat-preview-body--${sender === 'client' ? 'client' : 'agent'}-${unread ? 'unread' : 'read'}`"
     >
         <!-- the client's own avatar, or the standard one for the agent -->
         <wt-avatar
@@ -21,8 +21,8 @@ import { WtAvatar } from '@webitel/ui-sdk/components';
 import type { LastMessageSender } from '../../../types/ChatPreview.types';
 
 /**
- * The last message of a chat. Only the read look exists: whether a message is
- * unread has no source yet, so the unread colours are not wired.
+ * The last message of a chat. It reads as unread while the chat has messages
+ * the agent has not seen (AC_02.03.01): the newest one is then among them.
  */
 defineProps<{
 	text: string;
@@ -30,6 +30,8 @@ defineProps<{
 	sender?: LastMessageSender;
 	/** The client's name, for their avatar. */
 	name?: string;
+	/** The chat has messages the agent has not seen. */
+	unread?: boolean;
 }>();
 </script>
 
@@ -42,14 +44,24 @@ defineProps<{
     border-radius: var(--wt-ws-chat-queue-pannel-sizes-last-message-text-border-radius);
 }
 
-.chat-preview-body--client {
+.chat-preview-body--client-read {
     background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-read-background);
     color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-read-color);
 }
 
-.chat-preview-body--agent {
+.chat-preview-body--client-unread {
+    background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-unread-background);
+    color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-unread-color);
+}
+
+.chat-preview-body--agent-read {
     background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-read-background);
     color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-read-color);
+}
+
+.chat-preview-body--agent-unread {
+    background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-unread-background);
+    color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-unread-color);
 }
 
 .chat-preview-body__text {
