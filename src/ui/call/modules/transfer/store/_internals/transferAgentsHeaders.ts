@@ -1,5 +1,7 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
 
+import { TRANSFER_STATUS_COLUMN_WIDTH } from './transferStatusColumnWidth';
+
 export const transferAgentsHeaders: DatalistTableHeader[] = [
 	{
 		value: 'name',
@@ -12,6 +14,7 @@ export const transferAgentsHeaders: DatalistTableHeader[] = [
 		locale: 'ui.call.transfer.columns.status',
 		show: true,
 		field: 'status',
+		width: TRANSFER_STATUS_COLUMN_WIDTH,
 	},
 	{
 		value: 'teamName',

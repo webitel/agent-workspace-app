@@ -95,6 +95,7 @@ import { getTransferActionAvailability } from '../scripts/getTransferActionAvail
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
 import TransferAgentsTable from './transfer-agents-table.vue';
+import TransferUsersTable from './transfer-users-table.vue';
 
 const emit = defineEmits<{
 	transfer: [
@@ -154,6 +155,7 @@ const tabs = computed<
 	{
 		value: TransferTab.Users,
 		text: t('objects.user', 2),
+		component: TransferUsersTable,
 	},
 	{
 		value: TransferTab.Dialplans,

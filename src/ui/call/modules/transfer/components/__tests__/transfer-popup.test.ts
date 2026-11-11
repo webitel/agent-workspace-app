@@ -26,6 +26,7 @@ import TransferPopup from '../transfer-popup.vue';
 
 const stubs = {
 	TransferAgentsTable: true,
+	TransferUsersTable: true,
 	'wt-popup': {
 		emits: [
 			'close',

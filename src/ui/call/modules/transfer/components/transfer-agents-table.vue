@@ -20,14 +20,7 @@
 		</template>
 
 		<template #status="{ item }">
-			<div class="transfer-agents-table__cell">
-				<wt-badge
-					:hidden="!item.status"
-					:icon-badge="item.status"
-					:color-variable="getBadgeColorVariable(item.status)"
-				/>
-				{{ getStatusLabel(item.status) }}
-			</div>
+			<transfer-status-cell :status="item.status" />
 		</template>
 
 		<template #empty>
@@ -44,11 +37,9 @@ import { storeToRefs } from 'pinia';
 import { onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
-import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../mappings/transferAgentStatusColors';
-import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../mappings/transferAgentStatusLabelKeys';
-import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
+import TransferStatusCell from './transfer-status-cell.vue';
 
 const SEARCH_FILTER_NAME = 'search';
 
@@ -100,22 +91,6 @@ watch(() => props.search, applySearch);
 loadFirstPage();
 
 onUnmounted($reset);
-
-function getBadgeColorVariable(
-	status?: TransferAgentStatus,
-): string | undefined {
-	return status && TRANSFER_AGENT_BADGE_COLOR_VARIABLES[status];
-}
-
-/**
- * @author Oleksandr Palonnyi
- * TODO: the label is drawn beside wt-badge by hand until the component can
- * show a status text itself; refactor after that component update
- * [WS-95](https://webitel.atlassian.net/browse/WS-95)
- */
-function getStatusLabel(status?: TransferAgentStatus): string {
-	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
-}
 
 function getRowClass(row: TransferAgentRow): string {
 	return row.id === selectedRowId.value
