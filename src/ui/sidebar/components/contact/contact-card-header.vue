@@ -8,20 +8,19 @@
 			<span class="contact-card-header__name typo-body-2-bold">{{ name }}</span>
 		</div>
 
-		<wt-divider />
+		<template v-if="labels.length">
+			<wt-divider />
 
-		<div
-			v-if="labels.length"
-			class="contact-card-header__labels"
-		>
-			<wt-chip
-				v-for="(label, index) of labels"
-				:key="`${label}-${index}`"
-				:color="ChipColor.SECONDARY"
-			>
-				{{ label }}
-			</wt-chip>
-		</div>
+			<div class="contact-card-header__labels">
+				<wt-chip
+					v-for="(label, index) of labels"
+					:key="`${label}-${index}`"
+					:color="ChipColor.SECONDARY"
+				>
+					{{ label }}
+				</wt-chip>
+			</div>
+		</template>
 	</div>
 </template>
 
