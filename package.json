@@ -22,8 +22,8 @@
 		"test:unit:ci": "vitest run --coverage",
 		"typecheck:ci": "npm run typecheck",
 		"libs:ln": "npm link @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk && npm run libs:ls",
-		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk",
-		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/ui-chats @webitel/ui-sdk && npm run libs:ls",
+		"libs:ls": "npm ls @webitel/api-services @webitel/chat-web-sdk @webitel/styleguide @webitel/ui-chats @webitel/ui-sdk",
+		"libs:up": "npm update @webitel/api-services @webitel/chat-web-sdk @webitel/styleguide @webitel/ui-chats @webitel/ui-sdk && npm run libs:ls",
 		"test:e2e:live": "playwright test --project=live",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:ci": "playwright test --project=mocked",
@@ -38,6 +38,7 @@
 		"@webitel/ui-datalist": "~26.12",
 		"@webitel/ui-sdk": "~26.12",
 		"axios": "^1.17.0",
+		"decode-uri-component": "^0.5.1",
 		"date-fns": "^4",
 		"dompurify": "^3.4.16",
 		"jszip": "^3.10.2",
@@ -47,7 +48,7 @@
 		"vue": "^3.5.x",
 		"vue-i18n": "^11.4.5",
 		"vue-router": "^5.1.x",
-		"webitel-sdk": "^26.4.40"
+		"webitel-sdk": "^26.4.44"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
@@ -73,6 +74,10 @@
 	"overrides": {
 		"vue-router": "^5.1.x",
 		"axios": "^1.17.0",
-		"@webitel/chat-web-sdk": "^0.0.23"
+		"decode-uri-component": "^0.5.1",
+		"@webitel/chat-web-sdk": "^0.0.23",
+		"webitel-sdk": {
+			"query-string": "9.5.1"
+		}
 	}
 }

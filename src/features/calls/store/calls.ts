@@ -11,6 +11,7 @@ import i18n from '../../../app/locale/i18n';
 import { router } from '../../../app/router';
 import { useOffersStore } from '../../../ui/notifications/modules/offers/store/offers';
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
+import { CallsRouteName } from '../../../ui/pages/modules/calls/enums/CallsRouteName.enum';
 import { useCallAudio } from '../composables/useCallAudio';
 import { canTransferCall } from '../scripts/canTransferCall';
 import { hasCallWindow } from '../scripts/hasCallWindow';
@@ -114,7 +115,9 @@ export const useCallsStore = defineStore('calls', () => {
 
 	function isOnCallWindow(callId: string): boolean {
 		const route = router.currentRoute.value;
-		return route.name === 'call-window' && route.params.callId === callId;
+		return (
+			route.name === CallsRouteName.CallWindow && route.params.callId === callId
+		);
 	}
 
 	/**
@@ -126,7 +129,7 @@ export const useCallsStore = defineStore('calls', () => {
 	function openOfferWindow(callId: string) {
 		rememberReturnTarget(callId);
 		router.push({
-			name: 'call-window',
+			name: CallsRouteName.CallWindow,
 			params: {
 				callId,
 			},
@@ -168,7 +171,7 @@ export const useCallsStore = defineStore('calls', () => {
 			if (value === 'ringing') return false;
 			if (value === 'connected') {
 				router.push({
-					name: 'call-window',
+					name: CallsRouteName.CallWindow,
 					params: {
 						callId,
 					},

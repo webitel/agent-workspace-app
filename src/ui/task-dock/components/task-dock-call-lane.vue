@@ -46,6 +46,7 @@ import PostProcessingCallBar from '../../call/modules/call-dock/components/post-
 import TransferPopup from '../../call/modules/transfer/components/transfer-popup.vue';
 import { useCallTransferPopupStore } from '../../call/modules/transfer/store/callTransferPopup';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
+import { CallsRouteName } from '../../pages/modules/calls/enums/CallsRouteName.enum';
 import { useTaskDockStore } from '../store/task-dock';
 
 const taskDockStore = useTaskDockStore();
@@ -72,7 +73,7 @@ function onHangup(callId: string): void {
 
 function openCallWindow(callId: string) {
 	router.push({
-		name: 'call-window',
+		name: CallsRouteName.CallWindow,
 		params: {
 			callId,
 		},

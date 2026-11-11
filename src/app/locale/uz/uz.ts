@@ -1,4 +1,4 @@
-import { DeviceNotAllowPermissionError } from 'webitel-sdk';
+import { CallDirection, DeviceNotAllowPermissionError } from 'webitel-sdk';
 
 export default {
 	ui: {
@@ -50,6 +50,7 @@ export default {
 			username: 'Foydalanuvchi nomi',
 			message: 'Xabar',
 			phoneNumber: 'Telefon raqami',
+			waitTime: 'Kutish vaqti',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -75,12 +76,15 @@ export default {
 				groups: 'Guruhlar',
 				attributes: 'Atributlar',
 				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
+				communicationOptions: 'Aloqa usullari',
 			},
 		},
 		pages: {
 			calls: {
 				pageTabs: {
 					missed: 'Oʼtkazib yuborilgan',
+					offline: 'Oflayn',
+					selfAssigned: 'Qoʼlda tayinlangan',
 				},
 				tabs: {
 					info: "Ma'lumot",
@@ -132,6 +136,13 @@ export default {
 					},
 				},
 			},
+			contacts: {
+				phones: {
+					call: '{number} raqamiga qo‘ng‘iroq qilish',
+					moreNumbers: '+{count} ta raqam yana',
+					noPhone: 'Telefon yo‘q',
+				},
+			},
 			tableActionPanel: {
 				variableColumnSelect: {
 					title: 'O‘zgaruvchilar ustunini tanlash',
@@ -174,6 +185,10 @@ export default {
 				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
 				retryCall: 'Qayta qoʻngʻiroq qilish',
 				backToDialpad: 'Raqam terishga qaytish',
+			},
+			direction: {
+				[CallDirection.Inbound]: 'Kiruvchi qoʼngʼiroq',
+				[CallDirection.Outbound]: 'Chiquvchi qoʼngʼiroq',
 			},
 		},
 	},
