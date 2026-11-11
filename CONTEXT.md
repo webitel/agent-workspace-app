@@ -43,6 +43,13 @@ and should not be carried over wholesale.
 - [ADR-0011](docs/adr/0011-chat-list-stays-the-task-feed.md) — the chat list
   stays the task feed (call-center chats only), with unread read from the thread
   list, and search over the tasks on the client.
+- [ADR-0012](docs/adr/0012-contact-card-communication.md) — the contact card's
+  Communication section lists the phones, emails and messengers the contact
+  returns, shows a messenger's name as it comes, and a messenger without one as
+  its gateway icon alone.
+- [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
+  list is a ui-datalist table store, one table per tab under one search field
+  that applies on the debounced event, and the known race it leaves open.
 
 ## Language
 
@@ -126,6 +133,13 @@ the two or cancels the consult and goes back to the original call.
 **Consult call** — the call to the destination of a Consult transfer, placed
 while the original call is on hold. It is a call of its own, not the original;
 once the destination answers it is an Active call like any other.
+
+**Transfer popup** — the popup an agent uses to pick where an Active call goes,
+opened from the Call window's top bar or from the call dock. It has a number
+field and four tabs of destinations (Agents, Queues, Users, Dialplans) under one
+search; selecting a row and choosing Blind or Consult starts a **Blind transfer**
+or a **Consult transfer**. Which of the two a row allows depends on its tab. It
+works on one call, the one it was opened for.
 
 **Call window** — the central-area card for one call, the call's counterpart of
 the chat window. It hosts the call while it is an **Active call** and stays on
@@ -273,6 +287,13 @@ that would be "new activity", not unread, and is deliberately not built.
 
 _Avoid_ "conversation" for either: webitel-sdk uses `Conversation` for the older
 chat model, which this app does not use.
+
+**IM client** — a contact's link to a messenger (`imclients` on the contact),
+shown on the contact card's Messaging tab. It is one of two kinds, never both: a
+legacy chat client, which carries the client's `user` from the external service,
+or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
+backend's im-contact-service) and no name. IM is instant messaging; the gateway
+it comes through is its `protocol` (ADR-0012).
 
 ## Conventions
 

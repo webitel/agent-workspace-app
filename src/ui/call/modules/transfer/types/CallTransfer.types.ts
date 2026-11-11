@@ -1,0 +1,51 @@
+import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
+import type { TransferMode } from '../enums/TransferMode.enum';
+import type { TransferTab } from '../enums/TransferTab.enum';
+
+export type TransferDestination =
+	| {
+			kind: 'phone';
+			phone: string;
+	  }
+	| {
+			kind: 'row';
+			tab: TransferTab;
+			rowId: string;
+	  };
+
+export interface TransferRequest {
+	mode: TransferMode;
+	destination: TransferDestination;
+}
+
+export interface TransferAgentRow {
+	id: string;
+	name: string;
+	teamName?: string;
+	status?: TransferAgentStatus;
+}
+
+export interface TransferQueueRow {
+	id: string;
+	name: string;
+	description: string;
+}
+
+/**
+ * @author Oleksandr Palonnyi
+ * the part of a queue the Queues tab reads, so the module does not depend on
+ * the shape of the API model
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+export interface TransferQueueSource {
+	id: string;
+	name?: string;
+	description?: string;
+}
+
+export type TransferModeAvailability = Record<TransferMode, boolean>;
+
+export interface TransferActionAvailability {
+	byPhone: TransferModeAvailability;
+	bySelection: TransferModeAvailability;
+}

@@ -106,4 +106,20 @@ describe('outbound-call-card', () => {
 		expect(wrapper.emitted('retry')).toHaveLength(1);
 		expect(wrapper.emitted('backToDialpad')).toHaveLength(1);
 	});
+
+	it('closes from the no answer state', async () => {
+		const wrapper = mountCard({
+			status: OutboundCallStatus.NoAnswer,
+		});
+
+		await wrapper.find('.outbound-call-card__header button').trigger('click');
+
+		expect(wrapper.emitted('close')).toHaveLength(1);
+	});
+
+	it('has no close icon while ringing, where hang up ends the attempt', () => {
+		const wrapper = mountCard();
+
+		expect(wrapper.find('.outbound-call-card__header').exists()).toBe(false);
+	});
 });

@@ -8,6 +8,7 @@ import {
 } from 'vue-router';
 import TheCallWorkspace from '../../ui/pages/modules/calls/components/the-call-workspace.vue';
 import { CallsPageTab } from '../../ui/pages/modules/calls/enums/CallsPageTab.enum';
+import { CallsRouteName } from '../../ui/pages/modules/calls/enums/CallsRouteName.enum';
 import TheCallsPage from '../../ui/pages/modules/calls/the-calls-page.vue';
 import TheChatWindow from '../../ui/pages/modules/chats/components/the-chat-window.vue';
 import TheChatsWorkspace from '../../ui/pages/modules/chats/components/the-chats-workspace.vue';
@@ -45,11 +46,21 @@ const routes: RouteRecordRaw[] = [
 						name: CallsPageTab.Missed,
 						component: NoopRouteComponent,
 					},
+					{
+						path: 'self-assigned',
+						name: CallsPageTab.SelfAssigned,
+						component: NoopRouteComponent,
+					},
+					{
+						path: 'offline',
+						name: CallsPageTab.Offline,
+						component: NoopRouteComponent,
+					},
 				],
 			},
 			{
 				path: '/calls/:callId',
-				name: 'call-window',
+				name: CallsRouteName.CallWindow,
 				component: TheCallWorkspace,
 			},
 			{

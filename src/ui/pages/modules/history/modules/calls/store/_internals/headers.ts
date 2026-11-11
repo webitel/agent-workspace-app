@@ -1,5 +1,6 @@
 import type { DatalistTableHeader } from '@webitel/ui-datalist';
 import { createFilterConfig, FilterOption } from '@webitel/ui-datalist/filters';
+import { SortSymbols } from '@webitel/ui-sdk/scripts/sortQueryAdapters';
 
 export const headers: DatalistTableHeader[] = [
 	{
@@ -16,6 +17,7 @@ export const headers: DatalistTableHeader[] = [
 		show: true,
 		field: 'created_at',
 		width: '170px',
+		sort: SortSymbols.NONE,
 		filter: createFilterConfig({
 			name: FilterOption.CreatedAt,
 		}),
@@ -26,6 +28,7 @@ export const headers: DatalistTableHeader[] = [
 		show: true,
 		field: 'duration',
 		width: '140px',
+		sort: SortSymbols.NONE,
 	},
 	{
 		value: 'phone',

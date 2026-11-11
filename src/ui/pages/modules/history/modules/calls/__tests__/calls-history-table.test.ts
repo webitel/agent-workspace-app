@@ -35,6 +35,7 @@ const createStore = () => {
 				}),
 		),
 		appendToDataList: vi.fn(),
+		updateSort: vi.fn(),
 		columnResize: vi.fn(),
 		columnReorder: vi.fn(),
 		addFilter: vi.fn(),
@@ -66,6 +67,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 			'onLoading',
 		],
 		emits: [
+			'sort',
 			'column-resize',
 			'column-reorder',
 		],
@@ -98,11 +100,18 @@ vi.mock('@webitel/ui-datalist/filters', () => ({
 	},
 }));
 
-// the stubbed phone cell still imports the calls store, which pulls in
-// the socket client and the i18n singleton
-vi.mock('../../../../../../../features/calls/store/calls', () => ({
-	useCallsStore: () => ({}),
-}));
+/**
+ * @author Oleksandr Palonnyi
+ * The stubbed phone cell still imports the outbound attempts store, which pulls in
+ * the calls store, the socket client and the i18n singleton
+ * [WTEL-WS-27](https://webitel.atlassian.net/browse/WTEL-WS-27)
+ */
+vi.mock(
+	'../../../../../../../features/calls/store/outboundCallAttempts',
+	() => ({
+		useOutboundCallAttemptsStore: () => ({}),
+	}),
+);
 
 import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import CallsHistoryTable from '../calls-history-table.vue';
@@ -360,6 +369,17 @@ describe('calls-history-table', () => {
 		const wrapper = mountTable();
 
 		expect(wrapper.find('.empty').text()).toBe('ui.reusable.nothingToShowHere');
+	});
+
+	it('passes sorting to the store', () => {
+		const wrapper = mountTable();
+		const table = wrapper.findComponent({
+			name: 'WtTable',
+		});
+
+		table.vm.$emit('sort', 'column', 'order');
+
+		expect(mockStore.updateSort).toHaveBeenCalledWith('column', 'order');
 	});
 
 	it('passes column resize and reorder to the store', () => {

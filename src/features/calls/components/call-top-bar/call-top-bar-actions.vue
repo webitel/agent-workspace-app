@@ -79,7 +79,7 @@ import { ButtonVariant } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Call } from 'webitel-sdk';
-import { useCallTransferPopupStore } from '../../../../ui/call/modules/call-transfer/store/callTransferPopup';
+import { useCallTransferPopupStore } from '../../../../ui/call/modules/transfer/store/callTransferPopup';
 import { canTransferCall } from '../../scripts/canTransferCall';
 import { useCallsStore } from '../../store/calls';
 
