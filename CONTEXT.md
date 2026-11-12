@@ -51,6 +51,10 @@ and should not be carried over wholesale.
   one of several identified contacts while the call is active or on hold, the
   link shows at once, a failed one is silent, and CREATE follows the same
   condition as SELECT.
+- [ADR-0014](docs/adr/0014-offline-members-are-called-through-the-queue.md) —
+  an offline member is called through the queue on one of its communications,
+  not dialled by number, and the Offline tab's panel searches the contact by
+  the member's number and only shows it.
 
 ## Language
 
@@ -128,7 +132,8 @@ Unrelated to `offline` the **Agent status**.
 
 A member carries no contact. Its right panel searches contacts by the member's
 first number the way a call's are identified, but only shows them: with no
-call yet there is nothing to link one to, so the panel has no SELECT.
+call yet there is nothing to link one to, so the panel has no SELECT
+(ADR-0014).
 
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
