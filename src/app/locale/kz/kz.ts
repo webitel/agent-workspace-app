@@ -51,6 +51,7 @@ export default {
 			message: 'Хабарлама',
 			phoneNumber: 'Телефон нөмірі',
 			waitTime: 'Күту уақыты',
+			select: 'Таңдау',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Атрибуттар',
 				noAttributes: 'Пайдаланушы айнымалылары анықталмаған',
 				communicationOptions: 'Байланыс тәсілдері',
+				contactPosition: '{current} / {count} байланыс',
 			},
 		},
 		pages: {

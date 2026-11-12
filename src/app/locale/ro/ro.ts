@@ -51,6 +51,7 @@ export default {
 			message: 'Mesaj',
 			phoneNumber: 'Număr de telefon',
 			waitTime: 'Timp de așteptare',
+			select: 'Selectează',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Atribute',
 				noAttributes: 'Nu sunt definite variabile personalizate',
 				communicationOptions: 'Optiuni de comunicare',
+				contactPosition: 'Contactul {current} din {count}',
 			},
 		},
 		pages: {

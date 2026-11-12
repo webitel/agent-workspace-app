@@ -7,7 +7,7 @@ import { useCallsStore } from '../../../store/calls';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
 
-export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
+export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	const callsStore = useCallsStore();
 	const systemSettingsStore = useSystemSettingsStore();
 
@@ -67,6 +67,38 @@ export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
 		}
 	};
 
+	/**
+	 * Calls whose link is in flight. Kept per call: the panel outlives a call,
+	 * and the SDK's socket requests have no timeout, so a hung link must block
+	 * SELECT only on its own call.
+	 */
+	const linkingCallIds = new Set<string>();
+
+	/**
+	 * Links the contact the agent chose among several found. Shown at once, as
+	 * the only found contact is, without waiting for the socket event.
+	 */
+	const selectContact = async (contactId: string) => {
+		const currentCall = toValue(call);
+		if (linkingCallIds.has(currentCall.id)) return;
+		linkingCallIds.add(currentCall.id);
+		// a search started meanwhile (another call opened) owns the result
+		const requestId = lastRequestId;
+
+		try {
+			await currentCall.setContact(Number(contactId));
+			if (requestId === lastRequestId)
+				showResult([
+					contactId,
+				]);
+		} catch (err) {
+			// as in cc-workspaces, the agent is not notified; the list stays to try again
+			console.warn('[calls] linking the selected contact failed', err);
+		} finally {
+			linkingCallIds.delete(currentCall.id);
+		}
+	};
+
 	watch(
 		[
 			() => toValue(call).id,
@@ -83,5 +115,6 @@ export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
 		contactIds,
 		isLoading,
 		isContactHidden,
+		selectContact,
 	};
 }
