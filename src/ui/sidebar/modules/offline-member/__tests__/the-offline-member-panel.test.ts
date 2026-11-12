@@ -13,17 +13,20 @@ const contactIds = ref<string[]>([]);
 const isLoading = ref(false);
 let searchedNumber: () => string | undefined = () => undefined;
 
-vi.mock('../composables/useOfflineMemberContactIdentification', () => ({
-	useOfflineMemberContactIdentification: (
-		phoneNumber: () => string | undefined,
-	) => {
-		searchedNumber = () => toValue(phoneNumber);
-		return {
-			contactIds,
-			isLoading,
-		};
-	},
-}));
+vi.mock(
+	'../../../components/contact/composables/useContactIdentificationByNumber',
+	() => ({
+		useContactIdentificationByNumber: (
+			phoneNumber: () => string | undefined,
+		) => {
+			searchedNumber = () => toValue(phoneNumber);
+			return {
+				contactIds,
+				isLoading,
+			};
+		},
+	}),
+);
 
 import TheOfflineMemberPanel from '../the-offline-member-panel.vue';
 

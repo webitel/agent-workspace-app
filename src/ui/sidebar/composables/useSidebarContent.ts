@@ -8,6 +8,7 @@ import { HistoryPageTab } from '../../pages/modules/history/enums/HistoryPageTab
 import TheCallPanel from '../modules/call/the-call-panel.vue';
 import TheContactsPanel from '../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../modules/history/the-history-panel.vue';
+import TheMissedCallPanel from '../modules/missed-call/the-missed-call-panel.vue';
 import TheOfflineMemberPanel from '../modules/offline-member/the-offline-member-panel.vue';
 import type { SidebarContent } from '../types/SidebarContent.types';
 
@@ -28,6 +29,9 @@ const sidebarContentByRouteName: Partial<
 	}),
 	[ContactsPageTab.Users]: () => ({
 		component: TheContactsPanel,
+	}),
+	[CallsPageTab.Missed]: () => ({
+		component: TheMissedCallPanel,
 	}),
 	[CallsPageTab.Offline]: () => ({
 		component: TheOfflineMemberPanel,

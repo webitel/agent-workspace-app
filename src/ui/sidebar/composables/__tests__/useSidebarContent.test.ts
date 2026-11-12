@@ -8,6 +8,7 @@ import { HistoryPageTab } from '../../../pages/modules/history/enums/HistoryPage
 import TheCallPanel from '../../modules/call/the-call-panel.vue';
 import TheContactsPanel from '../../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../../modules/history/the-history-panel.vue';
+import TheMissedCallPanel from '../../modules/missed-call/the-missed-call-panel.vue';
 import TheOfflineMemberPanel from '../../modules/offline-member/the-offline-member-panel.vue';
 import { useSidebarContent } from '../useSidebarContent';
 
@@ -58,6 +59,15 @@ describe('useSidebarContent', () => {
 
 		expect(content.value).toEqual({
 			component: TheContactsPanel,
+		});
+	});
+
+	it('returns the missed call panel for the Calls missed tab', () => {
+		route.name = CallsPageTab.Missed;
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: TheMissedCallPanel,
 		});
 	});
 

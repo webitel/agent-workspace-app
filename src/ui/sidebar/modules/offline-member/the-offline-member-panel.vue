@@ -19,13 +19,13 @@
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useContactIdentificationByNumber } from '../../components/contact/composables/useContactIdentificationByNumber';
 import ContactCardUnknown from '../../components/contact/contact-card-unknown.vue';
 import ContactIdentification from '../../components/contact/contact-identification.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../components/sidebar-section-header.vue';
 import { SidebarSelectionType } from '../../enums/SidebarSelectionType.enum';
 import { useSidebarSelectionStore } from '../../store/sidebar-selection';
-import { useOfflineMemberContactIdentification } from './composables/useOfflineMemberContactIdentification';
 
 const { t } = useI18n();
 
@@ -44,7 +44,7 @@ const phoneNumberSelection = computed(() =>
  * is no call yet to link one to (ADR-0013)
  * [WS-30](https://webitel.atlassian.net/browse/WS-30)
  */
-const { contactIds, isLoading } = useOfflineMemberContactIdentification(
+const { contactIds, isLoading } = useContactIdentificationByNumber(
 	() => phoneNumberSelection.value?.phoneNumber,
 );
 
