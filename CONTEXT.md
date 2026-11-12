@@ -51,6 +51,10 @@ and should not be carried over wholesale.
   one of several identified contacts while the call is active or on hold, the
   link shows at once, a failed one is silent, and CREATE follows the same
   condition as SELECT.
+- [ADR-0014](docs/adr/0014-offline-members-are-called-through-the-queue.md) —
+  an offline member is called through the queue on one of its communications,
+  not dialled by number, and the Offline tab's panel searches the contact by
+  the member's number and only shows it.
 
 ## Language
 
@@ -117,6 +121,19 @@ view concern: the thread and task carry on. Never a substitute for **End chat**.
 callee answers or the agent closes it. Ringing and No answer are states of an
 attempt. Several can run at once. It is not an **Active call**: when the callee
 answers, the attempt ends and the call carries on in the active-call window.
+
+**Offline member** — a member of an offline queue: a client the queue does not
+dial by itself but leaves for an agent to call, on one of the member's
+communications. One row of the Calls section's Offline tab; the tab's "Offline
+calls" label is UI wording, the rows are members, not calls. Calling one is a
+request to the queue for that member and communication, not an **Outbound
+attempt**: the call stays the queue's, and the member leaves the offline queue.
+Unrelated to `offline` the **Agent status**.
+
+A member carries no contact. Its right panel searches contacts by the member's
+first number the way a call's are identified, but only shows them: with no
+call yet there is nothing to link one to, so the panel has no SELECT
+(ADR-0014).
 
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
