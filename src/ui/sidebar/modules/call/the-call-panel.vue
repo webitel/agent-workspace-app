@@ -10,7 +10,11 @@
 				:contact-ids="contactIds"
 				:is-loading="isLoading"
 				:can-select="isCallActive"
+				:can-search="isCallActive"
+				:is-search-active="isSearchActive"
 				@select="selectContact"
+				@search="search"
+				@cancel-search="cancelSearch"
 			>
 				<template #actions>
 					<wt-button
@@ -45,8 +49,15 @@ const { t } = useI18n();
 
 const content = computed(() => toCallInfoPanelContent(props.call));
 
-const { contactIds, isLoading, isContactHidden, selectContact } =
-	useCallContact(() => props.call);
+const {
+	contactIds,
+	isLoading,
+	isContactHidden,
+	isSearchActive,
+	selectContact,
+	search,
+	cancelSearch,
+} = useCallContact(() => props.call);
 
 // contacts are created and linked only while the call is live, as in
 // cc-workspaces: not while ringing, nor after hangup

@@ -15,9 +15,20 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
+vi.mock('../../../../../app/composables/useThemedImage', async () => {
+	const { computed } = await import('vue');
+	return {
+		useThemedImage: ({ light }: { light: string }) => computed(() => light),
+	};
+});
+
+import emptyFiltersLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-light.svg';
+import { ContactSearchMode } from '../../../../../features/calls/modules/contact/enums/ContactSearchMode.enum';
 import ContactCard from '../contact-card.vue';
+import ContactCardUnknown from '../contact-card-unknown.vue';
 import ContactIdentification from '../contact-identification.vue';
 import ContactPanelEmpty from '../contact-panel-empty.vue';
+import ContactSearch from '../contact-search.vue';
 import FoundContactsNavigator from '../found-contacts-navigator.vue';
 
 const WtLoaderStub = {
@@ -29,6 +40,8 @@ type BlockProps = {
 	contactIds: string[];
 	isLoading?: boolean;
 	canSelect?: boolean;
+	canSearch?: boolean;
+	isSearchActive?: boolean;
 };
 
 const mountBlock = (props: BlockProps, slots: Record<string, string> = {}) =>
@@ -40,6 +53,8 @@ const mountBlock = (props: BlockProps, slots: Record<string, string> = {}) =>
 				WtLoader: WtLoaderStub,
 				ContactCard: true,
 				ContactPanelEmpty: true,
+				ContactCardUnknown: true,
+				ContactSearch: true,
 				FoundContactsNavigator: true,
 			},
 		},
@@ -79,12 +94,122 @@ describe('contact-identification', () => {
 		expect(findCard(wrapper).exists()).toBe(false);
 	});
 
-	it('shows the not found state when no contact matches', () => {
+	it('shows the unknown contact when no contact matches', () => {
 		const wrapper = mountBlock({
 			contactIds: [],
 		});
 
-		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
+		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(true);
+		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
+	});
+
+	describe('search', () => {
+		it('shows the search only when the agent can search', async () => {
+			const wrapper = mountBlock({
+				contactIds: [],
+			});
+
+			expect(wrapper.findComponent(ContactSearch).exists()).toBe(false);
+
+			await wrapper.setProps({
+				canSearch: true,
+			});
+
+			expect(wrapper.findComponent(ContactSearch).exists()).toBe(true);
+		});
+
+		it('passes the search up', () => {
+			const wrapper = mountBlock({
+				contactIds: [],
+				canSearch: true,
+			});
+			const request = {
+				query: 'sarah',
+				searchMode: ContactSearchMode.Destination,
+			};
+
+			wrapper.findComponent(ContactSearch).vm.$emit('search', request);
+
+			expect(wrapper.emitted('search')).toEqual([
+				[
+					request,
+				],
+			]);
+		});
+
+		it('clears the typed query once the search ends', async () => {
+			const wrapper = mountBlock({
+				contactIds: [],
+				canSearch: true,
+				isSearchActive: true,
+			});
+			wrapper.findComponent(ContactSearch).vm.$emit('update:query', 'sarah');
+			await nextTick();
+			expect(wrapper.findComponent(ContactSearch).props('query')).toBe('sarah');
+
+			await wrapper.setProps({
+				isSearchActive: false,
+			});
+
+			expect(wrapper.findComponent(ContactSearch).props('query')).toBe('');
+		});
+
+		it('shows "no results" instead of the unknown contact when a search found nothing', () => {
+			const wrapper = mountBlock({
+				contactIds: [],
+				canSearch: true,
+				isSearchActive: true,
+			});
+
+			expect(wrapper.findComponent(ContactPanelEmpty).props('title')).toBe(
+				'ui.sidebar.contact.search.noResults',
+			);
+			expect(wrapper.findComponent(ContactPanelEmpty).props('image')).toBe(
+				emptyFiltersLight,
+			);
+			expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(false);
+		});
+
+		it('shows what a search found like any other result', () => {
+			const wrapper = mountBlock({
+				contactIds: [
+					'101',
+					'102',
+				],
+				canSearch: true,
+				isSearchActive: true,
+			});
+
+			expect(findCard(wrapper).props('contactId')).toBe('101');
+			expect(findSwitcher(wrapper).props('count')).toBe(2);
+		});
+
+		it('offers cancel beside the parent actions only after a search', async () => {
+			const wrapper = mountBlock(
+				{
+					contactIds: [],
+					canSearch: true,
+				},
+				{
+					actions: '<button class="parent-action" />',
+				},
+			);
+			const buttons = () =>
+				wrapper.find('.contact-identification__actions').findAll('button');
+
+			expect(buttons()).toHaveLength(1);
+
+			await wrapper.setProps({
+				isSearchActive: true,
+			});
+
+			expect(buttons().map((button) => button.text())).toEqual([
+				'',
+				'reusable.cancel',
+			]);
+			await buttons()[1].trigger('click');
+			expect(wrapper.emitted('cancelSearch')).toHaveLength(1);
+		});
 	});
 
 	it('shows the card of the only match, without the switcher', () => {

@@ -87,6 +87,15 @@ export default {
 				noAttributes: 'Користувацькі змінні не задано',
 				communicationOptions: "Способи зв'язку",
 				contactPosition: 'Контакт {current} з {count}',
+				search: {
+					title: 'Пошук контакту',
+					noResults: 'Результатів не знайдено',
+					modes: {
+						name: "Ім'я",
+						destination: 'Номер або email',
+						attribute: 'Атрибут',
+					},
+				},
 			},
 		},
 		pages: {
