@@ -62,10 +62,6 @@ const currentTab = computed(() =>
 </script>
 
 <style scoped>
-.chat-list-tabs {
-	--tab-gap: var(--spacing-sm);
-}
-
 .chat-list-tabs__tab {
 	display: inline-flex;
 	align-items: center;

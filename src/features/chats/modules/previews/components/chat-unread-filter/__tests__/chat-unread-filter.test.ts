@@ -4,10 +4,16 @@ import { reactive } from 'vue';
 
 const chatActiveStore = reactive({
 	onlyUnread: false,
-	toggleOnlyUnread: vi.fn(),
 });
 vi.mock('../../../store/chat-active', () => ({
 	useChatActiveStore: () => chatActiveStore,
+}));
+
+const chatListStore = {
+	toggleOnlyUnread: vi.fn(),
+};
+vi.mock('../../../store/chat-list', () => ({
+	useChatListStore: () => chatListStore,
 }));
 
 import ChatUnreadFilter from '../chat-unread-filter.vue';
@@ -34,7 +40,7 @@ const mountFilter = () =>
 describe('chat-unread-filter', () => {
 	beforeEach(() => {
 		chatActiveStore.onlyUnread = false;
-		chatActiveStore.toggleOnlyUnread.mockClear();
+		chatListStore.toggleOnlyUnread.mockClear();
 	});
 
 	it('reports being off', () => {
@@ -55,12 +61,13 @@ describe('chat-unread-filter', () => {
 		expect(wrapper.attributes('data-color')).toBe('active');
 	});
 
-	it('toggles the filter on click', async () => {
+	// through the list, since on the Snoozed tab it also hands over to Active
+	it('toggles the filter through the chat list on click', async () => {
 		const wrapper = mountFilter();
 
 		await wrapper.trigger('click');
 
-		expect(chatActiveStore.toggleOnlyUnread).toHaveBeenCalledOnce();
+		expect(chatListStore.toggleOnlyUnread).toHaveBeenCalledOnce();
 	});
 
 	it('is named for what it does', () => {

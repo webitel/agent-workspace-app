@@ -24,6 +24,7 @@ export default {
 				action: 'Відкласти',
 				error: 'Не вдалося відкласти чат',
 			},
+			loadError: 'Не вдалося завантажити чати',
 		},
 		notifications: {
 			offer: {

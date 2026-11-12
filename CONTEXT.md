@@ -47,6 +47,10 @@ and should not be carried over wholesale.
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
   its gateway icon alone.
+- [ADR-0013](docs/adr/0012-chat-list-pages-from-threads-scoped-by-tasks.md) — the
+    chat list is read page by page from the thread list, scoped to the agent's
+    tasks, searched and narrowed on the backend, and kept in order from the
+    sockets.
 
 ## Language
 
@@ -159,9 +163,11 @@ Decline as the card.
 the top-right corner. Calls and chats share one design.
 
 **Chat list** — the left panel of the Chats section: the agent's call-center chats
-(their tasks), on an Active and a Snoozed tab, every one of them, which a search by
-the client's name narrows. It is not paged: the task feed arrives whole. Internal chats, which have a thread and
-no task, are not in it; they are reached from the chats table (ADR-0011).
+(their tasks), on an Active and a Snoozed tab. It is paged from the chat backend's
+thread list, scoped to those chats, and loads more on scroll; the backend's search
+(by member, subject or variables) narrows it (ADR-0012). Internal chats, which have
+a thread and no task, are not in it; they are reached from the chats table
+(ADR-0011).
 
 **Chat preview** — one row of the chat list: a chat the agent has
 accepted, summarised before they open it. It shows who the client is, the

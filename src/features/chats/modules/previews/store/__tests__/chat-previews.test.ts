@@ -4,12 +4,28 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchMessageHistoryMock = vi.fn();
+const fetchThreadsMock = vi.fn();
 
 vi.mock('../../../../api/chatSdk', () => ({
 	messagesService: {
 		fetchMessageHistory: (...args: unknown[]) =>
 			fetchMessageHistoryMock(...args),
 	},
+	threadsService: {
+		fetchThreads: (...args: unknown[]) => fetchThreadsMock(...args),
+	},
+}));
+
+const accountStore = {
+	account: {
+		contact: {
+			sub: '42',
+			iss: 'webitel',
+		},
+	} as unknown,
+};
+vi.mock('../../../../store/chat-account', () => ({
+	useChatAccountStore: () => accountStore,
 }));
 
 import { useChatPreviewsStore } from '../chat-previews';
@@ -38,6 +54,13 @@ const historyPage = (...messages: unknown[]) => ({
 describe('chat-previews store', () => {
 	beforeEach(() => {
 		fetchMessageHistoryMock.mockReset();
+		fetchThreadsMock.mockReset();
+		accountStore.account = {
+			contact: {
+				sub: '42',
+				iss: 'webitel',
+			},
+		};
 		setActivePinia(
 			createTestingPinia({
 				stubActions: false,
@@ -47,37 +70,438 @@ describe('chat-previews store', () => {
 	});
 
 	describe('unread', () => {
-		// nothing in the app fills the counts yet, so the filter built on them has
-		// to stay out of sight until something does
-		it('holds no unread data until a count is set', () => {
+		const unreadThread = (id: string, unreadCount?: number) => ({
+			id,
+			unreadCount,
+		});
+
+		// before the first read answers, "nothing is unread" would be a gap
+		it('holds no unread data until the unread chats have been read', () => {
 			const store = useChatPreviewsStore();
 
 			expect(store.hasUnreadData).toBe(false);
 			expect(store.isUnread('t1')).toBe(false);
 		});
 
-		it('tells a chat with unread messages from one without', () => {
+		it('reads the chats with unread messages and keeps their counts', async () => {
+			fetchThreadsMock.mockResolvedValue({
+				items: [
+					unreadThread('t1', 3),
+					unreadThread('t2', 1),
+				],
+				next: false,
+			});
 			const store = useChatPreviewsStore();
 
-			store.setUnreadCount('t1', 3);
-			store.setUnreadCount('t2', 0);
+			await store.loadUnread();
 
+			expect(fetchThreadsMock).toHaveBeenCalledWith({
+				unread: true,
+				size: 100,
+				page: 1,
+			});
+			expect(store.unreadByThread).toEqual({
+				t1: 3,
+				t2: 1,
+			});
 			expect(store.hasUnreadData).toBe(true);
 			expect(store.isUnread('t1')).toBe(true);
-			expect(store.isUnread('t2')).toBe(false);
-			expect(store.isUnread('t3')).toBe(false);
+			expect(store.isUnread('t9')).toBe(false);
+		});
+
+		// nothing unread is a fact once the read has answered
+		it('has unread data once the read answered, even with nothing unread', async () => {
+			fetchThreadsMock.mockResolvedValue({
+				items: [],
+				next: false,
+			});
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(store.hasUnreadData).toBe(true);
+			expect(store.unreadByThread).toEqual({});
+		});
+
+		it('counts a chat the backend lists as unread at least once', async () => {
+			fetchThreadsMock.mockResolvedValue({
+				items: [
+					unreadThread('t1'),
+				],
+				next: false,
+			});
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(store.unreadByThread.t1).toBe(1);
+		});
+
+		it('reads every page', async () => {
+			fetchThreadsMock
+				.mockResolvedValueOnce({
+					items: [
+						unreadThread('t1', 1),
+					],
+					next: true,
+				})
+				.mockResolvedValueOnce({
+					items: [
+						unreadThread('t2', 2),
+					],
+					next: false,
+				});
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(fetchThreadsMock).toHaveBeenCalledTimes(2);
+			expect(store.unreadByThread).toEqual({
+				t1: 1,
+				t2: 2,
+			});
+		});
+
+		it('keeps what it had when a read fails', async () => {
+			fetchThreadsMock.mockResolvedValueOnce({
+				items: [
+					unreadThread('t1', 2),
+				],
+				next: false,
+			});
+			const store = useChatPreviewsStore();
+			await store.loadUnread();
+
+			fetchThreadsMock.mockRejectedValueOnce(new Error('offline'));
+			await store.loadUnread();
+
+			expect(store.unreadByThread).toEqual({
+				t1: 2,
+			});
+		});
+
+		it('does not claim data when the first read fails', async () => {
+			fetchThreadsMock.mockRejectedValueOnce(new Error('offline'));
+			const store = useChatPreviewsStore();
+
+			await store.loadUnread();
+
+			expect(store.hasUnreadData).toBe(false);
+		});
+
+		describe('counted from the socket', () => {
+			it("raises the count for someone else's message on a listed chat", () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+				store.receiveMessage(
+					buildMessage({
+						id: 'm2',
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBe(2);
+			});
+
+			it("does not count the agent's own message", () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(
+					buildMessage({
+						sender: {
+							contact: {
+								sub: '42',
+								iss: 'webitel',
+							},
+						},
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBeUndefined();
+			});
+
+			// ADR-0001: no guess about who wrote it while the account is unknown
+			it('does not count while the agent’s account is unknown', () => {
+				accountStore.account = null;
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+
+				expect(store.unreadByThread.t1).toBeUndefined();
+			});
+
+			// an edit, or the echo of a message already counted
+			it('does not count the same message twice', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(buildMessage());
+				store.receiveMessage(buildMessage());
+
+				expect(store.unreadByThread.t1).toBe(1);
+			});
+
+			it('does not count a notice, which is nobody’s message', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(
+					buildMessage({
+						system: {
+							memberJoined: {},
+						},
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBeUndefined();
+			});
+
+			it('does not count a chat the list does not hold', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveMessage(
+					buildMessage({
+						threadId: 't9',
+					}),
+				);
+
+				expect(store.unreadByThread.t9).toBeUndefined();
+			});
+		});
+
+		describe('marking a chat read', () => {
+			it('clears its count', () => {
+				const store = useChatPreviewsStore();
+				store.setUnreadCount('t1', 3);
+
+				store.markRead('t1');
+
+				expect(store.unreadByThread.t1).toBe(0);
+				expect(store.isUnread('t1')).toBe(false);
+			});
+
+			it('counts again from zero when something new arrives', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+				store.receiveMessage(buildMessage());
+				store.markRead('t1');
+
+				store.receiveMessage(
+					buildMessage({
+						id: 'm2',
+					}),
+				);
+
+				expect(store.unreadByThread.t1).toBe(1);
+			});
+		});
+
+		it('forgets the count of a chat that leaves the list', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.receiveMessage(buildMessage());
+
+			store.sync([]);
+
+			expect(store.unreadByThread.t1).toBeUndefined();
 		});
 	});
 
-	describe('seeding', () => {
-		it('reads the newest messages of a chat once it is listed', async () => {
-			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
+	// a chat's last message comes with the page that shows it (ADR-0012)
+	describe('following the listed chats', () => {
+		it('reads nothing when a chat is listed', async () => {
 			const store = useChatPreviewsStore();
 
 			store.sync([
 				't1',
+				't2',
 			]);
 			await flushPromises();
+
+			expect(fetchMessageHistoryMock).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('a page row', () => {
+		const thread = (overrides: Record<string, unknown> = {}) =>
+			({
+				id: 't1',
+				unreadCount: 2,
+				lastMsg: {
+					id: 'm5',
+					body: 'from the page',
+					createdAt: '5000',
+					sender: {
+						id: 'member-client',
+						contact: {
+							sub: 'client-1',
+							iss: 'telegram',
+						},
+					},
+				},
+				...overrides,
+			}) as never;
+
+		it('takes its last message and unread count from the page', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+
+			store.receiveThread(thread());
+
+			expect(store.lastMessages.t1).toMatchObject({
+				id: 'm5',
+				body: 'from the page',
+				at: 5000,
+			});
+			expect(store.unreadByThread.t1).toBe(2);
+			expect(fetchMessageHistoryMock).not.toHaveBeenCalled();
+		});
+
+		// the backend leaves a zero count out
+		it('reads a missing unread count as none', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.setUnreadCount('t1', 4);
+
+			store.receiveThread(
+				thread({
+					unreadCount: undefined,
+				}),
+			);
+
+			expect(store.isUnread('t1')).toBe(false);
+		});
+
+		it('reads the history when the page brings no last message', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+
+			store.receiveThread(
+				thread({
+					lastMsg: undefined,
+				}),
+			);
+			await flushPromises();
+
+			expect(fetchMessageHistoryMock).toHaveBeenCalledWith('t1', {
+				size: 10,
+			});
+			expect(store.lastMessages.t1.id).toBe('m1');
+		});
+
+		// a page is read to bring the row up to date, e.g. after a reconnect
+		it('reads the history again on every page that brings no last message', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.receiveThread(
+				thread({
+					lastMsg: undefined,
+				}),
+			);
+			await flushPromises();
+			fetchMessageHistoryMock.mockResolvedValue(
+				historyPage(
+					buildMessage({
+						id: 'm2',
+						createdAt: '2000',
+					}),
+				),
+			);
+
+			store.receiveThread(
+				thread({
+					lastMsg: undefined,
+				}),
+			);
+			await flushPromises();
+
+			expect(fetchMessageHistoryMock).toHaveBeenCalledTimes(2);
+			expect(store.lastMessages.t1.id).toBe('m2');
+		});
+
+		it('ignores a row of a chat that is not listed', () => {
+			const store = useChatPreviewsStore();
+
+			store.receiveThread(thread());
+
+			expect(store.lastMessages.t1).toBeUndefined();
+			expect(store.unreadByThread.t1).toBeUndefined();
+		});
+
+		it('does not count the page’s last message again when the socket echoes it', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.receiveThread(thread());
+
+			store.receiveMessage(
+				buildMessage({
+					id: 'm5',
+					createdAt: '5000',
+				}),
+			);
+
+			expect(store.unreadByThread.t1).toBe(2);
+		});
+
+		it('does not let an older page replace what the socket delivered', () => {
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+			store.receiveMessage(
+				buildMessage({
+					id: 'm9',
+					createdAt: '9000',
+				}),
+			);
+
+			store.receiveThread(thread());
+
+			expect(store.lastMessages.t1.id).toBe('m9');
+		});
+	});
+
+	describe('seeding', () => {
+		it('reads the newest messages of a chat', async () => {
+			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
+			const store = useChatPreviewsStore();
+			store.sync([
+				't1',
+			]);
+
+			await store.seed('t1');
 
 			expect(fetchMessageHistoryMock).toHaveBeenCalledWith('t1', {
 				size: 10,
@@ -93,22 +517,17 @@ describe('chat-previews store', () => {
 			});
 		});
 
-		it('does not read a chat again while it stays listed', async () => {
+		it('does not read a chat twice', async () => {
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
 			const store = useChatPreviewsStore();
-
 			store.sync([
 				't1',
 			]);
-			store.sync([
-				't1',
-				't2',
-			]);
-			await flushPromises();
 
-			expect(
-				fetchMessageHistoryMock.mock.calls.filter(([id]) => id === 't1'),
-			).toHaveLength(1);
+			await store.seed('t1');
+			await store.seed('t1');
+
+			expect(fetchMessageHistoryMock).toHaveBeenCalledOnce();
 		});
 
 		// system notices sit on top of a fresh chat; the real last message is below
@@ -128,30 +547,27 @@ describe('chat-previews store', () => {
 				),
 			);
 			const store = useChatPreviewsStore();
-
 			store.sync([
 				't1',
 			]);
-			await flushPromises();
+
+			await store.seed('t1');
 
 			expect(store.lastMessages.t1.id).toBe('m0');
 		});
 
-		it('leaves the chat without a last message when the read fails, and retries on the next sync', async () => {
+		it('leaves the chat without a last message when the read fails, and reads again next time', async () => {
 			fetchMessageHistoryMock.mockRejectedValueOnce(new Error('boom'));
 			const store = useChatPreviewsStore();
-
 			store.sync([
 				't1',
 			]);
-			await flushPromises();
+
+			await store.seed('t1');
 			expect(store.lastMessages.t1).toBeUndefined();
 
 			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
-			store.sync([
-				't1',
-			]);
-			await flushPromises();
+			await store.seed('t1');
 
 			expect(store.lastMessages.t1.id).toBe('m1');
 		});
@@ -274,6 +690,7 @@ describe('chat-previews store', () => {
 			store.sync([
 				't1',
 			]);
+			void store.seed('t1');
 
 			store.receiveMessage(
 				buildMessage({
@@ -295,7 +712,7 @@ describe('chat-previews store', () => {
 			store.sync([
 				't1',
 			]);
-			await flushPromises();
+			await store.seed('t1');
 
 			store.sync([]);
 			expect(store.lastMessages.t1).toBeUndefined();
@@ -303,7 +720,7 @@ describe('chat-previews store', () => {
 			store.sync([
 				't1',
 			]);
-			await flushPromises();
+			await store.seed('t1');
 
 			expect(fetchMessageHistoryMock).toHaveBeenCalledTimes(2);
 			expect(store.lastMessages.t1.id).toBe('m1');
@@ -320,55 +737,13 @@ describe('chat-previews store', () => {
 			store.sync([
 				't1',
 			]);
+			void store.seed('t1');
 
 			store.sync([]);
 			resolveSeed(historyPage(buildMessage()));
 			await flushPromises();
 
 			expect(store.lastMessages.t1).toBeUndefined();
-		});
-	});
-
-	describe('reseeding', () => {
-		it('reads every listed chat again', async () => {
-			fetchMessageHistoryMock.mockResolvedValueOnce(
-				historyPage(buildMessage()),
-			);
-			const store = useChatPreviewsStore();
-			store.sync([
-				't1',
-			]);
-			await flushPromises();
-			fetchMessageHistoryMock.mockResolvedValueOnce(
-				historyPage(
-					buildMessage({
-						id: 'm2',
-						body: 'written while the socket was down',
-						createdAt: '2000',
-					}),
-				),
-			);
-
-			store.reseed();
-			await flushPromises();
-
-			expect(fetchMessageHistoryMock).toHaveBeenCalledTimes(2);
-			expect(store.lastMessages.t1?.id).toBe('m2');
-		});
-
-		it('does not read a chat the list no longer shows', async () => {
-			fetchMessageHistoryMock.mockResolvedValue(historyPage(buildMessage()));
-			const store = useChatPreviewsStore();
-			store.sync([
-				't1',
-			]);
-			await flushPromises();
-			store.sync([]);
-
-			store.reseed();
-			await flushPromises();
-
-			expect(fetchMessageHistoryMock).toHaveBeenCalledOnce();
 		});
 	});
 });

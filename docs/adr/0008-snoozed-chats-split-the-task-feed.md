@@ -5,7 +5,8 @@ Date: 2026-10-22
 ## Status
 
 Accepted. To be implemented in [WS-57](https://webitel.atlassian.net/browse/WS-57);
-the backend side is [WS-56](https://webitel.atlassian.net/browse/WS-56).
+the backend side is [WS-56](https://webitel.atlassian.net/browse/WS-56). Paging
+superseded by [ADR-0012](0012-chat-list-pages-from-threads-scoped-by-tasks.md).
 
 ## Context
 
