@@ -69,6 +69,21 @@ describe('useSidebarSelectionStore', () => {
 		expect(store.contactId).toBeNull();
 	});
 
+	it('selects a phone number and opens the sidebar', () => {
+		const store = useSidebarSelectionStore();
+		const sidebarStore = useWorkspaceSidebarStore();
+
+		store.selectPhoneNumber('380501112233');
+
+		expect(store.selection).toEqual({
+			type: SidebarSelectionType.PhoneNumber,
+			phoneNumber: '380501112233',
+		});
+		expect(store.contactId).toBeNull();
+		expect(store.isUnknownSelected).toBe(false);
+		expect(sidebarStore.isOpen).toBe(true);
+	});
+
 	describe('selectContactOrUnknown', () => {
 		it('selects the contact by a string id', () => {
 			const store = useSidebarSelectionStore();

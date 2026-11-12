@@ -118,6 +118,18 @@ callee answers or the agent closes it. Ringing and No answer are states of an
 attempt. Several can run at once. It is not an **Active call**: when the callee
 answers, the attempt ends and the call carries on in the active-call window.
 
+**Offline member** — a member of an offline queue: a client the queue does not
+dial by itself but leaves for an agent to call, on one of the member's
+communications. One row of the Calls section's Offline tab; the tab's "Offline
+calls" label is UI wording, the rows are members, not calls. Calling one is a
+request to the queue for that member and communication, not an **Outbound
+attempt**: the call stays the queue's, and the member leaves the offline queue.
+Unrelated to `offline` the **Agent status**.
+
+A member carries no contact. Its right panel searches contacts by the member's
+first number the way a call's are identified, but only shows them: with no
+call yet there is nothing to link one to, so the panel has no SELECT.
+
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
