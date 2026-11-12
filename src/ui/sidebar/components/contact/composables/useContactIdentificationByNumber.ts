@@ -5,11 +5,13 @@ import { findContactIdsByNumber } from '../../../../../features/calls/modules/co
 import { useSystemSettingsStore } from '../../../../../features/system-settings/store/systemSettings';
 
 /**
- * The contacts of an offline member, searched by its number as a call's are.
- * Nothing is linked: there is no call yet to link a contact to.
+ * The contacts holding a number, searched as a live call's are, for a table
+ * row that carries the number but no linked contact (an offline member, a
+ * missed call). Nothing is linked: there is no live call to link a contact to.
  * [WS-30](https://webitel.atlassian.net/browse/WS-30)
+ * [WS-33](https://webitel.atlassian.net/browse/WS-33)
  */
-export function useOfflineMemberContactIdentification(
+export function useContactIdentificationByNumber(
 	phoneNumber: MaybeRefOrGetter<string | undefined>,
 ) {
 	const systemSettingsStore = useSystemSettingsStore();

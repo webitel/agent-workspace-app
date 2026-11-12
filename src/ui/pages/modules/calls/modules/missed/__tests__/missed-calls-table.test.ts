@@ -78,13 +78,18 @@ vi.mock('../../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({}),
 }));
 
+import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import MissedCallsTable from '../missed-calls-table.vue';
 
 const stubs = {
 	UsernameTableCell: {
 		name: 'UsernameTableCell',
-		props: [
-			'name',
+		props: {
+			name: String,
+			clickable: Boolean,
+		},
+		emits: [
+			'click',
 		],
 		template: '<div class="username-cell" />',
 	},
@@ -235,6 +240,99 @@ describe('missed-calls-table', () => {
 				});
 
 				expect(nameOf(mountTable())).toBe('380501112233');
+			});
+		});
+
+		describe('opening the contact panel by the name', () => {
+			beforeEach(() => {
+				showColumns('name');
+			});
+
+			const clickName = (wrapper: ReturnType<typeof mountTable>) =>
+				wrapper
+					.findComponent({
+						name: 'UsernameTableCell',
+					})
+					.vm.$emit('click');
+
+			it('makes the name clickable', () => {
+				showCall(call);
+
+				const wrapper = mountTable();
+
+				expect(
+					wrapper
+						.findComponent({
+							name: 'UsernameTableCell',
+						})
+						.props('clickable'),
+				).toBe(true);
+			});
+
+			it('selects the contact linked to the call', () => {
+				showCall({
+					...call,
+					contact: {
+						id: '7',
+						name: 'John Doe',
+					},
+				});
+				const wrapper = mountTable();
+
+				clickName(wrapper);
+
+				const sidebarSelection = useSidebarSelectionStore();
+				expect(sidebarSelection.selectContact).toHaveBeenCalledWith('7');
+				expect(sidebarSelection.selectPhoneNumber).not.toHaveBeenCalled();
+			});
+
+			it('selects the caller number without a linked contact', () => {
+				showCall({
+					...call,
+					contact: undefined,
+				});
+				const wrapper = mountTable();
+
+				clickName(wrapper);
+
+				const sidebarSelection = useSidebarSelectionStore();
+				expect(sidebarSelection.selectPhoneNumber).toHaveBeenCalledWith(
+					'380501112233',
+				);
+				expect(sidebarSelection.selectContact).not.toHaveBeenCalled();
+			});
+
+			it('selects the callee number of an outbound call', () => {
+				showCall({
+					...call,
+					contact: undefined,
+					direction: 'outbound',
+					to: {
+						number: '380509998877',
+					},
+				});
+				const wrapper = mountTable();
+
+				clickName(wrapper);
+
+				expect(
+					useSidebarSelectionStore().selectPhoneNumber,
+				).toHaveBeenCalledWith('380509998877');
+			});
+
+			it('selects no number when the number is hidden', () => {
+				showCall({
+					...call,
+					contact: undefined,
+					hideNumber: true,
+				});
+				const wrapper = mountTable();
+
+				clickName(wrapper);
+
+				expect(
+					useSidebarSelectionStore().selectPhoneNumber,
+				).toHaveBeenCalledWith(undefined);
 			});
 		});
 

@@ -7,7 +7,7 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type EffectScope, effectScope, nextTick, reactive, ref } from 'vue';
 
-import { useOfflineMemberContactIdentification } from '../useOfflineMemberContactIdentification';
+import { useContactIdentificationByNumber } from '../useContactIdentificationByNumber';
 
 vi.mock('@webitel/api-services/api', () => ({
 	ContactsAPI: {
@@ -57,9 +57,7 @@ let scope: EffectScope | undefined;
 function setup(number?: string) {
 	const phoneNumber = ref(number);
 	scope = effectScope();
-	const result = scope.run(() =>
-		useOfflineMemberContactIdentification(phoneNumber),
-	);
+	const result = scope.run(() => useContactIdentificationByNumber(phoneNumber));
 	if (!result) throw new Error('scope did not run');
 	return {
 		...result,
@@ -74,7 +72,7 @@ afterEach(() => {
 	for (const name of Object.keys(settings)) delete settings[name];
 });
 
-describe('useOfflineMemberContactIdentification', () => {
+describe('useContactIdentificationByNumber', () => {
 	it('searches nothing without a number', () => {
 		const { contactIds, isLoading } = setup(undefined);
 
