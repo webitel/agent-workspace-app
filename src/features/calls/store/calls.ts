@@ -21,6 +21,7 @@ import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
 import { isRingingConsultCall } from '../scripts/isRingingConsultCall';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
+import { toAgentNumericId } from '../scripts/toAgentNumericId';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
 
 /**
@@ -357,19 +358,30 @@ export const useCallsStore = defineStore('calls', () => {
 		agentId: string,
 	): Promise<boolean> {
 		const call = getCallById(callId);
-		const agentNumericId = Number(agentId);
-		if (!canTransferCall(call) || !Number.isInteger(agentNumericId)) {
-			return false;
-		}
+		const agentNumericId = toAgentNumericId(agentId);
+		if (!canTransferCall(call) || agentNumericId === null) return false;
 
+		const isCallOnHold = await holdCallBeforeConsult(call);
+		if (!isCallOnHold) return false;
+
+		return placeConsultToAgent(call, agentNumericId);
+	}
+
+	async function holdCallBeforeConsult(call: Call): Promise<boolean> {
 		try {
 			if (!call.isHold) await call.hold();
+			return true;
 		} catch (err) {
 			console.warn('[calls] holding the call before a consult failed', err);
 			notifyCallError('holdToggleFailed');
 			return false;
 		}
+	}
 
+	async function placeConsultToAgent(
+		call: Call,
+		agentNumericId: number,
+	): Promise<boolean> {
 		try {
 			await call.processTransferAgent(agentNumericId, {
 				disableStun: !getStunEnabled(),
