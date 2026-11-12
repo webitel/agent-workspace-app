@@ -1,14 +1,14 @@
 <template>
-	<div class="contact-switcher">
+	<div class="found-contacts-navigator">
 		<!-- every item has its own grid column, so the label stays centered when an arrow is hidden -->
 		<wt-icon-btn
 			v-if="hasPrev"
-			class="contact-switcher__prev"
+			class="found-contacts-navigator__prev"
 			icon="arrow-left"
 			:size="ComponentSize.SM"
 			@click="emit('prev')"
 		/>
-		<span class="contact-switcher__label typo-body-2-bold">
+		<span class="found-contacts-navigator__label typo-body-2-bold">
 			{{
 				t('ui.sidebar.contact.contactPosition', {
 					current: props.position,
@@ -18,7 +18,7 @@
 		</span>
 		<wt-icon-btn
 			v-if="hasNext"
-			class="contact-switcher__next"
+			class="found-contacts-navigator__next"
 			icon="arrow-right"
 			:size="ComponentSize.SM"
 			@click="emit('next')"
@@ -49,7 +49,7 @@ const hasNext = computed(() => props.position < props.count);
 </script>
 
 <style scoped>
-.contact-switcher {
+.found-contacts-navigator {
 	display: grid;
 	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
@@ -57,17 +57,17 @@ const hasNext = computed(() => props.position < props.count);
 	padding-block: var(--spacing-2xs);
 }
 
-.contact-switcher__prev {
+.found-contacts-navigator__prev {
 	grid-column: 1;
 	justify-self: start;
 	padding: var(--spacing-xs);
 }
 
-.contact-switcher__label {
+.found-contacts-navigator__label {
 	grid-column: 2;
 }
 
-.contact-switcher__next {
+.found-contacts-navigator__next {
 	grid-column: 3;
 	justify-self: end;
 	padding: var(--spacing-xs);

@@ -30,7 +30,7 @@ import { WtButton } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { type Call, CallActions } from 'webitel-sdk';
-import { useCallContactIdentification } from '../../../../features/calls/modules/contact/composables/useCallContactIdentification';
+import { useCallContact } from '../../../../features/calls/modules/contact/composables/useCallContact';
 import CallInfoPanel from '../../../../features/calls/modules/info/components/call-info-panel/call-info-panel.vue';
 import { toCallInfoPanelContent } from '../../../../features/calls/modules/info/scripts/toCallInfoPanelContent';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';
@@ -46,7 +46,7 @@ const { t } = useI18n();
 const content = computed(() => toCallInfoPanelContent(props.call));
 
 const { contactIds, isLoading, isContactHidden, selectContact } =
-	useCallContactIdentification(() => props.call);
+	useCallContact(() => props.call);
 
 // contacts are created and linked only while the call is live, as in
 // cc-workspaces: not while ringing, nor after hangup

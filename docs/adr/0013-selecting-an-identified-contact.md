@@ -34,8 +34,12 @@ loading on SELECT.
 **The contact block shows, the call links.** `contact-identification` holds
 which of the found contacts is on screen and emits `select` with its id. It
 knows nothing of the call; the panel passes `canSelect`. Linking is
-`selectContact` in `useCallContactIdentification`, next to the identification it
-changes. A chat's panel reuses the block with its own linking.
+`selectContact` in `useCallContact`, the one owner of the call's contacts: the
+identification and every action that changes it, sharing one state and one
+guard against stale answers. Coming actions (the panel's search, linking a
+created contact) join it the same way; their request logic goes to `scripts/`,
+as `identifyCallContact` does. A chat's panel reuses the block with its own
+linking.
 
 **SELECT and CREATE only while the call is `active` or on `hold`.** Not while it
 rings (AC_07.04.20), and not in post-processing, as in `cc-workspaces`. Both
@@ -70,6 +74,9 @@ hidden while the contacts are being identified.
   guard already prevents a second request.
 - **CREATE shown from `answeredAt`, as it was.** `answeredAt` stays set after
   hangup, so CREATE would stay in post-processing while SELECT is gone.
+- **A composable per action** (identification, linking). They all write the
+  same result and share one stale-answer guard, so splitting them would pass
+  that state between composables.
 
 ## Consequences
 

@@ -18,7 +18,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 import ContactCard from '../contact-card.vue';
 import ContactIdentification from '../contact-identification.vue';
 import ContactPanelEmpty from '../contact-panel-empty.vue';
-import ContactSwitcher from '../contact-switcher.vue';
+import FoundContactsNavigator from '../found-contacts-navigator.vue';
 
 const WtLoaderStub = {
 	name: 'WtLoader',
@@ -40,7 +40,7 @@ const mountBlock = (props: BlockProps, slots: Record<string, string> = {}) =>
 				WtLoader: WtLoaderStub,
 				ContactCard: true,
 				ContactPanelEmpty: true,
-				ContactSwitcher: true,
+				FoundContactsNavigator: true,
 			},
 		},
 	});
@@ -49,7 +49,7 @@ const findCard = (wrapper: ReturnType<typeof mountBlock>) =>
 	wrapper.findComponent(ContactCard);
 
 const findSwitcher = (wrapper: ReturnType<typeof mountBlock>) =>
-	wrapper.findComponent(ContactSwitcher);
+	wrapper.findComponent(FoundContactsNavigator);
 
 const findSelectButton = (wrapper: ReturnType<typeof mountBlock>) =>
 	wrapper.findComponent({

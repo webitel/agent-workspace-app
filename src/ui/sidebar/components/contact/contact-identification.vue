@@ -15,7 +15,7 @@
 			v-else
 			class="contact-identification__multiple"
 		>
-			<contact-switcher
+			<found-contacts-navigator
 				:position="shownIndex + 1"
 				:count="contactIds.length"
 				@prev="showPrev"
@@ -47,8 +47,8 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ContactCard from './contact-card.vue';
 import ContactPanelEmpty from './contact-panel-empty.vue';
-import ContactSwitcher from './contact-switcher.vue';
 import { ContactIdentificationMode } from './enums/ContactIdentificationMode.enum';
+import FoundContactsNavigator from './found-contacts-navigator.vue';
 
 const props = defineProps<{
 	contactIds: string[];

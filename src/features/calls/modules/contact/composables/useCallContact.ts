@@ -7,7 +7,7 @@ import { useCallsStore } from '../../../store/calls';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
 
-export function useCallContactIdentification(call: MaybeRefOrGetter<Call>) {
+export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	const callsStore = useCallsStore();
 	const systemSettingsStore = useSystemSettingsStore();
 

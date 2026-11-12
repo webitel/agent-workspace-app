@@ -36,9 +36,9 @@ let identifiedCall: (() => Call) | undefined;
 
 // the identification itself is covered by the composable's own tests
 vi.mock(
-	'../../../../../features/calls/modules/contact/composables/useCallContactIdentification',
+	'../../../../../features/calls/modules/contact/composables/useCallContact',
 	() => ({
-		useCallContactIdentification: (call: () => Call) => {
+		useCallContact: (call: () => Call) => {
 			identifiedCall = call;
 			return identification;
 		},

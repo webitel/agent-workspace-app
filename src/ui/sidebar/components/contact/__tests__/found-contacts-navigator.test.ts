@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import { mockT } from '../../../../../../test/setup';
-import ContactSwitcher from '../contact-switcher.vue';
+import FoundContactsNavigator from '../found-contacts-navigator.vue';
 
 const WtIconBtnStub = {
 	name: 'WtIconBtn',
@@ -16,7 +16,7 @@ const WtIconBtnStub = {
 };
 
 const mountSwitcher = (props: { position: number; count: number }) =>
-	mount(ContactSwitcher, {
+	mount(FoundContactsNavigator, {
 		props,
 		global: {
 			stubs: {
@@ -26,19 +26,19 @@ const mountSwitcher = (props: { position: number; count: number }) =>
 	});
 
 const findPrev = (wrapper: ReturnType<typeof mountSwitcher>) =>
-	wrapper.find('.contact-switcher__prev');
+	wrapper.find('.found-contacts-navigator__prev');
 
 const findNext = (wrapper: ReturnType<typeof mountSwitcher>) =>
-	wrapper.find('.contact-switcher__next');
+	wrapper.find('.found-contacts-navigator__next');
 
-describe('contact-switcher', () => {
+describe('found-contacts-navigator', () => {
 	it('shows the position of the shown contact among the found ones', () => {
 		const wrapper = mountSwitcher({
 			position: 2,
 			count: 3,
 		});
 
-		expect(wrapper.find('.contact-switcher__label').text()).toBe(
+		expect(wrapper.find('.found-contacts-navigator__label').text()).toBe(
 			'ui.sidebar.contact.contactPosition',
 		);
 		expect(mockT).toHaveBeenCalledWith('ui.sidebar.contact.contactPosition', {

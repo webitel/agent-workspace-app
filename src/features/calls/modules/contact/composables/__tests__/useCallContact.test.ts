@@ -14,7 +14,7 @@ import {
 } from 'vue';
 import { type Call, CallDirection } from 'webitel-sdk';
 
-import { useCallContactIdentification } from '../useCallContactIdentification';
+import { useCallContact } from '../useCallContact';
 
 vi.mock('@webitel/api-services/api', () => ({
 	ContactsAPI: {
@@ -87,9 +87,8 @@ let scope: EffectScope | undefined;
 function setup(call: Call) {
 	const callRef = shallowRef(call);
 	scope = effectScope();
-	const result = scope.run(() => useCallContactIdentification(callRef));
-	if (!result)
-		throw new Error('useCallContactIdentification scope did not run');
+	const result = scope.run(() => useCallContact(callRef));
+	if (!result) throw new Error('useCallContact scope did not run');
 	return {
 		...result,
 		callRef,
@@ -104,7 +103,7 @@ afterEach(() => {
 	for (const name of Object.keys(settings)) delete settings[name];
 });
 
-describe('useCallContactIdentification', () => {
+describe('useCallContact', () => {
 	it('shows the linked contact at once, without a request or a loader', () => {
 		const { contactIds, isLoading } = setup(
 			buildCall({
