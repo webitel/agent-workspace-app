@@ -88,12 +88,19 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
-// the stubbed phone cell still imports the calls store, which pulls in
-// the socket client and the i18n singleton
-vi.mock('../../../../../../../features/calls/store/calls', () => ({
-	useCallsStore: () => ({}),
+vi.mock('../api/interceptSelfAssignedCall', () => ({
+	interceptSelfAssignedCall: vi.fn(),
 }));
 
+const holdOtherLiveCalls = vi.fn();
+
+vi.mock('../../../../../../../features/calls/store/calls', () => ({
+	useCallsStore: () => ({
+		holdOtherLiveCalls,
+	}),
+}));
+
+import { interceptSelfAssignedCall } from '../api/interceptSelfAssignedCall';
 import SelfAssignedCallsTable from '../self-assigned-calls-table.vue';
 
 const stubs = {
@@ -108,10 +115,14 @@ const stubs = {
 		],
 		template: '<div class="username-cell" />',
 	},
-	PhoneCallTableCell: {
-		name: 'PhoneCallTableCell',
+	SelfAssignedCallPhoneCell: {
+		name: 'SelfAssignedCallPhoneCell',
 		props: [
 			'phoneNumber',
+			'loading',
+		],
+		emits: [
+			'answer',
 		],
 		template: '<div class="phone-cell" />',
 	},
@@ -170,6 +181,11 @@ const onLoadingOf = (wrapper: ReturnType<typeof mountTable>) =>
 const nameCellOf = (wrapper: ReturnType<typeof mountTable>) =>
 	wrapper.findComponent({
 		name: 'UsernameTableCell',
+	});
+
+const phoneCellOf = (wrapper: ReturnType<typeof mountTable>) =>
+	wrapper.findComponent({
+		name: 'SelfAssignedCallPhoneCell',
 	});
 
 describe('self-assigned-calls-table', () => {
@@ -333,13 +349,89 @@ describe('self-assigned-calls-table', () => {
 
 			const wrapper = mountTable();
 
-			expect(
-				wrapper
-					.findComponent({
-						name: 'PhoneCallTableCell',
-					})
-					.props('phoneNumber'),
-			).toBe('380501112233');
+			expect(phoneCellOf(wrapper).props('phoneNumber')).toBe('380501112233');
+		});
+	});
+
+	describe('answering the call', () => {
+		const interceptMock = vi.mocked(interceptSelfAssignedCall);
+
+		beforeEach(() => {
+			showColumns('phone');
+			showCall(call);
+			interceptMock.mockReset();
+			interceptMock.mockResolvedValue(undefined);
+			holdOtherLiveCalls.mockReset();
+			holdOtherLiveCalls.mockResolvedValue(undefined);
+		});
+
+		it('intercepts the row attempt', async () => {
+			const wrapper = mountTable();
+
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+
+			expect(interceptMock).toHaveBeenCalledWith(1);
+		});
+
+		it('holds the other live calls before intercepting', async () => {
+			const wrapper = mountTable();
+
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+
+			expect(holdOtherLiveCalls).toHaveBeenCalledTimes(1);
+			expect(holdOtherLiveCalls.mock.invocationCallOrder[0]).toBeLessThan(
+				interceptMock.mock.invocationCallOrder[0],
+			);
+		});
+
+		it('shows the loader while the request runs and ignores a second click', async () => {
+			let finishRequest: () => void = () => {};
+			interceptMock.mockImplementation(
+				() =>
+					new Promise<void>((resolve) => {
+						finishRequest = resolve;
+					}),
+			);
+			const wrapper = mountTable();
+
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+
+			expect(phoneCellOf(wrapper).props('loading')).toBe(true);
+			expect(interceptMock).toHaveBeenCalledTimes(1);
+
+			finishRequest();
+			await flushPromises();
+
+			expect(phoneCellOf(wrapper).props('loading')).toBe(false);
+		});
+
+		it('does not reload the list once intercepted', async () => {
+			const wrapper = mountTable();
+
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+
+			expect(mockStore.loadDataList).not.toHaveBeenCalled();
+		});
+
+		it('only logs a refused intercept and drops the loader', async () => {
+			const consoleError = vi
+				.spyOn(console, 'error')
+				.mockImplementation(() => {});
+			interceptMock.mockRejectedValue(new Error('refused'));
+			const wrapper = mountTable();
+
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+
+			expect(consoleError).toHaveBeenCalled();
+			expect(phoneCellOf(wrapper).props('loading')).toBe(false);
+			consoleError.mockRestore();
 		});
 	});
 
@@ -348,17 +440,18 @@ describe('self-assigned-calls-table', () => {
 			showColumns('name');
 		});
 
-		it('selects the call contact', async () => {
+		it('selects the contact linked to the call', async () => {
 			showCall(call);
 			const wrapper = mountTable();
 
 			await nameCellOf(wrapper).vm.$emit('click');
 			const selectionStore = useSidebarSelectionStore();
 
-			expect(selectionStore.selectContactOrUnknown).toHaveBeenCalledWith(42);
+			expect(selectionStore.selectContact).toHaveBeenCalledWith('42');
+			expect(selectionStore.selectPhoneNumber).not.toHaveBeenCalled();
 		});
 
-		it('selects an unknown contact when the call has no contact', async () => {
+		it('selects the call number without a linked contact', async () => {
 			showCall({
 				...call,
 				contact: undefined,
@@ -368,7 +461,23 @@ describe('self-assigned-calls-table', () => {
 			await nameCellOf(wrapper).vm.$emit('click');
 			const selectionStore = useSidebarSelectionStore();
 
-			expect(selectionStore.selectContactOrUnknown).toHaveBeenCalledWith(
+			expect(selectionStore.selectPhoneNumber).toHaveBeenCalledWith(
+				'380501112233',
+			);
+			expect(selectionStore.selectContact).not.toHaveBeenCalled();
+		});
+
+		it('selects no number when the call has none', async () => {
+			showCall({
+				...call,
+				contact: undefined,
+				displayNumber: '',
+			});
+			const wrapper = mountTable();
+
+			await nameCellOf(wrapper).vm.$emit('click');
+
+			expect(useSidebarSelectionStore().selectPhoneNumber).toHaveBeenCalledWith(
 				undefined,
 			);
 		});
