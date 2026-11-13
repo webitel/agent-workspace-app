@@ -1,4 +1,4 @@
-# 15. The transfer popup's agents list is a ui-datalist table store, searched on the debounced event
+# 16. The transfer popup's agents list is a ui-datalist table store, searched on the debounced event
 
 Date: 2026-11-10
 

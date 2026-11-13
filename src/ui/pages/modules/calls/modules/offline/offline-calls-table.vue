@@ -42,6 +42,7 @@
 import { WtTable } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useCallsStore } from '../../../../../../features/calls/store/calls';
 import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
 import { callOfflineMember } from './api/callOfflineMember';
@@ -78,6 +79,8 @@ const openMember = ({ communications }: OfflineMember) => {
 	selectPhoneNumber(communications[0]?.destination);
 };
 
+const { holdOtherLiveCalls } = useCallsStore();
+
 const callingMemberId = ref<number | null>(null);
 
 /**
@@ -85,6 +88,10 @@ const callingMemberId = ref<number | null>(null);
  * its first page once the queue has taken the call (the member has left the
  * offline queue), and a refused request left without a notification or a reload
  * [WS-30](https://webitel.atlassian.net/browse/WS-30)
+ *
+ * The SDK answers the queue's call by itself, past `callsStore.answer`, so the
+ * agent's other live calls are put on hold first (ADR-0015)
+ * [WS-39](https://webitel.atlassian.net/browse/WS-39)
  */
 const callMember = async (
 	member: OfflineMember,
@@ -94,6 +101,7 @@ const callMember = async (
 	callingMemberId.value = member.id;
 
 	try {
+		await holdOtherLiveCalls();
 		await callOfflineMember(member.id, communication.id);
 		updatePage(1);
 		await loadDataList();
