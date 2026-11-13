@@ -50,6 +50,9 @@ and should not be carried over wholesale.
 - [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
   list is a ui-datalist table store, one table per tab under one search field
   that applies on the debounced event, and the known race it leaves open.
+- [ADR-0014](docs/adr/0014-consult-call-is-derived.md) — a Consult call is
+  derived from the call list by its parent, shown as a ringing card until
+  answered, and why it is not stored.
 
 ## Language
 
@@ -132,7 +135,9 @@ the two or cancels the consult and goes back to the original call.
 
 **Consult call** — the call to the destination of a Consult transfer, placed
 while the original call is on hold. It is a call of its own, not the original;
-once the destination answers it is an Active call like any other.
+once the destination answers it is an Active call like any other. Until then it
+shows as a ringing card in the call dock, and it is recognised by the original
+call being its parent, not remembered (ADR-0014).
 
 **Transfer popup** — the popup an agent uses to pick where an Active call goes,
 opened from the Call window's top bar or from the call dock. It has a number

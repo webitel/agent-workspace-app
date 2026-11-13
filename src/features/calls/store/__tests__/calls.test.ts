@@ -883,6 +883,50 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('ringingConsultCalls', () => {
+		it('lists an unanswered outbound call placed from a listed call', () => {
+			calls.value = [
+				buildCall({
+					id: 'original',
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'consult',
+					parentId: 'original',
+					direction: 'outbound',
+					answeredAt: 0,
+					hangupAt: 0,
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(store.ringingConsultCalls.map((call) => call.id)).toEqual([
+				'consult',
+			]);
+		});
+
+		it('drops the consult call once it is answered', () => {
+			calls.value = [
+				buildCall({
+					id: 'original',
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'consult',
+					parentId: 'original',
+					direction: 'outbound',
+					answeredAt: 2,
+					hangupAt: 0,
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(store.ringingConsultCalls).toEqual([]);
+		});
+	});
+
 	describe('windowedCalls', () => {
 		it('lists answered calls, ended ones included', () => {
 			calls.value = [
@@ -1134,6 +1178,113 @@ describe('useCallsStore', () => {
 			const store = useCallsStore();
 
 			expect(await store.blindTransfer('missing', '1001')).toBe(false);
+		});
+	});
+
+	describe('consultTransferToAgent', () => {
+		const buildConsultableCall = (overrides: Partial<Call> = {}): Call =>
+			buildCall({
+				answeredAt: 1_700_000_000_000,
+				hangupAt: 0,
+				allowTransfer: true,
+				isHold: false,
+				hold: vi.fn().mockResolvedValue({}),
+				processTransferAgent: vi.fn().mockResolvedValue({}),
+				...overrides,
+			} as Partial<Call>);
+
+		it('holds the call, then consults the agent and reports success', async () => {
+			const call = buildConsultableCall();
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('call-1', '42')).toBe(true);
+			expect(call.hold).toHaveBeenCalledTimes(1);
+			expect(call.processTransferAgent).toHaveBeenCalledWith(42, {
+				disableStun: false,
+			});
+			expect(vi.mocked(call.hold).mock.invocationCallOrder[0]).toBeLessThan(
+				vi.mocked(call.processTransferAgent).mock.invocationCallOrder[0],
+			);
+			expect(mockEmit).not.toHaveBeenCalled();
+		});
+
+		it('does not hold a call that is already on hold', async () => {
+			const call = buildConsultableCall({
+				isHold: true,
+			});
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('call-1', '42')).toBe(true);
+			expect(call.hold).not.toHaveBeenCalled();
+		});
+
+		it('does not place the consult when the call cannot be held', async () => {
+			const call = buildConsultableCall({
+				hold: vi.fn().mockRejectedValue(new Error('boom')),
+			} as Partial<Call>);
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('call-1', '42')).toBe(false);
+			expect(call.processTransferAgent).not.toHaveBeenCalled();
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.holdToggleFailed',
+			});
+		});
+
+		it('notifies and reports failure when the backend refuses the consult', async () => {
+			calls.value = [
+				buildConsultableCall({
+					processTransferAgent: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('call-1', '42')).toBe(false);
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.transferFailed',
+			});
+		});
+
+		it('does nothing for a call that cannot be transferred', async () => {
+			const call = buildConsultableCall({
+				allowTransfer: false,
+			});
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('call-1', '42')).toBe(false);
+			expect(call.hold).not.toHaveBeenCalled();
+			expect(call.processTransferAgent).not.toHaveBeenCalled();
+		});
+
+		it('does nothing for an agent id that is not a number', async () => {
+			const call = buildConsultableCall();
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('call-1', 'abc')).toBe(false);
+			expect(call.hold).not.toHaveBeenCalled();
+		});
+
+		it('does nothing for an unknown call', async () => {
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToAgent('missing', '42')).toBe(false);
 		});
 	});
 

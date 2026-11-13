@@ -190,7 +190,7 @@ function onTabChange(tab: { value: TransferTab }): void {
 /**
  * @author Oleksandr Palonnyi
  * only a blind transfer to a typed number is executed so far; the consult
- * and the tab rows are later stories and still just emit the request. On
+ * to a typed number is a later story and still just emits the request. On
  * success the popup is left open on purpose: it closes when the call leaves
  * the list, and on failure it keeps the typed number for another try
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
@@ -220,8 +220,33 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 	}
 }
 
-function requestTransferToRow(mode: TransferMode): void {
+/**
+ * @author Oleksandr Palonnyi
+ * only a consult to an Agents row is executed so far, the other tabs are later
+ * stories and still just emit the request. Unlike a blind transfer the original
+ * call stays in the list, so the popup is closed here on success instead of
+ * waiting for the call to leave
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+async function requestTransferToRow(mode: TransferMode): Promise<void> {
 	if (selectedRowId.value === null) return;
+
+	if (mode === TransferMode.Consult && activeTab.value === TransferTab.Agents) {
+		const { transferCallId } = callTransferPopupStore;
+		if (isSubmitting.value || transferCallId === null) return;
+
+		isSubmitting.value = true;
+		try {
+			const isConsultPlaced = await callsStore.consultTransferToAgent(
+				transferCallId,
+				selectedRowId.value,
+			);
+			if (isConsultPlaced) callTransferPopupStore.close();
+		} finally {
+			isSubmitting.value = false;
+		}
+		return;
+	}
 
 	emit('transfer', {
 		mode,
