@@ -883,6 +883,50 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('ringingConsultCalls', () => {
+		it('lists an unanswered outbound call placed from a listed call', () => {
+			calls.value = [
+				buildCall({
+					id: 'original',
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'consult',
+					parentId: 'original',
+					direction: 'outbound',
+					answeredAt: 0,
+					hangupAt: 0,
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(store.ringingConsultCalls.map((call) => call.id)).toEqual([
+				'consult',
+			]);
+		});
+
+		it('drops the consult call once it is answered', () => {
+			calls.value = [
+				buildCall({
+					id: 'original',
+					answeredAt: 1,
+					hangupAt: 0,
+				} as Partial<Call>),
+				buildCall({
+					id: 'consult',
+					parentId: 'original',
+					direction: 'outbound',
+					answeredAt: 2,
+					hangupAt: 0,
+				} as Partial<Call>),
+			];
+			const store = useCallsStore();
+
+			expect(store.ringingConsultCalls).toEqual([]);
+		});
+	});
+
 	describe('windowedCalls', () => {
 		it('lists answered calls, ended ones included', () => {
 			calls.value = [

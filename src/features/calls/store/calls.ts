@@ -18,8 +18,10 @@ import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
+import { isRingingConsultCall } from '../scripts/isRingingConsultCall';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
+import { toAgentNumericId } from '../scripts/toAgentNumericId';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
 
 /**
@@ -57,6 +59,10 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const ringingConsultCalls = computed(() =>
+		callList.value.filter((call) => isRingingConsultCall(call, callList.value)),
+	);
 
 	// Active calls plus the ended ones still in post-processing (WS-91).
 	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
@@ -352,19 +358,30 @@ export const useCallsStore = defineStore('calls', () => {
 		agentId: string,
 	): Promise<boolean> {
 		const call = getCallById(callId);
-		const agentNumericId = Number(agentId);
-		if (!canTransferCall(call) || !Number.isInteger(agentNumericId)) {
-			return false;
-		}
+		const agentNumericId = toAgentNumericId(agentId);
+		if (!canTransferCall(call) || agentNumericId === null) return false;
 
+		const isCallOnHold = await holdCallBeforeConsult(call);
+		if (!isCallOnHold) return false;
+
+		return placeConsultToAgent(call, agentNumericId);
+	}
+
+	async function holdCallBeforeConsult(call: Call): Promise<boolean> {
 		try {
 			if (!call.isHold) await call.hold();
+			return true;
 		} catch (err) {
 			console.warn('[calls] holding the call before a consult failed', err);
 			notifyCallError('holdToggleFailed');
 			return false;
 		}
+	}
 
+	async function placeConsultToAgent(
+		call: Call,
+		agentNumericId: number,
+	): Promise<boolean> {
 		try {
 			await call.processTransferAgent(agentNumericId, {
 				disableStun: !getStunEnabled(),
@@ -407,8 +424,7 @@ export const useCallsStore = defineStore('calls', () => {
 	 * source page says the client is put on hold, and the SDK's
 	 * `processTransferQueue` only sends `call_to_queue` without holding.
 	 * cc-workspaces did not hold here, only for an agent, which looks like an
-	 * omission. The hold step is copied from `consultTransferToAgent` and not
-	 * extracted, because that branch is still in review
+	 * omission. The hold step is shared with `consultTransferToAgent`
 	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
 	 */
 	async function consultTransferToQueue(
@@ -421,13 +437,8 @@ export const useCallsStore = defineStore('calls', () => {
 			return false;
 		}
 
-		try {
-			if (!call.isHold) await call.hold();
-		} catch (err) {
-			console.warn('[calls] holding the call before a consult failed', err);
-			notifyCallError('holdToggleFailed');
-			return false;
-		}
+		const isCallOnHold = await holdCallBeforeConsult(call);
+		if (!isCallOnHold) return false;
 
 		try {
 			await call.processTransferQueue(queueNumericId, {
@@ -559,6 +570,7 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		ringingConsultCalls,
 		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,

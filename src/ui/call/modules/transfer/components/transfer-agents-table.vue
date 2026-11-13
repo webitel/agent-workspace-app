@@ -120,7 +120,7 @@ function getStatusLabel(status?: TransferAgentStatus): string {
 /**
  * @author Oleksandr Palonnyi
  * wt-table paints its active row itself (ui-sdk >= 26.12.26), so the selected
- * row needs no token or class of the table's own, see ADR-0014
+ * row needs no token or class of the table's own, see ADR-0015
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 const selectedRow = computed(

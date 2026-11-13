@@ -1,4 +1,4 @@
-# 14. The transfer popup's queues list pages through a composable, and its selected row is painted by wt-table
+# 15. The transfer popup's queues list pages through a composable, and its selected row is painted by wt-table
 
 Date: 2026-11-11
 
