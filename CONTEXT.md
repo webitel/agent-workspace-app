@@ -55,6 +55,11 @@ and should not be carried over wholesale.
   an offline member is called through the queue on one of its communications,
   not dialled by number, and the Offline tab's panel searches the contact by
   the member's number and only shows it.
+- [ADR-0015](docs/adr/0015-self-assigned-calls-are-intercepted.md) — a
+  self-assigned call is intercepted rather than dialled, answered by the
+  platform's auto-answer with the other calls held first (an offline member's
+  too), and its own panel searches the contact by the call's number, without
+  SELECT.
 
 ## Language
 
@@ -134,6 +139,22 @@ A member carries no contact. Its right panel searches contacts by the member's
 first number the way a call's are identified, but only shows them: with no
 call yet there is nothing to link one to, so the panel has no SELECT
 (ADR-0014).
+
+**Self-assigned call** — a call waiting in a queue with manual distribution:
+the queue offers it to no one and leaves any of its agents to take it. One row
+of the Calls section's Self-assigned tab. It is not an **Offer**, which is
+distributed to this agent, nor an **Outbound attempt**: the call is the
+client's, already waiting. Taking it is an **Intercept**.
+
+**Intercept** — the agent taking a Self-assigned call (the tab's "answer"). The
+queue gives the call to this agent and it leaves the list for everyone else;
+the call then arrives answered by itself, without an Offer. A refused intercept
+(another agent was faster, the call's deadline passed) leaves nothing to answer.
+
+Before the agent intercepts it, its right panel shows the call's **Linked
+contact** if it has one, and otherwise searches contacts by the call's number
+and shows them as a ringing call's are, without SELECT: the call is not the
+agent's yet, so there is nothing to link one to.
 
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
@@ -317,6 +338,15 @@ include covers both suffixes and would silently adopt a `.spec.ts` placed under
 `src/` — nothing fails, it just reads as a misplaced e2e.
 
 `cc-workspaces` names its unit tests `*.spec.js`. Rename when porting from it.
+
+### API modules do not use stores
+
+A module under an `api/` folder only makes the request: whatever it needs from
+a Pinia store (the user's id, holding the other calls) is done by its caller,
+a store or a component, and passed in or done before the call. The socket
+client's composable (`useWebSocketClient`) is not a store and is fine there.
+Raised in review of `callsHistoryApiModule` (US_19.01), where the store now
+adds `ownerId` around `getList`.
 
 ### Commit messages
 

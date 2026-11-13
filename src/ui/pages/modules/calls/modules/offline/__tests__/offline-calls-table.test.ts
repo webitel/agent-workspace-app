@@ -76,6 +76,14 @@ vi.mock('../api/callOfflineMember', () => ({
 	callOfflineMember: vi.fn(),
 }));
 
+const holdOtherLiveCalls = vi.fn();
+
+vi.mock('../../../../../../../features/calls/store/calls', () => ({
+	useCallsStore: () => ({
+		holdOtherLiveCalls,
+	}),
+}));
+
 import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import { callOfflineMember } from '../api/callOfflineMember';
 import OfflineCallsTable from '../offline-calls-table.vue';
@@ -324,6 +332,8 @@ describe('offline-calls-table', () => {
 
 		beforeEach(() => {
 			callMock.mockReset();
+			holdOtherLiveCalls.mockReset();
+			holdOtherLiveCalls.mockResolvedValue(undefined);
 			showColumns('phone');
 			showMember(member);
 		});
@@ -335,6 +345,18 @@ describe('offline-calls-table', () => {
 			await flushPromises();
 
 			expect(callMock).toHaveBeenCalledWith(1, 2);
+		});
+
+		it('holds the other live calls before asking the queue', async () => {
+			const wrapper = mountTable();
+
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[0]);
+			await flushPromises();
+
+			expect(holdOtherLiveCalls).toHaveBeenCalledTimes(1);
+			expect(holdOtherLiveCalls.mock.invocationCallOrder[0]).toBeLessThan(
+				callMock.mock.invocationCallOrder[0],
+			);
 		});
 
 		it('reloads the list from its first page once the queue took the call', async () => {

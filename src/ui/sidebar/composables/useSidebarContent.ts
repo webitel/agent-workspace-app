@@ -10,6 +10,7 @@ import TheContactsPanel from '../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../modules/history/the-history-panel.vue';
 import TheMissedCallPanel from '../modules/missed-call/the-missed-call-panel.vue';
 import TheOfflineMemberPanel from '../modules/offline-member/the-offline-member-panel.vue';
+import TheSelfAssignedCallPanel from '../modules/self-assigned-call/the-self-assigned-call-panel.vue';
 import type { SidebarContent } from '../types/SidebarContent.types';
 
 // What the sidebar shows on a route, or null when there is nothing to show
@@ -32,6 +33,9 @@ const sidebarContentByRouteName: Partial<
 	}),
 	[CallsPageTab.Missed]: () => ({
 		component: TheMissedCallPanel,
+	}),
+	[CallsPageTab.SelfAssigned]: () => ({
+		component: TheSelfAssignedCallPanel,
 	}),
 	[CallsPageTab.Offline]: () => ({
 		component: TheOfflineMemberPanel,
