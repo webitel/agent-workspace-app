@@ -14,7 +14,7 @@ import {
 } from 'vue';
 import { type Call, CallDirection } from 'webitel-sdk';
 
-import { useCallContactIdentification } from '../useCallContactIdentification';
+import { useCallContact } from '../useCallContact';
 
 vi.mock('@webitel/api-services/api', () => ({
 	ContactsAPI: {
@@ -87,9 +87,8 @@ let scope: EffectScope | undefined;
 function setup(call: Call) {
 	const callRef = shallowRef(call);
 	scope = effectScope();
-	const result = scope.run(() => useCallContactIdentification(callRef));
-	if (!result)
-		throw new Error('useCallContactIdentification scope did not run');
+	const result = scope.run(() => useCallContact(callRef));
+	if (!result) throw new Error('useCallContact scope did not run');
 	return {
 		...result,
 		callRef,
@@ -104,7 +103,7 @@ afterEach(() => {
 	for (const name of Object.keys(settings)) delete settings[name];
 });
 
-describe('useCallContactIdentification', () => {
+describe('useCallContact', () => {
 	it('shows the linked contact at once, without a request or a loader', () => {
 		const { contactIds, isLoading } = setup(
 			buildCall({
@@ -266,5 +265,137 @@ describe('useCallContactIdentification', () => {
 
 		expect(isContactHidden.value).toBe(true);
 		expect(getList).not.toHaveBeenCalled();
+	});
+
+	describe('selecting one of several found contacts', () => {
+		it('links the chosen contact and shows only it', async () => {
+			getList.mockResolvedValue(found('15', '16'));
+			const call = buildCall();
+
+			const { contactIds, selectContact } = setup(call);
+			await flushPromises();
+			await selectContact('16');
+
+			expect(call.setContact).toHaveBeenCalledWith(16);
+			expect(contactIds.value).toEqual([
+				'16',
+			]);
+		});
+
+		it('keeps the found contacts when linking fails', async () => {
+			getList.mockResolvedValue(found('15', '16'));
+			const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			const call = buildCall({
+				setContact: vi.fn().mockRejectedValue(new Error('socket error')),
+			});
+
+			const { contactIds, selectContact } = setup(call);
+			await flushPromises();
+			await selectContact('16');
+
+			expect(contactIds.value).toEqual([
+				'15',
+				'16',
+			]);
+			expect(warn).toHaveBeenCalled();
+			warn.mockRestore();
+		});
+
+		it('lets the agent try again after a failure', async () => {
+			getList.mockResolvedValue(found('15', '16'));
+			const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			const call = buildCall({
+				setContact: vi
+					.fn()
+					.mockRejectedValueOnce(new Error('socket error'))
+					.mockResolvedValueOnce({}),
+			});
+
+			const { contactIds, selectContact } = setup(call);
+			await flushPromises();
+			await selectContact('16');
+			await selectContact('16');
+
+			expect(call.setContact).toHaveBeenCalledTimes(2);
+			expect(contactIds.value).toEqual([
+				'16',
+			]);
+			warn.mockRestore();
+		});
+
+		it('ignores another select while linking is in progress', async () => {
+			getList.mockResolvedValue(found('15', '16'));
+			const linking = createDeferred<object>();
+			const call = buildCall({
+				setContact: vi.fn().mockReturnValue(linking.promise),
+			});
+
+			const { contactIds, selectContact } = setup(call);
+			await flushPromises();
+			const first = selectContact('15');
+			const second = selectContact('16');
+			linking.resolve({});
+			await Promise.all([
+				first,
+				second,
+			]);
+
+			expect(call.setContact).toHaveBeenCalledTimes(1);
+			expect(call.setContact).toHaveBeenCalledWith(15);
+			expect(contactIds.value).toEqual([
+				'15',
+			]);
+		});
+
+		it('lets the agent select on another call while a link still hangs', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const firstCall = buildCall({
+				setContact: vi.fn().mockReturnValue(new Promise(() => {})),
+			});
+
+			const { contactIds, selectContact, callRef } = setup(firstCall);
+			await flushPromises();
+			void selectContact('16');
+
+			getList.mockResolvedValueOnce(found('20', '21'));
+			const secondCall = buildCall({
+				id: 'call-2',
+				displayNumber: '+12023417843',
+			});
+			callRef.value = secondCall;
+			await flushPromises();
+			await selectContact('21');
+
+			expect(secondCall.setContact).toHaveBeenCalledWith(21);
+			expect(contactIds.value).toEqual([
+				'21',
+			]);
+		});
+
+		it('does not show the linked contact once another call is opened', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const linking = createDeferred<object>();
+			const call = buildCall({
+				setContact: vi.fn().mockReturnValue(linking.promise),
+			});
+
+			const { contactIds, selectContact, callRef } = setup(call);
+			await flushPromises();
+			const selecting = selectContact('16');
+
+			getList.mockResolvedValueOnce(found('20', '21'));
+			callRef.value = buildCall({
+				id: 'call-2',
+				displayNumber: '+12023417843',
+			});
+			await flushPromises();
+			linking.resolve({});
+			await selecting;
+
+			expect(contactIds.value).toEqual([
+				'20',
+				'21',
+			]);
+		});
 	});
 });

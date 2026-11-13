@@ -1,4 +1,4 @@
-# agent-workspace-app
+﻿# agent-workspace-app
 
 Operator (agent) workspace, built on the current frontend stack: Vue 3 +
 Pinia, Vite, Biome, vitest and Playwright. Served under the `/agent-workspace`
@@ -47,10 +47,23 @@ and should not be carried over wholesale.
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
   its gateway icon alone.
-- [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
+- [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
+  one of several identified contacts while the call is active or on hold, the
+  link shows at once, a failed one is silent, and CREATE follows the same
+  condition as SELECT.
+- [ADR-0014](docs/adr/0014-offline-members-are-called-through-the-queue.md) —
+  an offline member is called through the queue on one of its communications,
+  not dialled by number, and the Offline tab's panel searches the contact by
+  the member's number and only shows it.
+- [ADR-0015](docs/adr/0015-self-assigned-calls-are-intercepted.md) — a
+  self-assigned call is intercepted rather than dialled, answered by the
+  platform's auto-answer with the other calls held first (an offline member's
+  too), and its own panel searches the contact by the call's number, without
+  SELECT.
+- [ADR-0016](docs/adr/0016-transfer-agents-list.md) — the transfer popup's agents
   list is a ui-datalist table store, one table per tab under one search field
   that applies on the debounced event, and the known race it leaves open.
-- [ADR-0014](docs/adr/0014-consult-call-is-derived.md) — a Consult call is
+- [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
   derived from the call list by its parent, shown as a ringing card until
   answered, and why it is not stored.
 
@@ -120,6 +133,35 @@ callee answers or the agent closes it. Ringing and No answer are states of an
 attempt. Several can run at once. It is not an **Active call**: when the callee
 answers, the attempt ends and the call carries on in the active-call window.
 
+**Offline member** — a member of an offline queue: a client the queue does not
+dial by itself but leaves for an agent to call, on one of the member's
+communications. One row of the Calls section's Offline tab; the tab's "Offline
+calls" label is UI wording, the rows are members, not calls. Calling one is a
+request to the queue for that member and communication, not an **Outbound
+attempt**: the call stays the queue's, and the member leaves the offline queue.
+Unrelated to `offline` the **Agent status**.
+
+A member carries no contact. Its right panel searches contacts by the member's
+first number the way a call's are identified, but only shows them: with no
+call yet there is nothing to link one to, so the panel has no SELECT
+(ADR-0014).
+
+**Self-assigned call** — a call waiting in a queue with manual distribution:
+the queue offers it to no one and leaves any of its agents to take it. One row
+of the Calls section's Self-assigned tab. It is not an **Offer**, which is
+distributed to this agent, nor an **Outbound attempt**: the call is the
+client's, already waiting. Taking it is an **Intercept**.
+
+**Intercept** — the agent taking a Self-assigned call (the tab's "answer"). The
+queue gives the call to this agent and it leaves the list for everyone else;
+the call then arrives answered by itself, without an Offer. A refused intercept
+(another agent was faster, the call's deadline passed) leaves nothing to answer.
+
+Before the agent intercepts it, its right panel shows the call's **Linked
+contact** if it has one, and otherwise searches contacts by the call's number
+and shows them as a ringing call's are, without SELECT: the call is not the
+agent's yet, so there is nothing to link one to.
+
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
@@ -137,7 +179,7 @@ the two or cancels the consult and goes back to the original call.
 while the original call is on hold. It is a call of its own, not the original;
 once the destination answers it is an Active call like any other. Until then it
 shows as a ringing card in the call dock, and it is recognised by the original
-call being its parent, not remembered (ADR-0014).
+call being its parent, not remembered (ADR-0017).
 
 **Bridge** — joining two Active calls to each other so the agent drops out and
 the two parties talk (AC_14.02.07). It is not a transfer and not part of a
@@ -309,6 +351,15 @@ or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
 
+**Identified contact** — a contact the search by a call's number found. There
+can be none, one or several; with several, the right panel shows them one at a
+time. Being identified does not link the contact to the call.
+
+**Linked contact** — the contact a call is linked to (`call.setContact`), at
+most one. The only identified contact is linked automatically, one of several
+when the agent selects it. Once there is one, the panel shows it alone instead
+of the identified contacts, whoever linked it (ADR-0013).
+
 ## Conventions
 
 ### Test file naming
@@ -324,6 +375,15 @@ include covers both suffixes and would silently adopt a `.spec.ts` placed under
 `src/` — nothing fails, it just reads as a misplaced e2e.
 
 `cc-workspaces` names its unit tests `*.spec.js`. Rename when porting from it.
+
+### API modules do not use stores
+
+A module under an `api/` folder only makes the request: whatever it needs from
+a Pinia store (the user's id, holding the other calls) is done by its caller,
+a store or a component, and passed in or done before the call. The socket
+client's composable (`useWebSocketClient`) is not a store and is fine there.
+Raised in review of `callsHistoryApiModule` (US_19.01), where the store now
+adds `ownerId` around `getList`.
 
 ### Commit messages
 

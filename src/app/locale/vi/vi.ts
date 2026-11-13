@@ -51,6 +51,7 @@ export default {
 			message: 'Tin nhắn',
 			phoneNumber: 'Số điện thoại',
 			waitTime: 'Thời gian chờ',
+			select: 'Chọn',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Thuộc tính',
 				noAttributes: 'Chưa xác định biến tùy chỉnh',
 				communicationOptions: 'Tùy chọn liên lạc',
+				contactPosition: '{current} trong {count} liên hệ',
 			},
 		},
 		pages: {

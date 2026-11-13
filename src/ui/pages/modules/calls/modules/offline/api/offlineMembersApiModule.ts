@@ -3,7 +3,7 @@ import {
 	snakeToCamel,
 	starToSearch,
 } from '@webitel/api-services/api/transformers';
-import type { ApiModule } from '@webitel/ui-sdk/api/types/ApiModule';
+import type { ApiModule } from '@webitel/api-services/api/types';
 
 import { useWebSocketClient } from '../../../../../../../app/api/socket/composables/useWebSocketClient';
 import type { OfflineMember } from '../types/OfflineMember.types';

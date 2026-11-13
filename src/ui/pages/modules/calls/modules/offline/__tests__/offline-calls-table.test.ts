@@ -27,6 +27,8 @@ const createStore = () => {
 				}),
 		),
 		appendToDataList: vi.fn(),
+		loadDataList: vi.fn(),
+		updatePage: vi.fn(),
 		updateSort: vi.fn(),
 		columnResize: vi.fn(),
 		columnReorder: vi.fn(),
@@ -70,6 +72,20 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
+vi.mock('../api/callOfflineMember', () => ({
+	callOfflineMember: vi.fn(),
+}));
+
+const holdOtherLiveCalls = vi.fn();
+
+vi.mock('../../../../../../../features/calls/store/calls', () => ({
+	useCallsStore: () => ({
+		holdOtherLiveCalls,
+	}),
+}));
+
+import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
+import { callOfflineMember } from '../api/callOfflineMember';
 import OfflineCallsTable from '../offline-calls-table.vue';
 
 const stubs = {
@@ -77,8 +93,23 @@ const stubs = {
 		name: 'UsernameTableCell',
 		props: [
 			'name',
+			'clickable',
+		],
+		emits: [
+			'click',
 		],
 		template: '<div class="username-cell" />',
+	},
+	OfflineMemberPhonesCell: {
+		name: 'OfflineMemberPhonesCell',
+		props: [
+			'communications',
+			'loading',
+		],
+		emits: [
+			'call',
+		],
+		template: '<div class="phones-cell" />',
 	},
 };
 
@@ -138,6 +169,11 @@ const showMember = (row: OfflineMember) => {
 const tableOf = (wrapper: ReturnType<typeof mountTable>) =>
 	wrapper.findComponent({
 		name: 'WtTable',
+	});
+
+const phonesCellOf = (wrapper: ReturnType<typeof mountTable>) =>
+	wrapper.findComponent({
+		name: 'OfflineMemberPhonesCell',
 	});
 
 const onLoadingOf = (wrapper: ReturnType<typeof mountTable>) =>
@@ -239,29 +275,144 @@ describe('offline-calls-table', () => {
 			});
 		});
 
-		describe('phone', () => {
-			beforeEach(() => {
-				showColumns('phone');
+		it('passes the member communications to the phones cell', () => {
+			showColumns('phone');
+			showMember(member);
+
+			const wrapper = mountTable();
+
+			expect(phonesCellOf(wrapper).props('communications')).toEqual(
+				member.communications,
+			);
+			expect(phonesCellOf(wrapper).props('loading')).toBe(false);
+		});
+	});
+
+	describe('opening the member in the panel', () => {
+		beforeEach(() => {
+			showColumns('name');
+		});
+
+		it('selects the member first number on name click', () => {
+			showMember(member);
+			const wrapper = mountTable();
+
+			wrapper
+				.findComponent({
+					name: 'UsernameTableCell',
+				})
+				.vm.$emit('click');
+
+			expect(useSidebarSelectionStore().selectPhoneNumber).toHaveBeenCalledWith(
+				'380501112233',
+			);
+		});
+
+		it('selects no number for a member without communications', () => {
+			showMember({
+				...member,
+				communications: [],
 			});
+			const wrapper = mountTable();
 
-			it('shows the first communication number', () => {
-				showMember(member);
+			wrapper
+				.findComponent({
+					name: 'UsernameTableCell',
+				})
+				.vm.$emit('click');
 
-				const wrapper = mountTable();
+			expect(useSidebarSelectionStore().selectPhoneNumber).toHaveBeenCalledWith(
+				undefined,
+			);
+		});
+	});
 
-				expect(wrapper.find('.cell-phone').text()).toBe('380501112233');
-			});
+	describe('calling the member', () => {
+		const callMock = vi.mocked(callOfflineMember);
 
-			it('stays empty without communications', () => {
-				showMember({
-					...member,
-					communications: [],
-				});
+		beforeEach(() => {
+			callMock.mockReset();
+			holdOtherLiveCalls.mockReset();
+			holdOtherLiveCalls.mockResolvedValue(undefined);
+			showColumns('phone');
+			showMember(member);
+		});
 
-				const wrapper = mountTable();
+		it('asks the queue to call the picked communication', async () => {
+			const wrapper = mountTable();
 
-				expect(wrapper.find('.cell-phone').text()).toBe('');
-			});
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[1]);
+			await flushPromises();
+
+			expect(callMock).toHaveBeenCalledWith(1, 2);
+		});
+
+		it('holds the other live calls before asking the queue', async () => {
+			const wrapper = mountTable();
+
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[0]);
+			await flushPromises();
+
+			expect(holdOtherLiveCalls).toHaveBeenCalledTimes(1);
+			expect(holdOtherLiveCalls.mock.invocationCallOrder[0]).toBeLessThan(
+				callMock.mock.invocationCallOrder[0],
+			);
+		});
+
+		it('reloads the list from its first page once the queue took the call', async () => {
+			const wrapper = mountTable();
+
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[0]);
+			await flushPromises();
+
+			expect(mockStore.updatePage).toHaveBeenCalledWith(1);
+			expect(mockStore.loadDataList).toHaveBeenCalledTimes(1);
+		});
+
+		it('shows the loader on the row while the request is pending', async () => {
+			let finishCall: () => void = () => {};
+			callMock.mockReturnValue(
+				new Promise<void>((resolve) => {
+					finishCall = resolve;
+				}),
+			);
+			const wrapper = mountTable();
+
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[0]);
+			await flushPromises();
+
+			expect(phonesCellOf(wrapper).props('loading')).toBe(true);
+
+			finishCall();
+			await flushPromises();
+
+			expect(phonesCellOf(wrapper).props('loading')).toBe(false);
+		});
+
+		it('sends one request at a time for a member', async () => {
+			callMock.mockReturnValue(new Promise<void>(() => {}));
+			const wrapper = mountTable();
+
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[0]);
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[1]);
+			await flushPromises();
+
+			expect(callMock).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves the list as it is when the queue refuses the call', async () => {
+			const consoleError = vi
+				.spyOn(console, 'error')
+				.mockImplementation(() => {});
+			callMock.mockRejectedValue(new Error('refused'));
+			const wrapper = mountTable();
+
+			phonesCellOf(wrapper).vm.$emit('call', member.communications[0]);
+			await flushPromises();
+
+			expect(mockStore.loadDataList).not.toHaveBeenCalled();
+			expect(phonesCellOf(wrapper).props('loading')).toBe(false);
+			consoleError.mockRestore();
 		});
 	});
 
