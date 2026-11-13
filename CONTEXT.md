@@ -66,6 +66,9 @@ and should not be carried over wholesale.
 - [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
   derived from the call list by its parent, shown as a ringing card until
   answered, and why it is not stored.
+- [ADR-0018](docs/adr/0018-transfer-queues-list.md) — the transfer popup's queues
+  list pages through its own composable for now, and its selected row is painted
+  by `wt-table`'s `active-row` rather than by a token that does not exist.
 
 ## Language
 

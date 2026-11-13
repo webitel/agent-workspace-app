@@ -3,7 +3,7 @@
 		class="transfer-agents-table"
 		:data="dataList"
 		:headers="shownHeaders"
-		:active-row="activeRow"
+		:active-row="selectedRow"
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -44,9 +44,9 @@ import { storeToRefs } from 'pinia';
 import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
+import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../mappings/transferAgentStatusColors';
 import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../mappings/transferAgentStatusLabelKeys';
-import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 
@@ -117,7 +117,13 @@ function getStatusLabel(status?: TransferAgentStatus): string {
 	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
 }
 
-const activeRow = computed(
+/**
+ * @author Oleksandr Palonnyi
+ * wt-table paints its active row itself (ui-sdk >= 26.12.26), so the selected
+ * row needs no token or class of the table's own, see ADR-0018
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const selectedRow = computed(
 	() => dataList.value.find((row) => row.id === selectedRowId.value) ?? null,
 );
 

@@ -393,6 +393,64 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * resolves true once the backend accepted the transfer; like a blind transfer
+	 * to a number, the call leaving the list is what closes its window
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function blindTransferToQueue(
+		callId: string,
+		queueId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const queueNumericId = Number(queueId);
+		if (!canTransferCall(call) || !Number.isInteger(queueNumericId)) {
+			return false;
+		}
+
+		try {
+			await call.blindTransferQueue(queueNumericId);
+			return true;
+		} catch {
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * holds the original first, the same as the consult to an agent: US_13.07's
+	 * source page says the client is put on hold, and the SDK's
+	 * `processTransferQueue` only sends `call_to_queue` without holding.
+	 * cc-workspaces did not hold here, only for an agent, which looks like an
+	 * omission. The hold step is shared with `consultTransferToAgent`
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function consultTransferToQueue(
+		callId: string,
+		queueId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const queueNumericId = Number(queueId);
+		if (!canTransferCall(call) || !Number.isInteger(queueNumericId)) {
+			return false;
+		}
+
+		const isCallOnHold = await holdCallBeforeConsult(call);
+		if (!isCallOnHold) return false;
+
+		try {
+			await call.processTransferQueue(queueNumericId, {
+				disableStun: !getStunEnabled(),
+			});
+			return true;
+		} catch {
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
 	async function sendDtmf(callId: string, digit: string) {
 		const call = getCallById(callId);
 		if (!call?.allowDtmf) return;
@@ -528,6 +586,8 @@ export const useCallsStore = defineStore('calls', () => {
 		holdOtherLiveCalls,
 		blindTransfer,
 		consultTransferToAgent,
+		blindTransferToQueue,
+		consultTransferToQueue,
 		sendDtmf,
 		hangup,
 	};

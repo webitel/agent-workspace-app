@@ -94,6 +94,14 @@ describe('active-call-tray-entry', () => {
 		expect(wrapper.emitted('openFullView')).toHaveLength(1);
 	});
 
+	it('passes on openFullView from the dock header', async () => {
+		const wrapper = mountBar(true);
+
+		await wrapper.find('.call-dock__identity .button').trigger('click');
+
+		expect(wrapper.emitted('openFullView')).toHaveLength(1);
+	});
+
 	it('collapses on a click outside the opened dock', async () => {
 		const wrapper = mountBar(true);
 

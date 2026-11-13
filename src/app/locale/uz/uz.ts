@@ -168,14 +168,15 @@ export default {
 			},
 			transfer: {
 				title: 'Qoʻngʻiroqni oʻtkazish',
-				phoneLabel: 'Raqamga oʻtkazish',
-				phonePlaceholder: 'Telefon raqamini kiriting',
 				emptyList: 'Hech narsa topilmadi',
 				columns: {
-					name: 'Ism',
-					status: 'Holat',
+					name: 'Nomi',
+					status: 'Holati',
 					team: 'Jamoa',
+					description: 'Tavsif',
 				},
+				phoneLabel: 'Raqamga oʻtkazish',
+				phonePlaceholder: 'Telefon raqamini kiriting',
 				modes: {
 					blind: 'Toʻgʻridan-toʻgʻri',
 					consult: 'Maslahat bilan',
@@ -200,6 +201,8 @@ export default {
 			holdToggleFailed:
 				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
 			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
+			transferFailed:
+				'Qoʻngʻiroqni oʻtkazib boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

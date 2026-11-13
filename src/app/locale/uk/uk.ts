@@ -184,14 +184,15 @@ export default {
 			},
 			transfer: {
 				title: 'Переведення дзвінка',
-				phoneLabel: 'Перевести на номер',
-				phonePlaceholder: 'Введіть номер телефону',
 				emptyList: 'Нічого не знайдено',
 				columns: {
 					name: "Ім'я",
 					status: 'Статус',
 					team: 'Команда',
+					description: 'Опис',
 				},
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введіть номер телефону',
 				modes: {
 					blind: 'Сліпий',
 					consult: 'Консультативний',

@@ -40,7 +40,7 @@
 					full-width
 					:value="searchInput"
 					@input="searchInput = $event"
-					@search="searchQuery = $event"
+					@search="onSearch"
 				/>
 
 				<div class="transfer-popup__list wt-scrollbar">
@@ -95,6 +95,7 @@ import { getTransferActionAvailability } from '../scripts/getTransferActionAvail
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
 import TransferAgentsTable from './transfer-agents-table.vue';
+import TransferQueuesTable from './transfer-queues-table.vue';
 
 const emit = defineEmits<{
 	transfer: [
@@ -120,7 +121,6 @@ const activeTab = ref<TransferTab>(TransferTab.Agents);
  * per character a slow answer to "a" could replace the list for "ab". The
  * debounce makes that rare, it does not remove it: the fix belongs in
  * ui-datalist (see docs/adr/0016-transfer-agents-list.md)
- * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 const searchInput = ref('');
@@ -150,6 +150,7 @@ const tabs = computed<
 	{
 		value: TransferTab.Queues,
 		text: t('objects.queue.queue', 2),
+		component: TransferQueuesTable,
 	},
 	{
 		value: TransferTab.Users,
@@ -173,6 +174,18 @@ const availability = computed(() =>
 		hasSelection: selectedRowId.value !== null,
 	}),
 );
+
+/**
+ * @author Oleksandr Palonnyi
+ * a new search replaces the list the selected row came from, so a row the
+ * agent can no longer see must not stay selected as the target of Blind or
+ * Consult
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+function onSearch(search: string): void {
+	searchQuery.value = search;
+	selectedRowId.value = null;
+}
 
 /**
  * @author Oleksandr Palonnyi
@@ -222,14 +235,20 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 
 /**
  * @author Oleksandr Palonnyi
- * only a consult to an Agents row is executed so far, the other tabs are later
- * stories and still just emit the request. Unlike a blind transfer the original
+ * only a consult to an Agents row is executed here, a Queues row goes through
+ * requestTransferToQueue, Users and Dialplans are later stories and still just
+ * emit the request. Unlike a blind transfer the original
  * call stays in the list, so the popup is closed here on success instead of
  * waiting for the call to leave
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 async function requestTransferToRow(mode: TransferMode): Promise<void> {
 	if (selectedRowId.value === null) return;
+
+	if (activeTab.value === TransferTab.Queues) {
+		await requestTransferToQueue(mode, selectedRowId.value);
+		return;
+	}
 
 	if (mode === TransferMode.Consult && activeTab.value === TransferTab.Agents) {
 		const { transferCallId } = callTransferPopupStore;
@@ -256,6 +275,37 @@ async function requestTransferToRow(mode: TransferMode): Promise<void> {
 			rowId: selectedRowId.value,
 		},
 	});
+}
+
+/**
+ * @author Oleksandr Palonnyi
+ * a blind transfer to a queue ends the call, so the popup is left open and
+ * closes when the call leaves the list, as for a number; a consult keeps the
+ * original in the list, so the popup is closed here on success
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+async function requestTransferToQueue(
+	mode: TransferMode,
+	queueId: string,
+): Promise<void> {
+	const { transferCallId } = callTransferPopupStore;
+	if (isSubmitting.value || transferCallId === null) return;
+
+	isSubmitting.value = true;
+	try {
+		if (mode === TransferMode.Blind) {
+			await callsStore.blindTransferToQueue(transferCallId, queueId);
+			return;
+		}
+
+		const isConsultPlaced = await callsStore.consultTransferToQueue(
+			transferCallId,
+			queueId,
+		);
+		if (isConsultPlaced) callTransferPopupStore.close();
+	} finally {
+		isSubmitting.value = false;
+	}
 }
 
 const isTransferredCallActive = computed(() =>

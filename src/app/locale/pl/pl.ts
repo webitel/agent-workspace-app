@@ -168,14 +168,15 @@ export default {
 			},
 			transfer: {
 				title: 'Przekieruj połączenie',
-				phoneLabel: 'Przekieruj na numer',
-				phonePlaceholder: 'Wpisz numer telefonu',
 				emptyList: 'Nic nie znaleziono',
 				columns: {
 					name: 'Nazwa',
 					status: 'Status',
 					team: 'Zespół',
+					description: 'Opis',
 				},
+				phoneLabel: 'Przekieruj na numer',
+				phonePlaceholder: 'Wpisz numer telefonu',
 				modes: {
 					blind: 'Bez konsultacji',
 					consult: 'Z konsultacją',
@@ -201,6 +202,8 @@ export default {
 			holdToggleFailed:
 				'Nie udało się wstrzymać ani wznowić połączenia. Spróbuj ponownie.',
 			dtmfFailed: 'Nie udało się wysłać cyfry. Spróbuj ponownie.',
+			transferFailed:
+				'Nie udało się przekierować połączenia. Spróbuj ponownie.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

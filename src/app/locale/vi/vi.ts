@@ -168,14 +168,15 @@ export default {
 			},
 			transfer: {
 				title: 'Chuyển cuộc gọi',
-				phoneLabel: 'Chuyển đến số',
-				phonePlaceholder: 'Nhập số điện thoại',
-				emptyList: 'Không tìm thấy kết quả',
+				emptyList: 'Không tìm thấy gì',
 				columns: {
 					name: 'Tên',
 					status: 'Trạng thái',
 					team: 'Nhóm',
+					description: 'Mô tả',
 				},
+				phoneLabel: 'Chuyển đến số',
+				phonePlaceholder: 'Nhập số điện thoại',
 				modes: {
 					blind: 'Chuyển thẳng',
 					consult: 'Chuyển có tham vấn',
@@ -200,6 +201,7 @@ export default {
 			holdToggleFailed:
 				'Không thể giữ máy hoặc tiếp tục cuộc gọi. Vui lòng thử lại.',
 			dtmfFailed: 'Không thể gửi chữ số. Vui lòng thử lại.',
+			transferFailed: 'Không thể chuyển cuộc gọi. Vui lòng thử lại.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
