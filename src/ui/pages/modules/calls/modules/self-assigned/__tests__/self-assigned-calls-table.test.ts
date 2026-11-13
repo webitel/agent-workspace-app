@@ -47,6 +47,7 @@ const createAgent = () =>
 	reactive({
 		hasMoreWaitingCalls: true,
 		loadMoreWaitingCalls: vi.fn(),
+		interceptAttempt: vi.fn(async (): Promise<unknown> => ({})),
 	});
 
 let mockStore: ReturnType<typeof createStore>['store'];
@@ -88,10 +89,6 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
-vi.mock('../api/interceptSelfAssignedCall', () => ({
-	interceptSelfAssignedCall: vi.fn(),
-}));
-
 const holdOtherLiveCalls = vi.fn();
 
 vi.mock('../../../../../../../features/calls/store/calls', () => ({
@@ -100,7 +97,6 @@ vi.mock('../../../../../../../features/calls/store/calls', () => ({
 	}),
 }));
 
-import { interceptSelfAssignedCall } from '../api/interceptSelfAssignedCall';
 import SelfAssignedCallsTable from '../self-assigned-calls-table.vue';
 
 const stubs = {
@@ -354,13 +350,14 @@ describe('self-assigned-calls-table', () => {
 	});
 
 	describe('answering the call', () => {
-		const interceptMock = vi.mocked(interceptSelfAssignedCall);
+		let interceptMock: ReturnType<typeof createAgent>['interceptAttempt'];
 
 		beforeEach(() => {
 			showColumns('phone');
 			showCall(call);
-			interceptMock.mockReset();
-			interceptMock.mockResolvedValue(undefined);
+			const testAgent = createAgent();
+			agent.value = testAgent;
+			interceptMock = testAgent.interceptAttempt;
 			holdOtherLiveCalls.mockReset();
 			holdOtherLiveCalls.mockResolvedValue(undefined);
 		});
@@ -372,6 +369,17 @@ describe('self-assigned-calls-table', () => {
 			await flushPromises();
 
 			expect(interceptMock).toHaveBeenCalledWith(1);
+		});
+
+		it('does nothing without an agent session', async () => {
+			const wrapper = mountTable();
+			agent.value = undefined;
+
+			phoneCellOf(wrapper).vm.$emit('answer');
+			await flushPromises();
+
+			expect(holdOtherLiveCalls).not.toHaveBeenCalled();
+			expect(interceptMock).not.toHaveBeenCalled();
 		});
 
 		it('holds the other live calls before intercepting', async () => {
@@ -390,8 +398,8 @@ describe('self-assigned-calls-table', () => {
 			let finishRequest: () => void = () => {};
 			interceptMock.mockImplementation(
 				() =>
-					new Promise<void>((resolve) => {
-						finishRequest = resolve;
+					new Promise((resolve) => {
+						finishRequest = () => resolve({});
 					}),
 			);
 			const wrapper = mountTable();

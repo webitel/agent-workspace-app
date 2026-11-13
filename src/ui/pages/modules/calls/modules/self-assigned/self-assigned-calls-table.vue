@@ -58,7 +58,6 @@ import { useWebSocketClient } from '../../../../../../app/api/socket/composables
 import { useCallsStore } from '../../../../../../features/calls/store/calls';
 import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
-import { interceptSelfAssignedCall } from './api/interceptSelfAssignedCall';
 import SelfAssignedCallPhoneCell from './components/self-assigned-call-phone-cell.vue';
 import { useSelfAssignedCallsDataListStore } from './store/self-assigned-calls';
 
@@ -107,22 +106,25 @@ const { holdOtherLiveCalls } = useCallsStore();
 const interceptingAttemptIds = reactive(new Set<number>());
 
 /**
- * As cc-workspaces: one request at a time per call, with its loader. The SDK
- * answers the intercepted call by itself, past `callsStore.answer`, so the
- * other live calls are put on hold first. The row leaves by itself (the SDK
- * drops the attempt from the list over the socket), so nothing is reloaded;
- * the agent stays on the tab and the call shows in the dock. A refused
- * intercept (another agent was faster, the deadline passed) is only logged
- * (ADR-0015)
+ * Takes the call from its queue for this agent (AC_12.03.02), as cc-workspaces
+ * does: not a manual dial, the client's own waiting call is the one answered.
+ * Nothing answers it here: the platform sends it with `autoAnswer` and the SDK
+ * answers it by itself, past `callsStore.answer`, so the other live calls are
+ * put on hold first. One request at a time per call, with its loader. The row
+ * leaves by itself (the SDK drops the attempt from the list over the socket),
+ * so nothing is reloaded; the agent stays on the tab and the call shows in the
+ * dock. A refused intercept (another agent was faster, the deadline passed) is
+ * only logged (ADR-0015)
  * [WS-39](https://webitel.atlassian.net/browse/WS-39)
  */
 const answer = async ({ attemptId }: WaitingMemberCall) => {
-	if (interceptingAttemptIds.has(attemptId)) return;
+	// no agent session: there is no queue to ask
+	if (!agent.value || interceptingAttemptIds.has(attemptId)) return;
 	interceptingAttemptIds.add(attemptId);
 
 	try {
 		await holdOtherLiveCalls();
-		await interceptSelfAssignedCall(attemptId);
+		await agent.value.interceptAttempt(attemptId);
 	} catch (err) {
 		console.error('[calls] intercepting a self-assigned call failed', err);
 	} finally {
