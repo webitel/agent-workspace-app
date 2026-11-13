@@ -1,12 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
+import { CallsPageTab } from '../../../pages/modules/calls/enums/CallsPageTab.enum';
 import { CallsRouteName } from '../../../pages/modules/calls/enums/CallsRouteName.enum';
 import { ContactsPageTab } from '../../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../../pages/modules/history/enums/HistoryPageTab.enum';
 import TheCallPanel from '../../modules/call/the-call-panel.vue';
 import TheContactsPanel from '../../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../../modules/history/the-history-panel.vue';
+import TheMissedCallPanel from '../../modules/missed-call/the-missed-call-panel.vue';
+import TheOfflineMemberPanel from '../../modules/offline-member/the-offline-member-panel.vue';
 import { useSidebarContent } from '../useSidebarContent';
 
 const route = reactive<{
@@ -56,6 +59,24 @@ describe('useSidebarContent', () => {
 
 		expect(content.value).toEqual({
 			component: TheContactsPanel,
+		});
+	});
+
+	it('returns the missed call panel for the Calls missed tab', () => {
+		route.name = CallsPageTab.Missed;
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: TheMissedCallPanel,
+		});
+	});
+
+	it('returns the offline member panel for the Calls offline tab', () => {
+		route.name = CallsPageTab.Offline;
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: TheOfflineMemberPanel,
 		});
 	});
 

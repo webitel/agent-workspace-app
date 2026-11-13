@@ -1,6 +1,6 @@
 import type { Call } from 'webitel-sdk';
 
-import { findContactIds } from './findContactIds';
+import { findContactIdsByNumber } from './findContactIdsByNumber';
 import { getCallContactId } from './getCallContactId';
 
 /**
@@ -22,10 +22,7 @@ export async function identifyCallContact(
 	const number = call.displayNumber;
 	if (!number || call.hideNumber) return [];
 
-	const contactIds = await findContactIds({
-		query: number,
-		searchedFields: 'phones',
-	});
+	const contactIds = await findContactIdsByNumber(number);
 
 	if (contactIds.length !== 1) return contactIds;
 
