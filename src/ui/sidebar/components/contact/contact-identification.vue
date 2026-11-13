@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import { ContactsSearchMode } from '@webitel/api-services/api';
 import { WtButton } from '@webitel/ui-sdk/components';
 import { ButtonColor } from '@webitel/ui-sdk/enums';
 import emptyFiltersDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-dark.svg';
@@ -64,10 +65,10 @@ import emptyFiltersLight from '@webitel/ui-sdk/src/modules/TableComponentModule/
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useThemedImage } from '../../../../app/composables/useThemedImage';
-import { ContactSearchMode } from '../../../../features/calls/modules/contact/enums/ContactSearchMode.enum';
 import ContactCard from './contact-card.vue';
 import ContactCardUnknown from './contact-card-unknown.vue';
 import ContactPanelEmpty from './contact-panel-empty.vue';
+import type { ContactSearchMode } from './contact-search.types';
 import ContactSearch from './contact-search.vue';
 import { ContactIdentificationMode } from './enums/ContactIdentificationMode.enum';
 import FoundContactsNavigator from './found-contacts-navigator.vue';
@@ -110,7 +111,7 @@ const noResultsImage = useThemedImage({
 });
 
 const searchQuery = ref('');
-const searchMode = ref<ContactSearchMode>(ContactSearchMode.Name);
+const searchMode = ref<ContactSearchMode>(ContactsSearchMode.NAME);
 
 watch(
 	() => props.isSearchActive,

@@ -93,7 +93,7 @@ export default {
 					modes: {
 						name: "Ім'я",
 						destination: 'Номер або email',
-						attribute: 'Атрибут',
+						variables: 'Атрибут',
 					},
 				},
 			},

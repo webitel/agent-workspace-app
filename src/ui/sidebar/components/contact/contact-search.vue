@@ -16,10 +16,14 @@
 </template>
 
 <script setup lang="ts">
+import { ContactsSearchMode } from '@webitel/api-services/api';
 import { WtSearchBar } from '@webitel/ui-sdk/components';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ContactSearchMode } from '../../../../features/calls/modules/contact/enums/ContactSearchMode.enum';
+import {
+	CONTACT_SEARCH_MODES,
+	type ContactSearchMode,
+} from './contact-search.types';
 
 const emit = defineEmits<{
 	search: [
@@ -35,13 +39,13 @@ const query = defineModel<string>('query', {
 });
 
 const searchMode = defineModel<ContactSearchMode>('searchMode', {
-	default: ContactSearchMode.Name,
+	default: ContactsSearchMode.NAME,
 });
 
 const { t } = useI18n();
 
 const modeOptions = computed(() =>
-	Object.values(ContactSearchMode).map((value) => ({
+	CONTACT_SEARCH_MODES.map((value) => ({
 		value,
 		text: t(`ui.sidebar.contact.search.modes.${value}`),
 	})),

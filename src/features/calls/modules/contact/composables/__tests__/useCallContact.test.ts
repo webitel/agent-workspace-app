@@ -1,5 +1,5 @@
 import { flushPromises } from '@vue/test-utils';
-import { ContactsAPI } from '@webitel/api-services/api';
+import { ContactsAPI, ContactsSearchMode } from '@webitel/api-services/api';
 import {
 	EngineSystemSettingName,
 	type WebitelContactsContact,
@@ -14,10 +14,10 @@ import {
 } from 'vue';
 import { type Call, CallDirection } from 'webitel-sdk';
 
-import { ContactSearchMode } from '../../enums/ContactSearchMode.enum';
 import { useCallContact } from '../useCallContact';
 
-vi.mock('@webitel/api-services/api', () => ({
+vi.mock('@webitel/api-services/api', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@webitel/api-services/api')>()),
 	ContactsAPI: {
 		getList: vi.fn(),
 	},
@@ -408,6 +408,35 @@ describe('useCallContact', () => {
 			expect(isSearchActive.value).toBe(false);
 		});
 
+		it.each([
+			[
+				ContactsSearchMode.NAME,
+			],
+			[
+				ContactsSearchMode.DESTINATION,
+			],
+			[
+				ContactsSearchMode.VARIABLES,
+			],
+		])('asks the contacts API to search the %s mode', async (searchMode) => {
+			getList.mockResolvedValueOnce(found());
+			const { search } = setup(buildCall());
+			await flushPromises();
+
+			getList.mockResolvedValueOnce(found());
+			await search({
+				query: ' sarah ',
+				searchMode,
+			});
+
+			expect(getList).toHaveBeenLastCalledWith(
+				expect.objectContaining({
+					[searchMode]: 'sarah',
+					size: 100,
+				}),
+			);
+		});
+
 		it('shows the contacts the search found instead of the identified ones', async () => {
 			getList.mockResolvedValueOnce(found());
 			const { contactIds, isSearchActive, search } = setup(buildCall());
@@ -416,7 +445,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31', '32'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			expect(isSearchActive.value).toBe(true);
@@ -434,7 +463,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found());
 			await search({
 				query: 'nobody',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			expect(isSearchActive.value).toBe(true);
@@ -450,7 +479,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			expect(call.setContact).not.toHaveBeenCalled();
@@ -465,7 +494,7 @@ describe('useCallContact', () => {
 			getList.mockReturnValueOnce(searching.promise);
 			const running = search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			expect(isLoading.value).toBe(true);
@@ -483,13 +512,13 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 			getList.mockClear();
 
 			await search({
 				query: '   ',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			expect(getList).not.toHaveBeenCalled();
@@ -505,7 +534,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			cancelSearch();
@@ -526,12 +555,12 @@ describe('useCallContact', () => {
 			getList.mockReturnValueOnce(first.promise);
 			const firstSearch = search({
 				query: 'sa',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 			getList.mockResolvedValueOnce(found('32'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 			first.resolve(found('31'));
 			await firstSearch;
@@ -548,7 +577,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			getList.mockResolvedValueOnce(found());
@@ -570,7 +599,7 @@ describe('useCallContact', () => {
 			getList.mockRejectedValueOnce(new Error('network error'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			expect(isSearchActive.value).toBe(false);
@@ -589,7 +618,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31', '32'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			call.contact = {
@@ -613,7 +642,7 @@ describe('useCallContact', () => {
 			getList.mockResolvedValueOnce(found('31', '32'));
 			await search({
 				query: 'sarah',
-				searchMode: ContactSearchMode.Name,
+				searchMode: ContactsSearchMode.NAME,
 			});
 
 			await selectContact('32');

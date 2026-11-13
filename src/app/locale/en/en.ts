@@ -93,7 +93,7 @@ export default {
 					modes: {
 						name: 'Name',
 						destination: 'Destination',
-						attribute: 'Attribute',
+						variables: 'Attribute',
 					},
 				},
 			},
