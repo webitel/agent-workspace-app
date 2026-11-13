@@ -1,7 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, shallowRef } from 'vue';
 
-import { messagesService } from '../../../api/chatSdk';
+import { messagesService, threadsService } from '../../../api/chatSdk';
+import { isSelfContact } from '../../../scripts/isSelfContact';
+import { useChatAccountStore } from '../../../store/chat-account';
 import type { IMessage } from '../../../types/ChatSession.types';
 import { toLastMessage } from '../scripts/toLastMessage';
 import type { LastMessage } from '../types/ChatPreview.types';
@@ -13,29 +15,38 @@ import type { LastMessage } from '../types/ChatPreview.types';
  */
 const SEED_PAGE_SIZE = 10;
 
+/** Unread chats are few, so one read of them is as many as the backend allows. */
+const UNREAD_PAGE_SIZE = 100;
+
 /**
- * The last message of every chat in the list. Lives apart from the per-chat
+ * What the chat list knows about each chat besides the task: its last message
+ * and how many messages the agent has not seen. Lives apart from the per-chat
  * session stores on purpose: a session exists only for a chat that was opened
  * (ADR-0007), while a chat preview must show its last message for every listed
  * chat, opened or not.
  *
- * A chat is seeded once with a single history request, then kept current from
- * the chats socket, so the list costs one request per chat rather than a
- * thread load.
+ * A chat's last message is seeded once with a single history request, then kept
+ * current from the chats socket, so the list costs one request per chat rather
+ * than a thread load. Its unread count is read once for every chat that has
+ * any, and kept from the socket (ADR-0011).
  */
 export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	// reassigned, never mutated, so shallow reactivity is enough
 	const lastMessages = shallowRef<Record<string, LastMessage>>({});
+	const accountStore = useChatAccountStore();
 	// threads the list is showing: the socket carries every thread the agent is
-	// in, and only these are worth keeping
+	// in, and only these are worth keeping and counting
 	const tracked = new Set<string>();
 	const seeded = new Set<string>();
+	// the newest message counted per thread, so an edit or the echo of a message
+	// already counted is not counted again
+	const lastCounted = new Map<string, string>();
 
 	/**
-	 * Unread message count per thread. Nothing fills it yet: the backend does not
-	 * send one for a task (asked for on WS-35), and a count guessed on the client
-	 * would read as fact (ADR-0001). It is the single place the real value will
-	 * land, and the unread filter appears on its own once it holds anything.
+	 * Unread message count per thread, from the backend: every thread with
+	 * unread messages is read once, and the socket keeps the counts current after
+	 * that. Nothing here is worked out from guesses (ADR-0001): a message counts
+	 * only when someone else wrote it and the agent's account says so.
 	 */
 	const unreadByThread = shallowRef<Record<string, number>>({});
 	const hasUnreadData = computed(
@@ -43,10 +54,56 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	);
 
 	function setUnreadCount(threadId: string, count: number) {
+		if ((unreadByThread.value[threadId] ?? 0) === count) return;
 		unreadByThread.value = {
 			...unreadByThread.value,
 			[threadId]: count,
 		};
+	}
+
+	/**
+	 * Reads every thread that has unread messages and replaces the counts. A
+	 * failed read keeps what is held: the socket still counts, and the next
+	 * reconnect reads again.
+	 */
+	async function loadUnread() {
+		const found: Record<string, number> = {};
+		try {
+			for (let page = 1; ; page += 1) {
+				const result = await threadsService.fetchThreads({
+					unread: true,
+					size: UNREAD_PAGE_SIZE,
+					page,
+				});
+				for (const thread of result.items) {
+					found[thread.id] = Math.max(thread.unreadCount ?? 0, 1);
+				}
+				if (!result.next) break;
+			}
+		} catch {
+			return;
+		}
+		unreadByThread.value = found;
+	}
+
+	/**
+	 * The agent has seen the chat's messages. The backend counts them read as the
+	 * thread view marks them, so the count is cleared here at once rather than
+	 * read again.
+	 */
+	function markRead(threadId: string) {
+		setUnreadCount(threadId, 0);
+	}
+
+	function countUnread(threadId: string, lastMessage: LastMessage) {
+		if (lastCounted.get(threadId) === lastMessage.id) return;
+		lastCounted.set(threadId, lastMessage.id);
+
+		const account = accountStore.account;
+		if (!account?.contact?.sub) return;
+		if (isSelfContact(lastMessage.senderContact, account)) return;
+
+		setUnreadCount(threadId, (unreadByThread.value[threadId] ?? 0) + 1);
 	}
 
 	const isUnread = (threadId: string) =>
@@ -73,10 +130,14 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 
 	function receiveMessage(message: IMessage) {
 		const threadId = message.threadId;
-		if (!threadId || !tracked.has(threadId)) return;
+		if (!threadId) return;
 
 		const lastMessage = toLastMessage(message);
-		if (lastMessage) keepNewest(threadId, lastMessage);
+		if (!lastMessage) return;
+
+		if (!tracked.has(threadId)) return;
+		countUnread(threadId, lastMessage);
+		keepNewest(threadId, lastMessage);
 	}
 
 	async function seed(threadId: string) {
@@ -114,8 +175,11 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			if (current.has(threadId)) continue;
 			tracked.delete(threadId);
 			seeded.delete(threadId);
+			lastCounted.delete(threadId);
 			const { [threadId]: _dropped, ...rest } = lastMessages.value;
 			lastMessages.value = rest;
+			const { [threadId]: _unread, ...counts } = unreadByThread.value;
+			unreadByThread.value = counts;
 		}
 
 		for (const threadId of current) {
@@ -145,6 +209,8 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 
 		// actions
 		setUnreadCount,
+		loadUnread,
+		markRead,
 		sync,
 		receiveMessage,
 		reseed,
