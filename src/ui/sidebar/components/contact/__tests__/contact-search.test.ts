@@ -18,7 +18,8 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
-import { ContactSearchMode } from '../../../../../features/calls/modules/contact/enums/ContactSearchMode.enum';
+import { ContactsSearchMode } from '@webitel/api-services/api';
+import type { ContactSearchMode } from '../contact-search.types';
 import ContactSearch from '../contact-search.vue';
 
 const mountSearch = (
@@ -47,16 +48,16 @@ describe('contact-search', () => {
 				text: 'ui.sidebar.contact.search.modes.destination',
 			},
 			{
-				value: 'attribute',
-				text: 'ui.sidebar.contact.search.modes.attribute',
+				value: 'variables',
+				text: 'ui.sidebar.contact.search.modes.variables',
 			},
 		]);
-		expect(findBar(wrapper).props('searchMode')).toBe(ContactSearchMode.Name);
+		expect(findBar(wrapper).props('searchMode')).toBe(ContactsSearchMode.NAME);
 	});
 
 	it('emits the typed query with the chosen mode', async () => {
 		const wrapper = mountSearch({
-			searchMode: ContactSearchMode.Destination,
+			searchMode: ContactsSearchMode.DESTINATION,
 		});
 
 		findBar(wrapper).vm.$emit('search', '+1202');
@@ -65,7 +66,7 @@ describe('contact-search', () => {
 			[
 				{
 					query: '+1202',
-					searchMode: ContactSearchMode.Destination,
+					searchMode: ContactsSearchMode.DESTINATION,
 				},
 			],
 		]);
@@ -77,14 +78,14 @@ describe('contact-search', () => {
 		});
 
 		findBar(wrapper).vm.$emit('update:search-mode', {
-			value: ContactSearchMode.Attribute,
+			value: ContactsSearchMode.VARIABLES,
 		});
 
 		expect(wrapper.emitted('search')).toEqual([
 			[
 				{
 					query: 'role=vip',
-					searchMode: ContactSearchMode.Attribute,
+					searchMode: ContactsSearchMode.VARIABLES,
 				},
 			],
 		]);
@@ -94,7 +95,7 @@ describe('contact-search', () => {
 		const wrapper = mountSearch();
 
 		findBar(wrapper).vm.$emit('update:search-mode', {
-			value: ContactSearchMode.Attribute,
+			value: ContactsSearchMode.VARIABLES,
 		});
 
 		expect(wrapper.emitted('search')).toBeUndefined();

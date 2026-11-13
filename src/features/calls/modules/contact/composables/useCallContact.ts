@@ -1,13 +1,24 @@
+import {
+	ContactsAPI,
+	type ContactsSearchMode,
+} from '@webitel/api-services/api';
 import { EngineSystemSettingName } from '@webitel/api-services/gen/models';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 import { useSystemSettingsStore } from '../../../../system-settings/store/systemSettings';
 import { useCallsStore } from '../../../store/calls';
-import type { ContactSearchMode } from '../enums/ContactSearchMode.enum';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
-import { searchContactIds } from '../scripts/searchContactIds';
+
+type SearchMode = (typeof ContactsSearchMode)[keyof typeof ContactsSearchMode];
+
+/**
+ * @author Oleksandr Palonnyi
+ * 100 is enough, as in cc-workspaces (WTEL-7906); the same cap identification by number uses
+ * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+ */
+const FOUND_CONTACTS_MAX_COUNT = 100;
 
 export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	const callsStore = useCallsStore();
@@ -146,7 +157,7 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		searchMode,
 	}: {
 		query: string;
-		searchMode: ContactSearchMode;
+		searchMode: SearchMode;
 	}): Promise<void> => {
 		const trimmedQuery = query.trim();
 		if (!trimmedQuery) {
@@ -159,10 +170,13 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		isSearching.value = true;
 
 		try {
-			const foundContactIds = await searchContactIds({
-				query: trimmedQuery,
-				mode: searchMode,
+			const { items } = await ContactsAPI.getList({
+				[searchMode]: trimmedQuery,
+				size: FOUND_CONTACTS_MAX_COUNT,
 			});
+			const foundContactIds = items
+				.map(({ id }) => id)
+				.filter((id): id is string => Boolean(id));
 			if (!isStale()) searchedContactIds.value = foundContactIds;
 		} catch {
 			/**

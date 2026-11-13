@@ -22,8 +22,8 @@ vi.mock('../../../../../app/composables/useThemedImage', async () => {
 	};
 });
 
+import { ContactsSearchMode } from '@webitel/api-services/api';
 import emptyFiltersLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-light.svg';
-import { ContactSearchMode } from '../../../../../features/calls/modules/contact/enums/ContactSearchMode.enum';
 import ContactCard from '../contact-card.vue';
 import ContactCardUnknown from '../contact-card-unknown.vue';
 import ContactIdentification from '../contact-identification.vue';
@@ -125,7 +125,7 @@ describe('contact-identification', () => {
 			});
 			const request = {
 				query: 'sarah',
-				searchMode: ContactSearchMode.Destination,
+				searchMode: ContactsSearchMode.DESTINATION,
 			};
 
 			wrapper.findComponent(ContactSearch).vm.$emit('search', request);
