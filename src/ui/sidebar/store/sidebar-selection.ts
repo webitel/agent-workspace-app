@@ -15,6 +15,10 @@ export const useSidebarSelectionStore = defineStore('sidebar-selection', () => {
 			: null,
 	);
 
+	const isUnknownSelected = computed(
+		() => selection.value?.type === SidebarSelectionType.Unknown,
+	);
+
 	function selectContact(id: string) {
 		selection.value = {
 			type: SidebarSelectionType.Contact,
@@ -30,6 +34,28 @@ export const useSidebarSelectionStore = defineStore('sidebar-selection', () => {
 		sidebarStore.open();
 	}
 
+	// A row without a linked contact still opens the panel, as an unknown contact
+	function selectContactOrUnknown(id?: string | number | null) {
+		if (id) {
+			selectContact(String(id));
+			return;
+		}
+		selectUnknownContact();
+	}
+
+	/**
+	 * A row that carries no contact, only a number (an offline member):
+	 * the panel looks the contact up by it
+	 * [WS-30](https://webitel.atlassian.net/browse/WS-30)
+	 */
+	function selectPhoneNumber(phoneNumber?: string) {
+		selection.value = {
+			type: SidebarSelectionType.PhoneNumber,
+			phoneNumber,
+		};
+		sidebarStore.open();
+	}
+
 	function clearSelection() {
 		selection.value = null;
 	}
@@ -37,8 +63,11 @@ export const useSidebarSelectionStore = defineStore('sidebar-selection', () => {
 	return {
 		selection,
 		contactId,
+		isUnknownSelected,
 		selectContact,
 		selectUnknownContact,
+		selectContactOrUnknown,
+		selectPhoneNumber,
 		clearSelection,
 	};
 });

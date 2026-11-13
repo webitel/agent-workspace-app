@@ -1,4 +1,4 @@
-# agent-workspace-app
+﻿# agent-workspace-app
 
 Operator (agent) workspace, built on the current frontend stack: Vue 3 +
 Pinia, Vite, Biome, vitest and Playwright. Served under the `/agent-workspace`
@@ -47,10 +47,18 @@ and should not be carried over wholesale.
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
   its gateway icon alone.
-- [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
+- [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
+  one of several identified contacts while the call is active or on hold, the
+  link shows at once, a failed one is silent, and CREATE follows the same
+  condition as SELECT.
+- [ADR-0014](docs/adr/0014-offline-members-are-called-through-the-queue.md) —
+  an offline member is called through the queue on one of its communications,
+  not dialled by number, and the Offline tab's panel searches the contact by
+  the member's number and only shows it.
+- [ADR-0015](docs/adr/0015-transfer-agents-list.md) — the transfer popup's agents
   list is a ui-datalist table store, one table per tab under one search field
   that applies on the debounced event, and the known race it leaves open.
-- [ADR-0014](docs/adr/0014-consult-call-is-derived.md) — a Consult call is
+- [ADR-0016](docs/adr/0016-consult-call-is-derived.md) — a Consult call is
   derived from the call list by its parent, shown as a ringing card until
   answered, and why it is not stored.
 
@@ -120,6 +128,19 @@ callee answers or the agent closes it. Ringing and No answer are states of an
 attempt. Several can run at once. It is not an **Active call**: when the callee
 answers, the attempt ends and the call carries on in the active-call window.
 
+**Offline member** — a member of an offline queue: a client the queue does not
+dial by itself but leaves for an agent to call, on one of the member's
+communications. One row of the Calls section's Offline tab; the tab's "Offline
+calls" label is UI wording, the rows are members, not calls. Calling one is a
+request to the queue for that member and communication, not an **Outbound
+attempt**: the call stays the queue's, and the member leaves the offline queue.
+Unrelated to `offline` the **Agent status**.
+
+A member carries no contact. Its right panel searches contacts by the member's
+first number the way a call's are identified, but only shows them: with no
+call yet there is nothing to link one to, so the panel has no SELECT
+(ADR-0014).
+
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
@@ -137,7 +158,7 @@ the two or cancels the consult and goes back to the original call.
 while the original call is on hold. It is a call of its own, not the original;
 once the destination answers it is an Active call like any other. Until then it
 shows as a ringing card in the call dock, and it is recognised by the original
-call being its parent, not remembered (ADR-0014).
+call being its parent, not remembered (ADR-0016).
 
 **Transfer popup** — the popup an agent uses to pick where an Active call goes,
 opened from the Call window's top bar or from the call dock. It has a number
@@ -299,6 +320,15 @@ legacy chat client, which carries the client's `user` from the external service,
 or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
+
+**Identified contact** — a contact the search by a call's number found. There
+can be none, one or several; with several, the right panel shows them one at a
+time. Being identified does not link the contact to the call.
+
+**Linked contact** — the contact a call is linked to (`call.setContact`), at
+most one. The only identified contact is linked automatically, one of several
+when the agent selects it. Once there is one, the panel shows it alone instead
+of the identified contacts, whoever linked it (ADR-0013).
 
 ## Conventions
 

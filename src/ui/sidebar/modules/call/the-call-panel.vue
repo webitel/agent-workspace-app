@@ -9,15 +9,18 @@
 			<contact-identification
 				:contact-ids="contactIds"
 				:is-loading="isLoading"
-			/>
-			<!-- not while the call is ringing: there is nothing to link a new contact to yet -->
-			<wt-button
-				v-if="props.call.answeredAt"
-				class="call-panel__create"
-				@click="openCreateForm"
+				:can-select="isCallActive"
+				@select="selectContact"
 			>
-				{{ t('reusable.create') }}
-			</wt-button>
+				<template #actions>
+					<wt-button
+						v-if="isCallActive"
+						@click="openCreateForm"
+					>
+						{{ t('reusable.create') }}
+					</wt-button>
+				</template>
+			</contact-identification>
 		</template>
 	</div>
 </template>
@@ -26,8 +29,8 @@
 import { WtButton } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import type { Call } from 'webitel-sdk';
-import { useCallContactIdentification } from '../../../../features/calls/modules/contact/composables/useCallContactIdentification';
+import { type Call, CallActions } from 'webitel-sdk';
+import { useCallContact } from '../../../../features/calls/modules/contact/composables/useCallContact';
 import CallInfoPanel from '../../../../features/calls/modules/info/components/call-info-panel/call-info-panel.vue';
 import { toCallInfoPanelContent } from '../../../../features/calls/modules/info/scripts/toCallInfoPanelContent';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';
@@ -42,8 +45,15 @@ const { t } = useI18n();
 
 const content = computed(() => toCallInfoPanelContent(props.call));
 
-const { contactIds, isLoading, isContactHidden } = useCallContactIdentification(
-	() => props.call,
+const { contactIds, isLoading, isContactHidden, selectContact } =
+	useCallContact(() => props.call);
+
+// contacts are created and linked only while the call is live, as in
+// cc-workspaces: not while ringing, nor after hangup
+const isCallActive = computed(
+	() =>
+		props.call.state === CallActions.Active ||
+		props.call.state === CallActions.Hold,
 );
 
 const isCreateFormOpen = ref(false);
@@ -64,10 +74,6 @@ watch(() => props.call.id, closeCreateForm);
 .call-panel {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-sm);
-}
-
-.call-panel__create {
-	align-self: center;
+	gap: var(--spacing-xs);
 }
 </style>

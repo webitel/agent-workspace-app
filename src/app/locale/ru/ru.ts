@@ -51,6 +51,7 @@ export default {
 			message: 'Сообщение',
 			phoneNumber: 'Номер телефона',
 			waitTime: 'Время ожидания',
+			select: 'Выбрать',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Атрибуты',
 				noAttributes: 'Пользовательские переменные не заданы',
 				communicationOptions: 'Способы связи',
+				contactPosition: 'Контакт {current} из {count}',
 			},
 		},
 		pages: {

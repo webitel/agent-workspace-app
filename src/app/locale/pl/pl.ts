@@ -51,6 +51,7 @@ export default {
 			message: 'Wiadomość',
 			phoneNumber: 'Numer telefonu',
 			waitTime: 'Czas oczekiwania',
+			select: 'Wybierz',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Atrybuty',
 				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
 				communicationOptions: 'Opcje komunikacji',
+				contactPosition: '{current} z {count} kontaktów',
 			},
 		},
 		pages: {

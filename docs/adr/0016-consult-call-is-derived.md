@@ -1,4 +1,4 @@
-# 14. A Consult call is derived from the call list and shown as a ringing card
+# 16. A Consult call is derived from the call list and shown as a ringing card
 
 Date: 2026-11-11
 

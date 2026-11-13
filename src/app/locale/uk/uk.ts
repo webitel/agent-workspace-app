@@ -52,6 +52,7 @@ export default {
 			message: 'Повідомлення',
 			phoneNumber: 'Номер телефону',
 			waitTime: 'Час очікування',
+			select: 'Обрати',
 		},
 		numpad: {
 			call: 'Зателефонувати',
@@ -85,6 +86,7 @@ export default {
 				attributes: 'Атрибути',
 				noAttributes: 'Користувацькі змінні не задано',
 				communicationOptions: "Способи зв'язку",
+				contactPosition: 'Контакт {current} з {count}',
 			},
 		},
 		pages: {

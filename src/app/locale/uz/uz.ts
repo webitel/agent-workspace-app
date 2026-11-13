@@ -51,6 +51,7 @@ export default {
 			message: 'Xabar',
 			phoneNumber: 'Telefon raqami',
 			waitTime: 'Kutish vaqti',
+			select: 'Tanlash',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Atributlar',
 				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
 				communicationOptions: 'Aloqa usullari',
+				contactPosition: '{current} / {count} aloqa',
 			},
 		},
 		pages: {

@@ -1,12 +1,15 @@
 import { type ComputedRef, computed } from 'vue';
 import { type RouteLocationNormalizedLoaded, useRoute } from 'vue-router';
 import { useCallsStore } from '../../../features/calls/store/calls';
+import { CallsPageTab } from '../../pages/modules/calls/enums/CallsPageTab.enum';
 import { CallsRouteName } from '../../pages/modules/calls/enums/CallsRouteName.enum';
 import { ContactsPageTab } from '../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { HistoryPageTab } from '../../pages/modules/history/enums/HistoryPageTab.enum';
 import TheCallPanel from '../modules/call/the-call-panel.vue';
 import TheContactsPanel from '../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../modules/history/the-history-panel.vue';
+import TheMissedCallPanel from '../modules/missed-call/the-missed-call-panel.vue';
+import TheOfflineMemberPanel from '../modules/offline-member/the-offline-member-panel.vue';
 import type { SidebarContent } from '../types/SidebarContent.types';
 
 // What the sidebar shows on a route, or null when there is nothing to show
@@ -23,6 +26,15 @@ const sidebarContentByRouteName: Partial<
 	}),
 	[ContactsPageTab.Contacts]: () => ({
 		component: TheContactsPanel,
+	}),
+	[ContactsPageTab.Users]: () => ({
+		component: TheContactsPanel,
+	}),
+	[CallsPageTab.Missed]: () => ({
+		component: TheMissedCallPanel,
+	}),
+	[CallsPageTab.Offline]: () => ({
+		component: TheOfflineMemberPanel,
 	}),
 	[CallsRouteName.CallWindow]: (route) => {
 		const call = useCallsStore().getCallById(route.params.callId as string);
