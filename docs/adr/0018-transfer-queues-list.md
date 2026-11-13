@@ -13,8 +13,8 @@ reversed.
 The Queues tab sits beside the Agents tab in the transfer popup and has the
 same shape: a body component that takes `search`, owns its list and its
 selected row. ADR-0016 builds the Agents list on a `createTableStore`. The
-Queues tab was written while that work was still in review, so it could not
-copy it.
+Queues tab was cut before that table store existed, so it was written without
+it and has not been moved onto it since.
 
 The tab also had to show which row is selected. The Agents table does it with
 its own `:deep` rule on a `--wt-ws-table-colors-row-selected-background` token.
