@@ -182,6 +182,21 @@ export default {
 					openFullView: 'Відкрити повний вигляд',
 				},
 			},
+			transfer: {
+				title: 'Переведення дзвінка',
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введіть номер телефону',
+				emptyList: 'Нічого не знайдено',
+				columns: {
+					name: "Ім'я",
+					status: 'Статус',
+					team: 'Команда',
+				},
+				modes: {
+					blind: 'Сліпий',
+					consult: 'Консультативний',
+				},
+			},
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',
@@ -201,6 +216,7 @@ export default {
 			holdToggleFailed:
 				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
 			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
+			transferFailed: 'Не вдалося переадресувати дзвінок. Спробуйте ще раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

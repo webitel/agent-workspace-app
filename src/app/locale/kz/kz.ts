@@ -166,6 +166,21 @@ export default {
 					openFullView: 'Толық көріністі ашу',
 				},
 			},
+			transfer: {
+				title: 'Қоңырауды ауыстыру',
+				phoneLabel: 'Нөмірге ауыстыру',
+				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
+				emptyList: 'Ештеңе табылмады',
+				columns: {
+					name: 'Аты',
+					status: 'Күйі',
+					team: 'Команда',
+				},
+				modes: {
+					blind: 'Тікелей',
+					consult: 'Кеңесумен',
+				},
+			},
 			outboundCall: {
 				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',

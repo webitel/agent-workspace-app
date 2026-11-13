@@ -182,6 +182,21 @@ export default {
 					openFullView: 'Open full view',
 				},
 			},
+			transfer: {
+				title: 'Transfer Call',
+				emptyList: 'Nothing found',
+				columns: {
+					name: 'Name',
+					status: 'Status',
+					team: 'Team',
+				},
+				phoneLabel: 'Transfer to number',
+				phonePlaceholder: 'Enter phone number',
+				modes: {
+					blind: 'Blind',
+					consult: 'Consult',
+				},
+			},
 			outboundCall: {
 				ringing: 'Ringing',
 				noAnswer: 'No answer',
@@ -202,6 +217,7 @@ export default {
 			holdToggleFailed:
 				'The call could not be put on hold or resumed. Please try again.',
 			dtmfFailed: 'The digit could not be sent. Please try again.',
+			transferFailed: 'The call could not be transferred. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

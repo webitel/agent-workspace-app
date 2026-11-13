@@ -166,6 +166,21 @@ export default {
 					openFullView: 'Toʻliq koʻrinishni ochish',
 				},
 			},
+			transfer: {
+				title: 'Qoʻngʻiroqni oʻtkazish',
+				phoneLabel: 'Raqamga oʻtkazish',
+				phonePlaceholder: 'Telefon raqamini kiriting',
+				emptyList: 'Hech narsa topilmadi',
+				columns: {
+					name: 'Ism',
+					status: 'Holat',
+					team: 'Jamoa',
+				},
+				modes: {
+					blind: 'Toʻgʻridan-toʻgʻri',
+					consult: 'Maslahat bilan',
+				},
+			},
 			outboundCall: {
 				ringing: 'Qoʻngʻiroq qilinmoqda',
 				noAnswer: 'Javob yoʻq',

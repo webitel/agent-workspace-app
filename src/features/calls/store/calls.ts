@@ -13,12 +13,15 @@ import { useOffersStore } from '../../../ui/notifications/modules/offers/store/o
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { CallsRouteName } from '../../../ui/pages/modules/calls/enums/CallsRouteName.enum';
 import { useCallAudio } from '../composables/useCallAudio';
+import { canTransferCall } from '../scripts/canTransferCall';
 import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
+import { isRingingConsultCall } from '../scripts/isRingingConsultCall';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
+import { toAgentNumericId } from '../scripts/toAgentNumericId';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
 
 /**
@@ -56,6 +59,10 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const ringingConsultCalls = computed(() =>
+		callList.value.filter((call) => isRingingConsultCall(call, callList.value)),
+	);
 
 	// Active calls plus the ended ones still in post-processing (WS-91).
 	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
@@ -313,6 +320,79 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * resolves true once the backend accepted the transfer, which is not yet
+	 * the end of the call: the SDK drops it from the list afterwards, and that
+	 * is what closes its window. A failure is reported here, not thrown, so the
+	 * popup that asked can stay open with the number the agent typed
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function blindTransfer(
+		callId: string,
+		destination: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		if (!canTransferCall(call)) return false;
+
+		try {
+			await call.blindTransfer(destination);
+			return true;
+		} catch {
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the original call goes on hold first, as in cc-workspaces, so the client
+	 * does not hear the agent talk to the colleague. If it cannot be held the
+	 * consult is not placed. A refused consult leaves the original on hold: the
+	 * agent resumes it by hand. The Consult call arrives through the call feed
+	 * as a call of its own, nothing is stored here
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function consultTransferToAgent(
+		callId: string,
+		agentId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const agentNumericId = toAgentNumericId(agentId);
+		if (!canTransferCall(call) || agentNumericId === null) return false;
+
+		const isCallOnHold = await holdCallBeforeConsult(call);
+		if (!isCallOnHold) return false;
+
+		return placeConsultToAgent(call, agentNumericId);
+	}
+
+	async function holdCallBeforeConsult(call: Call): Promise<boolean> {
+		try {
+			if (!call.isHold) await call.hold();
+			return true;
+		} catch (err) {
+			console.warn('[calls] holding the call before a consult failed', err);
+			notifyCallError('holdToggleFailed');
+			return false;
+		}
+	}
+
+	async function placeConsultToAgent(
+		call: Call,
+		agentNumericId: number,
+	): Promise<boolean> {
+		try {
+			await call.processTransferAgent(agentNumericId, {
+				disableStun: !getStunEnabled(),
+			});
+			return true;
+		} catch {
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
 	async function sendDtmf(callId: string, digit: string) {
 		const call = getCallById(callId);
 		if (!call?.allowDtmf) return;
@@ -432,6 +512,7 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		ringingConsultCalls,
 		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
@@ -445,12 +526,16 @@ export const useCallsStore = defineStore('calls', () => {
 		toggleMute,
 		toggleHold,
 		holdOtherLiveCalls,
+		blindTransfer,
+		consultTransferToAgent,
 		sendDtmf,
 		hangup,
 	};
 });
 
-function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
+function notifyCallError(
+	errorKey: 'holdToggleFailed' | 'dtmfFailed' | 'transferFailed',
+): void {
 	eventBus.$emit('notification', {
 		type: 'error',
 		text: i18n.global.t(`error.calls.${errorKey}`),

@@ -166,6 +166,21 @@ export default {
 					openFullView: 'Abrir vista completa',
 				},
 			},
+			transfer: {
+				title: 'Transferir llamada',
+				phoneLabel: 'Transferir al número',
+				phonePlaceholder: 'Introduzca el número de teléfono',
+				emptyList: 'No se encontró nada',
+				columns: {
+					name: 'Nombre',
+					status: 'Estado',
+					team: 'Equipo',
+				},
+				modes: {
+					blind: 'Ciega',
+					consult: 'Con consulta',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sonando',
 				noAnswer: 'Sin respuesta',

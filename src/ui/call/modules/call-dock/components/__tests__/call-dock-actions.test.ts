@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import { IconColor } from '@webitel/ui-sdk/enums';
 import { describe, expect, it } from 'vitest';
 
 import CallDockActions from '../call-dock-actions.vue';
@@ -9,6 +8,7 @@ const mountActions = (
 		isNumpadOpen: boolean;
 		isMuted: boolean;
 		isHold: boolean;
+		canTransfer: boolean;
 	}> = {},
 ) =>
 	mount(CallDockActions, {
@@ -16,6 +16,7 @@ const mountActions = (
 			isNumpadOpen: false,
 			isMuted: false,
 			isHold: false,
+			canTransfer: true,
 			...props,
 		},
 		global: {
@@ -88,16 +89,24 @@ describe('call-dock-actions', () => {
 		).toBeUndefined();
 	});
 
-	it('toggles the transfer icon active on each click', async () => {
+	it('disables transfer when the call cannot be transferred', () => {
+		const wrapper = mountActions({
+			canTransfer: false,
+		});
+
+		expect(
+			findAction(wrapper, 'transfer').attributes('disabled'),
+		).toBeDefined();
+	});
+
+	it('emits transfer without marking the action pressed', async () => {
 		const wrapper = mountActions();
-		const transferIcon = () =>
-			findAction(wrapper, 'transfer').find('[data-icon]');
-		const inactiveColor = transferIcon().attributes('data-color');
 
 		await findAction(wrapper, 'transfer').trigger('click');
-		expect(transferIcon().attributes('data-color')).toBe(IconColor.ACTIVE);
 
-		await findAction(wrapper, 'transfer').trigger('click');
-		expect(transferIcon().attributes('data-color')).toBe(inactiveColor);
+		expect(wrapper.emitted('transfer')).toHaveLength(1);
+		expect(
+			findAction(wrapper, 'transfer').attributes('aria-pressed'),
+		).toBeUndefined();
 	});
 });

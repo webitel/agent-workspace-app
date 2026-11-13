@@ -166,6 +166,21 @@ export default {
 					openFullView: 'Deschide vizualizarea completă',
 				},
 			},
+			transfer: {
+				title: 'Transfer apel',
+				phoneLabel: 'Transfer la numărul',
+				phonePlaceholder: 'Introduceți numărul de telefon',
+				emptyList: 'Nu s-a găsit nimic',
+				columns: {
+					name: 'Nume',
+					status: 'Stare',
+					team: 'Echipă',
+				},
+				modes: {
+					blind: 'Direct',
+					consult: 'Cu consultare',
+				},
+			},
 			outboundCall: {
 				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',
