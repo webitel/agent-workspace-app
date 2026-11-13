@@ -185,7 +185,6 @@ export default {
 			},
 			bridge: {
 				title: "З'єднання дзвінків",
-				description: "Оберіть дзвінок, з яким з'єднати цей дзвінок",
 				connect: "З'єднати",
 				unknownContact: 'Невідомий контакт',
 			},

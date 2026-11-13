@@ -37,6 +37,18 @@ const buildActiveCall = (
 
 const stubs = {
 	'wt-avatar': true,
+	'wt-table': {
+		props: [
+			'data',
+		],
+		template: `<ul>
+			<li v-for="item in data" :key="item.id" class="row">
+				<slot name="name" :item="item" />
+				<span class="number">{{ item.number }}</span>
+				<slot name="connect" :item="item" />
+			</li>
+		</ul>`,
+	},
 	'wt-popup': {
 		emits: [
 			'close',
@@ -85,7 +97,7 @@ describe('bridge-popup', () => {
 	it('lists the other Active calls, not the one it was opened for', () => {
 		const wrapper = mountPopup();
 
-		const listed = wrapper.findAll('.bridge-popup__call');
+		const listed = wrapper.findAll('.row');
 
 		expect(listed).toHaveLength(2);
 		expect(wrapper.text()).toContain('Daniel Smith');
@@ -93,22 +105,16 @@ describe('bridge-popup', () => {
 		expect(wrapper.text()).not.toContain('Emily Johnson');
 	});
 
-	it('keeps Connect disabled until a call is picked', async () => {
+	it('has Cancel as its only action', () => {
 		const wrapper = mountPopup();
-		const [connectButton] = wrapper.findAll('.popup-actions button');
 
-		expect(isDisabled(connectButton)).toBe(true);
-
-		await wrapper.findAll('.bridge-popup__call')[0].trigger('click');
-
-		expect(isDisabled(connectButton)).toBe(false);
+		expect(wrapper.findAll('.popup-actions button')).toHaveLength(1);
 	});
 
-	it('connects the opened call to the picked one and closes', async () => {
+	it('connects the opened call to the call whose Connect was pressed and closes', async () => {
 		const wrapper = mountPopup();
 
-		await wrapper.findAll('.bridge-popup__call')[1].trigger('click');
-		await wrapper.findAll('.popup-actions button')[0].trigger('click');
+		await wrapper.findAll('.row button')[1].trigger('click');
 		await flushPromises();
 
 		expect(bridgeCallsMock).toHaveBeenCalledWith('call-1', 'call-3');
@@ -119,17 +125,27 @@ describe('bridge-popup', () => {
 		bridgeCallsMock.mockResolvedValue(false);
 		const wrapper = mountPopup();
 
-		await wrapper.findAll('.bridge-popup__call')[0].trigger('click');
-		await wrapper.findAll('.popup-actions button')[0].trigger('click');
+		await wrapper.findAll('.row button')[0].trigger('click');
 		await flushPromises();
 
 		expect(useCallBridgePopupStore().isOpenBridgePopup).toBe(true);
 	});
 
+	it('disables every Connect while one is being sent', async () => {
+		bridgeCallsMock.mockReturnValue(new Promise(() => {}));
+		const wrapper = mountPopup();
+
+		await wrapper.findAll('.row button')[0].trigger('click');
+
+		for (const connectButton of wrapper.findAll('.row button')) {
+			expect(isDisabled(connectButton)).toBe(true);
+		}
+	});
+
 	it('closes without connecting on Cancel', async () => {
 		const wrapper = mountPopup();
 
-		await wrapper.findAll('.popup-actions button')[1].trigger('click');
+		await wrapper.findAll('.popup-actions button')[0].trigger('click');
 
 		expect(bridgeCallsMock).not.toHaveBeenCalled();
 		expect(useCallBridgePopupStore().isOpenBridgePopup).toBe(false);
@@ -146,16 +162,15 @@ describe('bridge-popup', () => {
 		expect(useCallBridgePopupStore().isOpenBridgePopup).toBe(false);
 	});
 
-	it('drops the pick when the picked call ends', async () => {
+	it('drops the row of a call that ends', async () => {
 		const wrapper = mountPopup();
-		const [connectButton] = wrapper.findAll('.popup-actions button');
 
-		await wrapper.findAll('.bridge-popup__call')[0].trigger('click');
 		callsState.activeCalls = callsState.activeCalls.filter(
 			({ id }) => id !== 'call-2',
 		);
 		await flushPromises();
 
-		expect(isDisabled(connectButton)).toBe(true);
+		expect(wrapper.findAll('.row')).toHaveLength(1);
+		expect(wrapper.text()).not.toContain('Daniel Smith');
 	});
 });

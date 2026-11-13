@@ -44,9 +44,9 @@ import { storeToRefs } from 'pinia';
 import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
+import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../mappings/transferAgentStatusColors';
 import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../mappings/transferAgentStatusLabelKeys';
-import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
 import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 

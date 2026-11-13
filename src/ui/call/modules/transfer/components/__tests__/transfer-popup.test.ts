@@ -55,8 +55,10 @@ const stubs = {
 	'wt-button': {
 		props: [
 			'disabled',
+			'color',
 		],
-		template: '<button :disabled="disabled"><slot /></button>',
+		template:
+			'<button :disabled="disabled" :data-color="color"><slot /></button>',
 	},
 	'wt-tabs': {
 		props: [
@@ -123,6 +125,20 @@ describe('transfer-popup', () => {
 			hangupAt: 0,
 		};
 		useCallTransferPopupStore().open('call-1');
+	});
+
+	it('colours Blind in the transfer blue and Consult in success green, on both rows of buttons', () => {
+		const wrapper = mountPopup();
+
+		for (const buttons of [
+			topButtons(wrapper),
+			bottomButtons(wrapper).slice(0, 2),
+		]) {
+			expect(buttons.map((button) => button.attributes('data-color'))).toEqual([
+				'transfer',
+				'success',
+			]);
+		}
 	});
 
 	it('titles itself and offers the four destination tabs, Agents first (AC_13.07.01)', () => {

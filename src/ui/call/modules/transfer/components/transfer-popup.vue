@@ -21,7 +21,7 @@
 					<wt-button
 						v-for="mode in transferModes"
 						:key="mode"
-						:color="ButtonColor.SECONDARY"
+						:color="TRANSFER_MODE_BUTTON_COLORS[mode]"
 						:variant="ButtonVariant.OUTLINED"
 						:disabled="isSubmitting || !availability.byPhone[mode]"
 						@click="requestTransferToPhone(mode)"
@@ -58,7 +58,7 @@
 			<wt-button
 				v-for="mode in transferModes"
 				:key="mode"
-				:color="ButtonColor.SECONDARY"
+				:color="TRANSFER_MODE_BUTTON_COLORS[mode]"
 				:disabled="isSubmitting || !availability.bySelection[mode]"
 				@click="requestTransferToRow(mode)"
 			>
@@ -91,6 +91,7 @@ import { sanitizeDestination } from '../../../../../features/calls/scripts/sanit
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import { TransferMode } from '../enums/TransferMode.enum';
 import { TransferTab } from '../enums/TransferTab.enum';
+import { TRANSFER_MODE_BUTTON_COLORS } from '../mappings/transferModeButtonColors';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';

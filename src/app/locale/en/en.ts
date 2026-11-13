@@ -184,8 +184,7 @@ export default {
 				},
 			},
 			bridge: {
-				title: 'Connect calls',
-				description: 'Choose the call to connect this call to',
+				title: 'Bridge calls',
 				connect: 'Connect',
 				unknownContact: 'Unknown contact',
 			},

@@ -13,7 +13,7 @@
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
                     :expanded="taskDockStore.expandedCallId === windowedCall.id"
-                    :can-bridge="canBridgeCalls"
+                    :can-bridge="windowedCall.canBridge"
                     @update:expanded="taskDockStore.setCallExpanded(windowedCall.id, $event)"
                     @open-full-view="openCallWindow(windowedCall.id)"
                     @toggle-mute="callsStore.toggleMute(windowedCall.id)"
@@ -68,6 +68,7 @@ import BridgePopup from '../../call/modules/bridge/components/bridge-popup.vue';
 import { useCallBridgePopupStore } from '../../call/modules/bridge/store/callBridgePopup';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
+import type { ActiveCallContent } from '../../call/modules/call-dock/types/ActiveCallContent.types';
 import TransferPopup from '../../call/modules/transfer/components/transfer-popup.vue';
 import { useCallTransferPopupStore } from '../../call/modules/transfer/store/callTransferPopup';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
@@ -86,18 +87,36 @@ const callBridgePopupStore = useCallBridgePopupStore();
  * the agent has more than one Active call
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-const canBridgeCalls = computed(() => callsStore.activeCalls.length > 1);
+const hasMultipleActiveCalls = computed(
+	() => callsStore.activeCalls.length > 1,
+);
+
+/**
+ * @author Oleksandr Palonnyi
+ * the icon is offered on the live call only: a Consult call bridged from the
+ * held original did not hand the client over to the other agent, the call just
+ * ended. Bridging from the live call is the one expected to work, still to
+ * confirm on a live instance
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const canBridgeFrom = (preview: ActiveCallContent): boolean =>
+	hasMultipleActiveCalls.value && !preview.isHold;
 
 // Every call with a Call window, so an agent who left one during post-processing
 // has a way back to it (AC_13.02.04). An ended call is still listed only while
 // its task is in post-processing.
 const windowedCalls = computed(() =>
-	callsStore.windowedCalls.map((call) => ({
-		id: call.id,
-		preview: toActiveCallContent(call),
-		isActive: isActiveCall(call),
-		task: call.task,
-	})),
+	callsStore.windowedCalls.map((call) => {
+		const preview = toActiveCallContent(call);
+
+		return {
+			id: call.id,
+			preview,
+			isActive: isActiveCall(call),
+			canBridge: canBridgeFrom(preview),
+			task: call.task,
+		};
+	}),
 );
 
 /**
