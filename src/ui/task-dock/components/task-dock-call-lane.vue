@@ -2,6 +2,7 @@
     <div class="task-dock-call-lane">
         <the-numpad-panel />
         <transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
+        <bridge-popup v-if="callBridgePopupStore.isOpenBridgePopup" />
 
         <div class="task-dock-call-lane__container">
             <template
@@ -12,11 +13,13 @@
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
                     :expanded="taskDockStore.expandedCallId === windowedCall.id"
+                    :can-bridge="canBridgeCalls"
                     @update:expanded="taskDockStore.setCallExpanded(windowedCall.id, $event)"
                     @open-full-view="openCallWindow(windowedCall.id)"
                     @toggle-mute="callsStore.toggleMute(windowedCall.id)"
                     @toggle-hold="callsStore.toggleHold(windowedCall.id)"
                     @transfer="callTransferPopupStore.open(windowedCall.id)"
+                    @bridge="callBridgePopupStore.open(windowedCall.id)"
                     @hangup="onHangup(windowedCall.id)"
                     @send-digit="callsStore.sendDtmf(windowedCall.id, $event)"
                 />
@@ -61,6 +64,8 @@ import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCal
 import { toOutboundCallPreview } from '../../../features/calls/scripts/toOutboundCallPreview';
 import { useCallsStore } from '../../../features/calls/store/calls';
 import OutboundCallCard from '../../call/components/outbound-call-card.vue';
+import BridgePopup from '../../call/modules/bridge/components/bridge-popup.vue';
+import { useCallBridgePopupStore } from '../../call/modules/bridge/store/callBridgePopup';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TransferPopup from '../../call/modules/transfer/components/transfer-popup.vue';
@@ -73,6 +78,15 @@ const taskDockStore = useTaskDockStore();
 const router = useRouter();
 const callsStore = useCallsStore();
 const callTransferPopupStore = useCallTransferPopupStore();
+const callBridgePopupStore = useCallBridgePopupStore();
+
+/**
+ * @author Oleksandr Palonnyi
+ * AC_14.02.07: bridging needs two calls to join, so the icon shows only while
+ * the agent has more than one Active call
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const canBridgeCalls = computed(() => callsStore.activeCalls.length > 1);
 
 // Every call with a Call window, so an agent who left one during post-processing
 // has a way back to it (AC_13.02.04). An ended call is still listed only while

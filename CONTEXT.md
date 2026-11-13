@@ -139,6 +139,15 @@ once the destination answers it is an Active call like any other. Until then it
 shows as a ringing card in the call dock, and it is recognised by the original
 call being its parent, not remembered (ADR-0014).
 
+**Bridge** — joining two Active calls to each other so the agent drops out and
+the two parties talk (AC_14.02.07). It is not a transfer and not part of a
+**Consult transfer** only: it applies to any two Active calls, and is offered
+whenever the agent has more than one (its icon is in the call dock's action bar
+only then, not for a single call). The agent opens it from one call and picks the
+other one in a popup. Afterwards the two connected calls are active and the third
+is dropped; a call that came from a queue goes on to its **Post-processing**
+(BA, not yet seen on a live call).
+
 **Transfer popup** — the popup an agent uses to pick where an Active call goes,
 opened from the Call window's top bar or from the call dock. It has a number
 field and four tabs of destinations (Agents, Queues, Users, Dialplans) under one

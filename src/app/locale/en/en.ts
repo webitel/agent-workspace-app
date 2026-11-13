@@ -176,9 +176,16 @@ export default {
 					camera: 'Camera',
 					message: 'Message',
 					transfer: 'Transfer',
+					bridge: 'Connect calls',
 					hangup: 'End call',
 					openFullView: 'Open full view',
 				},
+			},
+			bridge: {
+				title: 'Connect calls',
+				description: 'Choose the call to connect this call to',
+				connect: 'Connect',
+				unknownContact: 'Unknown contact',
 			},
 			transfer: {
 				title: 'Transfer Call',
@@ -216,6 +223,7 @@ export default {
 				'The call could not be put on hold or resumed. Please try again.',
 			dtmfFailed: 'The digit could not be sent. Please try again.',
 			transferFailed: 'The call could not be transferred. Please try again.',
+			bridgeFailed: 'The calls could not be connected. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

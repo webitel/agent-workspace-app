@@ -34,6 +34,17 @@
 			@click="emit('toggleHold')"
 		/>
 		<wt-button
+			v-if="canBridge"
+			icon="call-add-to"
+			:size="ComponentSize.SM"
+			:icon-color="IconColor.DEFAULT"
+			:color="ButtonColor.SECONDARY"
+			:variant="ButtonVariant.TEXT"
+			:aria-label="t('ui.call.activeCall.actions.bridge')"
+			width-by-content
+			@click="emit('bridge')"
+		/>
+		<wt-button
 			icon="call-transfer--filled"
 			:size="ComponentSize.SM"
 			:icon-color="IconColor.TRANSFER"
@@ -74,6 +85,7 @@ defineProps<{
 	isMuted: boolean;
 	isHold: boolean;
 	canTransfer: boolean;
+	canBridge: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -81,6 +93,7 @@ const emit = defineEmits<{
 	toggleMute: [];
 	toggleHold: [];
 	transfer: [];
+	bridge: [];
 	hangup: [];
 }>();
 
