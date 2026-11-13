@@ -6,7 +6,8 @@ Date: 2026-10-22
 
 Accepted. To be implemented in [WS-57](https://webitel.atlassian.net/browse/WS-57);
 the backend side is [WS-56](https://webitel.atlassian.net/browse/WS-56). Paging
-superseded by [ADR-0013](0013-chat-list-pages-from-threads-scoped-by-tasks.md).
+later moved to the backend in WS-55; see the status of
+[ADR-0011](0011-chat-list-stays-the-task-feed.md).
 
 ## Context
 

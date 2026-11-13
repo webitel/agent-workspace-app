@@ -9,7 +9,7 @@ import { useChatSnoozedStore } from './chat-snoozed';
  * The Active tab's chats: every chat the agent has accepted and not snoozed,
  * counted for the tab's indicators, and the unread filter (AC_02.01.04). The
  * chats themselves belong to the task feed, which `chats` owns; which of them
- * the tab shows is read page by page in `chat-list` (ADR-0013).
+ * the tab shows is read page by page in `chat-list`.
  */
 export const useChatActiveStore = defineStore('chat-active', () => {
 	const chatsStore = useChatsStore();

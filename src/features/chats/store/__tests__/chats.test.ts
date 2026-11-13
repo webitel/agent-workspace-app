@@ -292,7 +292,7 @@ describe('chats store', () => {
 
 			reconnectedHandler?.();
 
-			// the open tab is read again from its first page (ADR-0013)
+			// the open tab is read again from its first page
 			expect(reloadListMock).toHaveBeenCalledOnce();
 			expect(catchUpMock).toHaveBeenCalledTimes(2);
 		});

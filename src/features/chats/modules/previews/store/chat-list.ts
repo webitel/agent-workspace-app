@@ -14,7 +14,7 @@ import { useChatSnoozedStore } from './chat-snoozed';
  * Which tab of the chat list is open and what it shows, with each tab's count
  * for its indicator (US_02.12). Which chats are listed is the task feed's to
  * say; which of them a tab shows, in what order, is read from the chat backend
- * a page at a time and kept in order from the sockets (ADR-0013). Also hands the
+ * a page at a time and kept in order from the sockets. Also hands the
  * agent's chats to the previews, which keep a last message for each.
  */
 export const useChatListStore = defineStore('chat-list', () => {
@@ -136,7 +136,7 @@ export const useChatListStore = defineStore('chat-list', () => {
 
 	/**
 	 * A message moves its chat to the top of Active, as a fresh read sorted by
-	 * activity would (ADR-0013). The agent's own messages count too; system
+	 * activity would. The agent's own messages count too; system
 	 * notices do not. A snoozed chat stays put: if the message unsnoozes it, the
 	 * tags change moves it.
 	 */

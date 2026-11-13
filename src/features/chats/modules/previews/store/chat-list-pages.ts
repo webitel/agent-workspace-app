@@ -3,7 +3,7 @@ import { shallowRef } from 'vue';
 /**
  * A page that brings no chat the tab does not show yet is followed by the next
  * one, this many times at most, in case the backend keeps answering the same
- * chats (ADR-0013).
+ * chats.
  */
 const MAX_EMPTY_PAGES_IN_A_ROW = 3;
 
@@ -14,8 +14,8 @@ export interface ChatListPage {
 
 /**
  * One tab of the chat list as read page by page, in the backend's order: the
- * thread ids of its rows and nothing else, since a row is drawn from its task
- * (ADR-0013). Chats moved in live (a new message, a snooze) sit among them, and
+ * thread ids of its rows and nothing else, since a row is drawn from its task.
+ * Chats moved in live (a new message, a snooze) sit among them, and
  * a later page skips the ones already shown.
  *
  * A plain factory rather than a store: the chat list keeps one for each tab.

@@ -7,8 +7,17 @@ Date: 2026-10-29
 Accepted. Implemented by [WS-55](https://webitel.atlassian.net/browse/WS-55); the
 backend side is [WS-54](https://webitel.atlassian.net/browse/WS-54). Builds on
 [ADR-0008](0008-snoozed-chats-split-the-task-feed.md), which it leaves standing.
-Paging and search superseded by
-[ADR-0013](0013-chat-list-pages-from-threads-scoped-by-tasks.md).
+Paging and search were later moved to the backend in WS-55: the list is read
+page by page from `GET /v1/threads`, scoped by `ids` to the agent's tasks, and
+searched and narrowed there. Known risks of that:
+
+- `ids` together with `page`, `size`, the tags, `unread` and `q` has not been
+  checked on the backend as one combination.
+- Whether `updated_at` follows the newest message is not documented; if it does
+  not, a reload orders the list differently from the live moves.
+- Paging is by page number, so a chat that moves while the agent scrolls can be
+  repeated by a later page (skipped) or missed until the next reload.
+- The ids go in the query string, and the backend states no limit on them.
 
 ## Context
 

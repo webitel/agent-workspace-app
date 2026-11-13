@@ -275,7 +275,7 @@ export const useChatsStore = defineStore('chats', () => {
 		// say too (ADR-0011)
 		void previewsStore.loadUnread();
 		// resolved here for the same reason; it reads its first page once the
-		// task feed has arrived (ADR-0013)
+		// task feed has arrived
 		const chatListStore = useChatListStore();
 
 		connectChatsSocket();

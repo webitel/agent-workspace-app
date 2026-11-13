@@ -327,7 +327,7 @@ describe('chat-previews store', () => {
 		});
 	});
 
-	// a chat's last message comes with the page that shows it (ADR-0013)
+	// a chat's last message comes with the page that shows it
 	describe('following the listed chats', () => {
 		it('reads nothing when a chat is listed', async () => {
 			const store = useChatPreviewsStore();

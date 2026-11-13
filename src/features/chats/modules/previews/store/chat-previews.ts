@@ -28,8 +28,8 @@ const UNREAD_PAGE_SIZE = 100;
  * (ADR-0007), while a chat preview must show its last message for every listed
  * chat, opened or not.
  *
- * A chat's last message comes with the page of the chat list that shows it
- * (ADR-0013), or from a single history request when the page brings none, and
+ * A chat's last message comes with the page of the chat list that shows it,
+ * or from a single history request when the page brings none, and
  * is kept current from the chats socket. Its unread count is read once for every
  * chat that has any, refreshed by each page, and kept from the socket
  * (ADR-0011).
@@ -57,7 +57,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	const hasUnreadData = shallowRef(false);
 
 	/**
-	 * The gateway of each listed chat, from the page that shows it (ADR-0013).
+	 * The gateway of each listed chat, from the page that shows it.
 	 * The task does not carry one, so a chat no page has brought has none yet.
 	 */
 	const channels = shallowRef<
