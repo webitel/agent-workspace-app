@@ -34,6 +34,7 @@ vi.mock('vue-i18n', async (importOriginal) => ({
 
 import { useOffersStore } from '../../../../../ui/notifications/modules/offers/store/offers';
 import type { Offer } from '../../../../../ui/notifications/modules/offers/types/Offer.types';
+import { useChatPreviewsStore } from '../../../modules/previews/store/chat-previews';
 import ChatTopBar from '../chat-top-bar.vue';
 
 let nextId = 1;
@@ -138,6 +139,27 @@ describe('chat-top-bar', () => {
 		expect(wrapper.text()).toContain('client_username');
 		expect(wrapper.text()).toContain('Support');
 		expect(wrapper.text()).toContain('ui.notifications.offer.queue');
+	});
+
+	// the chat preview is named the same way (AC_02.03.01, AC_03.01.01)
+	it('names the chat by the client the chat list has read for it', async () => {
+		const wrapper = mountBar(
+			makeTask({
+				thread: {
+					id: 't1',
+				},
+			}),
+		);
+		useChatPreviewsStore().clients = {
+			t1: {
+				username: 'johnny',
+				name: 'John S.',
+			},
+		};
+		await nextTick();
+
+		expect(wrapper.find('.avatar').text()).toBe('johnny');
+		expect(wrapper.text()).toContain('johnny');
 	});
 
 	it('offers to end a live chat and no timer', () => {

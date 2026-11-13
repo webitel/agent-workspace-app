@@ -327,7 +327,7 @@ describe('chat-previews store', () => {
 		});
 	});
 
-	// a chat's last message comes with the page that shows it (ADR-0012)
+	// a chat's last message comes with the page that shows it (ADR-0013)
 	describe('following the listed chats', () => {
 		it('reads nothing when a chat is listed', async () => {
 			const store = useChatPreviewsStore();
@@ -496,6 +496,79 @@ describe('chat-previews store', () => {
 			store.sync([]);
 
 			expect(store.channels.t1).toBeUndefined();
+		});
+
+		describe('client', () => {
+			const members = [
+				{
+					contact: {
+						iss: 'bot',
+						name: 'Support bot',
+					},
+				},
+				{
+					contact: {
+						iss: 'webitel',
+						name: 'Agent',
+					},
+				},
+				{
+					contact: {
+						iss: 'telegram',
+						name: 'John Smith',
+						username: 'john',
+					},
+				},
+			];
+
+			it('takes the client from the members of the page', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveThread(
+					thread({
+						members,
+					}),
+				);
+
+				expect(store.clients.t1).toEqual({
+					name: 'John Smith',
+					username: 'john',
+				});
+			});
+
+			it('has no client for a thread of a bot and the agent', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+
+				store.receiveThread(
+					thread({
+						members: members.slice(0, 2),
+					}),
+				);
+
+				expect(store.clients.t1).toBeUndefined();
+			});
+
+			it('forgets the client of a chat that leaves the list', () => {
+				const store = useChatPreviewsStore();
+				store.sync([
+					't1',
+				]);
+				store.receiveThread(
+					thread({
+						members,
+					}),
+				);
+
+				store.sync([]);
+
+				expect(store.clients.t1).toBeUndefined();
+			});
 		});
 
 		it('does not count the page’s last message again when the socket echoes it', () => {

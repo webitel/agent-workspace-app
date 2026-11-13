@@ -63,7 +63,7 @@ vi.mock('../../api/chatSdk', () => ({
 	threadsService: {
 		fetchThread: (...args: unknown[]) => fetchThreadMock(...args),
 		// no chat is snoozed or unread here; a page of the chat list carries each
-		// asked chat's newest message, as the thread list does (ADR-0012)
+		// asked chat's newest message, as the thread list does (ADR-0013)
 		fetchThreads: async (params?: { ids?: string[]; tags?: string[] }) => ({
 			items: params?.tags
 				? []

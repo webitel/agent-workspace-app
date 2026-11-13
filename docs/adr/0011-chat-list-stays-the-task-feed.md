@@ -8,7 +8,7 @@ Accepted. Implemented by [WS-55](https://webitel.atlassian.net/browse/WS-55); th
 backend side is [WS-54](https://webitel.atlassian.net/browse/WS-54). Builds on
 [ADR-0008](0008-snoozed-chats-split-the-task-feed.md), which it leaves standing.
 Paging and search superseded by
-[ADR-0012](0012-chat-list-pages-from-threads-scoped-by-tasks.md).
+[ADR-0013](0013-chat-list-pages-from-threads-scoped-by-tasks.md).
 
 ## Context
 

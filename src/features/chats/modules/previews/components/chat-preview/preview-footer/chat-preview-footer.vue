@@ -3,7 +3,10 @@
         class="chat-preview-footer typo-caption"
         :title="queueName"
     >
-        <span class="chat-preview-footer__text">
+        <span
+            v-if="queueName"
+            class="chat-preview-footer__text"
+        >
             <span class="typo-caption-bold">
                 {{ t('objects.queue.queue', 1) }}:
             </span>
@@ -28,7 +31,8 @@ import { ComponentSize } from '@webitel/ui-sdk/enums';
 import { useI18n } from 'vue-i18n';
 
 defineProps<{
-	queueName: string;
+	/** Absent for a chat that came through no queue; the expand control stays. */
+	queueName?: string;
 }>();
 
 const { t } = useI18n();
@@ -50,5 +54,6 @@ const { t } = useI18n();
 
 .chat-preview-footer__expand {
     flex: none;
+    margin-left: auto;
 }
 </style>

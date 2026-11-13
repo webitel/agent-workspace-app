@@ -2,16 +2,21 @@ import type { WebitelImApiGatewayV1ThreadChannel } from '@webitel/api-services/g
 import type { AccountModel } from '@webitel/chat-web-sdk';
 import type { Task } from 'webitel-sdk';
 import { isSelfContact } from '../../../scripts/isSelfContact';
-import { toChatHeader } from '../../../scripts/toChatHeader';
-import type { ChatPreview, LastMessage } from '../types/ChatPreview.types';
+import { toChatTitle } from '../../../scripts/toChatTitle';
+import type {
+	ChatPreview,
+	LastMessage,
+	PreviewClient,
+} from '../types/ChatPreview.types';
 import { toChannelIcon } from './toChannelIcon';
 
 /**
  * Maps an accepted chat's task, and the last message held for it, onto what its
  * row in the chat list shows.
  *
- * The name and the queue are the chat header's, so a chat reads the same in the
- * list as it does once opened (AC_03.01.01).
+ * The name and the queue are the chat title's, so a chat reads the same in the
+ * list as it does once opened (AC_03.01.01): the client's name from the
+ * thread's members, and the task's until a page has brought them.
  *
  * Everything about the last message comes from `lastMessage`, which the chats
  * socket keeps current. The task's own `thread` is a snapshot, taken when the
@@ -27,16 +32,22 @@ import { toChannelIcon } from './toChannelIcon';
  * agent. It stays unknown until the agent's account loads, so a row never calls
  * the agent's message the client's.
  *
- * The gateway is the thread's, from the chat list page: the task carries none.
+ * The gateway is the thread's too: the task carries none.
  * A channel without a name is left out rather than shown as a bare label.
  */
 export function toChatPreview(
 	task: Task,
 	lastMessage: LastMessage | undefined,
 	account: AccountModel | null,
-	channel?: WebitelImApiGatewayV1ThreadChannel,
+	{
+		channel,
+		client,
+	}: {
+		channel?: WebitelImApiGatewayV1ThreadChannel;
+		client?: PreviewClient;
+	} = {},
 ): ChatPreview {
-	const { name, queueName } = toChatHeader(task);
+	const { name, queueName } = toChatTitle(task, client);
 
 	const body = lastMessage?.body;
 	const at = lastMessage?.at;

@@ -1,8 +1,8 @@
 <template>
 	<task-top-bar
 		class="chat-top-bar"
-		:name="header.name"
-		:subtitle="header.queueName"
+		:name="chatTitle.name"
+		:subtitle="chatTitle.queueName"
 		:subtitle-label="t('ui.notifications.offer.queue')"
 	>
 		<template #leading>
@@ -11,7 +11,7 @@
 				icon="ws-chat-clock"
 			/>
 			<wt-avatar
-				:username="header.name"
+				:username="chatTitle.name"
 				size="sm"
 			/>
 		</template>
@@ -88,7 +88,8 @@ import TaskTopBar from '../../../../ui/task-top-bar/task-top-bar.vue';
 import TaskTopBarOfferActions from '../../../../ui/task-top-bar/task-top-bar-offer-actions.vue';
 import PostProcessingTimer from '../../../processing/components/post-processing-timer.vue';
 import { useProcessingStore } from '../../../processing/store/processing';
-import { toChatHeader } from '../../scripts/toChatHeader';
+import { useChatPreviewsStore } from '../../modules/previews/store/chat-previews';
+import { toChatTitle } from '../../scripts/toChatTitle';
 import { useChatsStore } from '../../store/chats';
 
 const props = defineProps<{
@@ -98,8 +99,13 @@ const props = defineProps<{
 const { t } = useI18n();
 const chatsStore = useChatsStore();
 const offersStore = useOffersStore();
+const previewsStore = useChatPreviewsStore();
 
-const header = computed(() => toChatHeader(props.task));
+// the client the chat list has read for this chat, so the bar and the chat
+// preview name it the same
+const chatTitle = computed(() =>
+	toChatTitle(props.task, previewsStore.clients[props.task.thread?.id ?? '']),
+);
 
 // The offer card and this bar are one offer: it is keyed by the task, and it
 // lives only while the chat is still being offered to the agent.

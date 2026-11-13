@@ -11,7 +11,7 @@ import { expect, test } from './fixtures/test';
 /**
  * The chat list's Active tab (US_02.01): the chats the agent has accepted,
  * read page by page from the chat backend's thread list and loaded on scroll
- * (ADR-0012), searchable and narrowable to unread. Also its tab indicators
+ * (ADR-0013), searchable and narrowable to unread. Also its tab indicators
  * (US_02.12) and the Snoozed tab (US_02.02), fed by the chat backend's snoozed
  * threads (ADR-0008) and unread chats (ADR-0011).
  */
@@ -45,7 +45,7 @@ const threadIndex = (threadId: string) =>
 	Number(threadId.replace('e2e-thread-', ''));
 
 /**
- * The chat backend's thread list as the chat list reads it (ADR-0012): a page
+ * The chat backend's thread list as the chat list reads it (ADR-0013): a page
  * of the asked threads, split by the snoozed tag, searched by the client's name
  * and narrowed to unread, the chat accepted last first. Without `ids` it
  * answers every thread it knows of, as the snoozed and unread reads ask.

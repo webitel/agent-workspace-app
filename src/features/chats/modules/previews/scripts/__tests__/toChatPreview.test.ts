@@ -48,7 +48,7 @@ const buildLastMessage = (overrides: Record<string, unknown> = {}) => ({
 
 describe('toChatPreview', () => {
 	// AC_03.01.01: the list reads the same as the top bar after opening
-	it('names the chat the way its header does', () => {
+	it('names the chat the way its title does', () => {
 		const preview = toChatPreview(buildTask(), buildLastMessage(), account);
 
 		expect(preview.name).toBe('@john');
@@ -65,6 +65,29 @@ describe('toChatPreview', () => {
 		);
 
 		expect(preview.name).toBe('John Smith');
+	});
+
+	// the task's name is a snapshot from distribution; the thread's members are
+	// what the chat list page has just read
+	describe('client from the thread', () => {
+		it('names the chat by the client among the thread members', () => {
+			const preview = toChatPreview(buildTask(), buildLastMessage(), account, {
+				client: {
+					username: 'johnny',
+					name: 'John S.',
+				},
+			});
+
+			expect(preview.name).toBe('johnny');
+		});
+
+		it('keeps the title name for a client that carries no name', () => {
+			const preview = toChatPreview(buildTask(), buildLastMessage(), account, {
+				client: {},
+			});
+
+			expect(preview.name).toBe('@john');
+		});
 	});
 
 	it('takes text, time and sender from the last message', () => {
@@ -184,8 +207,10 @@ describe('toChatPreview', () => {
 		it('names the gateway and gives it its logo', () => {
 			expect(
 				toChatPreview(buildTask(), buildLastMessage(), account, {
-					name: 'Support bot',
-					type: 'THREAD_CHANNEL_TYPE_TELEGRAM_BOT',
+					channel: {
+						name: 'Support bot',
+						type: 'THREAD_CHANNEL_TYPE_TELEGRAM_BOT',
+					},
 				}).channel,
 			).toEqual({
 				name: 'Support bot',
@@ -196,8 +221,10 @@ describe('toChatPreview', () => {
 		it('keeps the name of a gateway with no logo', () => {
 			expect(
 				toChatPreview(buildTask(), buildLastMessage(), account, {
-					name: 'Gate',
-					type: 'THREAD_CHANNEL_TYPE_UNSPECIFIED',
+					channel: {
+						name: 'Gate',
+						type: 'THREAD_CHANNEL_TYPE_UNSPECIFIED',
+					},
 				}).channel,
 			).toEqual({
 				name: 'Gate',
@@ -208,7 +235,9 @@ describe('toChatPreview', () => {
 		it('leaves out a gateway without a name', () => {
 			expect(
 				toChatPreview(buildTask(), buildLastMessage(), account, {
-					type: 'THREAD_CHANNEL_TYPE_WHATSAPP',
+					channel: {
+						type: 'THREAD_CHANNEL_TYPE_WHATSAPP',
+					},
 				}).channel,
 			).toBeUndefined();
 		});

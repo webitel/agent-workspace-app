@@ -1,7 +1,7 @@
 <template>
     <div
-        class="chat-preview-body"
-        :class="`chat-preview-body--${sender === 'client' ? 'client' : 'agent'}-${unread ? 'unread' : 'read'}`"
+        class="last-chat-message"
+        :class="`last-chat-message--${sender === 'client' ? 'client' : 'agent'}-${unread ? 'unread' : 'read'}`"
     >
         <!-- the client's own avatar, or the standard one for the agent -->
         <wt-avatar
@@ -9,7 +9,7 @@
             size="xs"
             :username="sender === 'client' ? name : undefined"
         />
-        <p class="chat-preview-body__text typo-body-1">
+        <p class="last-chat-message__text typo-body-1">
             {{ text }}
         </p>
     </div>
@@ -36,7 +36,7 @@ defineProps<{
 </script>
 
 <style scoped>
-.chat-preview-body {
+.last-chat-message {
     display: flex;
     gap: var(--wt-ws-chat-queue-pannel-sizes-last-message-text-gap);
     align-items: center;
@@ -44,27 +44,27 @@ defineProps<{
     border-radius: var(--wt-ws-chat-queue-pannel-sizes-last-message-text-border-radius);
 }
 
-.chat-preview-body--client-read {
+.last-chat-message--client-read {
     background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-read-background);
     color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-read-color);
 }
 
-.chat-preview-body--client-unread {
+.last-chat-message--client-unread {
     background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-unread-background);
     color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-unread-color);
 }
 
-.chat-preview-body--agent-read {
+.last-chat-message--agent-read {
     background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-read-background);
     color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-read-color);
 }
 
-.chat-preview-body--agent-unread {
+.last-chat-message--agent-unread {
     background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-unread-background);
     color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-unread-color);
 }
 
-.chat-preview-body__text {
+.last-chat-message__text {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

@@ -6,7 +6,7 @@ import { ChatListTab } from '../enums/ChatListTab.enum';
 export const CHAT_LIST_PAGE_SIZE = 20;
 
 // the spec gives the left panel no order; newest activity first is assumed
-// (ADR-0012), to be confirmed against what `updated_at` follows
+// (ADR-0013), to be confirmed against what `updated_at` follows
 const CHAT_LIST_SORT = '-updated_at';
 
 // a row is drawn from its task; the thread brings only what the task lacks
@@ -15,6 +15,8 @@ const CHAT_LIST_FIELDS = [
 	'updated_at',
 	'last_msg',
 	'unread_count',
+	'members',
+	'channel',
 ];
 
 export interface ChatListPageQuery {
@@ -34,7 +36,7 @@ export interface ChatListPageResult {
 
 /**
  * Reads one page of a chat list tab from the chat backend, scoped to the
- * agent's call-center chats (ADR-0012).
+ * agent's call-center chats (ADR-0013).
  */
 export async function fetchChatListPage({
 	tab,

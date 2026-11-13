@@ -23,6 +23,12 @@ export interface PreviewChannel {
 	icon?: string;
 }
 
+/** The client of a chat, from its thread's members: only what names them. */
+export interface PreviewClient {
+	name?: string;
+	username?: string;
+}
+
 /** What a row of the chat list shows for one chat (CONTEXT.md: Chat preview). */
 export interface ChatPreview {
 	/** The client's messenger username, falling back to their name. */

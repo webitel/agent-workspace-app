@@ -4,11 +4,12 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 
 import { messagesService, threadsService } from '../../../api/chatSdk';
+import { findClientContact } from '../../../scripts/findClientContact';
 import { isSelfContact } from '../../../scripts/isSelfContact';
 import { useChatAccountStore } from '../../../store/chat-account';
 import type { IMessage } from '../../../types/ChatSession.types';
 import { toLastMessage } from '../scripts/toLastMessage';
-import type { LastMessage } from '../types/ChatPreview.types';
+import type { LastMessage, PreviewClient } from '../types/ChatPreview.types';
 
 /**
  * How many of the newest messages the seed reads. Usually the first one is the
@@ -28,7 +29,7 @@ const UNREAD_PAGE_SIZE = 100;
  * chat, opened or not.
  *
  * A chat's last message comes with the page of the chat list that shows it
- * (ADR-0012), or from a single history request when the page brings none, and
+ * (ADR-0013), or from a single history request when the page brings none, and
  * is kept current from the chats socket. Its unread count is read once for every
  * chat that has any, refreshed by each page, and kept from the socket
  * (ADR-0011).
@@ -56,12 +57,18 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 	const hasUnreadData = shallowRef(false);
 
 	/**
-	 * The gateway of each listed chat, from the page that shows it (ADR-0012).
+	 * The gateway of each listed chat, from the page that shows it (ADR-0013).
 	 * The task does not carry one, so a chat no page has brought has none yet.
 	 */
 	const channels = shallowRef<
 		Record<string, WebitelImApiGatewayV1ThreadChannel>
 	>({});
+
+	/**
+	 * The client of each listed chat, from the members of the page that shows
+	 * it. A thread with no client (a bot and the agent) has none.
+	 */
+	const clients = shallowRef<Record<string, PreviewClient>>({});
 
 	function setUnreadCount(threadId: string, count: number) {
 		if ((unreadByThread.value[threadId] ?? 0) === count) return;
@@ -187,6 +194,16 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 				[thread.id]: thread.channel,
 			};
 
+		const client = findClientContact(thread.members);
+		if (client)
+			clients.value = {
+				...clients.value,
+				[thread.id]: {
+					name: client.name,
+					username: client.username,
+				},
+			};
+
 		// the backend leaves a zero count out
 		setUnreadCount(thread.id, thread.unreadCount ?? 0);
 
@@ -223,6 +240,8 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 			unreadByThread.value = counts;
 			const { [threadId]: _channel, ...kept } = channels.value;
 			channels.value = kept;
+			const { [threadId]: _client, ...known } = clients.value;
+			clients.value = known;
 		}
 
 		for (const threadId of current) tracked.add(threadId);
@@ -233,6 +252,7 @@ export const useChatPreviewsStore = defineStore('chat-previews', () => {
 		lastMessages,
 		unreadByThread,
 		channels,
+		clients,
 
 		// getters
 		hasUnreadData,

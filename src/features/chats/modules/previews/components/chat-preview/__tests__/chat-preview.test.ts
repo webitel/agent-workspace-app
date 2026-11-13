@@ -18,6 +18,7 @@ const previewsStore = {
 	lastMessages: {} as Record<string, unknown>,
 	unreadByThread: {} as Record<string, number>,
 	channels: {} as Record<string, unknown>,
+	clients: {} as Record<string, unknown>,
 };
 vi.mock('../../../store/chat-previews', () => ({
 	useChatPreviewsStore: () => previewsStore,
@@ -84,7 +85,21 @@ describe('chat-preview', () => {
 		};
 		previewsStore.unreadByThread = {};
 		previewsStore.channels = {};
+		previewsStore.clients = {};
 		accountStore.account = account;
+	});
+
+	it('names the chat by the client the thread brings', () => {
+		previewsStore.clients = {
+			t1: {
+				username: 'johnny',
+				name: 'John S.',
+			},
+		};
+
+		expect(mountPreview().find('.client-identity-block__name').text()).toBe(
+			'johnny',
+		);
 	});
 
 	describe('channel', () => {
@@ -149,7 +164,7 @@ describe('chat-preview', () => {
 		const wrapper = mountPreview();
 
 		expect(wrapper.find('.client-identity-block__name').text()).toBe('@john');
-		expect(wrapper.find('.chat-preview-body__text').text()).toBe(
+		expect(wrapper.find('.last-chat-message__text').text()).toBe(
 			'message text',
 		);
 		expect(wrapper.find('.chat-preview-footer').text()).toContain('Support');
@@ -195,10 +210,10 @@ describe('chat-preview', () => {
 		it("shows the client's message in the client look", () => {
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--client-read',
+			expect(wrapper.find('.last-chat-message').classes()).toContain(
+				'last-chat-message--client-read',
 			);
-			expect(wrapper.find('.chat-preview-body .wt-avatar').exists()).toBe(true);
+			expect(wrapper.find('.last-chat-message .wt-avatar').exists()).toBe(true);
 		});
 
 		it("shows the client's message as unread while the chat has unseen messages", () => {
@@ -206,8 +221,8 @@ describe('chat-preview', () => {
 				t1: 2,
 			};
 
-			expect(mountPreview().find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--client-unread',
+			expect(mountPreview().find('.last-chat-message').classes()).toContain(
+				'last-chat-message--client-unread',
 			);
 		});
 
@@ -225,8 +240,8 @@ describe('chat-preview', () => {
 			};
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--agent-read',
+			expect(wrapper.find('.last-chat-message').classes()).toContain(
+				'last-chat-message--agent-read',
 			);
 		});
 
@@ -235,10 +250,10 @@ describe('chat-preview', () => {
 			accountStore.account = null;
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body__text').text()).toBe(
+			expect(wrapper.find('.last-chat-message__text').text()).toBe(
 				'message text',
 			);
-			expect(wrapper.find('.chat-preview-body .wt-avatar').exists()).toBe(
+			expect(wrapper.find('.last-chat-message .wt-avatar').exists()).toBe(
 				false,
 			);
 		});
@@ -254,18 +269,20 @@ describe('chat-preview', () => {
 			const wrapper = mountPreview();
 
 			expect(wrapper.find('.client-identity-block__name').text()).toBe('@john');
-			expect(wrapper.find('.chat-preview-body').exists()).toBe(false);
+			expect(wrapper.find('.last-chat-message').exists()).toBe(false);
 			expect(wrapper.find('.chat-preview__time').exists()).toBe(false);
 		});
 	});
 
-	it('shows no queue line for a chat without a queue', () => {
+	// AC_02.03.01: the expand control is laid out on every row
+	it('keeps the expand control, without a queue name, for a chat without a queue', () => {
 		const wrapper = mountPreview(
 			buildTask({
 				queue: undefined,
 			}),
 		);
 
-		expect(wrapper.find('.chat-preview-footer').exists()).toBe(false);
+		expect(wrapper.find('.chat-preview-footer__expand').exists()).toBe(true);
+		expect(wrapper.find('.chat-preview-footer__text').exists()).toBe(false);
 	});
 });

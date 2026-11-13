@@ -54,6 +54,8 @@ describe('fetchChatListPage', () => {
 				'id',
 				'last_msg',
 				'unread_count',
+				'channel',
+				'members',
 			]),
 		);
 	});

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ILeftThread } from '../../../../types/ChatSession.types';
-import { toClosedChatHeader } from '../toClosedChatHeader';
+import { toClosedChatTitle } from '../toClosedChatTitle';
 
 const threadWith = (
 	contacts: {
@@ -20,7 +20,7 @@ const threadWith = (
 		})),
 	}) as unknown as ILeftThread;
 
-describe('toClosedChatHeader', () => {
+describe('toClosedChatTitle', () => {
 	it("names the chat after the client's username", () => {
 		const thread = threadWith([
 			{
@@ -36,7 +36,7 @@ describe('toClosedChatHeader', () => {
 			},
 		]);
 
-		expect(toClosedChatHeader(thread).name).toBe('client_username');
+		expect(toClosedChatTitle(thread).name).toBe('client_username');
 	});
 
 	it('falls back to the client name when there is no username', () => {
@@ -48,7 +48,7 @@ describe('toClosedChatHeader', () => {
 			},
 		]);
 
-		expect(toClosedChatHeader(thread).name).toBe('Client Name');
+		expect(toClosedChatTitle(thread).name).toBe('Client Name');
 	});
 
 	it('has no name when the thread has no client', () => {
@@ -66,7 +66,7 @@ describe('toClosedChatHeader', () => {
 			},
 		]);
 
-		expect(toClosedChatHeader(thread).name).toBeUndefined();
+		expect(toClosedChatTitle(thread).name).toBeUndefined();
 	});
 
 	it('shows the queue the agent received the thread through', () => {
@@ -78,7 +78,7 @@ describe('toClosedChatHeader', () => {
 			},
 		} as ILeftThread;
 
-		expect(toClosedChatHeader(thread).queueName).toBe('Sales');
+		expect(toClosedChatTitle(thread).queueName).toBe('Sales');
 	});
 
 	it('has no queue when the backend does not know it', () => {
@@ -90,6 +90,6 @@ describe('toClosedChatHeader', () => {
 			},
 		]);
 
-		expect(toClosedChatHeader(thread).queueName).toBeUndefined();
+		expect(toClosedChatTitle(thread).queueName).toBeUndefined();
 	});
 });

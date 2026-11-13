@@ -9,7 +9,7 @@
         <client-identity-block
             size="sm"
             :name="preview.name"
-            :channel="channel"
+            :channel="channelInfo"
         >
             <template #aside>
                 <time
@@ -30,7 +30,7 @@
                 />
             </template>
         </client-identity-block>
-        <chat-preview-body
+        <last-chat-message
             v-if="preview.lastMessage?.body"
             :text="preview.lastMessage.body"
             :sender="preview.lastMessage.sender"
@@ -38,7 +38,6 @@
             :unread="unreadCount > 0"
         />
         <chat-preview-footer
-            v-if="preview.queueName"
             :queue-name="preview.queueName"
         />
     </button>
@@ -56,7 +55,7 @@ import { useChatsStore } from '../../../../store/chats';
 import { formatPreviewTime } from '../../scripts/formatPreviewTime';
 import { toChatPreview } from '../../scripts/toChatPreview';
 import { useChatPreviewsStore } from '../../store/chat-previews';
-import ChatPreviewBody from './preview-body/chat-preview-body.vue';
+import LastChatMessage from './last-chat-message/last-chat-message.vue';
 import ChatPreviewFooter from './preview-footer/chat-preview-footer.vue';
 
 const props = defineProps<{
@@ -76,12 +75,15 @@ const preview = computed(() =>
 		props.task,
 		previewsStore.lastMessages[threadId.value],
 		accountStore.account,
-		previewsStore.channels[threadId.value],
+		{
+			channel: previewsStore.channels[threadId.value],
+			client: previewsStore.clients[threadId.value],
+		},
 	),
 );
 
 // the line client-identity-block draws as `Channel: <gateway>`
-const channel = computed(() =>
+const channelInfo = computed(() =>
 	preview.value.channel
 		? {
 				label: t('vocabulary.channel', 1),

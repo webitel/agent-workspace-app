@@ -58,7 +58,7 @@ describe('chat-active store', () => {
 		setActivePinia(createPinia());
 	});
 
-	// which chats the tab shows is read page by page in chat-list (ADR-0012)
+	// which chats the tab shows is read page by page in chat-list (ADR-0013)
 	describe('chats', () => {
 		it('counts every active chat, not a page of them', () => {
 			chatTaskList.value = buildChats(45);

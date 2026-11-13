@@ -120,7 +120,7 @@ export async function mockAppApis(page: Page) {
 	});
 	// the chats page's Active table lists threads; unmocked, the request reaches
 	// the real instance, which answers 401, and the app redirects to its login.
-	// The chat list reads its pages by the ids of the agent's chats (ADR-0012),
+	// The chat list reads its pages by the ids of the agent's chats (ADR-0013),
 	// so those are answered as one page; nothing is snoozed or unread here
 	await page.route(
 		(url) => url.pathname.endsWith('/api/v1/threads'),
