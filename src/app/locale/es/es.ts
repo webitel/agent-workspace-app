@@ -51,6 +51,7 @@ export default {
 			message: 'Mensaje',
 			phoneNumber: 'Número de teléfono',
 			waitTime: 'Tiempo de espera',
+			select: 'Seleccionar',
 		},
 		numpad: {
 			call: 'Llamar',
@@ -77,6 +78,7 @@ export default {
 				attributes: 'Atributos',
 				noAttributes: 'No hay variables personalizadas definidas',
 				communicationOptions: 'Opciones de comunicación',
+				contactPosition: '{current} de {count} contactos',
 			},
 		},
 		pages: {

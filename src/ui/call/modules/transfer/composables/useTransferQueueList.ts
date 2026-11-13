@@ -9,8 +9,8 @@ const QUEUES_PAGE_SIZE = 20;
 /**
  * @author Oleksandr Palonnyi
  * TODO: the Agents tab now lists through a ui-datalist table store
- * (docs/adr/0013-transfer-agents-list.md); move the Queues tab onto the same
- * pattern and drop this composable (docs/adr/0015-transfer-queues-list.md)
+ * (docs/adr/0016-transfer-agents-list.md); move the Queues tab onto the same
+ * pattern and drop this composable (docs/adr/0018-transfer-queues-list.md)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 export function useTransferQueueList(search: Ref<string>) {

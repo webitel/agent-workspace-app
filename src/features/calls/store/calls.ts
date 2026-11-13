@@ -583,6 +583,7 @@ export const useCallsStore = defineStore('calls', () => {
 		forgetReturnTargetOfUnansweredCall,
 		toggleMute,
 		toggleHold,
+		holdOtherLiveCalls,
 		blindTransfer,
 		consultTransferToAgent,
 		blindTransferToQueue,

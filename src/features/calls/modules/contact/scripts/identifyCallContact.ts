@@ -1,7 +1,6 @@
-import { ContactsAPI } from '@webitel/api-services/api';
-import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import type { Call } from 'webitel-sdk';
 
+import { findContactIdsByNumber } from './findContactIdsByNumber';
 import { getCallContactId } from './getCallContactId';
 
 /**
@@ -23,17 +22,7 @@ export async function identifyCallContact(
 	const number = call.displayNumber;
 	if (!number || call.hideNumber) return [];
 
-	// 100 is enough, as in cc-workspaces (WTEL-7906)
-	const contacts: WebitelContactsContact[] = (
-		await ContactsAPI.getList({
-			q: number,
-			qin: 'phones',
-			size: 100,
-		})
-	).items;
-	const contactIds = contacts
-		.map(({ id }) => id)
-		.filter((id): id is string => Boolean(id));
+	const contactIds = await findContactIdsByNumber(number);
 
 	if (contactIds.length !== 1) return contactIds;
 

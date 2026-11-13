@@ -1,18 +1,18 @@
-# 15. The transfer popup's queues list pages through a composable, and its selected row is painted by wt-table
+﻿# 18. The transfer popup's queues list pages through a composable, and its selected row is painted by wt-table
 
 Date: 2026-11-11
 
 ## Status
 
 Accepted. Implemented by [WS-95](https://webitel.atlassian.net/browse/WS-95).
-The first decision is a known deviation from ADR-0013 and is meant to be
+The first decision is a known deviation from ADR-0016 and is meant to be
 reversed.
 
 ## Context
 
 The Queues tab sits beside the Agents tab in the transfer popup and has the
 same shape: a body component that takes `search`, owns its list and its
-selected row. ADR-0013 builds the Agents list on a `createTableStore`. The
+selected row. ADR-0016 builds the Agents list on a `createTableStore`. The
 Queues tab was written while that work was still in review, so it could not
 copy it.
 
@@ -28,7 +28,7 @@ pages `features/queues/api/searchQueues.ts` (20 per page, inbound queues only,
 search by name) and keeps its own `rows`, `isLoading` and `hasNextPage`. Only
 the answer to the latest request is applied, so a slow answer to an older
 search cannot replace a newer one (the table store does not guarantee this, see
-ADR-0013). A failed page stops further paging instead of retrying on every
+ADR-0016). A failed page stops further paging instead of retrying on every
 scroll; the API layer has already raised the error notification.
 
 **The selected row is passed to `wt-table` as `active-row`**
@@ -54,7 +54,7 @@ workspace token. The table computes the row from its `rows` and `selectedRowId`.
   A change to paging or search has to be made in both places meanwhile.
   `useTransferQueueList` carries a TODO pointing here.
 - The latest-request guard disappears with the composable, but the store does
-  not have it: moving to the store brings back the race ADR-0013 leaves open
+  not have it: moving to the store brings back the race ADR-0016 leaves open
   for agents.
 - The list does not leave out a disabled queue: the list API has no `enabled`
   filter.
