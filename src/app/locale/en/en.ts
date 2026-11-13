@@ -87,6 +87,15 @@ export default {
 				noAttributes: 'No custom variables defined',
 				communicationOptions: 'Communication options',
 				contactPosition: '{current} of {count} contacts',
+				search: {
+					title: 'Search contact',
+					noResults: 'No results were found',
+					modes: {
+						name: 'Name',
+						destination: 'Destination',
+						variables: 'Attribute',
+					},
+				},
 			},
 		},
 		pages: {
