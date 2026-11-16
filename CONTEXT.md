@@ -322,8 +322,9 @@ time. Being identified does not link the contact to the call.
 the call is an **Active call**, by Name, Destination (phone or email) or Attribute
 (`key=value`). Its result replaces the identified contacts for as long as it is
 shown, and **Cancel** gives them back. It only shows contacts and links nothing,
-even when it finds one (the spec does not say it should); the agent links one of
-several with SELECT, as for **Identified contacts**. A search that finds nothing
+even when it finds one; the agent links the one on screen with SELECT, whether
+the search found one or several (BA). That differs from **Identified contacts**,
+where the only one is linked automatically. A search that finds nothing
 shows "No results were found", whereas no identified contact at all shows the
 Unknown contact card.
 

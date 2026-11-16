@@ -129,11 +129,20 @@ const identificationMode = computed<ContactIdentificationMode>(() => {
 	return ContactIdentificationMode.Multiple;
 });
 
-const isSelectShown = computed(
-	() =>
-		props.canSelect &&
-		identificationMode.value === ContactIdentificationMode.Multiple,
-);
+/**
+ * @author Oleksandr Palonnyi
+ * a lone identified contact is already linked by the parent, so SELECT is for several of them; a lone search match is linked by nobody, so it gets SELECT too (BA)
+ * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+ */
+const isSelectShown = computed(() => {
+	if (!props.canSelect) return false;
+	if (identificationMode.value === ContactIdentificationMode.Multiple)
+		return true;
+	return (
+		identificationMode.value === ContactIdentificationMode.Single &&
+		Boolean(props.isSearchActive)
+	);
+});
 
 const shownIndex = ref(0);
 

@@ -71,6 +71,16 @@ const findSelectButton = (wrapper: ReturnType<typeof mountBlock>) =>
 		name: 'WtButton',
 	});
 
+/**
+ * @author Oleksandr Palonnyi
+ * with a search active Cancel is the row's first button, so SELECT is found by its label
+ * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+ */
+const findSelectButtonByLabel = (wrapper: ReturnType<typeof mountBlock>) =>
+	wrapper
+		.findAll('button')
+		.find((button) => button.text() === 'ui.reusable.select');
+
 const severalFound = (overrides: Partial<BlockProps> = {}) =>
 	mountBlock({
 		contactIds: [
@@ -182,6 +192,40 @@ describe('contact-identification', () => {
 
 			expect(findCard(wrapper).props('contactId')).toBe('101');
 			expect(findSwitcher(wrapper).props('count')).toBe(2);
+		});
+
+		it('offers select for a single match of a search, without linking it', async () => {
+			const wrapper = mountBlock({
+				contactIds: [
+					'101',
+				],
+				canSelect: true,
+				canSearch: true,
+				isSearchActive: true,
+			});
+
+			expect(findSwitcher(wrapper).exists()).toBe(false);
+			expect(findSelectButtonByLabel(wrapper)).toBeDefined();
+
+			await findSelectButtonByLabel(wrapper)?.trigger('click');
+
+			expect(wrapper.emitted('select')).toEqual([
+				[
+					'101',
+				],
+			]);
+		});
+
+		it('offers no select for a single search match without canSelect', () => {
+			const wrapper = mountBlock({
+				contactIds: [
+					'101',
+				],
+				canSearch: true,
+				isSearchActive: true,
+			});
+
+			expect(findSelectButtonByLabel(wrapper)).toBeUndefined();
 		});
 
 		it('offers cancel beside the parent actions only after a search', async () => {
