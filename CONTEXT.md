@@ -66,6 +66,9 @@ and should not be carried over wholesale.
 - [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
   derived from the call list by its parent, shown as a ringing card until
   answered, and why it is not stored.
+- [ADR-0018](docs/adr/0018-bridge-is-offered-from-the-live-call.md) — bridging
+  is offered between any two Active calls, from the live one only, with Connect
+  bridging at once and the app closing nothing afterwards.
 
 ## Language
 
@@ -182,7 +185,7 @@ shows as a ringing card in the call dock, and it is recognised by the original
 call being its parent, not remembered (ADR-0017).
 
 **Bridge** — joining two Active calls to each other so the agent drops out and
-the two parties talk (AC_14.02.07). It is not a transfer and not part of a
+the two parties talk (AC_14.02.07, ADR-0018). It is not a transfer and not part of a
 **Consult transfer** only: it applies to any two Active calls, and is offered
 whenever the agent has more than one (its icon is in the call dock's action bar
 only then, not for a single call). The agent opens it from one call and picks the
