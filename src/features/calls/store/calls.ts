@@ -338,7 +338,8 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			await call.blindTransfer(destination);
 			return true;
-		} catch {
+		} catch (err) {
+			console.warn('[calls] the blind transfer failed', err);
 			notifyCallError('transferFailed');
 			return false;
 		}
@@ -387,7 +388,8 @@ export const useCallsStore = defineStore('calls', () => {
 				disableStun: !getStunEnabled(),
 			});
 			return true;
-		} catch {
+		} catch (err) {
+			console.warn('[calls] placing the consult call failed', err);
 			notifyCallError('transferFailed');
 			return false;
 		}

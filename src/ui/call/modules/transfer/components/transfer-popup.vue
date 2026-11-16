@@ -214,11 +214,19 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 	if (isSubmitting.value || transferCallId === null) return;
 
 	isSubmitting.value = true;
-	try {
-		await callsStore.blindTransfer(transferCallId, destinationPhone);
-	} finally {
-		isSubmitting.value = false;
-	}
+	const isTransferAccepted = await callsStore.blindTransfer(
+		transferCallId,
+		destinationPhone,
+	);
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * an accepted blind transfer keeps the buttons disabled: the call is still in
+	 * the list until the SDK drops it, and a second click in that gap would send
+	 * the transfer again. Only a refusal gives the buttons back for another try
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	if (!isTransferAccepted) isSubmitting.value = false;
 }
 
 /**

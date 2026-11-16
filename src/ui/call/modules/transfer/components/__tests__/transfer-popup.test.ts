@@ -204,6 +204,19 @@ describe('transfer-popup', () => {
 		expect(isDisabled(wrapper.find('.phone'))).toBe(false);
 	});
 
+	it('keeps the buttons locked after an accepted transfer, so it cannot be sent twice', async () => {
+		const wrapper = mountPopup();
+		await wrapper.find('.phone').setValue('1001');
+
+		await topButtons(wrapper)[0].trigger('click');
+		await flushPromises();
+		await topButtons(wrapper)[0].trigger('click');
+
+		expect(blindTransferMock).toHaveBeenCalledTimes(1);
+		expect(topButtons(wrapper).every(isDisabled)).toBe(true);
+		expect(isDisabled(wrapper.find('.phone'))).toBe(true);
+	});
+
 	it('stays open with the typed number when the transfer fails', async () => {
 		blindTransferMock.mockResolvedValue(false);
 		const wrapper = mountPopup();
