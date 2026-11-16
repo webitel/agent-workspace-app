@@ -41,9 +41,11 @@ export const transferAgentsApiModule = {
 				...fields,
 				'user_presence_status',
 			],
-			notUserId: [
-				notUserId,
-			],
+			notUserId: notUserId
+				? [
+						notUserId,
+					]
+				: undefined,
 		});
 
 		return applyTransform(response, [

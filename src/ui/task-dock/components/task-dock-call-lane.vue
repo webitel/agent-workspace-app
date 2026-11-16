@@ -2,7 +2,11 @@
     <div class="task-dock-call-lane">
         <the-numpad-panel />
         <transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
-        <bridge-popup v-if="callBridgePopupStore.isOpenBridgePopup" />
+        <bridge-popup
+            v-if="bridgeCallId !== null"
+            :call-id="bridgeCallId"
+            @close="bridgeCallId = null"
+        />
 
         <div class="task-dock-call-lane__container">
             <template
@@ -19,7 +23,7 @@
                     @toggle-mute="callsStore.toggleMute(windowedCall.id)"
                     @toggle-hold="callsStore.toggleHold(windowedCall.id)"
                     @transfer="callTransferPopupStore.open(windowedCall.id)"
-                    @bridge="callBridgePopupStore.open(windowedCall.id)"
+                    @bridge="bridgeCallId = windowedCall.id"
                     @hangup="onHangup(windowedCall.id)"
                     @send-digit="callsStore.sendDtmf(windowedCall.id, $event)"
                 />
@@ -55,7 +59,7 @@
     setup
     lang="ts"
 >
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { OutboundCallStatus } from '../../../features/calls/enums/OutboundCallStatus.enum';
@@ -65,7 +69,6 @@ import { toOutboundCallPreview } from '../../../features/calls/scripts/toOutboun
 import { useCallsStore } from '../../../features/calls/store/calls';
 import OutboundCallCard from '../../call/components/outbound-call-card.vue';
 import BridgePopup from '../../call/modules/bridge/components/bridge-popup.vue';
-import { useCallBridgePopupStore } from '../../call/modules/bridge/store/callBridgePopup';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import type { ActiveCallContent } from '../../call/modules/call-dock/types/ActiveCallContent.types';
@@ -79,7 +82,16 @@ const taskDockStore = useTaskDockStore();
 const router = useRouter();
 const callsStore = useCallsStore();
 const callTransferPopupStore = useCallTransferPopupStore();
-const callBridgePopupStore = useCallBridgePopupStore();
+
+/**
+ * @author Oleksandr Palonnyi
+ * the dock is the only place that opens the bridge popup, and the popup needs
+ * nothing but the call it was opened from, so that id is local state passed
+ * down, not a store. A second opener (the call window's top bar) would have to
+ * share it, as the transfer popup does, and this becomes a store then
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const bridgeCallId = ref<string | null>(null);
 
 /**
  * @author Oleksandr Palonnyi

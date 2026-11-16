@@ -2,7 +2,7 @@
 	<wt-popup
 		:size="ComponentSize.SM"
 		:height="ComponentSize.SM"
-		@close="callBridgePopupStore.close()"
+		@close="emit('close')"
 	>
 		<template #title>
 			{{ t('ui.call.bridge.title') }}
@@ -38,7 +38,7 @@
 		<template #actions>
 			<wt-button
 				:color="ButtonColor.SECONDARY"
-				@click="callBridgePopupStore.close()"
+				@click="emit('close')"
 			>
 				{{ t('reusable.cancel') }}
 			</wt-button>
@@ -59,11 +59,17 @@ import { isActiveCall } from '../../../../../features/calls/scripts/isActiveCall
 import { toActiveCallContent } from '../../../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
-import { useCallBridgePopupStore } from '../store/callBridgePopup';
+
+const props = defineProps<{
+	callId: string;
+}>();
+
+const emit = defineEmits<{
+	close: [];
+}>();
 
 const { t } = useI18n();
 const callsStore = useCallsStore();
-const callBridgePopupStore = useCallBridgePopupStore();
 
 const BRIDGE_TABLE_HEADERS: WtTableHeader[] = [
 	{
@@ -92,7 +98,7 @@ const isSubmitting = ref(false);
  */
 const bridgeTargets = computed(() =>
 	callsStore.activeCalls
-		.filter((call) => call.id !== callBridgePopupStore.bridgeCallId)
+		.filter((call) => call.id !== props.callId)
 		.map((call) => {
 			const { name, number } = toActiveCallContent(call);
 
@@ -105,23 +111,22 @@ const bridgeTargets = computed(() =>
 );
 
 async function connect(otherCallId: string): Promise<void> {
-	const { bridgeCallId } = callBridgePopupStore;
-	if (isSubmitting.value || bridgeCallId === null) return;
+	if (isSubmitting.value) return;
 
 	isSubmitting.value = true;
 	try {
 		const areCallsConnected = await callsStore.bridgeCalls(
-			bridgeCallId,
+			props.callId,
 			otherCallId,
 		);
-		if (areCallsConnected) callBridgePopupStore.close();
+		if (areCallsConnected) emit('close');
 	} finally {
 		isSubmitting.value = false;
 	}
 }
 
 const isBridgedCallActive = computed(() =>
-	isActiveCall(callsStore.getCallById(callBridgePopupStore.bridgeCallId ?? '')),
+	isActiveCall(callsStore.getCallById(props.callId)),
 );
 
 /**
@@ -132,7 +137,7 @@ const isBridgedCallActive = computed(() =>
 watch(
 	isBridgedCallActive,
 	(isActive) => {
-		if (!isActive) callBridgePopupStore.close();
+		if (!isActive) emit('close');
 	},
 	{
 		immediate: true,
