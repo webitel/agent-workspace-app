@@ -1,47 +1,47 @@
-﻿# 18. The transfer popup's queues list pages through a composable, and its selected row is painted by wt-table
+# 18. The transfer popup's queues list is a table store, and its selected row is painted by wt-table
 
 Date: 2026-11-11
 
 ## Status
 
 Accepted. Implemented by [WS-95](https://webitel.atlassian.net/browse/WS-95).
-The first decision is a known deviation from ADR-0016 and is meant to be
-reversed.
 
 ## Context
 
 The Queues tab sits beside the Agents tab in the transfer popup and has the
 same shape: a body component that takes `search`, owns its list and its
-selected row. ADR-0016 builds the Agents list on a `createTableStore`. The
-Queues tab was cut before that table store existed, so it was written without
-it and has not been moved onto it since.
+selected row. ADR-0016 builds the Agents list on a `createTableStore`.
 
-The tab also had to show which row is selected. The Agents table does it with
+The tab also had to show which row is selected. The Agents table did it with
 its own `:deep` rule on a `--wt-ws-table-colors-row-selected-background` token.
 No published `@webitel/styleguide` defines that token (26.12.8 is the latest),
 so the rule produced an invalid `background` and nothing was ever highlighted.
 
 ## Decision
 
-**The queues list is a composable, not a table store.** `useTransferQueueList`
-pages `features/queues/api/searchQueues.ts` (20 per page, inbound queues only,
-search by name) and keeps its own `rows`, `isLoading` and `hasNextPage`. Only
-the answer to the latest request is applied, so a slow answer to an older
-search cannot replace a newer one (the table store does not guarantee this, see
-ADR-0016). A failed page stops further paging instead of retrying on every
-scroll; the API layer has already raised the error notification.
+**The queues list is a `createTableStore`, like the agents list.**
+`transferQueuesApiModule` wraps `QueuesAPI.getList` (inbound queues only,
+`queueType: INBOUND_QUEUE`) and maps each queue onto a `TransferQueueRow`; the
+columns and the requested fields come from `transferQueuesHeaders`. The table
+component loads, searches and resets the store exactly as the Agents table does
+(ADR-0016), so a change to paging or search is made in one way for both tabs.
+
+An earlier version of this branch paged through a hand-written composable that
+applied only the answer to the latest request. It was removed in review: it
+gave two tabs two ways of listing, and the race it closed is the one ADR-0016
+leaves open for agents, to be fixed once in `ui-datalist` rather than per tab.
 
 **The selected row is passed to `wt-table` as `active-row`**
 (`@webitel/ui-sdk` 26.12.26 and later). The library marks it `row-active` and
 paints it from its own theme, so the table carries no colour rule and needs no
-workspace token. The table computes the row from its `rows` and `selectedRowId`.
+workspace token. The table computes the row from its `dataList` and
+`selectedRowId`.
 
 ## Considered options
 
-- **A `createTableStore` for queues now**, as for agents. It is where the tab
-  should end up, but it was not available when the tab was written, and moving
-  it in the same change would have mixed a rewrite into a feature. Deferred, not
-  rejected.
+- **A hand-written composable for queues.** Rejected in review: every other tab
+  would have to repeat the same API module + table store + component shape, and
+  it fixes a race for one tab only.
 - **The Agents table's own `:deep` rule** for the highlight. Rejected: it
   depends on a token that does not exist.
 - **A hard-coded colour fallback** (`var(--token, #FBEFD0)`). Rejected: a
@@ -50,12 +50,8 @@ workspace token. The table computes the row from its `rows` and `selectedRowId`.
 
 ## Consequences
 
-- Two tabs list in two ways until the queues list moves onto the table store.
-  A change to paging or search has to be made in both places meanwhile.
-  `useTransferQueueList` carries a TODO pointing here.
-- The latest-request guard disappears with the composable, but the store does
-  not have it: moving to the store brings back the race ADR-0016 leaves open
-  for agents.
+- A slow answer to an older search can replace a newer one on the Queues tab,
+  as on the Agents tab (ADR-0016).
 - The list does not leave out a disabled queue: the list API has no `enabled`
   filter.
 - The Agents table was moved to `active-row` in the same branch and drops its

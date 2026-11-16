@@ -67,8 +67,9 @@ and should not be carried over wholesale.
   derived from the call list by its parent, shown as a ringing card until
   answered, and why it is not stored.
 - [ADR-0018](docs/adr/0018-transfer-queues-list.md) — the transfer popup's queues
-  list pages through its own composable for now, and its selected row is painted
-  by `wt-table`'s `active-row` rather than by a token that does not exist.
+  list is a table store like the agents list, its selected row is painted by
+  `wt-table`'s `active-row` rather than by a token that does not exist, and a
+  disabled queue is still listed.
 
 ## Language
 

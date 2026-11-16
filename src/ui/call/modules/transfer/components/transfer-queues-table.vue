@@ -1,8 +1,8 @@
 <template>
 	<wt-table
 		class="transfer-queues-table"
-		:data="rows"
-		:headers="headers"
+		:data="dataList"
+		:headers="shownHeaders"
 		:active-row="selectedRow"
 		:loading="isLoading"
 		:on-loading="onLoading"
@@ -36,10 +36,13 @@
 	setup
 	lang="ts"
 >
-import { computed, toRef } from 'vue';
+import { storeToRefs } from 'pinia';
+import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useTransferQueueList } from '../composables/useTransferQueueList';
+import { useTransferQueuesDataListStore } from '../store/transferQueuesDataList';
 import type { TransferQueueRow } from '../types/CallTransfer.types';
+
+const SEARCH_FILTER_NAME = 'search';
 
 const props = defineProps<{
 	search: string;
@@ -51,28 +54,44 @@ const selectedRowId = defineModel<string | null>('selectedRowId', {
 
 const { t } = useI18n();
 
-const { rows, isLoading, loadNextPage } = useTransferQueueList(
-	toRef(props, 'search'),
-);
+const store = useTransferQueuesDataListStore();
+const { setupStore, appendToDataList, addFilter, $reset } = store;
+const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
-const headers = computed(() => [
-	{
-		value: 'name',
-		text: t('ui.call.transfer.columns.name'),
-	},
-	{
-		value: 'description',
-		text: t('ui.call.transfer.columns.description'),
-	},
-]);
+/**
+ * @author Oleksandr Palonnyi
+ * same loading scheme as the Agents tab (transfer-agents-table.vue): the first
+ * page comes from the store's filter watcher once the search filter is added
+ * after setupStore, and the singleton store is reset on unmount so the next
+ * popup mounts clean
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+function applySearch(search: string): void {
+	addFilter({
+		name: SEARCH_FILTER_NAME,
+		value: search,
+	});
+}
 
-const selectedRow = computed(
-	() => rows.value.find((row) => row.id === selectedRowId.value) ?? null,
-);
+async function loadFirstPage(): Promise<void> {
+	await setupStore();
+	applySearch(props.search);
+}
 
 async function onLoading(): Promise<void> {
-	await loadNextPage();
+	if (isLoading.value || !next.value) return;
+	await appendToDataList();
 }
+
+watch(() => props.search, applySearch);
+
+loadFirstPage();
+
+onUnmounted($reset);
+
+const selectedRow = computed(
+	() => dataList.value.find((row) => row.id === selectedRowId.value) ?? null,
+);
 
 /**
  * @author Oleksandr Palonnyi
