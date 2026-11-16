@@ -444,6 +444,7 @@ export const useCallsStore = defineStore('calls', () => {
 		forgetReturnTargetOfUnansweredCall,
 		toggleMute,
 		toggleHold,
+		holdOtherLiveCalls,
 		sendDtmf,
 		hangup,
 	};

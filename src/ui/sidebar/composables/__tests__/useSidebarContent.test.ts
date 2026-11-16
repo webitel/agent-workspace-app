@@ -10,6 +10,7 @@ import TheContactsPanel from '../../modules/contacts/the-contacts-panel.vue';
 import TheHistoryPanel from '../../modules/history/the-history-panel.vue';
 import TheMissedCallPanel from '../../modules/missed-call/the-missed-call-panel.vue';
 import TheOfflineMemberPanel from '../../modules/offline-member/the-offline-member-panel.vue';
+import TheSelfAssignedCallPanel from '../../modules/self-assigned-call/the-self-assigned-call-panel.vue';
 import { useSidebarContent } from '../useSidebarContent';
 
 const route = reactive<{
@@ -68,6 +69,15 @@ describe('useSidebarContent', () => {
 
 		expect(content.value).toEqual({
 			component: TheMissedCallPanel,
+		});
+	});
+
+	it('returns the self-assigned call panel for the Calls self-assigned tab', () => {
+		route.name = CallsPageTab.SelfAssigned;
+		const { content } = useSidebarContent();
+
+		expect(content.value).toEqual({
+			component: TheSelfAssignedCallPanel,
 		});
 	});
 
