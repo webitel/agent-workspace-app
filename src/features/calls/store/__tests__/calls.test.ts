@@ -1338,6 +1338,19 @@ describe('useCallsStore', () => {
 			expect(call.blindTransferQueue).not.toHaveBeenCalled();
 		});
 
+		it('does nothing for an empty or non-positive queue id', async () => {
+			const call = buildTransferableCall();
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.blindTransferToQueue('call-1', '')).toBe(false);
+			expect(await store.blindTransferToQueue('call-1', '0')).toBe(false);
+			expect(await store.blindTransferToQueue('call-1', '-3')).toBe(false);
+			expect(call.blindTransferQueue).not.toHaveBeenCalled();
+		});
+
 		it('does nothing for a queue id that is not a number', async () => {
 			const call = buildTransferableCall();
 			calls.value = [
@@ -1443,6 +1456,19 @@ describe('useCallsStore', () => {
 			expect(await store.consultTransferToQueue('call-1', '7')).toBe(false);
 			expect(call.hold).not.toHaveBeenCalled();
 			expect(call.processTransferQueue).not.toHaveBeenCalled();
+		});
+
+		it('does nothing for an empty or non-positive queue id', async () => {
+			const call = buildConsultableCall();
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.consultTransferToQueue('call-1', '')).toBe(false);
+			expect(await store.consultTransferToQueue('call-1', '0')).toBe(false);
+			expect(await store.consultTransferToQueue('call-1', '-3')).toBe(false);
+			expect(call.hold).not.toHaveBeenCalled();
 		});
 
 		it('does nothing for a queue id that is not a number', async () => {

@@ -405,7 +405,11 @@ export const useCallsStore = defineStore('calls', () => {
 	): Promise<boolean> {
 		const call = getCallById(callId);
 		const queueNumericId = Number(queueId);
-		if (!canTransferCall(call) || !Number.isInteger(queueNumericId)) {
+		if (
+			!canTransferCall(call) ||
+			!Number.isInteger(queueNumericId) ||
+			queueNumericId <= 0
+		) {
 			return false;
 		}
 
@@ -433,7 +437,11 @@ export const useCallsStore = defineStore('calls', () => {
 	): Promise<boolean> {
 		const call = getCallById(callId);
 		const queueNumericId = Number(queueId);
-		if (!canTransferCall(call) || !Number.isInteger(queueNumericId)) {
+		if (
+			!canTransferCall(call) ||
+			!Number.isInteger(queueNumericId) ||
+			queueNumericId <= 0
+		) {
 			return false;
 		}
 
