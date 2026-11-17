@@ -92,14 +92,16 @@ function onBackToDialpad(attemptId: string) {
 <style scoped>
 /**
  * @author Oleksandr Palonnyi
- * The left offset is an interim value that clears the nav: the nav has no width token yet
- * to position against
- * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ * The Dialer spec pins the panel to the viewport's bottom edge, beside the nav without
+ * covering it. The offset is the rail's own width plus a gap, so it follows the rail
+ * instead of a literal. The spec's 52px is the 48px rail plus 4px; the design gap
+ * agreed for this fix is 8px (`--spacing-xs`), so the panel sits at 56px
+ * [WS-157](https://webitel.atlassian.net/browse/WS-157)
  */
 .the-numpad-panel {
 	position: fixed;
-	bottom: var(--spacing-xl);
-	left: var(--spacing-xl);
+	bottom: 0;
+	left: calc(var(--wt-navigation-rail-width) + var(--spacing-xs));
 	z-index: 101;
 	display: flex;
 	align-items: flex-end;
