@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
 				communicationOptions: 'Opcje komunikacji',
 				contactPosition: '{current} z {count} kontaktów',
+				search: {
+					title: 'Szukaj kontaktu',
+					noResults: 'Nie znaleziono wyników',
+					modes: {
+						name: 'Nazwa',
+						destination: 'Numer lub e-mail',
+						variables: 'Atrybut',
+					},
+				},
 			},
 		},
 		pages: {

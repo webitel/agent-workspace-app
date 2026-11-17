@@ -341,6 +341,16 @@ it comes through is its `protocol` (ADR-0012).
 can be none, one or several; with several, the right panel shows them one at a
 time. Being identified does not link the contact to the call.
 
+**Contact search** — the agent's own look-up of contacts in the right panel while
+the call is an **Active call**, by Name, Destination (phone or email) or Attribute
+(`key=value`). Its result replaces the identified contacts for as long as it is
+shown, and **Cancel** gives them back. It only shows contacts and links nothing,
+even when it finds one; the agent links the one on screen with SELECT, whether
+the search found one or several (BA). That differs from **Identified contacts**,
+where the only one is linked automatically. A search that finds nothing
+shows "No results were found", whereas no identified contact at all shows the
+Unknown contact card.
+
 **Linked contact** — the contact a call is linked to (`call.setContact`), at
 most one. The only identified contact is linked automatically, one of several
 when the agent selects it. Once there is one, the panel shows it alone instead
