@@ -1181,6 +1181,89 @@ describe('useCallsStore', () => {
 		});
 	});
 
+	describe('bridgeCalls', () => {
+		const buildBridgeableCall = (overrides: Partial<Call> = {}): Call =>
+			buildCall({
+				answeredAt: 1_700_000_000_000,
+				hangupAt: 0,
+				bridgeTo: vi.fn().mockResolvedValue({}),
+				...overrides,
+			} as Partial<Call>);
+
+		it('connects the call to the other call and reports success', async () => {
+			const call = buildBridgeableCall({
+				id: 'call-1',
+			});
+			const otherCall = buildBridgeableCall({
+				id: 'call-2',
+			});
+			calls.value = [
+				call,
+				otherCall,
+			];
+			const store = useCallsStore();
+
+			expect(await store.bridgeCalls('call-1', 'call-2')).toBe(true);
+			expect(call.bridgeTo).toHaveBeenCalledWith(otherCall);
+			expect(mockEmit).not.toHaveBeenCalled();
+		});
+
+		it('notifies and reports failure when the backend refuses', async () => {
+			calls.value = [
+				buildBridgeableCall({
+					id: 'call-1',
+					bridgeTo: vi.fn().mockRejectedValue(new Error('boom')),
+				} as Partial<Call>),
+				buildBridgeableCall({
+					id: 'call-2',
+				}),
+			];
+			const store = useCallsStore();
+
+			expect(await store.bridgeCalls('call-1', 'call-2')).toBe(false);
+			expect(mockEmit).toHaveBeenCalledWith('notification', {
+				type: 'error',
+				text: 'error.calls.bridgeFailed',
+			});
+		});
+
+		it('does nothing when the other call is not an Active call', async () => {
+			const call = buildBridgeableCall({
+				id: 'call-1',
+			});
+			calls.value = [
+				call,
+				buildBridgeableCall({
+					id: 'call-2',
+					answeredAt: 0,
+				}),
+			];
+			const store = useCallsStore();
+
+			expect(await store.bridgeCalls('call-1', 'call-2')).toBe(false);
+			expect(call.bridgeTo).not.toHaveBeenCalled();
+		});
+
+		it('does nothing for a call and itself', async () => {
+			const call = buildBridgeableCall({
+				id: 'call-1',
+			});
+			calls.value = [
+				call,
+			];
+			const store = useCallsStore();
+
+			expect(await store.bridgeCalls('call-1', 'call-1')).toBe(false);
+			expect(call.bridgeTo).not.toHaveBeenCalled();
+		});
+
+		it('does nothing for an unknown call', async () => {
+			const store = useCallsStore();
+
+			expect(await store.bridgeCalls('missing', 'other-missing')).toBe(false);
+		});
+	});
+
 	describe('consultTransferToAgent', () => {
 		const buildConsultableCall = (overrides: Partial<Call> = {}): Call =>
 			buildCall({

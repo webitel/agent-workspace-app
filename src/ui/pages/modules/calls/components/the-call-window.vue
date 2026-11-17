@@ -32,6 +32,7 @@
 
 		<call-top-bar
 			class="the-call-window__top-bar"
+			@transfer="callTransferPopupStore.open(callId)"
 			:call="call"
 		/>
 
@@ -58,6 +59,7 @@ import CallInfo from '../../../../../features/calls/modules/info/components/call
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import TheProcessingForm from '../../../../../features/processing/components/the-processing-form.vue';
 import { useProcessingStore } from '../../../../../features/processing/store/processing';
+import { useCallTransferPopupStore } from '../../../../call/modules/transfer/store/callTransferPopup';
 import SidebarToggleBtn from '../../../components/sidebar-toggle-btn.vue';
 
 type CallWindowTab = 'info' | 'processing';
@@ -72,6 +74,7 @@ interface CallWindowTabItem {
 const { t } = useI18n();
 const route = useRoute();
 const callsStore = useCallsStore();
+const callTransferPopupStore = useCallTransferPopupStore();
 const callId = computed(() => route.params.callId as string);
 
 const call = computed(() => callsStore.getCallById(callId.value));
