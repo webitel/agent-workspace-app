@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
 				communicationOptions: 'Aloqa usullari',
 				contactPosition: '{current} / {count} aloqa',
+				search: {
+					title: 'Kontaktni qidirish',
+					noResults: 'Natija topilmadi',
+					modes: {
+						name: 'Ism',
+						destination: 'Raqam yoki email',
+						variables: 'Atribut',
+					},
+				},
 			},
 		},
 		pages: {

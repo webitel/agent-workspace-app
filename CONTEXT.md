@@ -66,6 +66,29 @@ and should not be carried over wholesale.
 - [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
   derived from the call list by its parent, shown as a ringing card until
   answered, and why it is not stored.
+- [ADR-0019](docs/adr/0019-right-panel-follows-the-route.md) — the right
+  panel shows what the current route resolves to, a row picked in a table is
+  held in a selection store (a contact, an unknown contact or a number to search
+  by) while the panel is open and the page stays, and each page's container
+  picks its screen and title.
+- [ADR-0020](docs/adr/0020-call-contact-identification.md) — a call's contact
+  is its linked one (or the bridged call's), otherwise the contacts its number
+  finds by the same loose search as `cc-workspaces`; the only match is linked at
+  once, a failed link or search shows nothing, and a hidden contact is neither
+  searched for nor shown.
+- [ADR-0021](docs/adr/0021-calls-tabs-over-socket-lists.md) — the Offline and
+  Self-assigned tabs are datalist tables over socket lists: offline members are
+  read a page at a time through an adapter and not polled, self-assigned calls
+  are the SDK's own live array, never copied.
+- [ADR-0022](docs/adr/0022-call-history-and-missed.md) — call history and
+  Missed share one API module that reads through `getListPost` to keep variable
+  keys, default to all time worked out per request rather than seeded into the
+  filter; History does not sort by Name.
+- [ADR-0023](docs/adr/0023-communication-info-panel-composition.md) — a
+  communication's info block in the right panel is one component per variant
+  (inbound, outbound call; later chat, email), built from the shared
+  `communication-info-header` and `communication-info-fields` and picked from a
+  `Record`, not rendered from a config.
 
 ## Language
 
@@ -346,10 +369,30 @@ it comes through is its `protocol` (ADR-0012).
 can be none, one or several; with several, the right panel shows them one at a
 time. Being identified does not link the contact to the call.
 
+**Contact search** — the agent's own look-up of contacts in the right panel while
+the call is an **Active call**, by Name, Destination (phone or email) or Attribute
+(`key=value`). Its result replaces the identified contacts for as long as it is
+shown, and **Cancel** gives them back. It only shows contacts and links nothing,
+even when it finds one; the agent links the one on screen with SELECT, whether
+the search found one or several (BA). That differs from **Identified contacts**,
+where the only one is linked automatically. A search that finds nothing
+shows "No results were found", whereas no identified contact at all shows the
+Unknown contact card.
+
 **Linked contact** — the contact a call is linked to (`call.setContact`), at
 most one. The only identified contact is linked automatically, one of several
 when the agent selects it. Once there is one, the panel shows it alone instead
 of the identified contacts, whoever linked it (ADR-0013).
+
+**Right panel** — the column beside the central area that shows the contact or
+the communication behind what is open there: the row the agent picked in a
+table, or the call on the Call window. The spec calls it "права панель" (ПП),
+the code calls it the sidebar. Only the agent opens and closes it (ADR-0019).
+
+**Unknown contact** — what the right panel of a table page shows for a row with
+no CRM contact behind it: the row has no linked contact, or the search by its
+number finds none or the contacts are hidden. Not a member's or a schema's
+name, which the panel never shows in a contact's place.
 
 ## Conventions
 

@@ -1,5 +1,5 @@
 import { flushPromises } from '@vue/test-utils';
-import { ContactsAPI } from '@webitel/api-services/api';
+import { ContactsAPI, ContactsSearchMode } from '@webitel/api-services/api';
 import {
 	EngineSystemSettingName,
 	type WebitelContactsContact,
@@ -16,7 +16,8 @@ import { type Call, CallDirection } from 'webitel-sdk';
 
 import { useCallContact } from '../useCallContact';
 
-vi.mock('@webitel/api-services/api', () => ({
+vi.mock('@webitel/api-services/api', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@webitel/api-services/api')>()),
 	ContactsAPI: {
 		getList: vi.fn(),
 	},
@@ -395,6 +396,260 @@ describe('useCallContact', () => {
 			expect(contactIds.value).toEqual([
 				'20',
 				'21',
+			]);
+		});
+	});
+	describe('search', () => {
+		it('is no active search before the agent searches', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { isSearchActive } = setup(buildCall());
+			await flushPromises();
+
+			expect(isSearchActive.value).toBe(false);
+		});
+
+		it.each([
+			[
+				ContactsSearchMode.NAME,
+			],
+			[
+				ContactsSearchMode.DESTINATION,
+			],
+			[
+				ContactsSearchMode.VARIABLES,
+			],
+		])('asks the contacts API to search the %s mode', async (searchMode) => {
+			getList.mockResolvedValueOnce(found());
+			const { search } = setup(buildCall());
+			await flushPromises();
+
+			getList.mockResolvedValueOnce(found());
+			await search({
+				query: ' sarah ',
+				searchMode,
+			});
+
+			expect(getList).toHaveBeenLastCalledWith(
+				expect.objectContaining({
+					[searchMode]: 'sarah',
+					size: 100,
+				}),
+			);
+		});
+
+		it('shows the contacts the search found instead of the identified ones', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { contactIds, isSearchActive, search } = setup(buildCall());
+			await flushPromises();
+
+			getList.mockResolvedValueOnce(found('31', '32'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			expect(isSearchActive.value).toBe(true);
+			expect(contactIds.value).toEqual([
+				'31',
+				'32',
+			]);
+		});
+
+		it('is an active search with nothing in it when nothing is found', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { contactIds, isSearchActive, search } = setup(buildCall());
+			await flushPromises();
+
+			getList.mockResolvedValueOnce(found());
+			await search({
+				query: 'nobody',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			expect(isSearchActive.value).toBe(true);
+			expect(contactIds.value).toEqual([]);
+		});
+
+		it('links nothing to the call, even for the only match', async () => {
+			getList.mockResolvedValueOnce(found());
+			const call = buildCall();
+			const { search } = setup(call);
+			await flushPromises();
+
+			getList.mockResolvedValueOnce(found('31'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			expect(call.setContact).not.toHaveBeenCalled();
+		});
+
+		it('is loading while the search runs', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { isLoading, search } = setup(buildCall());
+			await flushPromises();
+
+			const searching = createDeferred<ContactsResponse>();
+			getList.mockReturnValueOnce(searching.promise);
+			const running = search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			expect(isLoading.value).toBe(true);
+
+			searching.resolve(found('31'));
+			await running;
+
+			expect(isLoading.value).toBe(false);
+		});
+
+		it('does not search for a blank query and ends an active search', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { isSearchActive, search } = setup(buildCall());
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+			getList.mockClear();
+
+			await search({
+				query: '   ',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			expect(getList).not.toHaveBeenCalled();
+			expect(isSearchActive.value).toBe(false);
+		});
+
+		it('goes back to the identified contacts on cancel', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contactIds, isSearchActive, search, cancelSearch } = setup(
+				buildCall(),
+			);
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			cancelSearch();
+
+			expect(isSearchActive.value).toBe(false);
+			expect(contactIds.value).toEqual([
+				'15',
+				'16',
+			]);
+		});
+
+		it('shows the answer of the latest search only', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { contactIds, search } = setup(buildCall());
+			await flushPromises();
+
+			const first = createDeferred<ContactsResponse>();
+			getList.mockReturnValueOnce(first.promise);
+			const firstSearch = search({
+				query: 'sa',
+				searchMode: ContactsSearchMode.NAME,
+			});
+			getList.mockResolvedValueOnce(found('32'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+			first.resolve(found('31'));
+			await firstSearch;
+
+			expect(contactIds.value).toEqual([
+				'32',
+			]);
+		});
+
+		it('ends the search when another call is opened', async () => {
+			getList.mockResolvedValueOnce(found());
+			const { isSearchActive, search, callRef } = setup(buildCall());
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			getList.mockResolvedValueOnce(found());
+			callRef.value = buildCall({
+				id: 'call-2',
+			});
+			await flushPromises();
+
+			expect(isSearchActive.value).toBe(false);
+		});
+
+		it('ends the search and shows the identified contacts when the search fails', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contactIds, isLoading, isSearchActive, search } = setup(
+				buildCall(),
+			);
+			await flushPromises();
+
+			getList.mockRejectedValueOnce(new Error('network error'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			expect(isSearchActive.value).toBe(false);
+			expect(isLoading.value).toBe(false);
+			expect(contactIds.value).toEqual([
+				'15',
+				'16',
+			]);
+		});
+
+		it('ends the search when a contact is linked to the call meanwhile', async () => {
+			getList.mockResolvedValueOnce(found());
+			const call = buildCall();
+			const { contactIds, isSearchActive, search } = setup(call);
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31', '32'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			call.contact = {
+				id: 99,
+				hide: false,
+			};
+			await nextTick();
+
+			expect(isSearchActive.value).toBe(false);
+			expect(contactIds.value).toEqual([
+				'99',
+			]);
+		});
+
+		it('ends the search once the selected contact is linked', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contactIds, isSearchActive, search, selectContact } = setup(
+				buildCall(),
+			);
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31', '32'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			await selectContact('32');
+
+			expect(isSearchActive.value).toBe(false);
+			expect(contactIds.value).toEqual([
+				'32',
 			]);
 		});
 	});

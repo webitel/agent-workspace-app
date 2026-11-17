@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Пользовательские переменные не заданы',
 				communicationOptions: 'Способы связи',
 				contactPosition: 'Контакт {current} из {count}',
+				search: {
+					title: 'Поиск контакта',
+					noResults: 'Результатов не найдено',
+					modes: {
+						name: 'Имя',
+						destination: 'Номер или email',
+						variables: 'Атрибут',
+					},
+				},
 			},
 		},
 		pages: {

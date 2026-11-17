@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Nu sunt definite variabile personalizate',
 				communicationOptions: 'Optiuni de comunicare',
 				contactPosition: 'Contactul {current} din {count}',
+				search: {
+					title: 'Caută contact',
+					noResults: 'Nu s-au găsit rezultate',
+					modes: {
+						name: 'Nume',
+						destination: 'Număr sau e-mail',
+						variables: 'Atribut',
+					},
+				},
 			},
 		},
 		pages: {
