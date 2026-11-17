@@ -20,6 +20,11 @@ const consultTransferToQueueMock = vi.fn();
 vi.mock('../../../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({
 		getCallById: () => callState.call,
+	}),
+}));
+
+vi.mock('../../../../../../features/calls/store/callTransfers', () => ({
+	useCallTransfersStore: () => ({
 		blindTransfer: (...args: unknown[]) => blindTransferMock(...args),
 		consultTransferToAgent: (...args: unknown[]) =>
 			consultTransferToAgentMock(...args),

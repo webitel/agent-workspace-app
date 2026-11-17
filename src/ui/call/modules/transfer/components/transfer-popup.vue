@@ -89,6 +89,7 @@ import { useI18n } from 'vue-i18n';
 import { isActiveCall } from '../../../../../features/calls/scripts/isActiveCall';
 import { sanitizeDestination } from '../../../../../features/calls/scripts/sanitizeDestination';
 import { useCallsStore } from '../../../../../features/calls/store/calls';
+import { useCallTransfersStore } from '../../../../../features/calls/store/callTransfers';
 import { TransferMode } from '../enums/TransferMode.enum';
 import { TransferTab } from '../enums/TransferTab.enum';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
@@ -105,6 +106,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const callsStore = useCallsStore();
+const callTransfersStore = useCallTransfersStore();
 const callTransferPopupStore = useCallTransferPopupStore();
 
 const transferModes = Object.values(TransferMode);
@@ -227,7 +229,7 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 
 	isSubmitting.value = true;
 	try {
-		await callsStore.blindTransfer(transferCallId, destinationPhone);
+		await callTransfersStore.blindTransfer(transferCallId, destinationPhone);
 	} finally {
 		isSubmitting.value = false;
 	}
@@ -256,7 +258,7 @@ async function requestTransferToRow(mode: TransferMode): Promise<void> {
 
 		isSubmitting.value = true;
 		try {
-			const isConsultPlaced = await callsStore.consultTransferToAgent(
+			const isConsultPlaced = await callTransfersStore.consultTransferToAgent(
 				transferCallId,
 				selectedRowId.value,
 			);
@@ -294,11 +296,11 @@ async function requestTransferToQueue(
 	isSubmitting.value = true;
 	try {
 		if (mode === TransferMode.Blind) {
-			await callsStore.blindTransferToQueue(transferCallId, queueId);
+			await callTransfersStore.blindTransferToQueue(transferCallId, queueId);
 			return;
 		}
 
-		const isConsultPlaced = await callsStore.consultTransferToQueue(
+		const isConsultPlaced = await callTransfersStore.consultTransferToQueue(
 			transferCallId,
 			queueId,
 		);
