@@ -7,10 +7,7 @@
 			v-if="numpadStore.isOpen"
 			class="the-numpad-panel__card"
 		>
-			<the-numpad
-				:initial-number="numpadStore.prefilledNumber"
-				@call="onCall"
-			/>
+			<the-numpad @call="onCall" />
 		</div>
 		<div
 			v-for="attempt of visibleAttempts"
@@ -26,7 +23,7 @@
 				@hangup="outboundCallAttemptsStore.hangup(attempt.id)"
 				@retry="outboundCallAttemptsStore.retry(attempt.id)"
 				@close="outboundCallAttemptsStore.clearAttempt(attempt.id)"
-				@back-to-dialpad="onBackToDialpad(attempt.id, attempt.destination)"
+				@back-to-dialpad="onBackToDialpad(attempt.id)"
 			/>
 		</div>
 	</div>
@@ -80,14 +77,15 @@ function onCall(destination: string) {
 
 /**
  * @author Oleksandr Palonnyi
- * The card closes and the numpad reopens with the number that went unanswered,
- * so the agent can correct it (AC_16.01.05). Done here rather than in the
+ * The card closes and the numpad reopens empty. AC_16.01.05 only says the numpad
+ * opens; the number that went unanswered was carried over by the first
+ * implementation and is not part of the spec. Done here rather than in the
  * outbound call attempts store, since a `features/` store does not drive `ui/` state
- * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+ * [WS-158](https://webitel.atlassian.net/browse/WS-158)
  */
-function onBackToDialpad(attemptId: string, unansweredNumber: string) {
+function onBackToDialpad(attemptId: string) {
 	outboundCallAttemptsStore.clearAttempt(attemptId);
-	numpadStore.open(unansweredNumber);
+	numpadStore.open();
 }
 </script>
 

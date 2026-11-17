@@ -124,13 +124,13 @@ describe('the-numpad-panel', () => {
 		).toBe(true);
 	});
 
-	it('prefills the number the numpad store was opened with', async () => {
+	it('opens the numpad with an empty number field', async () => {
 		const wrapper = mountPanel();
 
-		useNumpadStore().open('0671234567');
+		useNumpadStore().open();
 		await nextTick();
 
-		expect(wrapper.find('input').element.value).toBe('0671234567');
+		expect(wrapper.find('input').element.value).toBe('');
 	});
 
 	it('dials the entered number when a call is placed', async () => {
@@ -227,7 +227,7 @@ describe('the-numpad-panel', () => {
 		expect(findOutboundCards(wrapper)[0].props('canToggleMute')).toBe(true);
 	});
 
-	it('goes back to the dialpad with the unanswered number', async () => {
+	it('goes back to an empty dialpad', async () => {
 		const wrapper = mountPanel();
 		const numpadStore = useNumpadStore();
 		showOutboundCalls(buildAttempt('a1', OutboundCallStatus.NoAnswer));
@@ -236,7 +236,7 @@ describe('the-numpad-panel', () => {
 		findOutboundCards(wrapper)[0].vm.$emit('backToDialpad');
 
 		expect(outboundCallAttemptsStore.clearAttempt).toHaveBeenCalledWith('a1');
-		expect(numpadStore.open).toHaveBeenCalledWith('0671234567');
+		expect(numpadStore.open).toHaveBeenCalledWith();
 	});
 
 	it('clears the attempt of the card that was closed', async () => {
