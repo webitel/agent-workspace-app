@@ -1,7 +1,6 @@
 import { QueuesAPI } from '@webitel/api-services/api';
 import { QueueType } from '@webitel/ui-sdk/enums';
 
-import { toTransferQueueRow } from '../scripts/toTransferQueueRow';
 import type {
 	TransferQueueRow,
 	TransferQueueSource,
@@ -10,6 +9,14 @@ import type {
 interface TransferQueuesResponse {
 	items?: TransferQueueSource[];
 	next?: boolean;
+}
+
+function toTransferQueueRow(queue: TransferQueueSource): TransferQueueRow {
+	return {
+		id: queue.id,
+		name: queue.name ?? '',
+		description: queue.description ?? '',
+	};
 }
 
 /**

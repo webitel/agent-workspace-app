@@ -58,6 +58,24 @@ describe('transferQueuesApiModule', () => {
 		});
 	});
 
+	it('keeps a row for a queue without a name or a description', async () => {
+		getQueuesListMock.mockResolvedValue({
+			items: [
+				{
+					id: '3',
+				},
+			],
+		});
+
+		expect((await transferQueuesApiModule.getList()).items).toEqual([
+			{
+				id: '3',
+				name: '',
+				description: '',
+			},
+		]);
+	});
+
 	it('returns no rows and no next page when the response has neither', async () => {
 		getQueuesListMock.mockResolvedValue({});
 
