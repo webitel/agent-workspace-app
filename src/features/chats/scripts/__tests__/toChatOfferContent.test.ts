@@ -14,6 +14,8 @@ const buildTask = (overrides: Partial<Task> = {}): Task =>
 			id: 'thread-1',
 			lastMsg: 'is anyone there?',
 		},
+		offeringAt: 1_700_000_000_000,
+		acceptTimeoutSec: 20,
 		...overrides,
 	}) as unknown as Task;
 
@@ -24,9 +26,11 @@ describe('toChatOfferContent', () => {
 			name: 'John Smith',
 			identifier: '@john',
 			source: undefined,
+			queueName: undefined,
 			body: 'is anyone there?',
-			waitingSince: undefined,
-			maxWaitSec: undefined,
+			waitingSince: 1_700_000_000_000,
+			maxWaitSec: 20,
+			isCountdown: true,
 		});
 	});
 
@@ -52,20 +56,56 @@ describe('toChatOfferContent', () => {
 		expect(content.body).toBeUndefined();
 	});
 
-	/**
-	 * Nothing on `Task` carries the gateway, and the communication type would
-	 * read as one while naming the messenger instead. Omitted until WS-35.
-	 */
-	it('omits the source line until the gateway is on the wire', () => {
-		expect(toChatOfferContent(buildTask()).source).toBeUndefined();
+	it('maps the gateway name from the raw distribute event', () => {
+		const task = buildTask() as unknown as {
+			distribute: {
+				communication: {
+					thread: {
+						channel: {
+							name: string;
+							type: string;
+						};
+					};
+				};
+			};
+		};
+		task.distribute = {
+			communication: {
+				thread: {
+					channel: {
+						name: 'illia bot',
+						type: 'portal',
+					},
+				},
+			},
+		};
+
+		expect(toChatOfferContent(task as unknown as Task).source).toEqual({
+			label: 'Channel',
+			value: 'illia bot',
+		});
 	});
 
-	/**
-	 * `offeringAt` resets on every redistribution, so a re-offered customer would
-	 * restart at zero and the bar would go greener the longer they waited.
-	 */
-	it('reports no waiting time until a queue-entry epoch exists', () => {
-		const content = toChatOfferContent(buildTask());
+	it('exposes the queue the chat came through', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				queue: {
+					id: 7,
+					name: 'Support',
+				},
+			}),
+		);
+
+		expect(content.queueName).toBe('Support');
+	});
+
+	it('hides the countdown until the SDK exposes its start and timeout', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				offeringAt: 0,
+				acceptTimeoutSec: 0,
+			}),
+		);
 
 		expect(content.waitingSince).toBeUndefined();
 		expect(content.maxWaitSec).toBeUndefined();

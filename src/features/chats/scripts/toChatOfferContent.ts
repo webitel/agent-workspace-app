@@ -5,6 +5,19 @@ import {
 	OfferKind,
 } from '../../../ui/notifications/modules/offers/types/Offer.types';
 
+type ChatChannel = {
+	name?: string;
+	type?: string;
+};
+
+type ChatDistribute = {
+	communication?: {
+		thread?: {
+			channel?: ChatChannel;
+		};
+	};
+};
+
 /**
  * Maps an SDK chat `Task` onto the channel-neutral offer card content contract, so the
  * notifications module stays free of `webitel-sdk`.
@@ -19,29 +32,39 @@ function resolveName(task: Task): string | undefined {
 	return task.displayName || undefined;
 }
 
+/**
+ * The call-center payload adds the gateway to the raw distribute event. The
+ * current SDK keeps that event on the task but has not exposed its channel in
+ * the public Task thread type yet.
+ */
+function resolveSource(task: Task): OfferCardContent['source'] {
+	const distribute = (
+		task as unknown as {
+			distribute?: ChatDistribute;
+		}
+	).distribute;
+	const channel = distribute?.communication?.thread?.channel;
+
+	return channel?.name
+		? {
+				label: 'Channel',
+				value: channel.name,
+			}
+		: undefined;
+}
+
 export function toChatOfferContent(task: Task): OfferCardContent {
 	return {
 		kind: OfferKind.Chat,
 		name: resolveName(task),
 		// the client's username, from `communication.destination`
 		identifier: task.displayNumber || undefined,
-		/**
-		 * AC_06.01.01 wants the gateway the chat arrived through. Nothing on
-		 * `Task` carries one — `channel` is the channel *type* (`im`) and
-		 * `Task.queue` is only `{ id, name }` — so the line is omitted rather
-		 * than filled with the communication type, which would read as a gateway
-		 * name and mislead on any tenant running more than one. Asked for on
-		 * WS-35.
-		 */
-		source: undefined,
+		source: resolveSource(task),
+		queueName: task.queue?.name || undefined,
+		// no `variables` until US_06.02 (WS-66) settles which ones reach the card
 		body: task.thread?.lastMsg,
-		/**
-		 * No trustworthy queue-entry epoch exists: `offeringAt` resets on every
-		 * redistribution, and neither `createdAt` nor `bridgedAt` is documented as
-		 * the customer's queue entry. The waiting block stays hidden until WS-35
-		 * settles it.
-		 */
-		waitingSince: undefined,
-		maxWaitSec: undefined,
+		waitingSince: task.offeringAt || undefined,
+		maxWaitSec: task.acceptTimeoutSec || undefined,
+		isCountdown: true,
 	};
 }

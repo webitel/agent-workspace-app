@@ -167,14 +167,20 @@ export const useChatsStore = defineStore('chats', () => {
 	}
 
 	/**
-	 * Accepting from the card also opens the chat: the accept button is the
-	 * "take it and go there" action, while clicking the card body navigates
-	 * without accepting (AC_06.01.04).
+	 * Accepting from the card keeps the current view; clicking the card body
+	 * navigates without accepting (AC_06.01.04).
 	 */
 	async function acceptOffer(task: Task) {
+		// TODO WS-19 debug: remove
+		console.log('[WS-19 debug] accept clicked', {
+			now: Date.now(),
+			id: task.id,
+			secondsSinceOffering: task.offeringAt
+				? Math.round((Date.now() - task.offeringAt) / 1000)
+				: null,
+			acceptTimeoutSec: task.acceptTimeoutSec,
+		});
 		await task.accept();
-		const threadId = task.thread?.id;
-		if (threadId) openChat(threadId);
 	}
 
 	function declineOffer(task: Task) {
@@ -255,7 +261,33 @@ export const useChatsStore = defineStore('chats', () => {
 	function initialize() {
 		const client = getClient();
 		// the SDK needs a subscriber before it will populate the task feed
-		client.subscribeTask(() => {});
+		// TODO WS-19 debug: revert to `client.subscribeTask(() => {});`
+		client.subscribeTask((action, task) => {
+			if (!task || !isChatTask(task)) return;
+			const now = Date.now();
+			// `distribute` is protected on the SDK `Task`; read it raw for debugging
+			const { distribute } = task as unknown as {
+				distribute?: Record<string, unknown>;
+			};
+			console.log(`[WS-19 debug] task event: ${action}`, {
+				now,
+				id: task.id,
+				state: task.state,
+				threadId: task.thread?.id,
+				offeringAt: task.offeringAt,
+				// small (hundreds/thousands) => offeringAt is in ms
+				offeringAgoMs: task.offeringAt ? now - task.offeringAt : null,
+				bridgedAt: task.bridgedAt,
+				closedAt: task.closedAt,
+				acceptTimeoutSec: task.acceptTimeoutSec,
+				team_accept_timeout: distribute?.team_accept_timeout,
+				queue_max_wait_time: distribute?.queue_max_wait_time,
+				member_joined_at: distribute?.member_joined_at,
+				queue: task.queue,
+				// a snapshot, so later frames do not rewrite what was logged here
+				distribute: JSON.parse(JSON.stringify(distribute ?? null)),
+			});
+		});
 
 		offersStore.initialize();
 		subscribeToOffers();
