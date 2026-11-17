@@ -9,6 +9,7 @@ const mountActions = (
 		isMuted: boolean;
 		isHold: boolean;
 		canTransfer: boolean;
+		canBridge: boolean;
 	}> = {},
 ) =>
 	mount(CallDockActions, {
@@ -17,6 +18,7 @@ const mountActions = (
 			isMuted: false,
 			isHold: false,
 			canTransfer: true,
+			canBridge: false,
 			...props,
 		},
 		global: {
@@ -97,6 +99,39 @@ describe('call-dock-actions', () => {
 		expect(
 			findAction(wrapper, 'transfer').attributes('disabled'),
 		).toBeDefined();
+	});
+
+	it('hides bridge while there is no other call to connect', () => {
+		const wrapper = mountActions();
+
+		expect(findAction(wrapper, 'bridge').exists()).toBe(false);
+	});
+
+	it('places bridge right after hold and before transfer', () => {
+		const wrapper = mountActions({
+			canBridge: true,
+		});
+
+		const labels = wrapper
+			.findAll('button')
+			.map((button) => button.attributes('aria-label'));
+
+		expect(labels.indexOf('ui.call.activeCall.actions.bridge')).toBe(
+			labels.indexOf('ui.call.activeCall.actions.hold') + 1,
+		);
+		expect(labels.indexOf('ui.call.activeCall.actions.transfer')).toBe(
+			labels.indexOf('ui.call.activeCall.actions.bridge') + 1,
+		);
+	});
+
+	it('emits bridge when the agent has another call to connect', async () => {
+		const wrapper = mountActions({
+			canBridge: true,
+		});
+
+		await findAction(wrapper, 'bridge').trigger('click');
+
+		expect(wrapper.emitted('bridge')).toHaveLength(1);
 	});
 
 	it('emits transfer without marking the action pressed', async () => {

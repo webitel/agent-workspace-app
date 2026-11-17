@@ -5,7 +5,8 @@ Date: 2026-11-11
 ## Status
 
 Accepted. Implemented by [WS-95](https://webitel.atlassian.net/browse/WS-95).
-Bridging and cancelling a Consult call are not built (see Consequences).
+Bridging is built since, see [ADR-0018](0018-bridge-is-offered-from-the-live-call.md).
+Cancelling a Consult call is not built (see Consequences).
 
 ## Context
 

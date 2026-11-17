@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
 				communicationOptions: 'Opcje komunikacji',
 				contactPosition: '{current} z {count} kontaktów',
+				search: {
+					title: 'Szukaj kontaktu',
+					noResults: 'Nie znaleziono wyników',
+					modes: {
+						name: 'Nazwa',
+						destination: 'Numer lub e-mail',
+						variables: 'Atrybut',
+					},
+				},
 			},
 		},
 		pages: {
@@ -162,9 +171,15 @@ export default {
 					camera: 'Kamera',
 					message: 'Wiadomość',
 					transfer: 'Przekieruj',
+					bridge: 'Połącz rozmowy',
 					hangup: 'Zakończ połączenie',
 					openFullView: 'Otwórz pełny widok',
 				},
+			},
+			bridge: {
+				title: 'Łączenie rozmów',
+				connect: 'Połącz',
+				unknownContact: 'Nieznany kontakt',
 			},
 			transfer: {
 				title: 'Przekieruj połączenie',
@@ -204,6 +219,7 @@ export default {
 			dtmfFailed: 'Nie udało się wysłać cyfry. Spróbuj ponownie.',
 			transferFailed:
 				'Nie udało się przekierować połączenia. Spróbuj ponownie.',
+			bridgeFailed: 'Nie udało się połączyć rozmów. Spróbuj ponownie.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

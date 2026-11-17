@@ -1,3 +1,7 @@
+import {
+	ContactsAPI,
+	type ContactsSearchMode,
+} from '@webitel/api-services/api';
 import { EngineSystemSettingName } from '@webitel/api-services/gen/models';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
@@ -7,12 +11,41 @@ import { useCallsStore } from '../../../store/calls';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
 
+type SearchMode = (typeof ContactsSearchMode)[keyof typeof ContactsSearchMode];
+
+/**
+ * @author Oleksandr Palonnyi
+ * 100 is enough, as in cc-workspaces (WTEL-7906); the same cap identification by number uses
+ * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+ */
+const FOUND_CONTACTS_MAX_COUNT = 100;
+
 export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	const callsStore = useCallsStore();
 	const systemSettingsStore = useSystemSettingsStore();
 
-	const contactIds = ref<string[]>([]);
-	const isLoading = ref(false);
+	const identifiedContactIds = ref<string[]>([]);
+	const isIdentifying = ref(false);
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * null until the agent searches; an empty list is a search that found nothing
+	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+	 */
+	const searchedContactIds = ref<string[] | null>(null);
+	const isSearching = ref(false);
+
+	const isSearchActive = computed(() => searchedContactIds.value !== null);
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the agent's search replaces the identification result while it is active, since it is what they are looking at
+	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+	 */
+	const contactIds = computed(
+		() => searchedContactIds.value ?? identifiedContactIds.value,
+	);
+	const isLoading = computed(() => isIdentifying.value || isSearching.value);
 
 	// as in cc-workspaces: a hidden contact is neither shown nor searched for
 	const isContactHidden = computed(
@@ -32,9 +65,23 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		getCallContactId(toValue(call), callsStore.getCallById),
 	);
 
+	let lastSearchRequestId = 0;
+
+	const resetSearch = () => {
+		lastSearchRequestId += 1;
+		searchedContactIds.value = null;
+		isSearching.value = false;
+	};
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * a new identification result (another call, a contact linked meanwhile) ends the search of the previous one
+	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+	 */
 	const showResult = (ids: string[]) => {
-		contactIds.value = ids;
-		isLoading.value = false;
+		resetSearch();
+		identifiedContactIds.value = ids;
+		isIdentifying.value = false;
 	};
 
 	let lastRequestId = 0;
@@ -52,8 +99,9 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 				linkedContactId.value,
 			]);
 
-		contactIds.value = [];
-		isLoading.value = true;
+		resetSearch();
+		identifiedContactIds.value = [];
+		isIdentifying.value = true;
 
 		try {
 			const foundContactIds = await identifyCallContact(
@@ -99,6 +147,49 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		}
 	};
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * a search only shows contacts and links nothing, the agent links one with SELECT; an empty query is no search
+	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+	 */
+	const search = async ({
+		query,
+		searchMode,
+	}: {
+		query: string;
+		searchMode: SearchMode;
+	}): Promise<void> => {
+		const trimmedQuery = query.trim();
+		if (!trimmedQuery) {
+			resetSearch();
+			return;
+		}
+
+		const requestId = ++lastSearchRequestId;
+		const isStale = () => requestId !== lastSearchRequestId;
+		isSearching.value = true;
+
+		try {
+			const { items } = await ContactsAPI.getList({
+				[searchMode]: trimmedQuery,
+				size: FOUND_CONTACTS_MAX_COUNT,
+			});
+			const foundContactIds = items
+				.map(({ id }) => id)
+				.filter((id): id is string => Boolean(id));
+			if (!isStale()) searchedContactIds.value = foundContactIds;
+		} catch {
+			/**
+			 * @author Oleksandr Palonnyi
+			 * a failed search is not "nothing found": it ends the search, so the panel goes back to the identified contacts, and api-services notifies the agent
+			 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
+			 */
+			if (!isStale()) resetSearch();
+		} finally {
+			if (!isStale()) isSearching.value = false;
+		}
+	};
+
 	watch(
 		[
 			() => toValue(call).id,
@@ -115,6 +206,9 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		contactIds,
 		isLoading,
 		isContactHidden,
+		isSearchActive,
 		selectContact,
+		search,
+		cancelSearch: resetSearch,
 	};
 }

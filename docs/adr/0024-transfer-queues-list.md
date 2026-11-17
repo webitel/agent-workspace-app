@@ -1,4 +1,4 @@
-# 18. The transfer popup's queues list is a table store, and its selected row is painted by wt-table
+# 24. The transfer popup's queues list is a table store, and its selected row is painted by wt-table
 
 Date: 2026-11-11
 

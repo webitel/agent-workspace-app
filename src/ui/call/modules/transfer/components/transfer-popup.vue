@@ -21,7 +21,7 @@
 					<wt-button
 						v-for="mode in transferModes"
 						:key="mode"
-						:color="ButtonColor.SECONDARY"
+						:color="TRANSFER_MODE_BUTTON_COLORS[mode]"
 						:variant="ButtonVariant.OUTLINED"
 						:disabled="isSubmitting || !availability.byPhone[mode]"
 						@click="requestTransferToPhone(mode)"
@@ -58,7 +58,7 @@
 			<wt-button
 				v-for="mode in transferModes"
 				:key="mode"
-				:color="ButtonColor.SECONDARY"
+				:color="TRANSFER_MODE_BUTTON_COLORS[mode]"
 				:disabled="isSubmitting || !availability.bySelection[mode]"
 				@click="requestTransferToRow(mode)"
 			>
@@ -92,6 +92,7 @@ import { useCallsStore } from '../../../../../features/calls/store/calls';
 import { useCallTransfersStore } from '../../../../../features/calls/store/callTransfers';
 import { TransferMode } from '../enums/TransferMode.enum';
 import { TransferTab } from '../enums/TransferTab.enum';
+import { TRANSFER_MODE_BUTTON_COLORS } from '../mappings/transferModeButtonColors';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
@@ -228,11 +229,19 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 	if (isSubmitting.value || transferCallId === null) return;
 
 	isSubmitting.value = true;
-	try {
-		await callTransfersStore.blindTransfer(transferCallId, destinationPhone);
-	} finally {
-		isSubmitting.value = false;
-	}
+	const isTransferAccepted = await callTransfersStore.blindTransfer(
+		transferCallId,
+		destinationPhone,
+	);
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * an accepted blind transfer keeps the buttons disabled: the call is still in
+	 * the list until the SDK drops it, and a second click in that gap would send
+	 * the transfer again. Only a refusal gives the buttons back for another try
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	if (!isTransferAccepted) isSubmitting.value = false;
 }
 
 /**

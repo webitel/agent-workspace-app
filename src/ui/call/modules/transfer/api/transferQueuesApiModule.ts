@@ -23,7 +23,7 @@ function toTransferQueueRow(queue: TransferQueueSource): TransferQueueRow {
  * @author Oleksandr Palonnyi
  * only inbound queues are listed, as in cc-workspaces: a call can be handed
  * to them. The list API has no `enabled` filter, so a disabled queue is not
- * left out here (docs/adr/0018-transfer-queues-list.md)
+ * left out here (docs/adr/0024-transfer-queues-list.md)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 export const transferQueuesApiModule = {

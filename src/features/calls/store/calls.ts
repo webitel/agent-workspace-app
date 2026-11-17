@@ -320,6 +320,40 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * joins two Active calls to each other (AC_14.02.07), whichever side started
+	 * them. resolves true once the backend accepted it. nothing is closed here:
+	 * per BA the two connected calls stay active and a queue call goes on to
+	 * post-processing like any ended call, so the windows follow the call list.
+	 * Whether `bridgeTo` needs one of the calls held is not verified on a live
+	 * instance
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function bridgeCalls(
+		callId: string,
+		otherCallId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const otherCall = getCallById(otherCallId);
+		if (
+			callId === otherCallId ||
+			!isActiveCall(call) ||
+			!isActiveCall(otherCall)
+		) {
+			return false;
+		}
+
+		try {
+			await call.bridgeTo(otherCall);
+			return true;
+		} catch (err) {
+			console.warn('[calls] bridging the calls failed', err);
+			notifyCallError('bridgeFailed');
+			return false;
+		}
+	}
+
 	async function sendDtmf(callId: string, digit: string) {
 		const call = getCallById(callId);
 		if (!call?.allowDtmf) return;
@@ -453,6 +487,7 @@ export const useCallsStore = defineStore('calls', () => {
 		toggleMute,
 		toggleHold,
 		holdOtherLiveCalls,
+		bridgeCalls,
 		sendDtmf,
 		hangup,
 	};

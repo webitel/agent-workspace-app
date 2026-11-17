@@ -86,9 +86,13 @@ describe('useTransferQueuesDataListStore', () => {
 				page: 2,
 			}),
 		);
-		expect(store.dataList.map((row) => row.id)).toEqual([
-			'1',
-			'2',
+		expect(store.dataList).toEqual([
+			expect.objectContaining({
+				id: '1',
+			}),
+			expect.objectContaining({
+				id: '2',
+			}),
 		]);
 		expect(store.next).toBe(false);
 	});

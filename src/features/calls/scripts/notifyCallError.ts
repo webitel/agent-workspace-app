@@ -2,7 +2,11 @@ import { eventBus } from '@webitel/ui-sdk/scripts';
 
 import i18n from '../../../app/locale/i18n';
 
-export type CallErrorKey = 'holdToggleFailed' | 'dtmfFailed' | 'transferFailed';
+export type CallErrorKey =
+	| 'holdToggleFailed'
+	| 'dtmfFailed'
+	| 'transferFailed'
+	| 'bridgeFailed';
 
 export function notifyCallError(errorKey: CallErrorKey): void {
 	eventBus.$emit('notification', {
