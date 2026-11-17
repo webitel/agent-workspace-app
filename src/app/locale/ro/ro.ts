@@ -171,8 +171,29 @@ export default {
 					camera: 'Cameră',
 					message: 'Mesaj',
 					transfer: 'Transferă',
+					bridge: 'Conectează apelurile',
 					hangup: 'Închide apelul',
 					openFullView: 'Deschide vizualizarea completă',
+				},
+			},
+			bridge: {
+				title: 'Conectarea apelurilor',
+				connect: 'Conectează',
+				unknownContact: 'Contact necunoscut',
+			},
+			transfer: {
+				title: 'Transfer apel',
+				phoneLabel: 'Transfer la numărul',
+				phonePlaceholder: 'Introduceți numărul de telefon',
+				emptyList: 'Nu s-a găsit nimic',
+				columns: {
+					name: 'Nume',
+					status: 'Stare',
+					team: 'Echipă',
+				},
+				modes: {
+					blind: 'Direct',
+					consult: 'Cu consultare',
 				},
 			},
 			outboundCall: {
@@ -194,6 +215,8 @@ export default {
 			holdToggleFailed:
 				'Apelul nu a putut fi pus în așteptare sau reluat. Încearcă din nou.',
 			dtmfFailed: 'Cifra nu a putut fi trimisă. Încearcă din nou.',
+			transferFailed: 'Apelul nu a putut fi transferat. Încearcă din nou.',
+			bridgeFailed: 'Apelurile nu au putut fi conectate. Încearcă din nou.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

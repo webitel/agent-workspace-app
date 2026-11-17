@@ -13,6 +13,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	canTransfer: true,
 	dtmfDigits: '',
 	...overrides,
 });
@@ -22,6 +23,7 @@ const mountBar = (expanded = false) =>
 		props: {
 			preview: buildPreview(),
 			expanded,
+			canBridge: false,
 		},
 		global: {
 			stubs: {

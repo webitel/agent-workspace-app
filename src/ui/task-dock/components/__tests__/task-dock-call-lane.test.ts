@@ -146,6 +146,57 @@ describe('task-dock-call-lane', () => {
 			expect(call.toggleHold).toHaveBeenCalledTimes(1);
 		});
 
+		describe('bridge action', () => {
+			const expandDockAt = async (
+				wrapper: ReturnType<typeof mountCallLane>,
+				index: number,
+			) => {
+				await wrapper.findAll('.floating-call-widget')[index].trigger('click');
+			};
+
+			it('is hidden while there is a single call', async () => {
+				calls.value = [
+					buildCall(),
+				];
+				const wrapper = mountCallLane();
+				await expandDock(wrapper);
+
+				expect(findAction(wrapper, 'bridge').exists()).toBe(false);
+			});
+
+			it('is offered on the live call while another call is held', async () => {
+				calls.value = [
+					buildCall({
+						id: 'live',
+					}),
+					buildCall({
+						id: 'held',
+						isHold: true,
+					}),
+				];
+				const wrapper = mountCallLane();
+				await expandDockAt(wrapper, 0);
+
+				expect(findAction(wrapper, 'bridge').exists()).toBe(true);
+			});
+
+			it('is not offered on the held call', async () => {
+				calls.value = [
+					buildCall({
+						id: 'live',
+					}),
+					buildCall({
+						id: 'held',
+						isHold: true,
+					}),
+				];
+				const wrapper = mountCallLane();
+				await expandDockAt(wrapper, 1);
+
+				expect(findAction(wrapper, 'bridge').exists()).toBe(false);
+			});
+		});
+
 		it('hangs up the call and collapses the dock', async () => {
 			const call = buildCall({
 				allowHangup: true,

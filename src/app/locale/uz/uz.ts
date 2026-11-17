@@ -171,8 +171,29 @@ export default {
 					camera: 'Kamera',
 					message: 'Xabar',
 					transfer: 'Yoʻnaltirish',
+					bridge: 'Qoʻngʻiroqlarni ulash',
 					hangup: 'Qoʻngʻiroqni tugatish',
 					openFullView: 'Toʻliq koʻrinishni ochish',
+				},
+			},
+			bridge: {
+				title: 'Qoʻngʻiroqlarni ulash',
+				connect: 'Ulash',
+				unknownContact: 'Nomaʼlum kontakt',
+			},
+			transfer: {
+				title: 'Qoʻngʻiroqni oʻtkazish',
+				phoneLabel: 'Raqamga oʻtkazish',
+				phonePlaceholder: 'Telefon raqamini kiriting',
+				emptyList: 'Hech narsa topilmadi',
+				columns: {
+					name: 'Ism',
+					status: 'Holat',
+					team: 'Jamoa',
+				},
+				modes: {
+					blind: 'Toʻgʻridan-toʻgʻri',
+					consult: 'Maslahat bilan',
 				},
 			},
 			outboundCall: {
@@ -194,6 +215,9 @@ export default {
 			holdToggleFailed:
 				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
 			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
+			transferFailed:
+				'Qoʻngʻiroqni oʻtkazib boʻlmadi. Qaytadan urinib koʻring.',
+			bridgeFailed: 'Qoʻngʻiroqlarni ulab boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

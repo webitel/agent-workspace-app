@@ -1,4 +1,4 @@
-# agent-workspace-app
+﻿# agent-workspace-app
 
 Operator (agent) workspace, built on the current frontend stack: Vue 3 +
 Pinia, Vite, Biome, vitest and Playwright. Served under the `/agent-workspace`
@@ -60,6 +60,15 @@ and should not be carried over wholesale.
   platform's auto-answer with the other calls held first (an offline member's
   too), and its own panel searches the contact by the call's number, without
   SELECT.
+- [ADR-0016](docs/adr/0016-transfer-agents-list.md) — the transfer popup's agents
+  list is a ui-datalist table store, one table per tab under one search field
+  that applies on the debounced event, and the known race it leaves open.
+- [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
+  derived from the call list by its parent, shown as a ringing card until
+  answered, and why it is not stored.
+- [ADR-0018](docs/adr/0018-bridge-is-offered-from-the-live-call.md) — bridging
+  is offered between any two Active calls, from the live one only, with Connect
+  bridging at once and the app closing nothing afterwards.
 - [ADR-0019](docs/adr/0019-right-panel-follows-the-route.md) — the right
   panel shows what the current route resolves to, a row picked in a table is
   held in a selection store (a contact, an unknown contact or a number to search
@@ -182,6 +191,37 @@ agent's yet, so there is nothing to link one to.
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
+
+**Blind transfer** — handing an Active call to a destination (a number, a user,
+a queue, a dialplan) without speaking to it first. The agent is out of the call
+the moment it is sent.
+
+**Consult transfer** — handing an Active call to a destination (a number, an
+agent, a queue) after speaking to it first: the original call is put on hold,
+the agent places a **Consult call** to the destination, and then either bridges
+the two or cancels the consult and goes back to the original call.
+
+**Consult call** — the call to the destination of a Consult transfer, placed
+while the original call is on hold. It is a call of its own, not the original;
+once the destination answers it is an Active call like any other. Until then it
+shows as a ringing card in the call dock, and it is recognised by the original
+call being its parent, not remembered (ADR-0017).
+
+**Bridge** — joining two Active calls to each other so the agent drops out and
+the two parties talk (AC_14.02.07, ADR-0018). It is not a transfer and not part of a
+**Consult transfer** only: it applies to any two Active calls, and is offered
+whenever the agent has more than one (its icon is in the call dock's action bar
+only then, not for a single call). The agent opens it from one call and picks the
+other one in a popup. Afterwards the two connected calls are active and the third
+is dropped; a call that came from a queue goes on to its **Post-processing**
+(BA, not yet seen on a live call).
+
+**Transfer popup** — the popup an agent uses to pick where an Active call goes,
+opened from the Call window's top bar or from the call dock. It has a number
+field and four tabs of destinations (Agents, Queues, Users, Dialplans) under one
+search; selecting a row and choosing Blind or Consult starts a **Blind transfer**
+or a **Consult transfer**. Which of the two a row allows depends on its tab. It
+works on one call, the one it was opened for.
 
 **Call window** — the central-area card for one call, the call's counterpart of
 the chat window. It hosts the call while it is an **Active call** and stays on

@@ -34,15 +34,26 @@
 			@click="emit('toggleHold')"
 		/>
 		<wt-button
+			v-if="canBridge"
+			icon="call-add-to"
+			:size="ComponentSize.SM"
+			:icon-color="IconColor.DEFAULT"
+			:color="ButtonColor.SECONDARY"
+			:variant="ButtonVariant.TEXT"
+			:aria-label="t('ui.call.activeCall.actions.bridge')"
+			width-by-content
+			@click="emit('bridge')"
+		/>
+		<wt-button
 			icon="call-transfer--filled"
 			:size="ComponentSize.SM"
-			:icon-color="getIconColor(isTransferActive, IconColor.TRANSFER)"
+			:icon-color="IconColor.TRANSFER"
 			:color="ButtonColor.TRANSFER"
-			:variant="getActionVariant(isTransferActive)"
+			:variant="ButtonVariant.TEXT"
 			:aria-label="t('ui.call.activeCall.actions.transfer')"
-			:aria-pressed="isTransferActive"
+			:disabled="!canTransfer"
 			width-by-content
-			@click="isTransferActive = !isTransferActive"
+			@click="emit('transfer')"
 		/>
 		<wt-button
 			icon="call-end--filled"
@@ -67,32 +78,26 @@ import {
 	ComponentSize,
 	IconColor,
 } from '@webitel/ui-sdk/enums';
-import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 defineProps<{
 	isNumpadOpen: boolean;
 	isMuted: boolean;
 	isHold: boolean;
+	canTransfer: boolean;
+	canBridge: boolean;
 }>();
 
 const emit = defineEmits<{
 	toggleNumpad: [];
 	toggleMute: [];
 	toggleHold: [];
+	transfer: [];
+	bridge: [];
 	hangup: [];
 }>();
 
 const { t } = useI18n();
-
-/**
- * @author Oleksandr Palonnyi
- * transfer has no SDK action yet, so its active state is only this local
- * toggle; mute and hold are not mirrored here because the preview already
- * carries their real state
- * [WS-23](https://webitel.atlassian.net/browse/WS-23)
- */
-const isTransferActive = ref(false);
 
 /**
  * @author Oleksandr Palonnyi
