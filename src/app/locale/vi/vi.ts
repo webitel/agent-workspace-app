@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Chưa xác định biến tùy chỉnh',
 				communicationOptions: 'Tùy chọn liên lạc',
 				contactPosition: '{current} trong {count} liên hệ',
+				search: {
+					title: 'Tìm liên hệ',
+					noResults: 'Không tìm thấy kết quả',
+					modes: {
+						name: 'Tên',
+						destination: 'Số hoặc email',
+						variables: 'Thuộc tính',
+					},
+				},
 			},
 		},
 		pages: {

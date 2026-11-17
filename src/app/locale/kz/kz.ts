@@ -79,6 +79,15 @@ export default {
 				noAttributes: 'Пайдаланушы айнымалылары анықталмаған',
 				communicationOptions: 'Байланыс тәсілдері',
 				contactPosition: '{current} / {count} байланыс',
+				search: {
+					title: 'Байланысты іздеу',
+					noResults: 'Нәтиже табылмады',
+					modes: {
+						name: 'Аты',
+						destination: 'Нөмір немесе email',
+						variables: 'Атрибут',
+					},
+				},
 			},
 		},
 		pages: {
