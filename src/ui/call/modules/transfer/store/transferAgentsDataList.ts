@@ -1,5 +1,6 @@
 import { createTableStore } from '@webitel/ui-datalist';
 
+import { useUserinfoStore } from '../../../../../features/userinfo/stores/userinfoStore';
 import { transferAgentsApiModule } from '../api/transferAgentsApiModule';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
 import { transferAgentsHeaders } from './_internals/transferAgentsHeaders';
@@ -12,7 +13,13 @@ import { transferAgentsHeaders } from './_internals/transferAgentsHeaders';
  */
 export const useTransferAgentsDataListStore =
 	createTableStore<TransferAgentRow>('ui/call/transfer/agents/datalist', {
-		apiModule: transferAgentsApiModule,
+		apiModule: {
+			getList: (params: Record<string, unknown> = {}) =>
+				transferAgentsApiModule.getList({
+					...params,
+					notUserId: useUserinfoStore().userId,
+				}),
+		},
 		headers: transferAgentsHeaders,
 		isAppendDataList: true,
 		disablePersistence: true,

@@ -171,9 +171,15 @@ export default {
 					camera: 'Kamera',
 					message: 'Wiadomość',
 					transfer: 'Przekieruj',
+					bridge: 'Połącz rozmowy',
 					hangup: 'Zakończ połączenie',
 					openFullView: 'Otwórz pełny widok',
 				},
+			},
+			bridge: {
+				title: 'Łączenie rozmów',
+				connect: 'Połącz',
+				unknownContact: 'Nieznany kontakt',
 			},
 			transfer: {
 				title: 'Przekieruj połączenie',
@@ -210,6 +216,9 @@ export default {
 			holdToggleFailed:
 				'Nie udało się wstrzymać ani wznowić połączenia. Spróbuj ponownie.',
 			dtmfFailed: 'Nie udało się wysłać cyfry. Spróbuj ponownie.',
+			transferFailed:
+				'Nie udało się przekierować połączenia. Spróbuj ponownie.',
+			bridgeFailed: 'Nie udało się połączyć rozmów. Spróbuj ponownie.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

@@ -55,8 +55,10 @@ const stubs = {
 	'wt-button': {
 		props: [
 			'disabled',
+			'color',
 		],
-		template: '<button :disabled="disabled"><slot /></button>',
+		template:
+			'<button :disabled="disabled" :data-color="color"><slot /></button>',
 	},
 	'wt-tabs': {
 		props: [
@@ -125,6 +127,20 @@ describe('transfer-popup', () => {
 		useCallTransferPopupStore().open('call-1');
 	});
 
+	it('colours Blind in the transfer blue and Consult in success green, on both rows of buttons', () => {
+		const wrapper = mountPopup();
+
+		for (const buttons of [
+			topButtons(wrapper),
+			bottomButtons(wrapper).slice(0, 2),
+		]) {
+			expect(buttons.map((button) => button.attributes('data-color'))).toEqual([
+				'transfer',
+				'success',
+			]);
+		}
+	});
+
 	it('titles itself and offers the four destination tabs, Agents first (AC_13.07.01)', () => {
 		const wrapper = mountPopup();
 
@@ -186,6 +202,19 @@ describe('transfer-popup', () => {
 
 		expect(topButtons(wrapper).every(isDisabled)).toBe(false);
 		expect(isDisabled(wrapper.find('.phone'))).toBe(false);
+	});
+
+	it('keeps the buttons locked after an accepted transfer, so it cannot be sent twice', async () => {
+		const wrapper = mountPopup();
+		await wrapper.find('.phone').setValue('1001');
+
+		await topButtons(wrapper)[0].trigger('click');
+		await flushPromises();
+		await topButtons(wrapper)[0].trigger('click');
+
+		expect(blindTransferMock).toHaveBeenCalledTimes(1);
+		expect(topButtons(wrapper).every(isDisabled)).toBe(true);
+		expect(isDisabled(wrapper.find('.phone'))).toBe(true);
 	});
 
 	it('stays open with the typed number when the transfer fails', async () => {

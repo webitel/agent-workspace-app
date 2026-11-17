@@ -70,10 +70,12 @@
 			:is-muted="preview.isMuted"
 			:is-hold="preview.isHold"
 			:can-transfer="preview.canTransfer"
+			:can-bridge="canBridge"
 			@toggle-numpad="isNumpadOpen = !isNumpadOpen"
 			@toggle-mute="emit('toggleMute')"
 			@toggle-hold="emit('toggleHold')"
 			@transfer="emit('transfer')"
+			@bridge="emit('bridge')"
 			@hangup="emit('hangup')"
 		/>
 	</div>
@@ -94,12 +96,14 @@ import CallDockNumpad from './call-dock-numpad.vue';
 const props = defineProps<{
 	preview: ActiveCallContent;
 	displayedTime: string;
+	canBridge: boolean;
 }>();
 
 const emit = defineEmits<{
 	toggleMute: [];
 	toggleHold: [];
 	transfer: [];
+	bridge: [];
 	hangup: [];
 	openFullView: [];
 	sendDigit: [
