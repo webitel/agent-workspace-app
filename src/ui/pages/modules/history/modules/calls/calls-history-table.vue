@@ -153,7 +153,7 @@ const {
 const { dataList, shownHeaders, next, isLoading, filtersManager } =
 	storeToRefs(store);
 
-const { selectContact, selectUnknownContact } = useSidebarSelectionStore();
+const { selectContactOrUnknown } = useSidebarSelectionStore();
 
 const { playingFile, playingSrc, isAudioOpen, isVideoOpen, play, close } =
 	usePlayCallRecording();
@@ -188,11 +188,7 @@ const onLoading = async () => {
 };
 
 const openContact = ({ contact }: EngineHistoryCall) => {
-	if (!contact?.id) {
-		selectUnknownContact();
-		return;
-	}
-	selectContact(contact.id);
+	selectContactOrUnknown(contact?.id);
 };
 
 const openCallInfo = (item: EngineHistoryCall) => {

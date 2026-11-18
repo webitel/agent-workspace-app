@@ -23,6 +23,7 @@ const mountBar = (expanded = false) =>
 		props: {
 			preview: buildPreview(),
 			expanded,
+			canBridge: false,
 		},
 		global: {
 			stubs: {

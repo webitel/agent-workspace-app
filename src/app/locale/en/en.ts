@@ -52,6 +52,7 @@ export default {
 			message: 'Message',
 			phoneNumber: 'Phone number',
 			waitTime: 'Wait time',
+			select: 'Select',
 		},
 		numpad: {
 			call: 'Call',
@@ -85,6 +86,16 @@ export default {
 				attributes: 'Attributes',
 				noAttributes: 'No custom variables defined',
 				communicationOptions: 'Communication options',
+				contactPosition: '{current} of {count} contacts',
+				search: {
+					title: 'Search contact',
+					noResults: 'No results were found',
+					modes: {
+						name: 'Name',
+						destination: 'Destination',
+						variables: 'Attribute',
+					},
+				},
 			},
 		},
 		pages: {
@@ -176,9 +187,15 @@ export default {
 					camera: 'Camera',
 					message: 'Message',
 					transfer: 'Transfer',
+					bridge: 'Connect calls',
 					hangup: 'End call',
 					openFullView: 'Open full view',
 				},
+			},
+			bridge: {
+				title: 'Bridge calls',
+				connect: 'Connect',
+				unknownContact: 'Unknown contact',
 			},
 			transfer: {
 				title: 'Transfer Call',
@@ -216,6 +233,7 @@ export default {
 				'The call could not be put on hold or resumed. Please try again.',
 			dtmfFailed: 'The digit could not be sent. Please try again.',
 			transferFailed: 'The call could not be transferred. Please try again.',
+			bridgeFailed: 'The calls could not be connected. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

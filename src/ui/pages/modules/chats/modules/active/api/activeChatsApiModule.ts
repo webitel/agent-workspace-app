@@ -6,9 +6,9 @@ import {
 	snakeToCamel,
 	translateError,
 } from '@webitel/api-services/api/transformers';
+import type { ApiModule } from '@webitel/api-services/api/types';
 import type { WebitelImApiGatewayV1Thread } from '@webitel/api-services/gen/models';
 import { getWebitelImApiGatewayV1Threadmanagement } from '@webitel/api-services/gen-wire';
-import type { ApiModule } from '@webitel/ui-sdk/api/types/ApiModule';
 
 import { findClientContact } from '../../../../../../../features/chats/scripts/findClientContact';
 

@@ -2,10 +2,10 @@
 	<div class="history-panel">
 		<sidebar-section-header :title="title" />
 		<contact-card
-			v-if="mode === HistorySidebarMode.View && contactId"
+			v-if="contactId"
 			:contact-id="contactId"
 		/>
-		<contact-card-unknown v-else-if="mode === HistorySidebarMode.Unknown" />
+		<contact-card-unknown v-else-if="isUnknownSelected" />
 		<contact-panel-empty
 			v-else
 			:title="t('ui.sidebar.contact.selectContact.title')"
@@ -22,32 +22,17 @@ import ContactCard from '../../components/contact/contact-card.vue';
 import ContactCardUnknown from '../../components/contact/contact-card-unknown.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../components/sidebar-section-header.vue';
-import { SidebarSelectionType } from '../../enums/SidebarSelectionType.enum';
 import { useSidebarSelectionStore } from '../../store/sidebar-selection';
-import { HistorySidebarMode } from './enums/HistorySidebarMode.enum';
 
 const { t } = useI18n();
 
-const { selection, contactId } = storeToRefs(useSidebarSelectionStore());
-
-const modeBySelectionType: Record<SidebarSelectionType, HistorySidebarMode> = {
-	[SidebarSelectionType.Contact]: HistorySidebarMode.View,
-	[SidebarSelectionType.Unknown]: HistorySidebarMode.Unknown,
-};
-
-const mode = computed<HistorySidebarMode>(() =>
-	selection.value
-		? modeBySelectionType[selection.value.type]
-		: HistorySidebarMode.Empty,
+const { contactId, isUnknownSelected } = storeToRefs(
+	useSidebarSelectionStore(),
 );
 
-const titleByMode: Record<HistorySidebarMode, () => string> = {
-	[HistorySidebarMode.Empty]: () => t('objects.contact', 2),
-	[HistorySidebarMode.View]: () => t('ui.sidebar.contact.profile'),
-	[HistorySidebarMode.Unknown]: () => t('objects.contact', 2),
-};
-
-const title = computed(() => titleByMode[mode.value]());
+const title = computed(() =>
+	contactId.value ? t('ui.sidebar.contact.profile') : t('objects.contact', 2),
+);
 </script>
 
 <style scoped>

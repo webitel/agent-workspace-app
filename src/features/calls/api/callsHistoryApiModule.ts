@@ -3,13 +3,13 @@ import {
 	applyTransform,
 	starToSearch,
 } from '@webitel/api-services/api/transformers';
+import type { ApiModule } from '@webitel/api-services/api/types';
 import { RelativeDatetimeValue } from '@webitel/api-services/enums';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import {
 	normalizeDatetimeRange,
 	normalizeToTimestamp,
 } from '@webitel/api-services/scripts';
-import type { ApiModule } from '@webitel/ui-sdk/api/types/ApiModule';
 
 const DEFAULT_SORT = '-created_at';
 

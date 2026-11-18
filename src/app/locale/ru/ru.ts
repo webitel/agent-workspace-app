@@ -51,6 +51,7 @@ export default {
 			message: 'Сообщение',
 			phoneNumber: 'Номер телефона',
 			waitTime: 'Время ожидания',
+			select: 'Выбрать',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -77,6 +78,16 @@ export default {
 				attributes: 'Атрибуты',
 				noAttributes: 'Пользовательские переменные не заданы',
 				communicationOptions: 'Способы связи',
+				contactPosition: 'Контакт {current} из {count}',
+				search: {
+					title: 'Поиск контакта',
+					noResults: 'Результатов не найдено',
+					modes: {
+						name: 'Имя',
+						destination: 'Номер или email',
+						variables: 'Атрибут',
+					},
+				},
 			},
 		},
 		pages: {
@@ -160,9 +171,15 @@ export default {
 					camera: 'Камера',
 					message: 'Сообщение',
 					transfer: 'Переадресация',
+					bridge: 'Соединить звонки',
 					hangup: 'Завершить звонок',
 					openFullView: 'Открыть полный вид',
 				},
+			},
+			bridge: {
+				title: 'Соединение звонков',
+				connect: 'Соединить',
+				unknownContact: 'Неизвестный контакт',
 			},
 			transfer: {
 				title: 'Перевод звонка',
@@ -198,6 +215,8 @@ export default {
 			holdToggleFailed:
 				'Не удалось поставить звонок на удержание или снять с него. Попробуйте ещё раз.',
 			dtmfFailed: 'Не удалось отправить цифру. Попробуйте ещё раз.',
+			transferFailed: 'Не удалось перевести звонок. Попробуйте ещё раз.',
+			bridgeFailed: 'Не удалось соединить звонки. Попробуйте ещё раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

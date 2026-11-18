@@ -16,7 +16,11 @@
 			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
-				<username-table-cell :name="getName(item)" />
+				<username-table-cell
+					:name="getName(item)"
+					clickable
+					@click="openContact(item)"
+				/>
 			</template>
 
 			<template #createdAt="{ item }">
@@ -46,8 +50,10 @@ import { convertDuration } from '@webitel/ui-sdk/scripts';
 import { formatDate } from '@webitel/ui-sdk/utils';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import PhoneCallTableCell from '../../../../components/phone-call-table-cell.vue';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
+import { getCallPhoneNumber } from '../../../history/modules/calls/scripts/getCallPhoneNumber';
 import { useMissedCallsDataListStore } from './store/missed-calls';
 
 const store = useMissedCallsDataListStore();
@@ -61,6 +67,8 @@ const {
 } = store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
+const { selectContact, selectPhoneNumber } = useSidebarSelectionStore();
+
 const isInitializing = ref(true);
 
 const onLoading = async () => {
@@ -70,6 +78,20 @@ const onLoading = async () => {
 
 const getName = ({ contact, from }: EngineHistoryCall) =>
 	contact?.name || from?.name || from?.number;
+
+/**
+ * The linked contact if there is one; a missed call rarely has it (nobody
+ * answered to link one), so otherwise the panel searches by the call's number.
+ * A hidden number is not searched: the panel shows an unknown contact
+ * [WS-33](https://webitel.atlassian.net/browse/WS-33)
+ */
+const openContact = (call: EngineHistoryCall) => {
+	if (call.contact?.id) {
+		selectContact(String(call.contact.id));
+		return;
+	}
+	selectPhoneNumber(call.hideNumber ? undefined : getCallPhoneNumber(call));
+};
 
 initialize().finally(() => {
 	isInitializing.value = false;

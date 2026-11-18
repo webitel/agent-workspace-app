@@ -52,6 +52,7 @@ export default {
 			message: 'Повідомлення',
 			phoneNumber: 'Номер телефону',
 			waitTime: 'Час очікування',
+			select: 'Обрати',
 		},
 		numpad: {
 			call: 'Зателефонувати',
@@ -85,6 +86,16 @@ export default {
 				attributes: 'Атрибути',
 				noAttributes: 'Користувацькі змінні не задано',
 				communicationOptions: "Способи зв'язку",
+				contactPosition: 'Контакт {current} з {count}',
+				search: {
+					title: 'Пошук контакту',
+					noResults: 'Результатів не знайдено',
+					modes: {
+						name: "Ім'я",
+						destination: 'Номер або email',
+						variables: 'Атрибут',
+					},
+				},
 			},
 		},
 		pages: {
@@ -176,9 +187,15 @@ export default {
 					camera: 'Камера',
 					message: 'Повідомлення',
 					transfer: 'Переадресація',
+					bridge: "З'єднати дзвінки",
 					hangup: 'Завершити дзвінок',
 					openFullView: 'Відкрити повний вигляд',
 				},
+			},
+			bridge: {
+				title: "З'єднання дзвінків",
+				connect: "З'єднати",
+				unknownContact: 'Невідомий контакт',
 			},
 			transfer: {
 				title: 'Переведення дзвінка',
@@ -215,6 +232,7 @@ export default {
 				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
 			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
 			transferFailed: 'Не вдалося переадресувати дзвінок. Спробуйте ще раз.',
+			bridgeFailed: "Не вдалося з'єднати дзвінки. Спробуйте ще раз.",
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

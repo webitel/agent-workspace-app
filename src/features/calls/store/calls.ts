@@ -18,8 +18,10 @@ import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
+import { isRingingConsultCall } from '../scripts/isRingingConsultCall';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
+import { toAgentNumericId } from '../scripts/toAgentNumericId';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
 
 /**
@@ -57,6 +59,10 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const ringingConsultCalls = computed(() =>
+		callList.value.filter((call) => isRingingConsultCall(call, callList.value)),
+	);
 
 	// Active calls plus the ended ones still in post-processing (WS-91).
 	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
@@ -332,8 +338,93 @@ export const useCallsStore = defineStore('calls', () => {
 		try {
 			await call.blindTransfer(destination);
 			return true;
-		} catch {
+		} catch (err) {
+			console.warn('[calls] the blind transfer failed', err);
 			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the original call goes on hold first, as in cc-workspaces, so the client
+	 * does not hear the agent talk to the colleague. If it cannot be held the
+	 * consult is not placed. A refused consult leaves the original on hold: the
+	 * agent resumes it by hand. The Consult call arrives through the call feed
+	 * as a call of its own, nothing is stored here
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function consultTransferToAgent(
+		callId: string,
+		agentId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const agentNumericId = toAgentNumericId(agentId);
+		if (!canTransferCall(call) || agentNumericId === null) return false;
+
+		const isCallOnHold = await holdCallBeforeConsult(call);
+		if (!isCallOnHold) return false;
+
+		return placeConsultToAgent(call, agentNumericId);
+	}
+
+	async function holdCallBeforeConsult(call: Call): Promise<boolean> {
+		try {
+			if (!call.isHold) await call.hold();
+			return true;
+		} catch (err) {
+			console.warn('[calls] holding the call before a consult failed', err);
+			notifyCallError('holdToggleFailed');
+			return false;
+		}
+	}
+
+	async function placeConsultToAgent(
+		call: Call,
+		agentNumericId: number,
+	): Promise<boolean> {
+		try {
+			await call.processTransferAgent(agentNumericId, {
+				disableStun: !getStunEnabled(),
+			});
+			return true;
+		} catch (err) {
+			console.warn('[calls] placing the consult call failed', err);
+			notifyCallError('transferFailed');
+			return false;
+		}
+	}
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * joins two Active calls to each other (AC_14.02.07), whichever side started
+	 * them. resolves true once the backend accepted it. nothing is closed here:
+	 * per BA the two connected calls stay active and a queue call goes on to
+	 * post-processing like any ended call, so the windows follow the call list.
+	 * Whether `bridgeTo` needs one of the calls held is not verified on a live
+	 * instance
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function bridgeCalls(
+		callId: string,
+		otherCallId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const otherCall = getCallById(otherCallId);
+		if (
+			callId === otherCallId ||
+			!isActiveCall(call) ||
+			!isActiveCall(otherCall)
+		) {
+			return false;
+		}
+
+		try {
+			await call.bridgeTo(otherCall);
+			return true;
+		} catch (err) {
+			console.warn('[calls] bridging the calls failed', err);
+			notifyCallError('bridgeFailed');
 			return false;
 		}
 	}
@@ -457,6 +548,7 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		ringingConsultCalls,
 		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
@@ -469,14 +561,21 @@ export const useCallsStore = defineStore('calls', () => {
 		forgetReturnTargetOfUnansweredCall,
 		toggleMute,
 		toggleHold,
+		holdOtherLiveCalls,
 		blindTransfer,
+		consultTransferToAgent,
+		bridgeCalls,
 		sendDtmf,
 		hangup,
 	};
 });
 
 function notifyCallError(
-	errorKey: 'holdToggleFailed' | 'dtmfFailed' | 'transferFailed',
+	errorKey:
+		| 'holdToggleFailed'
+		| 'dtmfFailed'
+		| 'transferFailed'
+		| 'bridgeFailed',
 ): void {
 	eventBus.$emit('notification', {
 		type: 'error',

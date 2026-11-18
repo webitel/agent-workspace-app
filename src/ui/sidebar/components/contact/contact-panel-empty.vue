@@ -1,6 +1,6 @@
 <template>
 	<empty-state-block
-		:image="emptyContact"
+		:image="image ?? emptyContact"
 		:title="title"
 		:text="text"
 		width="88"
@@ -21,6 +21,7 @@ import EmptyStateBlock from '../../../components/empty-state-block/empty-state-b
 defineProps<{
 	title: string;
 	text: string;
+	image?: string;
 }>();
 
 const slots = defineSlots<{

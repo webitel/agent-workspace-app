@@ -21,7 +21,7 @@
 					<wt-button
 						v-for="mode in transferModes"
 						:key="mode"
-						:color="ButtonColor.SECONDARY"
+						:color="TRANSFER_MODE_BUTTON_COLORS[mode]"
 						:variant="ButtonVariant.OUTLINED"
 						:disabled="isSubmitting || !availability.byPhone[mode]"
 						@click="requestTransferToPhone(mode)"
@@ -58,7 +58,7 @@
 			<wt-button
 				v-for="mode in transferModes"
 				:key="mode"
-				:color="ButtonColor.SECONDARY"
+				:color="TRANSFER_MODE_BUTTON_COLORS[mode]"
 				:disabled="isSubmitting || !availability.bySelection[mode]"
 				@click="requestTransferToRow(mode)"
 			>
@@ -91,6 +91,7 @@ import { sanitizeDestination } from '../../../../../features/calls/scripts/sanit
 import { useCallsStore } from '../../../../../features/calls/store/calls';
 import { TransferMode } from '../enums/TransferMode.enum';
 import { TransferTab } from '../enums/TransferTab.enum';
+import { TRANSFER_MODE_BUTTON_COLORS } from '../mappings/transferModeButtonColors';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
 import type { TransferRequest } from '../types/CallTransfer.types';
@@ -120,7 +121,7 @@ const activeTab = ref<TransferTab>(TransferTab.Agents);
  * last answer to arrive, not the answer to the last request, so with a request
  * per character a slow answer to "a" could replace the list for "ab". The
  * debounce makes that rare, it does not remove it: the fix belongs in
- * ui-datalist (see docs/adr/0012-transfer-agents-list.md)
+ * ui-datalist (see docs/adr/0016-transfer-agents-list.md)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
@@ -192,7 +193,7 @@ function onTabChange(tab: { value: TransferTab }): void {
 /**
  * @author Oleksandr Palonnyi
  * only a blind transfer to a typed number is executed so far; the consult
- * and the tab rows are later stories and still just emit the request. On
+ * to a typed number is a later story and still just emits the request. On
  * success the popup is left open on purpose: it closes when the call leaves
  * the list, and on failure it keeps the typed number for another try
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
@@ -215,15 +216,48 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 	if (isSubmitting.value || transferCallId === null) return;
 
 	isSubmitting.value = true;
-	try {
-		await callsStore.blindTransfer(transferCallId, destinationPhone);
-	} finally {
-		isSubmitting.value = false;
-	}
+	const isTransferAccepted = await callsStore.blindTransfer(
+		transferCallId,
+		destinationPhone,
+	);
+
+	/**
+	 * @author Oleksandr Palonnyi
+	 * an accepted blind transfer keeps the buttons disabled: the call is still in
+	 * the list until the SDK drops it, and a second click in that gap would send
+	 * the transfer again. Only a refusal gives the buttons back for another try
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	if (!isTransferAccepted) isSubmitting.value = false;
 }
 
-function requestTransferToRow(mode: TransferMode): void {
+/**
+ * @author Oleksandr Palonnyi
+ * only a consult to an Agents row is executed so far, the other tabs are later
+ * stories and still just emit the request. Unlike a blind transfer the original
+ * call stays in the list, so the popup is closed here on success instead of
+ * waiting for the call to leave
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+async function requestTransferToRow(mode: TransferMode): Promise<void> {
 	if (selectedRowId.value === null) return;
+
+	if (mode === TransferMode.Consult && activeTab.value === TransferTab.Agents) {
+		const { transferCallId } = callTransferPopupStore;
+		if (isSubmitting.value || transferCallId === null) return;
+
+		isSubmitting.value = true;
+		try {
+			const isConsultPlaced = await callsStore.consultTransferToAgent(
+				transferCallId,
+				selectedRowId.value,
+			);
+			if (isConsultPlaced) callTransferPopupStore.close();
+		} finally {
+			isSubmitting.value = false;
+		}
+		return;
+	}
 
 	emit('transfer', {
 		mode,

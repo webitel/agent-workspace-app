@@ -15,17 +15,6 @@ vi.mock('../../../store/calls', () => ({
 	}),
 }));
 
-const openTransferMock = vi.fn();
-
-vi.mock(
-	'../../../../../ui/call/modules/transfer/store/callTransferPopup',
-	() => ({
-		useCallTransferPopupStore: () => ({
-			open: (...args: unknown[]) => openTransferMock(...args),
-		}),
-	}),
-);
-
 import CallTopBarActions from '../call-top-bar-actions.vue';
 
 const buildCall = (overrides: Record<string, unknown> = {}): Call =>
@@ -67,13 +56,14 @@ describe('call-top-bar-actions', () => {
 		toggleMuteMock.mockClear();
 		toggleHoldMock.mockClear();
 		hangupMock.mockClear();
-		openTransferMock.mockClear();
 	});
 
-	it('opens the transfer popup for this call (AC_13.01.08)', async () => {
-		await findAction(mountActions(), 'transfer').trigger('click');
+	it('asks to transfer the call, leaving the popup to its parent (AC_13.01.08)', async () => {
+		const wrapper = mountActions();
 
-		expect(openTransferMock).toHaveBeenCalledWith('call-1');
+		await findAction(wrapper, 'transfer').trigger('click');
+
+		expect(wrapper.emitted('transfer')).toHaveLength(1);
 	});
 
 	it('disables transfer when the call cannot be transferred', () => {

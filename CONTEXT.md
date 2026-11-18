@@ -1,4 +1,4 @@
-# agent-workspace-app
+﻿# agent-workspace-app
 
 Operator (agent) workspace, built on the current frontend stack: Vue 3 +
 Pinia, Vite, Biome, vitest and Playwright. Served under the `/agent-workspace`
@@ -47,9 +47,51 @@ and should not be carried over wholesale.
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
   its gateway icon alone.
-- [ADR-0013](docs/adr/0012-transfer-agents-list.md) — the transfer popup's agents
+- [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
+  one of several identified contacts while the call is active or on hold, the
+  link shows at once, a failed one is silent, and CREATE follows the same
+  condition as SELECT.
+- [ADR-0014](docs/adr/0014-offline-members-are-called-through-the-queue.md) —
+  an offline member is called through the queue on one of its communications,
+  not dialled by number, and the Offline tab's panel searches the contact by
+  the member's number and only shows it.
+- [ADR-0015](docs/adr/0015-self-assigned-calls-are-intercepted.md) — a
+  self-assigned call is intercepted rather than dialled, answered by the
+  platform's auto-answer with the other calls held first (an offline member's
+  too), and its own panel searches the contact by the call's number, without
+  SELECT.
+- [ADR-0016](docs/adr/0016-transfer-agents-list.md) — the transfer popup's agents
   list is a ui-datalist table store, one table per tab under one search field
   that applies on the debounced event, and the known race it leaves open.
+- [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
+  derived from the call list by its parent, shown as a ringing card until
+  answered, and why it is not stored.
+- [ADR-0018](docs/adr/0018-bridge-is-offered-from-the-live-call.md) — bridging
+  is offered between any two Active calls, from the live one only, with Connect
+  bridging at once and the app closing nothing afterwards.
+- [ADR-0019](docs/adr/0019-right-panel-follows-the-route.md) — the right
+  panel shows what the current route resolves to, a row picked in a table is
+  held in a selection store (a contact, an unknown contact or a number to search
+  by) while the panel is open and the page stays, and each page's container
+  picks its screen and title.
+- [ADR-0020](docs/adr/0020-call-contact-identification.md) — a call's contact
+  is its linked one (or the bridged call's), otherwise the contacts its number
+  finds by the same loose search as `cc-workspaces`; the only match is linked at
+  once, a failed link or search shows nothing, and a hidden contact is neither
+  searched for nor shown.
+- [ADR-0021](docs/adr/0021-calls-tabs-over-socket-lists.md) — the Offline and
+  Self-assigned tabs are datalist tables over socket lists: offline members are
+  read a page at a time through an adapter and not polled, self-assigned calls
+  are the SDK's own live array, never copied.
+- [ADR-0022](docs/adr/0022-call-history-and-missed.md) — call history and
+  Missed share one API module that reads through `getListPost` to keep variable
+  keys, default to all time worked out per request rather than seeded into the
+  filter; History does not sort by Name.
+- [ADR-0023](docs/adr/0023-communication-info-panel-composition.md) — a
+  communication's info block in the right panel is one component per variant
+  (inbound, outbound call; later chat, email), built from the shared
+  `communication-info-header` and `communication-info-fields` and picked from a
+  `Record`, not rendered from a config.
 
 ## Language
 
@@ -117,6 +159,35 @@ callee answers or the agent closes it. Ringing and No answer are states of an
 attempt. Several can run at once. It is not an **Active call**: when the callee
 answers, the attempt ends and the call carries on in the active-call window.
 
+**Offline member** — a member of an offline queue: a client the queue does not
+dial by itself but leaves for an agent to call, on one of the member's
+communications. One row of the Calls section's Offline tab; the tab's "Offline
+calls" label is UI wording, the rows are members, not calls. Calling one is a
+request to the queue for that member and communication, not an **Outbound
+attempt**: the call stays the queue's, and the member leaves the offline queue.
+Unrelated to `offline` the **Agent status**.
+
+A member carries no contact. Its right panel searches contacts by the member's
+first number the way a call's are identified, but only shows them: with no
+call yet there is nothing to link one to, so the panel has no SELECT
+(ADR-0014).
+
+**Self-assigned call** — a call waiting in a queue with manual distribution:
+the queue offers it to no one and leaves any of its agents to take it. One row
+of the Calls section's Self-assigned tab. It is not an **Offer**, which is
+distributed to this agent, nor an **Outbound attempt**: the call is the
+client's, already waiting. Taking it is an **Intercept**.
+
+**Intercept** — the agent taking a Self-assigned call (the tab's "answer"). The
+queue gives the call to this agent and it leaves the list for everyone else;
+the call then arrives answered by itself, without an Offer. A refused intercept
+(another agent was faster, the call's deadline passed) leaves nothing to answer.
+
+Before the agent intercepts it, its right panel shows the call's **Linked
+contact** if it has one, and otherwise searches contacts by the call's number
+and shows them as a ringing call's are, without SELECT: the call is not the
+agent's yet, so there is nothing to link one to.
+
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
@@ -132,7 +203,18 @@ the two or cancels the consult and goes back to the original call.
 
 **Consult call** — the call to the destination of a Consult transfer, placed
 while the original call is on hold. It is a call of its own, not the original;
-once the destination answers it is an Active call like any other.
+once the destination answers it is an Active call like any other. Until then it
+shows as a ringing card in the call dock, and it is recognised by the original
+call being its parent, not remembered (ADR-0017).
+
+**Bridge** — joining two Active calls to each other so the agent drops out and
+the two parties talk (AC_14.02.07, ADR-0018). It is not a transfer and not part of a
+**Consult transfer** only: it applies to any two Active calls, and is offered
+whenever the agent has more than one (its icon is in the call dock's action bar
+only then, not for a single call). The agent opens it from one call and picks the
+other one in a popup. Afterwards the two connected calls are active and the third
+is dropped; a call that came from a queue goes on to its **Post-processing**
+(BA, not yet seen on a live call).
 
 **Transfer popup** — the popup an agent uses to pick where an Active call goes,
 opened from the Call window's top bar or from the call dock. It has a number
@@ -295,6 +377,35 @@ or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
 
+**Identified contact** — a contact the search by a call's number found. There
+can be none, one or several; with several, the right panel shows them one at a
+time. Being identified does not link the contact to the call.
+
+**Contact search** — the agent's own look-up of contacts in the right panel while
+the call is an **Active call**, by Name, Destination (phone or email) or Attribute
+(`key=value`). Its result replaces the identified contacts for as long as it is
+shown, and **Cancel** gives them back. It only shows contacts and links nothing,
+even when it finds one; the agent links the one on screen with SELECT, whether
+the search found one or several (BA). That differs from **Identified contacts**,
+where the only one is linked automatically. A search that finds nothing
+shows "No results were found", whereas no identified contact at all shows the
+Unknown contact card.
+
+**Linked contact** — the contact a call is linked to (`call.setContact`), at
+most one. The only identified contact is linked automatically, one of several
+when the agent selects it. Once there is one, the panel shows it alone instead
+of the identified contacts, whoever linked it (ADR-0013).
+
+**Right panel** — the column beside the central area that shows the contact or
+the communication behind what is open there: the row the agent picked in a
+table, or the call on the Call window. The spec calls it "права панель" (ПП),
+the code calls it the sidebar. Only the agent opens and closes it (ADR-0019).
+
+**Unknown contact** — what the right panel of a table page shows for a row with
+no CRM contact behind it: the row has no linked contact, or the search by its
+number finds none or the contacts are hidden. Not a member's or a schema's
+name, which the panel never shows in a contact's place.
+
 ## Conventions
 
 ### Test file naming
@@ -310,6 +421,15 @@ include covers both suffixes and would silently adopt a `.spec.ts` placed under
 `src/` — nothing fails, it just reads as a misplaced e2e.
 
 `cc-workspaces` names its unit tests `*.spec.js`. Rename when porting from it.
+
+### API modules do not use stores
+
+A module under an `api/` folder only makes the request: whatever it needs from
+a Pinia store (the user's id, holding the other calls) is done by its caller,
+a store or a component, and passed in or done before the call. The socket
+client's composable (`useWebSocketClient`) is not a store and is fine there.
+Raised in review of `callsHistoryApiModule` (US_19.01), where the store now
+adds `ownerId` around `getList`.
 
 ### Commit messages
 

@@ -51,6 +51,7 @@ export default {
 			message: 'Xabar',
 			phoneNumber: 'Telefon raqami',
 			waitTime: 'Kutish vaqti',
+			select: 'Tanlash',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -77,6 +78,16 @@ export default {
 				attributes: 'Atributlar',
 				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
 				communicationOptions: 'Aloqa usullari',
+				contactPosition: '{current} / {count} aloqa',
+				search: {
+					title: 'Kontaktni qidirish',
+					noResults: 'Natija topilmadi',
+					modes: {
+						name: 'Ism',
+						destination: 'Raqam yoki email',
+						variables: 'Atribut',
+					},
+				},
 			},
 		},
 		pages: {
@@ -160,9 +171,15 @@ export default {
 					camera: 'Kamera',
 					message: 'Xabar',
 					transfer: 'Yoʻnaltirish',
+					bridge: 'Qoʻngʻiroqlarni ulash',
 					hangup: 'Qoʻngʻiroqni tugatish',
 					openFullView: 'Toʻliq koʻrinishni ochish',
 				},
+			},
+			bridge: {
+				title: 'Qoʻngʻiroqlarni ulash',
+				connect: 'Ulash',
+				unknownContact: 'Nomaʼlum kontakt',
 			},
 			transfer: {
 				title: 'Qoʻngʻiroqni oʻtkazish',
@@ -198,6 +215,9 @@ export default {
 			holdToggleFailed:
 				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
 			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
+			transferFailed:
+				'Qoʻngʻiroqni oʻtkazib boʻlmadi. Qaytadan urinib koʻring.',
+			bridgeFailed: 'Qoʻngʻiroqlarni ulab boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

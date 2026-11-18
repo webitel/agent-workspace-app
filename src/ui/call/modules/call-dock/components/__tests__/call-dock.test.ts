@@ -25,6 +25,7 @@ const mountCard = (preview: ActiveCallContent = buildPreview()) =>
 		props: {
 			preview,
 			displayedTime: '00:05:52',
+			canBridge: false,
 		},
 		global: {
 			stubs: {

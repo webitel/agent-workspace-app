@@ -19,7 +19,11 @@
 			@column-reorder="columnReorder"
 		>
 			<template #name="{ item }">
-				<username-table-cell :name="item.name" />
+				<username-table-cell
+					:name="item.name"
+					clickable
+					@click="openContact(item)"
+				/>
 			</template>
 
 			<template #status="{ item }">
@@ -31,10 +35,9 @@
 			</template>
 
 			<template #extension="{ item }">
-				<table-cell-info
-					icon="call--filled"
-					:icon-color="IconColor.SUCCESS"
-					:items="item.extension ? [item.extension] : []"
+				<contact-phones-cell
+					:phones="getExtensionPhones(item)"
+					@call="onCall"
 				/>
 			</template>
 		</wt-table>
@@ -42,15 +45,19 @@
 </template>
 
 <script setup lang="ts">
-import type { ApiUser } from '@webitel/api-services/gen/models';
+import type {
+	ApiUser,
+	ContactsPhoneNumber,
+} from '@webitel/api-services/gen/models';
 import { WtTable } from '@webitel/ui-sdk/components';
-import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useOutboundCallAttemptsStore } from '../../../../../../features/calls/store/outboundCallAttempts';
 import { UserStatusColorMappings } from '../../../../../../features/user-status/enums/UserStatusColorMappings';
 import { getUserStatusByPriority } from '../../../../../../features/user-status/scripts/getUserStatusByPriority';
-import TableCellInfo from '../../../../components/table-cell-info.vue';
+import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
+import ContactPhonesCell from '../contacts/components/contact-phones-cell.vue';
 import type { useUsersDataListStore } from './store/users';
 
 const props = defineProps<{
@@ -66,12 +73,46 @@ const {
 } = props.store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
+const { selectContactOrUnknown } = useSidebarSelectionStore();
+
+const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
+
+/**
+ * @author Polina Sukhorukova
+ * A user has a single extension, so it is wrapped into the phones shape to
+ * reuse the contacts phones cell: same call button and "no phone" fallback
+ * [WS-30](https://webitel.atlassian.net/browse/WS-30)
+ */
+function getExtensionPhones({ extension }: ApiUser): ContactsPhoneNumber[] {
+	return extension
+		? [
+				{
+					number: extension,
+				},
+			]
+		: [];
+}
+
+/**
+ * @author Polina Sukhorukova
+ * Dialled through an outbound attempt, same as from the contacts table,
+ * so the agent gets the outbound call card
+ * [WS-30](https://webitel.atlassian.net/browse/WS-30)
+ */
+function onCall(number: string): void {
+	outboundCallAttemptsStore.start(number);
+}
+
 const isInitializing = ref(true);
 
 const onLoading = async () => {
 	if (isInitializing.value || isLoading.value || !next.value) return;
 	await appendToDataList();
 };
+
+function openContact({ contact }: ApiUser) {
+	selectContactOrUnknown(contact?.id);
+}
 
 function getStatus(item: ApiUser) {
 	const status = getUserStatusByPriority({
