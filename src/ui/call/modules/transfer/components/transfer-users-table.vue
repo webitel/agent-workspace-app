@@ -3,7 +3,7 @@
 		class="transfer-users-table"
 		:data="dataList"
 		:headers="shownHeaders"
-		:row-class="getRowClass"
+		:active-row="activeRow"
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -34,7 +34,7 @@
 	lang="ts"
 >
 import { storeToRefs } from 'pinia';
-import { onUnmounted, watch } from 'vue';
+import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
 import { useTransferUsersDataListStore } from '../store/transferUsersDataList';
@@ -59,7 +59,7 @@ const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
 /**
  * @author Oleksandr Palonnyi
- * same loading as the Agents table (see ADR-0013): the first page is loaded by
+ * same loading as the Agents table (see ADR-0016): the first page is loaded by
  * the store's own filter watcher once the search filter is added after
  * setupStore, so every mount loads exactly once. The store is a singleton and
  * the popup opens many times, so it is reset on unmount
@@ -88,11 +88,9 @@ loadFirstPage();
 
 onUnmounted($reset);
 
-function getRowClass(row: TransferUserRow): string {
-	return row.id === selectedRowId.value
-		? 'transfer-users-table__row--selected'
-		: '';
-}
+const activeRow = computed(
+	() => dataList.value.find((row) => row.id === selectedRowId.value) ?? null,
+);
 
 /**
  * @author Oleksandr Palonnyi
@@ -113,17 +111,5 @@ function onRowClick({ data: row }: { data: TransferUserRow }): void {
 
 .transfer-users-table :deep(tbody tr) {
 	cursor: pointer;
-}
-
-/**
- * @author Oleksandr Palonnyi
- * the row token is workspace-scoped, so the selected-row style lives here and
- * not in the shared wt-table. getRowClass puts the class on the tr only; the
- * cells are coloured too, through the `> td` selector
- * [WS-95](https://webitel.atlassian.net/browse/WS-95)
- */
-.transfer-users-table :deep(tr.transfer-users-table__row--selected),
-.transfer-users-table :deep(tr.transfer-users-table__row--selected > td) {
-	background: var(--wt-ws-table-colors-row-selected-background);
 }
 </style>

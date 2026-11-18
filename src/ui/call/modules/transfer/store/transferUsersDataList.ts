@@ -1,5 +1,6 @@
 import { createTableStore } from '@webitel/ui-datalist';
 
+import { useUserinfoStore } from '../../../../../features/userinfo/stores/userinfoStore';
 import { transferUsersApiModule } from '../api/transferUsersApiModule';
 import type { TransferUserRow } from '../types/CallTransfer.types';
 import { transferUsersHeaders } from './_internals/transferUsersHeaders';
@@ -13,7 +14,13 @@ import { transferUsersHeaders } from './_internals/transferUsersHeaders';
 export const useTransferUsersDataListStore = createTableStore<TransferUserRow>(
 	'ui/call/transfer/users/datalist',
 	{
-		apiModule: transferUsersApiModule,
+		apiModule: {
+			getList: (params: Record<string, unknown> = {}) =>
+				transferUsersApiModule.getList({
+					...params,
+					notUserId: useUserinfoStore().userId,
+				}),
+		},
 		headers: transferUsersHeaders,
 		isAppendDataList: true,
 		disablePersistence: true,
