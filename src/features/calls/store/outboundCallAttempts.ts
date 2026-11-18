@@ -1,3 +1,4 @@
+import { createEventHook } from '@vueuse/core';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, shallowRef, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
@@ -28,6 +29,16 @@ export const useOutboundCallAttemptsStore = defineStore(
 		const callsStore = useCallsStore();
 
 		const trackedAttempts = shallowRef<OutboundCallAttempt[]>([]);
+
+		/**
+		 * @author Oleksandr Palonnyi
+		 * The attempt is cleared the moment it is answered, so a UI that watches
+		 * `attempts` can miss that moment. The hook hands over the id of the answered
+		 * call instead, for UI that must react only to a call the agent dialled here
+		 * (WS-155), not to one answered on a desk phone or in another tab
+		 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+		 */
+		const answeredHook = createEventHook<string>();
 
 		let isInitialized = false;
 		let attemptsStartedCount = 0;
@@ -209,8 +220,11 @@ export const useOutboundCallAttemptsStore = defineStore(
 			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
 			 */
 			watch(attempts, (currentAttempts) => {
-				for (const { id, status } of currentAttempts) {
-					if (status === OutboundCallStatus.Answered) clearAttempt(id);
+				for (const { id, placedCall, status } of currentAttempts) {
+					if (status !== OutboundCallStatus.Answered) continue;
+
+					clearAttempt(id);
+					if (placedCall) answeredHook.trigger(placedCall.id);
 				}
 			});
 		}
@@ -218,6 +232,7 @@ export const useOutboundCallAttemptsStore = defineStore(
 		return {
 			attempts,
 
+			onAttemptAnswered: answeredHook.on,
 			initialize,
 			start,
 			retry,

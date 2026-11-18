@@ -39,6 +39,7 @@ import { useRouter } from 'vue-router';
 import { isActiveCall } from '../../../features/calls/scripts/isActiveCall';
 import { toActiveCallContent } from '../../../features/calls/scripts/toActiveCallContent';
 import { useCallsStore } from '../../../features/calls/store/calls';
+import { useOutboundCallAttemptsStore } from '../../../features/calls/store/outboundCallAttempts';
 import ActiveCallTrayEntry from '../../call/modules/call-dock/components/active-call-tray-entry.vue';
 import PostProcessingCallBar from '../../call/modules/call-dock/components/post-processing-call-bar.vue';
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
@@ -48,6 +49,7 @@ import { useTaskDockStore } from '../store/task-dock';
 const taskDockStore = useTaskDockStore();
 const router = useRouter();
 const callsStore = useCallsStore();
+const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
 
 // Every call with a Call window, so an agent who left one during post-processing
 // has a way back to it (AC_13.02.04). An ended call is still listed only while
@@ -60,6 +62,16 @@ const windowedCalls = computed(() =>
 		task: call.task,
 	})),
 );
+
+/**
+ * @author Oleksandr Palonnyi
+ * a call the callee answers opens its dock expanded, so the agent sees the call
+ * and has its controls at hand (WS-155); a call answered elsewhere does not
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ */
+outboundCallAttemptsStore.onAttemptAnswered((answeredCallId) => {
+	taskDockStore.setCallExpanded(answeredCallId, true);
+});
 
 function onHangup(callId: string): void {
 	taskDockStore.setCallExpanded(callId, false);

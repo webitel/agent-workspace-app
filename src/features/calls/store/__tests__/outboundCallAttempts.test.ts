@@ -167,6 +167,49 @@ describe('useOutboundCallAttemptsStore', () => {
 		expect(callsStore.hangup).not.toHaveBeenCalled();
 	});
 
+	it('announces the id of the call the callee picks up', async () => {
+		const store = setup();
+		const onAnswered = vi.fn();
+		store.onAttemptAnswered(onAnswered);
+		await store.start('100');
+		const call = buildCall();
+		await ring(call);
+
+		call.answeredAt = 1000;
+		await nextTick();
+
+		expect(onAnswered).toHaveBeenCalledTimes(1);
+		expect(onAnswered).toHaveBeenCalledWith('outbound-1');
+	});
+
+	it('announces nothing for a call that is not an attempt of this tab', async () => {
+		const store = setup();
+		const onAnswered = vi.fn();
+		store.onAttemptAnswered(onAnswered);
+
+		await ring(
+			buildCall({
+				answeredAt: 1000,
+			}),
+		);
+
+		expect(onAnswered).not.toHaveBeenCalled();
+	});
+
+	it('announces nothing when the attempt ends unanswered', async () => {
+		const store = setup();
+		const onAnswered = vi.fn();
+		store.onAttemptAnswered(onAnswered);
+		await store.start('100');
+		const call = buildCall();
+		await ring(call);
+
+		call.hangupAt = 2000;
+		await nextTick();
+
+		expect(onAnswered).not.toHaveBeenCalled();
+	});
+
 	/**
 	 * @author Oleksandr Palonnyi
 	 * The SDK drops the call on `Destroy`; No answer must survive that.
