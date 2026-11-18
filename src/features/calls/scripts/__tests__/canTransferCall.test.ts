@@ -57,6 +57,17 @@ describe('canTransferCall', () => {
 		).toBe(false);
 	});
 
+	it('is false for a call already handed over, which the SDK keeps in post-processing', () => {
+		expect(
+			canTransferCall(
+				buildCall({
+					hangupAt: 1_700_000_100_000,
+					allowTransfer: false,
+				}),
+			),
+		).toBe(false);
+	});
+
 	it('is false when there is no call', () => {
 		expect(canTransferCall(undefined)).toBe(false);
 	});
