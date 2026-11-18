@@ -19,6 +19,8 @@ import App from './app/the-app.vue';
 import { initializeConfig } from './features/appConfig/config';
 import { useUserinfoStore } from './features/userinfo/stores/userinfoStore';
 import '@webitel/styleguide/agent-workspace-app';
+import './app/css/fonts.css';
+import './app/css/typography.css';
 
 setTokenFromUrl();
 
