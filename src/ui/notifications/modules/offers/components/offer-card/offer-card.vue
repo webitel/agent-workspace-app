@@ -20,6 +20,7 @@
             <offer-last-message
                 v-if="content.body"
                 :text="content.body"
+                :name="content.name"
             />
 
             <offer-waiting-time
@@ -123,19 +124,19 @@ const onBodyClick = () => {
 .offer-card {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--wt-ws-incoming-interaction-preview-sizes-root-gap);
     align-items: center;
     width: 320px;
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius, 8px);
-    background-color: var(--content-wrapper-color);
+    padding: var(--wt-ws-incoming-interaction-preview-sizes-root-padding-y) var(--wt-ws-incoming-interaction-preview-sizes-root-padding-x);
+    border-radius: var(--wt-ws-incoming-interaction-preview-sizes-root-border-radius);
+    background-color: var(--wt-ws-incoming-interaction-preview-colors-root-background);
     box-shadow: var(--elevation-3, 0 0 11px rgba(0, 0, 0, 0.15));
 }
 
 .offer-card__body {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--wt-ws-incoming-interaction-preview-sizes-root-gap);
     align-items: center;
     width: 100%;
 }

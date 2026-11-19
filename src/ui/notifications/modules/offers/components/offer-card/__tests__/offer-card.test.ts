@@ -99,7 +99,9 @@ describe('offer-card', () => {
 				body: 'Hello there',
 			}),
 		});
-		expect(withMessage.find('.offer-last-message').text()).toBe('Hello there');
+		expect(withMessage.find('.offer-last-message__text').text()).toBe(
+			'Hello there',
+		);
 	});
 
 	// AC_06.01.04: a chat's body opens the conversation, a call's body does not

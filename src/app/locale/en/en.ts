@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Incoming call request',
-					chat: 'Incoming chat request',
+					call: 'Incoming Call Request',
+					chat: 'Incoming Chat Request',
 				},
 				unknownContact: 'Unknown contact',
 				queue: 'Queue',

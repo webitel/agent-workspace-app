@@ -46,6 +46,65 @@ describe('toChatOfferContent', () => {
 		expect(content.identifier).toBe('@john');
 	});
 
+	it('prefers the thread subject over the member name', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				displayName: '191',
+				thread: {
+					id: 'thread-1',
+					subject: 'Liza Test',
+				},
+			}),
+		);
+
+		expect(content.name).toBe('Liza Test');
+	});
+
+	it('drops the identifier when it only repeats the name', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				displayName: '191',
+				displayNumber: '191',
+			}),
+		);
+
+		expect(content.name).toBe('191');
+		expect(content.identifier).toBeUndefined();
+	});
+
+	it('maps the schema variables in their own order', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				variables: {
+					Language: 'EN',
+					attempts: 2,
+				},
+			}),
+		);
+
+		expect(content.variables).toEqual([
+			{
+				label: 'Language',
+				value: 'EN',
+			},
+			{
+				label: 'attempts',
+				value: '2',
+			},
+		]);
+	});
+
+	// AC_06.01.06: no variables, no variables block
+	it('drops the variables when the task has none', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				variables: {},
+			}),
+		);
+
+		expect(content.variables).toBeUndefined();
+	});
+
 	it('tolerates a task with no thread preview', () => {
 		const content = toChatOfferContent(
 			buildTask({

@@ -43,9 +43,9 @@ export interface OfferCardContent {
 	/** Queue the offer came through; heads the variables block. */
 	queueName?: string;
 	/**
-	 * Variables passed on the schema (AC_06.01.01), display-ready. No producer
-	 * fills them yet: which variables reach the card, and in what shape, is the
-	 * Flow setting of US_06.02 (WS-66 / WS-67). Absent renders no variables.
+	 * Variables passed on the schema (AC_06.01.01), display-ready. Chats fill
+	 * them with every task variable; narrowing that down is the Flow setting of
+	 * US_06.02 (WS-66 / WS-67). Absent renders no variables.
 	 */
 	variables?: OfferSource[];
 	/** Last customer message — chats only. */

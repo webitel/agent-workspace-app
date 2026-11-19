@@ -134,10 +134,32 @@ export const useChatsStore = defineStore('chats', () => {
 	/**
 	 * Ends the chat for the agent by closing its task; the call center then
 	 * moves the task into post-processing, or releases it when the queue has
-	 * none (ADR-0005). This is not `closeChat`, which only drops the window.
+	 * none (ADR-0005). The agent then leaves the thread through their own
+	 * member. This is not `closeChat`, which only drops the window.
 	 */
-	function endChat(task: Task) {
-		return task.close();
+	async function endChat(task: Task) {
+		// read before closing: once the task leaves the feed its session, and
+		// the thread with it, is released
+		const selfMember = findSessionSelfMember(task.thread?.id);
+		await task.close();
+		await selfMember?.thread.removeMember({
+			id: selfMember.id,
+		});
+	}
+
+	/**
+	 * The agent's own member in a chat whose session has its thread loaded;
+	 * null when there is no session, or the thread is not read yet.
+	 */
+	function findSessionSelfMember(threadId?: string) {
+		if (!threadId || !hasChatSession(threadId)) return null;
+		const { thread, selfMemberId } = useChatSessionStore(threadId);
+		return thread && selfMemberId
+			? {
+					thread,
+					id: selfMemberId,
+				}
+			: null;
 	}
 
 	/**
