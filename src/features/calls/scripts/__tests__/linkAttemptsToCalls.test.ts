@@ -7,10 +7,12 @@ import { linkAttemptsToCalls } from '../linkAttemptsToCalls';
 const buildCall = (
 	id: string,
 	direction: CallDirection = CallDirection.Outbound,
+	sipId: string | null = null,
 ) =>
 	({
 		id,
 		direction,
+		sipId,
 	}) as unknown as Call;
 
 const buildAttempt = (
@@ -21,6 +23,7 @@ const buildAttempt = (
 	destination: '100',
 	placedCall: null,
 	callIdsBeforeDial: new Set(),
+	dialedCallIds: {},
 	isHangupRequested: false,
 	...overrides,
 });
@@ -139,5 +142,158 @@ describe('linkAttemptsToCalls', () => {
 		});
 
 		expect(assignments).toEqual([]);
+	});
+
+	describe('with the ids the dial returned', () => {
+		it('takes the call its sip id names, not an earlier one dialled elsewhere', () => {
+			const ownCall = buildCall('own-call', CallDirection.Outbound, 'abc');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					buildCall('foreign-call', CallDirection.Outbound, 'xyz'),
+					ownCall,
+				],
+				claimedCallIds: new Set(),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-1',
+					call: ownCall,
+				},
+			]);
+		});
+
+		it('takes the call its call id names', () => {
+			const ownCall = buildCall('own-call');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						dialedCallIds: {
+							callId: 'own-call',
+						},
+					}),
+				],
+				callList: [
+					buildCall('foreign-call'),
+					ownCall,
+				],
+				claimedCallIds: new Set(),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-1',
+					call: ownCall,
+				},
+			]);
+		});
+
+		it('waits for its own call instead of adopting one dialled elsewhere', () => {
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					buildCall('foreign-call', CallDirection.Outbound, 'xyz'),
+				],
+				claimedCallIds: new Set(),
+			});
+
+			expect(assignments).toEqual([]);
+		});
+
+		it('swaps a call taken by elimination for the one its ids name', () => {
+			const foreignCall = buildCall(
+				'foreign-call',
+				CallDirection.Outbound,
+				'xyz',
+			);
+			const ownCall = buildCall('own-call', CallDirection.Outbound, 'abc');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						placedCall: foreignCall,
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					foreignCall,
+					ownCall,
+				],
+				claimedCallIds: new Set([
+					'foreign-call',
+				]),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-1',
+					call: ownCall,
+				},
+			]);
+		});
+
+		it('keeps its own call once linked', () => {
+			const ownCall = buildCall('own-call', CallDirection.Outbound, 'abc');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						placedCall: ownCall,
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					ownCall,
+				],
+				claimedCallIds: new Set(),
+			});
+
+			expect(assignments).toEqual([]);
+		});
+
+		it('does not let an attempt without ids take the call named by another', () => {
+			const namedCall = buildCall('named-call', CallDirection.Outbound, 'abc');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-without-ids'),
+					buildAttempt('attempt-with-ids', {
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					namedCall,
+				],
+				claimedCallIds: new Set(),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-with-ids',
+					call: namedCall,
+				},
+			]);
+		});
 	});
 });

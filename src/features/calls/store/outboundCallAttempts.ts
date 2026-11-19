@@ -1,3 +1,4 @@
+import { createEventHook } from '@vueuse/core';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, shallowRef, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
@@ -28,6 +29,16 @@ export const useOutboundCallAttemptsStore = defineStore(
 		const callsStore = useCallsStore();
 
 		const trackedAttempts = shallowRef<OutboundCallAttempt[]>([]);
+
+		/**
+		 * @author Oleksandr Palonnyi
+		 * The attempt is cleared the moment it is answered, so a UI that watches
+		 * `attempts` can miss that moment. The hook hands over the id of the answered
+		 * call instead, for UI that must react only to a call the agent dialled here
+		 * (WS-155), not to one answered on a desk phone or in another tab
+		 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+		 */
+		const answeredHook = createEventHook<string>();
 
 		let isInitialized = false;
 		let attemptsStartedCount = 0;
@@ -98,6 +109,7 @@ export const useOutboundCallAttemptsStore = defineStore(
 				callIdsBeforeDial: new Set(
 					callsStore.callList.map((existingCall) => existingCall.id),
 				),
+				dialedCallIds: {},
 				isHangupRequested: false,
 			};
 			trackedAttempts.value = [
@@ -105,10 +117,24 @@ export const useOutboundCallAttemptsStore = defineStore(
 				attempt,
 			];
 
-			const isPlaced = await callsStore.call({
+			const dialedCallIds = await callsStore.call({
 				destination: rawDestination,
 			});
-			if (!isPlaced) clearAttempt(attempt.id);
+			if (!dialedCallIds) {
+				clearAttempt(attempt.id);
+				return;
+			}
+
+			updateAttempt(attempt.id, {
+				dialedCallIds,
+			});
+			/**
+			 * @author Oleksandr Palonnyi
+			 * The call list may not change again before the call rings, or at all when the
+			 * call already rang during the request, so the ids are matched against it now
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+			 */
+			linkPlacedCalls(callsStore.callList);
 		}
 
 		/**
@@ -195,10 +221,9 @@ export const useOutboundCallAttemptsStore = defineStore(
 
 			/**
 			 * @author Oleksandr Palonnyi
-			 * `callsStore.call` returns no call id, and the `Call` reaches `callList` only
-			 * later (on `Ringing`), at an unknown moment. Each list change is therefore
-			 * checked for a new outbound call to attach to an attempt that has none yet
-			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+			 * The `Call` reaches `callList` only later (on `Ringing`), at an unknown moment,
+			 * so each list change is checked for the call of an attempt that has none yet
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
 			 */
 			watch(() => callsStore.callList, linkPlacedCalls);
 
@@ -209,8 +234,11 @@ export const useOutboundCallAttemptsStore = defineStore(
 			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
 			 */
 			watch(attempts, (currentAttempts) => {
-				for (const { id, status } of currentAttempts) {
-					if (status === OutboundCallStatus.Answered) clearAttempt(id);
+				for (const { id, placedCall, status } of currentAttempts) {
+					if (status !== OutboundCallStatus.Answered) continue;
+
+					clearAttempt(id);
+					if (placedCall) answeredHook.trigger(placedCall.id);
 				}
 			});
 		}
@@ -218,6 +246,7 @@ export const useOutboundCallAttemptsStore = defineStore(
 		return {
 			attempts,
 
+			onAttemptAnswered: answeredHook.on,
 			initialize,
 			start,
 			retry,

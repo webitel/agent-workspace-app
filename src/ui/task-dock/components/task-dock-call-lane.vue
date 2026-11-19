@@ -1,6 +1,6 @@
 <template>
     <div class="task-dock-call-lane">
-        <the-numpad-panel />
+        <the-numpad-panel ref="numpadPanel" />
 
         <div class="task-dock-call-lane__container">
             <template
@@ -11,6 +11,7 @@
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
                     :expanded="taskDockStore.expandedCallId === windowedCall.id"
+                    :outside-click-ignored-targets="outsideClickIgnoredTargets"
                     @update:expanded="taskDockStore.setCallExpanded(windowedCall.id, $event)"
                     @open-full-view="openCallWindow(windowedCall.id)"
                     @toggle-mute="callsStore.toggleMute(windowedCall.id)"
@@ -33,7 +34,7 @@
     setup
     lang="ts"
 >
-import { computed } from 'vue';
+import { computed, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { isActiveCall } from '../../../features/calls/scripts/isActiveCall';
@@ -44,6 +45,19 @@ import PostProcessingCallBar from '../../call/modules/call-dock/components/post-
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { CallsRouteName } from '../../pages/modules/calls/enums/CallsRouteName.enum';
 import { useTaskDockStore } from '../store/task-dock';
+
+const numpadPanel = useTemplateRef('numpadPanel');
+
+/**
+ * @author Oleksandr Palonnyi
+ * The array holds the ref itself, not its value: the tray entry resolves it on each
+ * click, so the panel counts whether it was mounted before or after the entry. The
+ * lane renders both, so it is the one to say the numpad belongs to the dock's area
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ */
+const outsideClickIgnoredTargets = [
+	numpadPanel,
+];
 
 const taskDockStore = useTaskDockStore();
 const router = useRouter();

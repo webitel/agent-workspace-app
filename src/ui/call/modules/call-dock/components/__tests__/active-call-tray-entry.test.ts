@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils';
+import type { MaybeElementRef } from '@vueuse/core';
 import { describe, expect, it } from 'vitest';
+import { ref } from 'vue';
 
 import type { ActiveCallContent } from '../../types/ActiveCallContent.types';
 import ActiveCallTrayEntry from '../active-call-tray-entry.vue';
@@ -17,11 +19,15 @@ const buildPreview = (
 	...overrides,
 });
 
-const mountBar = (expanded = false) =>
+const mountBar = (
+	expanded = false,
+	outsideClickIgnoredTargets: MaybeElementRef[] = [],
+) =>
 	mount(ActiveCallTrayEntry, {
 		props: {
 			preview: buildPreview(),
 			expanded,
+			outsideClickIgnoredTargets,
 		},
 		global: {
 			stubs: {
@@ -104,6 +110,20 @@ describe('active-call-tray-entry', () => {
 				false,
 			],
 		]);
+	});
+
+	it('stays expanded on a click inside an ignored target', async () => {
+		const numpadPanel = document.createElement('div');
+		document.body.append(numpadPanel);
+		const wrapper = mountBar(true, [
+			ref(numpadPanel),
+		]);
+
+		numpadPanel.click();
+		await wrapper.vm.$nextTick();
+
+		expect(wrapper.emitted('update:expanded')).toBeUndefined();
+		numpadPanel.remove();
 	});
 
 	it('emits nothing on an outside click while collapsed', async () => {

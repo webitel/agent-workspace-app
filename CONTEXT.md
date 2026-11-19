@@ -83,6 +83,11 @@ and should not be carried over wholesale.
   (inbound, outbound call; later chat, email), built from the shared
   `communication-info-header` and `communication-info-fields` and picked from a
   `Record`, not rendered from a config.
+- [ADR-0026](docs/adr/0026-outbound-attempt-names-its-call.md) — an outbound
+  attempt is linked to the call named by the ids its dial returns (`sipId` with
+  a web phone, `callId` without), and by elimination only while it has none;
+  the ids are read as `unknown` until the `webitel-sdk` release that returns
+  them.
 
 ## Language
 
