@@ -55,16 +55,10 @@ const receiveMessageMock = vi.fn();
 // chats that have a session, the way the real registry tracks them
 const sessionIds = new Set<string>();
 let sessionInitialized = false;
-let sessionThread: {
-	removeMember: ReturnType<typeof vi.fn>;
-} | null = null;
-let sessionSelfMemberId = '';
 const useChatSessionStoreMock = vi.fn((chatId: string) => {
 	sessionIds.add(chatId);
 	return {
 		initialized: sessionInitialized,
-		thread: sessionThread,
-		selfMemberId: sessionSelfMemberId,
 		load: loadMock,
 		refreshThread: refreshThreadMock,
 		catchUp: catchUpMock,
@@ -226,8 +220,6 @@ describe('chats store', () => {
 		vi.clearAllMocks();
 		sessionIds.clear();
 		sessionInitialized = false;
-		sessionThread = null;
-		sessionSelfMemberId = '';
 		tasks.value = [];
 		agent.value = undefined;
 		threadMessageHandler = null;
@@ -852,73 +844,6 @@ describe('chats store', () => {
 		});
 	});
 	describe('ending a chat', () => {
-		it('takes the agent out of the thread after closing the task', async () => {
-			const store = useChatsStore();
-			const calls: string[] = [];
-			const removeMember = vi.fn(() => {
-				calls.push('removeMember');
-				return Promise.resolve({});
-			});
-			sessionThread = {
-				removeMember,
-			};
-			sessionSelfMemberId = 'member-1';
-			store.openChat('chat-1');
-
-			await store.endChat({
-				thread: {
-					id: 'chat-1',
-				},
-				close: vi.fn(() => {
-					calls.push('close');
-					return Promise.resolve({});
-				}),
-			} as never);
-
-			expect(removeMember).toHaveBeenCalledWith({
-				id: 'member-1',
-			});
-			expect(calls).toEqual([
-				'close',
-				'removeMember',
-			]);
-		});
-
-		it('stays in the thread when closing the task fails', async () => {
-			const store = useChatsStore();
-			const removeMember = vi.fn();
-			sessionThread = {
-				removeMember,
-			};
-			sessionSelfMemberId = 'member-1';
-			store.openChat('chat-1');
-
-			await expect(
-				store.endChat({
-					thread: {
-						id: 'chat-1',
-					},
-					close: vi.fn(() => Promise.reject(new Error('offline'))),
-				} as never),
-			).rejects.toThrow('offline');
-			expect(removeMember).not.toHaveBeenCalled();
-		});
-
-		it('only closes the task when the thread is not loaded', async () => {
-			const store = useChatsStore();
-			store.openChat('chat-1');
-			const task = {
-				thread: {
-					id: 'chat-1',
-				},
-				close: vi.fn(() => Promise.resolve({})),
-			};
-
-			await store.endChat(task as never);
-
-			expect(task.close).toHaveBeenCalledOnce();
-		});
-
 		it('closes the chat task', async () => {
 			const store = useChatsStore();
 			const task = {

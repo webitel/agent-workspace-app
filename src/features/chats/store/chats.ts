@@ -134,32 +134,10 @@ export const useChatsStore = defineStore('chats', () => {
 	/**
 	 * Ends the chat for the agent by closing its task; the call center then
 	 * moves the task into post-processing, or releases it when the queue has
-	 * none (ADR-0005). The agent then leaves the thread through their own
-	 * member. This is not `closeChat`, which only drops the window.
+	 * none (ADR-0005). This is not `closeChat`, which only drops the window.
 	 */
-	async function endChat(task: Task) {
-		// read before closing: once the task leaves the feed its session, and
-		// the thread with it, is released
-		const selfMember = findSessionSelfMember(task.thread?.id);
-		await task.close();
-		await selfMember?.thread.removeMember({
-			id: selfMember.id,
-		});
-	}
-
-	/**
-	 * The agent's own member in a chat whose session has its thread loaded;
-	 * null when there is no session, or the thread is not read yet.
-	 */
-	function findSessionSelfMember(threadId?: string) {
-		if (!threadId || !hasChatSession(threadId)) return null;
-		const { thread, selfMemberId } = useChatSessionStore(threadId);
-		return thread && selfMemberId
-			? {
-					thread,
-					id: selfMemberId,
-				}
-			: null;
+	function endChat(task: Task) {
+		return task.close();
 	}
 
 	/**
@@ -193,15 +171,6 @@ export const useChatsStore = defineStore('chats', () => {
 	 * navigates without accepting (AC_06.01.04).
 	 */
 	async function acceptOffer(task: Task) {
-		// TODO WS-19 debug: remove
-		console.log('[WS-19 debug] accept clicked', {
-			now: Date.now(),
-			id: task.id,
-			secondsSinceOffering: task.offeringAt
-				? Math.round((Date.now() - task.offeringAt) / 1000)
-				: null,
-			acceptTimeoutSec: task.acceptTimeoutSec,
-		});
 		await task.accept();
 	}
 
@@ -283,33 +252,7 @@ export const useChatsStore = defineStore('chats', () => {
 	function initialize() {
 		const client = getClient();
 		// the SDK needs a subscriber before it will populate the task feed
-		// TODO WS-19 debug: revert to `client.subscribeTask(() => {});`
-		client.subscribeTask((action, task) => {
-			if (!task || !isChatTask(task)) return;
-			const now = Date.now();
-			// `distribute` is protected on the SDK `Task`; read it raw for debugging
-			const { distribute } = task as unknown as {
-				distribute?: Record<string, unknown>;
-			};
-			console.log(`[WS-19 debug] task event: ${action}`, {
-				now,
-				id: task.id,
-				state: task.state,
-				threadId: task.thread?.id,
-				offeringAt: task.offeringAt,
-				// small (hundreds/thousands) => offeringAt is in ms
-				offeringAgoMs: task.offeringAt ? now - task.offeringAt : null,
-				bridgedAt: task.bridgedAt,
-				closedAt: task.closedAt,
-				acceptTimeoutSec: task.acceptTimeoutSec,
-				team_accept_timeout: distribute?.team_accept_timeout,
-				queue_max_wait_time: distribute?.queue_max_wait_time,
-				member_joined_at: distribute?.member_joined_at,
-				queue: task.queue,
-				// a snapshot, so later frames do not rewrite what was logged here
-				distribute: JSON.parse(JSON.stringify(distribute ?? null)),
-			});
-		});
+		client.subscribeTask(() => {});
 
 		offersStore.initialize();
 		subscribeToOffers();

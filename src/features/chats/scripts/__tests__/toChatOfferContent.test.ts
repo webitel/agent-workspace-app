@@ -1,8 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Task } from 'webitel-sdk';
 
 import { OfferKind } from '../../../../ui/notifications/modules/offers/types/Offer.types';
 import { toChatOfferContent } from '../toChatOfferContent';
+
+// the shared i18n instance can't be constructed under the global vue-i18n mock
+vi.mock('../../../../app/locale/i18n', () => ({
+	default: {
+		global: {
+			t: (key: string) => key,
+		},
+	},
+}));
 
 const buildTask = (overrides: Partial<Task> = {}): Task =>
 	({
@@ -140,7 +149,7 @@ describe('toChatOfferContent', () => {
 		};
 
 		expect(toChatOfferContent(task as unknown as Task).source).toEqual({
-			label: 'Channel',
+			label: 'ui.notifications.offer.channel',
 			value: 'illia bot',
 		});
 	});

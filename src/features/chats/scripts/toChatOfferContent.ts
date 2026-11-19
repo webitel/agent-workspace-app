@@ -1,5 +1,6 @@
 import type { Task } from 'webitel-sdk';
 
+import i18n from '../../../app/locale/i18n';
 import {
 	type OfferCardContent,
 	OfferKind,
@@ -60,7 +61,7 @@ function resolveSource(task: Task): OfferCardContent['source'] {
 
 	return channel?.name
 		? {
-				label: 'Channel',
+				label: i18n.global.t('ui.notifications.offer.channel'),
 				value: channel.name,
 			}
 		: undefined;
