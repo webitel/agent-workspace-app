@@ -180,6 +180,7 @@ export default {
 			activeCall: {
 				inCall: 'In call',
 				onHold: 'On hold',
+				hungUp: 'Hung up',
 				actions: {
 					numpad: 'Numpad',
 					mute: 'Mute',

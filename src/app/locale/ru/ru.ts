@@ -164,6 +164,7 @@ export default {
 			activeCall: {
 				inCall: 'В разговоре',
 				onHold: 'На удержании',
+				hungUp: 'Завершён',
 				actions: {
 					numpad: 'Клавиатура',
 					mute: 'Выключить микрофон',

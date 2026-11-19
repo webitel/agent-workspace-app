@@ -180,6 +180,7 @@ export default {
 			activeCall: {
 				inCall: 'У розмові',
 				onHold: 'На утриманні',
+				hungUp: 'Завершено',
 				actions: {
 					numpad: 'Клавіатура',
 					mute: 'Вимкнути мікрофон',
