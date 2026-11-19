@@ -109,6 +109,7 @@ export const useOutboundCallAttemptsStore = defineStore(
 				callIdsBeforeDial: new Set(
 					callsStore.callList.map((existingCall) => existingCall.id),
 				),
+				dialedCallIds: {},
 				isHangupRequested: false,
 			};
 			trackedAttempts.value = [
@@ -116,10 +117,24 @@ export const useOutboundCallAttemptsStore = defineStore(
 				attempt,
 			];
 
-			const isPlaced = await callsStore.call({
+			const dialedCallIds = await callsStore.call({
 				destination: rawDestination,
 			});
-			if (!isPlaced) clearAttempt(attempt.id);
+			if (!dialedCallIds) {
+				clearAttempt(attempt.id);
+				return;
+			}
+
+			updateAttempt(attempt.id, {
+				dialedCallIds,
+			});
+			/**
+			 * @author Oleksandr Palonnyi
+			 * The call list may not change again before the call rings, or at all when the
+			 * call already rang during the request, so the ids are matched against it now
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+			 */
+			linkPlacedCalls(callsStore.callList);
 		}
 
 		/**
@@ -206,10 +221,9 @@ export const useOutboundCallAttemptsStore = defineStore(
 
 			/**
 			 * @author Oleksandr Palonnyi
-			 * `callsStore.call` returns no call id, and the `Call` reaches `callList` only
-			 * later (on `Ringing`), at an unknown moment. Each list change is therefore
-			 * checked for a new outbound call to attach to an attempt that has none yet
-			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+			 * The `Call` reaches `callList` only later (on `Ringing`), at an unknown moment,
+			 * so each list change is checked for the call of an attempt that has none yet
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
 			 */
 			watch(() => callsStore.callList, linkPlacedCalls);
 
