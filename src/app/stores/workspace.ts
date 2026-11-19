@@ -7,6 +7,7 @@ import { useGlobalHandlersStore } from '../../features/global-handlers/store/glo
 import { watchProcessingDisposal } from '../../features/processing/store/processing';
 import { useUserStatusStore } from '../../features/user-status/store/userStatus';
 import { useConnectionQualityStore } from '../../ui/header/modules/connectionQuality/store/connectionQuality';
+import { useTaskDockStore } from '../../ui/task-dock/store/task-dock';
 import { useWebSocketClient } from '../api/socket/composables/useWebSocketClient';
 
 export const useWorkspaceStore = defineStore('workspace', () => {
@@ -45,6 +46,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 		useChatsStore().initialize();
 		useCallsStore().initialize();
 		useOutboundCallAttemptsStore().initialize();
+		useTaskDockStore().initialize();
 		useGlobalHandlersStore().initialize();
 		await useUserStatusStore().initialize();
 	}
