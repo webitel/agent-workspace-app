@@ -92,6 +92,14 @@ and should not be carried over wholesale.
   (inbound, outbound call; later chat, email), built from the shared
   `communication-info-header` and `communication-info-fields` and picked from a
   `Record`, not rendered from a config.
+- [ADR-0024](docs/adr/0024-transfer-queues-list.md) — the transfer popup's queues
+  list is a table store like the agents list, its selected row is painted by
+  `wt-table`'s `active-row` rather than by a token that does not exist, and a
+  disabled queue is still listed.
+- [ADR-0025](docs/adr/0025-handed-over-call-is-a-hung-up-call.md) — a call the
+  agent transferred away is an ordinary hung-up call, not a status of its own;
+  the SDK marks it so about 0.5 s after a blind transfer, which ends the
+  transfer button.
 
 ## Language
 
@@ -215,6 +223,13 @@ only then, not for a single call). The agent opens it from one call and picks th
 other one in a popup. Afterwards the two connected calls are active and the third
 is dropped; a call that came from a queue goes on to its **Post-processing**
 (BA, not yet seen on a live call).
+
+**Handed-over call** — a call the agent transferred away with a **Blind
+transfer**. For that agent the transfer ends the call (WTEL-8983): it shows as
+hung up in the Call window, with its Post-processing if it has one, and its
+transfer is no longer offered. It has no status of its own, neither open nor
+closed; the receiving agent gets a call that is theirs, not a Handed-over call
+(ADR-0025).
 
 **Transfer popup** — the popup an agent uses to pick where an Active call goes,
 opened from the Call window's top bar or from the call dock. It has a number

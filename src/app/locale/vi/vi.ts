@@ -183,14 +183,14 @@ export default {
 			},
 			transfer: {
 				title: 'Chuyển cuộc gọi',
-				phoneLabel: 'Chuyển đến số',
-				phonePlaceholder: 'Nhập số điện thoại',
-				emptyList: 'Không tìm thấy kết quả',
+				emptyList: 'Không tìm thấy gì',
 				columns: {
 					name: 'Tên',
 					status: 'Trạng thái',
 					team: 'Nhóm',
 				},
+				phoneLabel: 'Chuyển đến số',
+				phonePlaceholder: 'Nhập số điện thoại',
 				modes: {
 					blind: 'Chuyển thẳng',
 					consult: 'Chuyển có tham vấn',
