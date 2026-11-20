@@ -47,6 +47,7 @@ export default {
 			run: 'Uruchom',
 			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
 			startedAt: 'Rozpoczęto',
+			endedAt: 'Zakończono',
 			username: 'Nazwa użytkownika',
 			message: 'Wiadomość',
 			phoneNumber: 'Numer telefonu',
@@ -55,6 +56,13 @@ export default {
 		},
 		numpad: {
 			call: 'Zadzwoń',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Przetwarzanie końcowe',
+				extend: 'Przedłuż przetwarzanie końcowe',
+				extensionsLeft: 'Pozostałe przedłużenia: {count}',
+			},
 		},
 		variables: {
 			empty: 'Brak zmiennych',
@@ -109,6 +117,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Aktywne',
+					closed: 'Zamknięte',
 				},
 				tabs: {
 					chat: 'Czat',
@@ -122,6 +131,13 @@ export default {
 					pin: 'Przypnij czat',
 					transfer: 'Przekieruj czat',
 					end: 'Zakończ czat',
+				},
+				closed: {
+					notFound: 'Nie znaleziono czatu',
+					loadError: 'Nie udało się załadować czatu',
+					retry: 'Spróbuj ponownie',
+					taskVariablesUnavailable:
+						'Zmienne contact center są niedostępne dla zamkniętych czatów',
 				},
 			},
 			history: {

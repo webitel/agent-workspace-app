@@ -47,6 +47,7 @@ export default {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
 			startedAt: 'Boshlangan',
+			endedAt: 'Tugagan',
 			username: 'Foydalanuvchi nomi',
 			message: 'Xabar',
 			phoneNumber: 'Telefon raqami',
@@ -55,6 +56,13 @@ export default {
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Keyingi ishlov',
+				extend: 'Keyingi ishlovni uzaytirish',
+				extensionsLeft: 'Qolgan uzaytirishlar: {count}',
+			},
 		},
 		variables: {
 			empty: "O'zgaruvchilar yo'q",
@@ -109,6 +117,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Faol',
+					closed: 'Yopilgan',
 				},
 				tabs: {
 					chat: 'Chat',
@@ -122,6 +131,13 @@ export default {
 					pin: 'Chatni mahkamlash',
 					transfer: 'Chatni yoʻnaltirish',
 					end: 'Chatni tugatish',
+				},
+				closed: {
+					notFound: 'Chat topilmadi',
+					loadError: 'Chatni yuklab boʻlmadi',
+					retry: 'Qayta urinish',
+					taskVariablesUnavailable:
+						'Yopilgan chatlar uchun kontakt-markaz oʻzgaruvchilari mavjud emas',
 				},
 			},
 			history: {

@@ -47,6 +47,7 @@ export default {
 			run: 'Іске қосу',
 			nothingToShowHere: 'Мұнда ештеңе жоқ',
 			startedAt: 'Басталды',
+			endedAt: 'Аяқталды',
 			username: 'Пайдаланушы аты',
 			message: 'Хабарлама',
 			phoneNumber: 'Телефон нөмірі',
@@ -55,6 +56,13 @@ export default {
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Кейінгі өңдеу',
+				extend: 'Кейінгі өңдеуді ұзарту',
+				extensionsLeft: 'Қалған ұзартулар: {count}',
+			},
 		},
 		variables: {
 			empty: 'Айнымалылар жоқ',
@@ -109,6 +117,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Белсенді',
+					closed: 'Жабық',
 				},
 				tabs: {
 					chat: 'Чат',
@@ -122,6 +131,13 @@ export default {
 					pin: 'Чатты бекіту',
 					transfer: 'Чатты қайта бағыттау',
 					end: 'Чатты аяқтау',
+				},
+				closed: {
+					notFound: 'Чат табылмады',
+					loadError: 'Чатты жүктеу мүмкін болмады',
+					retry: 'Қайталап көру',
+					taskVariablesUnavailable:
+						'Жабық чаттар үшін байланыс орталығының айнымалылары қолжетімсіз',
 				},
 			},
 			history: {

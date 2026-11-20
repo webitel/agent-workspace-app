@@ -47,6 +47,7 @@ export default {
 			run: 'Ejecutar',
 			nothingToShowHere: 'Aquí no hay nada que mostrar',
 			startedAt: 'Iniciado',
+			endedAt: 'Finalizado',
 			username: 'Nombre de usuario',
 			message: 'Mensaje',
 			phoneNumber: 'Número de teléfono',
@@ -55,6 +56,13 @@ export default {
 		},
 		numpad: {
 			call: 'Llamar',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Posprocesamiento',
+				extend: 'Ampliar el posprocesamiento',
+				extensionsLeft: 'Ampliaciones restantes: {count}',
+			},
 		},
 		variables: {
 			empty: 'Sin variables',
@@ -109,6 +117,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Activos',
+					closed: 'Cerrados',
 				},
 				tabs: {
 					chat: 'Chat',
@@ -122,6 +131,13 @@ export default {
 					pin: 'Anclar chat',
 					transfer: 'Transferir chat',
 					end: 'Finalizar chat',
+				},
+				closed: {
+					notFound: 'Chat no encontrado',
+					loadError: 'No se pudo cargar el chat',
+					retry: 'Intentar de nuevo',
+					taskVariablesUnavailable:
+						'Las variables del centro de contacto no están disponibles para los chats cerrados',
 				},
 			},
 			history: {

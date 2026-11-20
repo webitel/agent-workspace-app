@@ -29,7 +29,7 @@ export default {
 			offer: {
 				title: {
 					call: 'Вхідний дзвінок',
-					chat: 'Вхідний чат',
+					chat: 'Вхідний запит чату',
 				},
 				unknownContact: 'Невідомий контакт',
 				queue: 'Черга',
@@ -55,12 +55,12 @@ export default {
 			select: 'Обрати',
 		},
 		numpad: {
-			call: 'Зателефонувати',
+			call: 'Подзвонити',
 		},
 		processing: {
 			postProcessing: {
-				title: 'Постобробка',
-				extend: 'Продовжити постобробку',
+				title: 'Пост-обробка',
+				extend: 'Продовжити пост-обробку',
 				extensionsLeft: 'Залишилось продовжень: {count}',
 			},
 		},
@@ -76,7 +76,7 @@ export default {
 				},
 				selectOrCreateContact: {
 					title: 'Виберіть контакт або створіть новий',
-					text: 'Виберіть контакт зі списку, щоб переглянути його дані, або створіть новий.',
+					text: 'Виберіть контакт зі списку для перегляду деталей або створіть новий.',
 				},
 				createContact: 'Створити контакт',
 				addContacts: 'Додати контакти',
@@ -107,7 +107,7 @@ export default {
 				},
 				tabs: {
 					info: 'Інфо',
-					postProcessing: 'Постобробка',
+					postProcessing: 'Пост-обробка',
 					interaction: 'Взаємодії',
 					screenshots: 'Скріншоти',
 					contact: 'Контакт',
@@ -122,7 +122,7 @@ export default {
 				tabs: {
 					chat: 'Чат',
 					info: 'Інфо',
-					postProcessing: 'Постобробка',
+					postProcessing: 'Пост-обробка',
 					interaction: 'Взаємодія',
 					contact: 'Контакт',
 					iframe: 'Iframe',
@@ -158,14 +158,14 @@ export default {
 					},
 					callInfo: {
 						title: 'Інформація',
-						postprocessing: 'Постобробка',
+						postprocessing: 'Пост-обробка',
 						agentDescription: 'Коментар оператора',
 					},
 				},
 			},
 			contacts: {
 				phones: {
-					call: 'Зателефонувати на {number}',
+					call: 'Подзвонити на {number}',
 					moreNumbers: '+{count} ще номер(ів)',
 					noPhone: 'Немає телефону',
 				},
@@ -195,9 +195,9 @@ export default {
 			outboundCall: {
 				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',
-				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
+				noAnswerDescription: 'Телефон одержувача не відповів на запит.',
 				retryCall: 'Повторити дзвінок',
-				backToDialpad: 'Назад до набору номера',
+				backToDialpad: 'Повернутися до набору номера',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Вхідний дзвінок',

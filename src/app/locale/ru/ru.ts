@@ -29,7 +29,7 @@ export default {
 			offer: {
 				title: {
 					call: 'Входящий звонок',
-					chat: 'Входящий чат',
+					chat: 'Входящий запрос чата',
 				},
 				unknownContact: 'Неизвестный контакт',
 				queue: 'Очередь',
@@ -47,6 +47,7 @@ export default {
 			run: 'Запустить',
 			nothingToShowHere: 'Здесь ничего нет',
 			startedAt: 'Начало',
+			endedAt: 'Завершено',
 			username: 'Имя пользователя',
 			message: 'Сообщение',
 			phoneNumber: 'Номер телефона',
@@ -55,6 +56,13 @@ export default {
 		},
 		numpad: {
 			call: 'Позвонить',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Пост-обработка',
+				extend: 'Продлить пост-обработку',
+				extensionsLeft: 'Осталось продлений: {count}',
+			},
 		},
 		variables: {
 			empty: 'Переменных нет',
@@ -68,7 +76,7 @@ export default {
 				},
 				selectOrCreateContact: {
 					title: 'Выберите контакт или создайте новый',
-					text: 'Выберите контакт из списка, чтобы увидеть его данные, или создайте новый.',
+					text: 'Выберите контакт из списка для просмотра деталей или создайте новый.',
 				},
 				createContact: 'Создать контакт',
 				addContacts: 'Добавить контакты',
@@ -99,7 +107,7 @@ export default {
 				},
 				tabs: {
 					info: 'Инфо',
-					postProcessing: 'Постобработка',
+					postProcessing: 'Пост-обработка',
 					interaction: 'Взаимодействия',
 					screenshots: 'Скриншоты',
 					contact: 'Контакт',
@@ -109,11 +117,12 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Активные',
+					closed: 'Закрытые',
 				},
 				tabs: {
 					chat: 'Чат',
 					info: 'Инфо',
-					postProcessing: 'Постобработка',
+					postProcessing: 'Пост-обработка',
 					interaction: 'Взаимодействие',
 					contact: 'Контакт',
 					iframe: 'Iframe',
@@ -122,6 +131,13 @@ export default {
 					pin: 'Закрепить чат',
 					transfer: 'Перевести чат',
 					end: 'Завершить чат',
+				},
+				closed: {
+					notFound: 'Чат не найден',
+					loadError: 'Не удалось загрузить чат',
+					retry: 'Попробовать ещё раз',
+					taskVariablesUnavailable:
+						'Переменные контакт-центра недоступны для закрытых чатов',
 				},
 			},
 			history: {
@@ -142,7 +158,7 @@ export default {
 					},
 					callInfo: {
 						title: 'Информация',
-						postprocessing: 'Постобработка',
+						postprocessing: 'Пост-обработка',
 						agentDescription: 'Комментарий оператора',
 					},
 				},
@@ -179,13 +195,13 @@ export default {
 			outboundCall: {
 				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',
-				noAnswerDescription: 'Телефон абонента не ответил на вызов.',
+				noAnswerDescription: 'Телефон получателя не ответил на запрос.',
 				retryCall: 'Повторить звонок',
-				backToDialpad: 'Назад к набору номера',
+				backToDialpad: 'Вернуться к набору номера',
 			},
 			direction: {
-				[CallDirection.Inbound]: 'Входящий звонок',
-				[CallDirection.Outbound]: 'Исходящий звонок',
+				[CallDirection.Inbound]: 'Входящий вызов',
+				[CallDirection.Outbound]: 'Исходящий вызов',
 			},
 		},
 	},
