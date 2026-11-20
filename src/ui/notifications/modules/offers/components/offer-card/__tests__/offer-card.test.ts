@@ -99,7 +99,7 @@ describe('offer-card', () => {
 				body: 'Hello there',
 			}),
 		});
-		expect(withMessage.find('.offer-last-message__text').text()).toBe(
+		expect(withMessage.find('.last-message-text__body').text()).toBe(
 			'Hello there',
 		);
 	});
