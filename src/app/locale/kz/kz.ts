@@ -161,6 +161,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Қоңырау шалынуда',
 			activeCall: {
 				inCall: 'Сөйлесуде',
 				onHold: 'Күтуде',
@@ -177,7 +178,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',
 				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
 				retryCall: 'Қайта қоңырау шалу',

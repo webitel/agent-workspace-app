@@ -161,6 +161,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Вызов',
 			activeCall: {
 				inCall: 'В разговоре',
 				onHold: 'На удержании',
@@ -177,7 +178,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',
 				noAnswerDescription: 'Телефон абонента не ответил на вызов.',
 				retryCall: 'Повторить звонок',

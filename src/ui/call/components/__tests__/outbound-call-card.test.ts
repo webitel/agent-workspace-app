@@ -58,7 +58,7 @@ describe('outbound-call-card', () => {
 	it('shows the ringing state with call controls', () => {
 		const wrapper = mountCard();
 
-		expect(wrapper.text()).toContain('ui.call.outboundCall.ringing');
+		expect(wrapper.text()).toContain('ui.call.ringing');
 		expect(
 			wrapper
 				.findComponent({

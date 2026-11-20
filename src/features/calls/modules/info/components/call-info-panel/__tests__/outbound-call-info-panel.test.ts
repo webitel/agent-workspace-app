@@ -20,6 +20,7 @@ const buildContent = (
 	to: '+12023417842',
 	createdAt: CREATED_AT,
 	answeredAt: ANSWERED_AT,
+	isRinging: false,
 	...overrides,
 });
 

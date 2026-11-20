@@ -161,6 +161,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Dzwonienie',
 			activeCall: {
 				inCall: 'W rozmowie',
 				onHold: 'Wstrzymane',
@@ -177,7 +178,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Dzwonienie',
 				noAnswer: 'Brak odpowiedzi',
 				noAnswerDescription: 'Telefon odbiorcy nie odpowiedział na połączenie.',
 				retryCall: 'Ponów połączenie',

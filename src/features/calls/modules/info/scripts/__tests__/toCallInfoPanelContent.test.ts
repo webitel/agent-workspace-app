@@ -41,7 +41,29 @@ describe('toCallInfoPanelContent', () => {
 			queueName: 'Sales',
 			createdAt: 1_700_000_000_000,
 			answeredAt: 1_700_000_015_000,
+			isRinging: false,
 		});
+	});
+
+	it('marks a call that is not answered yet as ringing', () => {
+		const info = toCallInfoPanelContent(
+			buildCall({
+				answeredAt: 0,
+			}),
+		);
+
+		expect(info.isRinging).toBe(true);
+	});
+
+	it('does not mark a call that ended unanswered as ringing', () => {
+		const info = toCallInfoPanelContent(
+			buildCall({
+				answeredAt: 0,
+				hangupAt: 1_700_000_030_000,
+			}),
+		);
+
+		expect(info.isRinging).toBe(false);
 	});
 
 	it('masks the caller on an inbound call with a hidden number', () => {
@@ -96,6 +118,7 @@ describe('toCallInfoPanelContent', () => {
 			queueName: undefined,
 			createdAt: undefined,
 			answeredAt: undefined,
+			isRinging: true,
 		});
 	});
 

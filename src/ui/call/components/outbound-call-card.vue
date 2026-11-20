@@ -157,9 +157,7 @@ const isRinging = computed(
 );
 
 const statusLabel = computed(() =>
-	isRinging.value
-		? t('ui.call.outboundCall.ringing')
-		: t('ui.call.outboundCall.noAnswer'),
+	isRinging.value ? t('ui.call.ringing') : t('ui.call.outboundCall.noAnswer'),
 );
 
 /**
