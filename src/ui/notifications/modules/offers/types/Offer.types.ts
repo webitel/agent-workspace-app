@@ -17,7 +17,7 @@ export type OfferKind = (typeof OfferKind)[keyof typeof OfferKind];
 /** What the agent can do with an offer; also the in-flight marker's value. */
 export type OfferAction = 'accept' | 'decline';
 
-/** A secondary line rendered as `${label}: ${value}` — `Queue:` / `Channel:`. */
+/** A secondary line rendered as `${label}: ${value}` — `Channel:`, `Queue:`, a variable. */
 export interface OfferSource {
 	label: string;
 	value: string;
@@ -38,8 +38,16 @@ export interface OfferCardContent {
 	additionalContacts?: number;
 	/** Masked phone number (calls) or username (chats). */
 	identifier?: string;
-	/** Queue name (calls) or gateway name (chats). */
+	/** Gateway name — chats only, shown beside the username. */
 	source?: OfferSource;
+	/** Queue the offer came through; heads the variables block. */
+	queueName?: string;
+	/**
+	 * Variables passed on the schema (AC_06.01.01), display-ready. Chats fill
+	 * them with every task variable; narrowing that down is the Flow setting of
+	 * US_06.02 (WS-66 / WS-67). Absent renders no variables.
+	 */
+	variables?: OfferSource[];
 	/** Last customer message — chats only. */
 	body?: string;
 	/**

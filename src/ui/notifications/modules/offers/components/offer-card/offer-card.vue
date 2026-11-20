@@ -14,7 +14,7 @@
                 :name="content.name"
                 :additional-contacts="content.additionalContacts"
                 :identifier="content.identifier"
-                :channel="channelSource"
+                :channel="content.source"
             />
 
             <offer-last-message
@@ -27,12 +27,20 @@
                 :max-wait-sec="content.maxWaitSec"
             />
 
-            <template v-if="queueSource">
+            <!-- AC_06.01.06: neither a queue nor variables — no block at all -->
+            <template v-if="hasDetails">
                 <wt-divider />
-                <offer-source-line
-                    class="offer-card__queue"
-                    :source="queueSource"
-                />
+                <div class="offer-card__details">
+                    <offer-source-line
+                        v-if="queueSource"
+                        class="offer-card__queue"
+                        :source="queueSource"
+                    />
+                    <offer-variables
+                        v-if="content.variables?.length"
+                        :variables="content.variables"
+                    />
+                </div>
             </template>
         </div>
 
@@ -53,23 +61,25 @@
 >
 import { WtDivider } from '@webitel/ui-sdk/components';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import {
-	type OfferAction,
-	type OfferCardContent,
-	OfferKind,
+import type {
+	OfferAction,
+	OfferCardContent,
+	OfferSource,
 } from '../../types/Offer.types';
 import OfferActions from './offer-actions.vue';
 import OfferIdentity from './offer-identity.vue';
 import OfferKindChip from './offer-kind-chip.vue';
 import OfferLastMessage from './offer-last-message.vue';
 import OfferSourceLine from './offer-source-line.vue';
+import OfferVariables from './offer-variables.vue';
 import OfferWaitingTime from './offer-waiting-time.vue';
 
 /**
  * The offer card from DES-727, composed from the pieces above. It owns the
- * layout and the one piece of channel logic the pieces cannot see: where the
- * offer's single `source` belongs.
+ * layout: a chat's gateway sits in the identity block, and the queue heads the
+ * variables block below the wait bar for both channels.
  */
 const {
 	content,
@@ -88,15 +98,20 @@ const emit = defineEmits<{
 	bodyClick: [];
 }>();
 
-const isChat = computed(() => content.kind === OfferKind.Chat);
+const { t } = useI18n();
 
-/** Chats name their gateway inside the identity block, beside the username. */
-const channelSource = computed(() =>
-	isChat.value ? content.source : undefined,
+const queueSource = computed<OfferSource | undefined>(() =>
+	content.queueName
+		? {
+				label: t('ui.notifications.offer.queue'),
+				value: content.queueName,
+			}
+		: undefined,
 );
 
-/** Calls name their queue below the wait bar, where the variables block sits. */
-const queueSource = computed(() => (isChat.value ? undefined : content.source));
+const hasDetails = computed(
+	() => Boolean(queueSource.value) || Boolean(content.variables?.length),
+);
 
 const onBodyClick = () => {
 	if (clickable) emit('bodyClick');
@@ -107,25 +122,31 @@ const onBodyClick = () => {
 .offer-card {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--wt-ws-incoming-interaction-preview-sizes-root-gap);
     align-items: center;
     width: 320px;
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius, 8px);
-    background-color: var(--content-wrapper-color);
+    padding: var(--wt-ws-incoming-interaction-preview-sizes-root-padding-y) var(--wt-ws-incoming-interaction-preview-sizes-root-padding-x);
+    border-radius: var(--wt-ws-incoming-interaction-preview-sizes-root-border-radius);
+    background-color: var(--wt-ws-incoming-interaction-preview-colors-root-background);
     box-shadow: var(--elevation-3, 0 0 11px rgba(0, 0, 0, 0.15));
 }
 
 .offer-card__body {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--wt-ws-incoming-interaction-preview-sizes-root-gap);
     align-items: center;
     width: 100%;
 }
 
 .offer-card__body--clickable {
     cursor: pointer;
+}
+
+.offer-card__details {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 /* the queue spans the card, unlike the gateway line centred in the identity */

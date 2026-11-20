@@ -51,10 +51,14 @@ interaction.
 `webitel-sdk` or `@webitel/chat-web-sdk`; nothing in a domain store renders.
 
 **The contract is channel-neutral.** `OfferPreview` carries
-`kind`, `name`, `identifier`, `source`, `body`, `waitingSince` and `maxWaitSec`.
-Calls fill `identifier` with a (possibly masked) number and `source` with the
-queue; chats fill them with a username and, once the backend supplies it, the
-gateway. Producers map their own SDK objects onto it.
+`kind`, `name`, `identifier`, `source`, `queueName`, `variables`, `body`,
+`waitingSince` and `maxWaitSec`.
+Calls fill `identifier` with a (possibly masked) number; chats fill it with a
+username and `source` with the gateway, once the backend supplies it. Both fill
+`queueName`, which heads the variables block below the wait bar. `variables` are
+display-ready `label: value` lines that no producer fills yet: which variables
+reach the card, and in what shape, is the Flow setting of US_06.02. Producers map
+their own SDK objects onto it.
 
 **The preview is carried as a ref, never a snapshot**, so the card tracks the
 live entity — the waiting timer ticks and late identification appears without
@@ -127,6 +131,10 @@ Tracked on [WS-16](https://webitel.atlassian.net/browse/WS-16) (calls) and
 - a queue-entry epoch — calls fall back to `call.createdAt`, which undercounts;
   chats show no waiting block at all
 - the gateway a chat arrived through, for the `Channel` line
+- the variables the schema passes to the card, and their format — US_06.02,
+  [WS-66](https://webitel.atlassian.net/browse/WS-66) /
+  [WS-67](https://webitel.atlassian.net/browse/WS-67); the block shows the queue
+  alone until then
 
 ## How an offer is detected
 
