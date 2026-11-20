@@ -188,7 +188,6 @@ export default {
 					name: 'Tên',
 					status: 'Trạng thái',
 					team: 'Nhóm',
-					description: 'Mô tả',
 				},
 				phoneLabel: 'Chuyển đến số',
 				phonePlaceholder: 'Nhập số điện thoại',

@@ -188,7 +188,6 @@ export default {
 					name: 'Имя',
 					status: 'Статус',
 					team: 'Команда',
-					description: 'Описание',
 				},
 				phoneLabel: 'Перевести на номер',
 				phonePlaceholder: 'Введите номер телефона',

@@ -9,7 +9,7 @@ export const transferQueuesHeaders: DatalistTableHeader[] = [
 	},
 	{
 		value: 'description',
-		locale: 'ui.call.transfer.columns.description',
+		locale: 'vocabulary.description',
 		show: true,
 		field: 'description',
 	},

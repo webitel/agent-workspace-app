@@ -188,7 +188,6 @@ export default {
 					name: 'Nazwa',
 					status: 'Status',
 					team: 'Zespół',
-					description: 'Opis',
 				},
 				phoneLabel: 'Przekieruj na numer',
 				phonePlaceholder: 'Wpisz numer telefonu',

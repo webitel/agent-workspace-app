@@ -188,7 +188,6 @@ export default {
 					name: 'Nomi',
 					status: 'Holati',
 					team: 'Jamoa',
-					description: 'Tavsif',
 				},
 				phoneLabel: 'Raqamga oʻtkazish',
 				phonePlaceholder: 'Telefon raqamini kiriting',

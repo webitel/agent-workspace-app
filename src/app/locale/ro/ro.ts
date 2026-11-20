@@ -188,7 +188,6 @@ export default {
 					name: 'Nume',
 					status: 'Stare',
 					team: 'Echipă',
-					description: 'Descriere',
 				},
 				phoneLabel: 'Transfer la numărul',
 				phonePlaceholder: 'Introduceți numărul de telefon',

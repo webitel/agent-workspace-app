@@ -188,7 +188,6 @@ export default {
 					name: 'Аты',
 					status: 'Мәртебе',
 					team: 'Команда',
-					description: 'Сипаттама',
 				},
 				phoneLabel: 'Нөмірге ауыстыру',
 				phonePlaceholder: 'Телефон нөмірін енгізіңіз',

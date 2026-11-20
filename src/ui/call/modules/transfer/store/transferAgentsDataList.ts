@@ -12,7 +12,7 @@ import { transferAgentsHeaders } from './_internals/transferAgentsHeaders';
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 export const useTransferAgentsDataListStore =
-	createTableStore<TransferAgentRow>('ui/call/transfer/agents/datalist', {
+	createTableStore<TransferAgentRow>('ui/calls/transfer/agents/datalist', {
 		apiModule: {
 			getList: (params: Record<string, unknown> = {}) =>
 				transferAgentsApiModule.getList({

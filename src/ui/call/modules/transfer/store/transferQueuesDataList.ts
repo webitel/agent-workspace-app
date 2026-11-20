@@ -11,7 +11,7 @@ import { transferQueuesHeaders } from './_internals/transferQueuesHeaders';
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 export const useTransferQueuesDataListStore =
-	createTableStore<TransferQueueRow>('ui/call/transfer/queues/datalist', {
+	createTableStore<TransferQueueRow>('ui/calls/transfer/queues/datalist', {
 		apiModule: transferQueuesApiModule,
 		headers: transferQueuesHeaders,
 		isAppendDataList: true,

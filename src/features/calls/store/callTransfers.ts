@@ -4,8 +4,7 @@ import type { Call } from 'webitel-sdk';
 import { canTransferCall } from '../scripts/canTransferCall';
 import { getStunEnabled } from '../scripts/getStunEnabled';
 import { notifyCallError } from '../scripts/notifyCallError';
-import { toAgentNumericId } from '../scripts/toAgentNumericId';
-import { toQueueNumericId } from '../scripts/toQueueNumericId';
+import { toPositiveNumericId } from '../scripts/toPositiveNumericId';
 import { useCallsStore } from './calls';
 
 /**
@@ -16,7 +15,7 @@ import { useCallsStore } from './calls';
  * call feed as a call of its own (ADR-0017)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-export const useCallTransfersStore = defineStore('call-transfers', () => {
+export const useCallTransfersStore = defineStore('calls/transfers', () => {
 	const callsStore = useCallsStore();
 
 	/**
@@ -84,7 +83,7 @@ export const useCallTransfersStore = defineStore('call-transfers', () => {
 		agentId: string,
 	): Promise<boolean> {
 		const call = callsStore.getCallById(callId);
-		const agentNumericId = toAgentNumericId(agentId);
+		const agentNumericId = toPositiveNumericId(agentId);
 		if (!canTransferCall(call) || agentNumericId === null) return false;
 
 		if (!(await holdCallBeforeConsult(call))) return false;
@@ -107,7 +106,7 @@ export const useCallTransfersStore = defineStore('call-transfers', () => {
 		queueId: string,
 	): Promise<boolean> {
 		const call = callsStore.getCallById(callId);
-		const queueNumericId = toQueueNumericId(queueId);
+		const queueNumericId = toPositiveNumericId(queueId);
 		if (!canTransferCall(call) || queueNumericId === null) return false;
 
 		return sendTransferRequest(() => call.blindTransferQueue(queueNumericId));
@@ -127,7 +126,7 @@ export const useCallTransfersStore = defineStore('call-transfers', () => {
 		queueId: string,
 	): Promise<boolean> {
 		const call = callsStore.getCallById(callId);
-		const queueNumericId = toQueueNumericId(queueId);
+		const queueNumericId = toPositiveNumericId(queueId);
 		if (!canTransferCall(call) || queueNumericId === null) return false;
 
 		if (!(await holdCallBeforeConsult(call))) return false;
