@@ -161,6 +161,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Sonando',
 			activeCall: {
 				inCall: 'En llamada',
 				onHold: 'En espera',
@@ -177,7 +178,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Sonando',
 				noAnswer: 'Sin respuesta',
 				noAnswerDescription:
 					'El teléfono del destinatario no respondió a la llamada.',

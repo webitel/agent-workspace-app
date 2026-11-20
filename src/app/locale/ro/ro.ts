@@ -161,6 +161,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Sună',
 			activeCall: {
 				inCall: 'În apel',
 				onHold: 'În așteptare',
@@ -177,7 +178,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',
 				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
 				retryCall: 'Reîncearcă apelul',

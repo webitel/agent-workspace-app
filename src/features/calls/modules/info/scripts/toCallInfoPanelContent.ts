@@ -25,5 +25,6 @@ export function toCallInfoPanelContent(call: Call): CallInfoPanelContent {
 		queueName: call.queue?.queue_name || undefined,
 		createdAt: call.createdAt || undefined,
 		answeredAt: call.answeredAt || undefined,
+		isRinging: !call.answeredAt && !call.hangupAt,
 	};
 }

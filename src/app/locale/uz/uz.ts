@@ -161,6 +161,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Qoʻngʻiroq qilinmoqda',
 			activeCall: {
 				inCall: 'Suhbatda',
 				onHold: 'Kutishda',
@@ -177,7 +178,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Qoʻngʻiroq qilinmoqda',
 				noAnswer: 'Javob yoʻq',
 				noAnswerDescription: 'Abonent telefoni qoʻngʻiroqqa javob bermadi.',
 				retryCall: 'Qayta qoʻngʻiroq qilish',
