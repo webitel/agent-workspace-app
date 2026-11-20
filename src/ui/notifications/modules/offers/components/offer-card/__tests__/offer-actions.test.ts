@@ -22,8 +22,8 @@ describe('offer-actions', () => {
 		],
 		[
 			OfferKind.Chat,
-			'chat',
-			'chat-end',
+			'ws-chat-filled',
+			'ws-end-chat-filled',
 		],
 	])('uses the %s channel icons', (kind, accept, decline) => {
 		const [acceptButton, declineButton] = mountActions({
