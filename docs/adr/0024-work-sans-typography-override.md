@@ -16,7 +16,8 @@ to Work Sans with new values: H1–H6, Subtitle-1/2, Body-1/2 (+ bold), Caption
 
 ## Decision
 
-`src/app/css/typography.css`, imported after the styleguide, redefines the
+`src/app/css/typography.css`, imported after the styleguide (it imports
+`fonts.css` itself, so `main.ts` has one import), redefines the
 `typo-*` classes in the styleguide's own `wt-typography` layer (so PrimeVue and
 component styles still win). Work Sans is served the way the styleguide serves
 Montserrat: `src/app/css/fonts.css` holds one `@font-face` per weight, over woff2

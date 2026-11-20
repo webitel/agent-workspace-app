@@ -1,3 +1,5 @@
+@import "./fonts.css";
+
 /**
  * @author Oleksandr Palonnyi
  * Overrides the `typo-*` classes of `@webitel/styleguide` with the new Work Sans
