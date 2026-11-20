@@ -1,17 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { Call } from 'webitel-sdk';
 
 import { OfferKind } from '../../../../ui/notifications/modules/offers/types/Offer.types';
 import { maskNumber, toCallOfferContent } from '../toCallOfferContent';
-
-// the shared i18n instance can't be constructed under the global vue-i18n mock
-vi.mock('../../../../app/locale/i18n', () => ({
-	default: {
-		global: {
-			t: (key: string) => key,
-		},
-	},
-}));
 
 const buildCall = (overrides: Partial<Call> = {}): Call =>
 	({
@@ -47,7 +38,7 @@ describe('toCallOfferContent', () => {
 			kind: OfferKind.Call,
 			name: 'John Smith',
 			identifier: '380671234678',
-			source: undefined,
+			queueName: undefined,
 			waitingSince: 1_700_000_000_000,
 			maxWaitSec: undefined,
 		});
@@ -86,7 +77,7 @@ describe('toCallOfferContent', () => {
 		expect(content.identifier).toBe('*****678');
 	});
 
-	it('exposes the queue as the source line', () => {
+	it('exposes the queue name', () => {
 		const content = toCallOfferContent(
 			buildCall({
 				queue: {
@@ -95,10 +86,7 @@ describe('toCallOfferContent', () => {
 			} as Partial<Call>),
 		);
 
-		expect(content.source).toEqual({
-			label: 'ui.notifications.offer.queue',
-			value: 'Support',
-		});
+		expect(content.queueName).toBe('Support');
 	});
 
 	// the field does not exist on the wire yet (WS-16) — the bar stays hidden

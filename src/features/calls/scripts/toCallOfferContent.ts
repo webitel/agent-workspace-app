@@ -1,6 +1,5 @@
 import type { Call } from 'webitel-sdk';
 
-import i18n from '../../../app/locale/i18n';
 import {
 	type OfferCardContent,
 	OfferKind,
@@ -58,12 +57,7 @@ export function toCallOfferContent(call: Call): OfferCardContent {
 		kind: OfferKind.Call,
 		name: resolveName(call),
 		identifier: call.hideNumber ? maskNumber(number) : number,
-		source: call.queue?.queue_name
-			? {
-					label: i18n.global.t('ui.notifications.offer.queue'),
-					value: call.queue.queue_name,
-				}
-			: undefined,
+		queueName: call.queue?.queue_name || undefined,
 		// `createdAt` is the only wait epoch the SDK surfaces; it undercounts the
 		// real queue wait (WS-16 should expose the queue-join time).
 		waitingSince: call.createdAt,

@@ -6,10 +6,7 @@ import OfferWaitingTime from '../offer-waiting-time.vue';
 const secondsAgo = (seconds: number) => Date.now() - seconds * 1000;
 
 describe('offer-waiting-time', () => {
-	/**
-	 * A counter started from the wrong epoch reads as fact, so a channel that
-	 * cannot supply one shows nothing at all rather than a guess (WS-35).
-	 */
+	/** A counter started from the wrong epoch reads as fact, so it stays hidden. */
 	it('renders nothing without a trustworthy epoch', () => {
 		const wrapper = mount(OfferWaitingTime, {
 			props: {},
@@ -29,7 +26,20 @@ describe('offer-waiting-time', () => {
 		expect(wrapper.text()).toContain('01:22');
 	});
 
-	// the bar's denominator is the queue's Max wait time, still absent (WS-16)
+	it('counts down when an accept timeout is available', () => {
+		const wrapper = mount(OfferWaitingTime, {
+			props: {
+				waitingSince: secondsAgo(5),
+				maxWaitSec: 20,
+				isCountdown: true,
+			},
+		});
+
+		expect(wrapper.text()).toContain('ui.notifications.offer.timeToAccept');
+		expect(wrapper.text()).toContain('00:15');
+	});
+
+	// an elapsed timer without a queue limit keeps its counter and hides the bar
 	it('keeps the counter and hides the bar without a limit', () => {
 		const wrapper = mount(OfferWaitingTime, {
 			props: {

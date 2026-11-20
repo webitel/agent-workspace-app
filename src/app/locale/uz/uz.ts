@@ -35,6 +35,7 @@ export default {
 				queue: 'Navbat',
 				channel: 'Kanal',
 				waitingTime: 'Kutish vaqti',
+				timeToAccept: 'Qabul qilish vaqti',
 				accept: 'Qabul qilish',
 				decline: 'Rad etish',
 			},

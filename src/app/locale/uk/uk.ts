@@ -35,6 +35,7 @@ export default {
 				queue: 'Черга',
 				channel: 'Канал',
 				waitingTime: 'Час очікування',
+				timeToAccept: 'Час на прийняття',
 				accept: 'Прийняти',
 				decline: 'Відхилити',
 			},
