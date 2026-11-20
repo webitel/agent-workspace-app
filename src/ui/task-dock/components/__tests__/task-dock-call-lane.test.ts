@@ -197,15 +197,22 @@ describe('task-dock-call-lane', () => {
 				},
 			} as Partial<Call>);
 
-		it('keeps an ended call in post-processing as a widget with its time left', () => {
+		it('keeps an ended call in post-processing as a hung-up card with its time left and no actions', () => {
 			calls.value = [
 				inPostProcessing(),
 			];
 
 			const wrapper = mountCallLane();
+			const bar = wrapper.find('.post-processing-call-bar');
 
-			expect(wrapper.find('.post-processing-call-bar').exists()).toBe(true);
-			expect(wrapper.find('.floating-call-widget__timer').text()).toBe('01:05');
+			expect(bar.exists()).toBe(true);
+			expect(bar.find('.call-dock__status').text()).toContain(
+				'ui.call.activeCall.hungUp',
+			);
+			expect(bar.find('.call-dock__status').text()).toContain('01:05');
+			expect(
+				bar.find('[aria-label="ui.call.activeCall.actions.hangup"]').exists(),
+			).toBe(false);
 		});
 
 		it('leaves out an ended call that has no task left', () => {
@@ -217,16 +224,20 @@ describe('task-dock-call-lane', () => {
 
 			const wrapper = mountCallLane();
 
-			expect(wrapper.find('.floating-call-widget').exists()).toBe(false);
+			expect(wrapper.find('.post-processing-call-bar').exists()).toBe(false);
 		});
 
-		it('leads from the post-processing widget back to its Call window', async () => {
+		it('leads from the post-processing card back to its Call window', async () => {
 			calls.value = [
 				inPostProcessing(),
 			];
 			const wrapper = mountCallLane();
 
-			await wrapper.find('.post-processing-call-bar').trigger('click');
+			await wrapper
+				.find(
+					'.post-processing-call-bar [aria-label="ui.call.activeCall.actions.openFullView"]',
+				)
+				.trigger('click');
 
 			expect(push).toHaveBeenCalledWith({
 				name: 'call-window',
