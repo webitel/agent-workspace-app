@@ -23,6 +23,8 @@ const buildTask = (overrides: Partial<Task> = {}): Task =>
 			id: 'thread-1',
 			lastMsg: 'is anyone there?',
 		},
+		offeringAt: 1_700_000_000_000,
+		acceptTimeoutSec: 20,
 		...overrides,
 	}) as unknown as Task;
 
@@ -35,8 +37,9 @@ describe('toChatOfferContent', () => {
 			source: undefined,
 			queueName: undefined,
 			body: 'is anyone there?',
-			waitingSince: undefined,
-			maxWaitSec: undefined,
+			waitingSince: 1_700_000_000_000,
+			maxWaitSec: 20,
+			isCountdown: true,
 		});
 	});
 
@@ -164,12 +167,13 @@ describe('toChatOfferContent', () => {
 		expect(content.queueName).toBe('Support');
 	});
 
-	/**
-	 * `offeringAt` resets on every redistribution, so a re-offered customer would
-	 * restart at zero and the bar would go greener the longer they waited.
-	 */
-	it('reports no waiting time until a queue-entry epoch exists', () => {
-		const content = toChatOfferContent(buildTask());
+	it('hides the countdown until the SDK exposes its start and timeout', () => {
+		const content = toChatOfferContent(
+			buildTask({
+				offeringAt: 0,
+				acceptTimeoutSec: 0,
+			}),
+		);
 
 		expect(content.waitingSince).toBeUndefined();
 		expect(content.maxWaitSec).toBeUndefined();

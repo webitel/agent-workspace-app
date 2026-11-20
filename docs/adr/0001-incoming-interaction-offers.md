@@ -52,13 +52,20 @@ interaction.
 
 **The contract is channel-neutral.** `OfferPreview` carries
 `kind`, `name`, `identifier`, `source`, `queueName`, `variables`, `body`,
-`waitingSince` and `maxWaitSec`.
+`waitingSince`, `maxWaitSec` and `isCountdown`.
 Calls fill `identifier` with a (possibly masked) number; chats fill it with a
 username and `source` with the gateway, once the backend supplies it. Both fill
 `queueName`, which heads the variables block below the wait bar. `variables` are
 display-ready `label: value` lines that no producer fills yet: which variables
 reach the card, and in what shape, is the Flow setting of US_06.02. Producers map
 their own SDK objects onto it.
+
+**The timer has two modes.** Calls count customer queue wait upward from their
+start epoch; their limit, when available, is the queue's Max wait time. Chats
+count down from the team Chat accept timeout to zero. A chat starts that
+countdown at `offeringAt`, which belongs to the current distribution, and uses
+`acceptTimeoutSec` as its limit. This is deliberately not a customer queue-wait
+counter: `offeringAt` resets on every redistribution.
 
 **The preview is carried as a ref, never a snapshot**, so the card tracks the
 live entity — the waiting timer ticks and late identification appears without
@@ -87,9 +94,9 @@ call-feed update cannot dismiss a chat offer.
 **A field is absent when we do not trust it.** Where the backend has no value —
 the queue's max wait time, the queue-entry epoch, a chat's gateway — the field
 stays `undefined` and the UI hides that part. An approximation is worse: a
-counter started from the wrong epoch reads as fact, and `offeringAt` resets on
-every redistribution, so the bar would go *greener* the longer a customer
-actually waited.
+counter started from the wrong epoch reads as fact. `offeringAt` is not trusted
+for customer queue wait because it resets on redistribution, but it is the
+correct start for that distribution's accept countdown.
 
 ## Consequences
 
@@ -101,8 +108,8 @@ masking a number to `*****678`, treating an empty `displayName` as "not
 identified", failing closed on `hideContact`.
 
 Offer cards ship with visible gaps until the backend catches up. The chat card
-in particular has no source line, no waiting block and often no name. That is
-deliberate, and it is the part most likely to be mistaken for a bug.
+in particular has no source line and often no name. Its accept countdown is
+available when the SDK exposes both `offeringAt` and `acceptTimeoutSec`.
 
 Deriving offers costs a `deep` watcher over the SDK collection. Diffing by id
 is mandatory, not stylistic: array identity does not change when the SDK mutates
@@ -129,7 +136,7 @@ Tracked on [WS-16](https://webitel.atlassian.net/browse/WS-16) (calls) and
 
 - `max_wait_time` on the queue payload — without it the progress bar stays hidden
 - a queue-entry epoch — calls fall back to `call.createdAt`, which undercounts;
-  chats show no waiting block at all
+  chat offers use `offeringAt` only for their accept countdown, not queue wait
 - the gateway a chat arrived through, for the `Channel` line
 - the variables the schema passes to the card, and their format — US_06.02,
   [WS-66](https://webitel.atlassian.net/browse/WS-66) /

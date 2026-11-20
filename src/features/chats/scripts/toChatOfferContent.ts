@@ -92,13 +92,8 @@ export function toChatOfferContent(task: Task): OfferCardContent {
 		queueName: task.queue?.name || undefined,
 		variables: resolveVariables(task),
 		body: task.thread?.lastMsg,
-		/**
-		 * No trustworthy queue-entry epoch exists: `offeringAt` resets on every
-		 * redistribution, and neither `createdAt` nor `bridgedAt` is documented as
-		 * the customer's queue entry. The waiting block stays hidden until WS-35
-		 * settles it.
-		 */
-		waitingSince: undefined,
-		maxWaitSec: undefined,
+		waitingSince: task.offeringAt || undefined,
+		maxWaitSec: task.acceptTimeoutSec || undefined,
+		isCountdown: true,
 	};
 }

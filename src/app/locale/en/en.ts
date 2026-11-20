@@ -35,6 +35,7 @@ export default {
 				queue: 'Queue',
 				channel: 'Channel',
 				waitingTime: 'Waiting time',
+				timeToAccept: 'Time to accept',
 				accept: 'Accept',
 				decline: 'Decline',
 			},

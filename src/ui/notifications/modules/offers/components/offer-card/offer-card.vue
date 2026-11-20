@@ -25,6 +25,7 @@
             <offer-waiting-time
                 :waiting-since="content.waitingSince"
                 :max-wait-sec="content.maxWaitSec"
+                :is-countdown="content.isCountdown"
             />
 
             <!-- AC_06.01.06: neither a queue nor variables — no block at all -->

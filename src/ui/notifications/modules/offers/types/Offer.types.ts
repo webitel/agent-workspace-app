@@ -54,15 +54,21 @@ export interface OfferCardContent {
 	 * Epoch ms the customer started waiting; the timer ticks from this. Optional
 	 * because not every channel can supply one: chat tasks expose no queue-entry
 	 * timestamp we trust yet (WS-35), and a wrong number is worse than none —
-	 * the whole waiting block is hidden instead.
+	 * the elapsed-wait block is hidden instead.
+	 *
+	 * For a countdown, this is the offer epoch.
 	 */
 	waitingSince?: number;
 	/**
 	 * Queue "Max wait time" in seconds, the progress bar denominator. Undefined
 	 * until the backend exposes it (WS-16 / WS-35) — the bar hides, the counter
 	 * still runs.
+	 *
+	 * For a countdown, this is the accept timeout in seconds.
 	 */
 	maxWaitSec?: number;
+	/** Enables a countdown where an accept timeout is available. */
+	isCountdown?: boolean;
 }
 
 export interface Offer {
