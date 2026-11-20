@@ -53,8 +53,10 @@ const { t } = useI18n();
 
 const isChat = computed(() => kind === OfferKind.Chat);
 
-const acceptIcon = computed(() => (isChat.value ? 'chat' : 'call'));
-const declineIcon = computed(() => (isChat.value ? 'chat-end' : 'call-end'));
+const acceptIcon = computed(() => (isChat.value ? 'ws-chat-filled' : 'call'));
+const declineIcon = computed(() =>
+	isChat.value ? 'ws-end-chat-filled' : 'call-end',
+);
 </script>
 
 <style scoped>

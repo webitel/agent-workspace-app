@@ -20,6 +20,7 @@
             <offer-last-message
                 v-if="content.body"
                 :text="content.body"
+                :name="content.name"
             />
 
             <offer-waiting-time

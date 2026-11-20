@@ -160,9 +160,9 @@ calls `setOffering()`, which records `offeringAt` and nothing else, and
 `setBridged` records `bridgedAt` and leaves `state` alone. A live chat task
 therefore reads `"distribute"` from creation until it leaves the feed.
 
-Detection uses the timestamps the SDK does maintain — `offeringAt > 0`,
-`bridgedAt === 0`, `closedAt === 0`. Missed and closed tasks leave the feed
-entirely, because the agent drops them from its task map.
+Detection uses the timestamps the SDK does maintain — `offeringAt` is truthy,
+while `bridgedAt` and `closedAt` are falsy. Missed and closed tasks leave the
+feed entirely, because the agent drops them from its task map.
 
 The SDK's permission getters are not an alternative: `allowAccept`,
 `allowDecline` and `allowClose` are hardcoded to `channel === 'task'`, so all

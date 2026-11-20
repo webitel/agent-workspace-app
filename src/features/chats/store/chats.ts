@@ -167,14 +167,11 @@ export const useChatsStore = defineStore('chats', () => {
 	}
 
 	/**
-	 * Accepting from the card also opens the chat: the accept button is the
-	 * "take it and go there" action, while clicking the card body navigates
-	 * without accepting (AC_06.01.04).
+	 * Accepting from the card keeps the current view; clicking the card body
+	 * navigates without accepting (AC_06.01.04).
 	 */
 	async function acceptOffer(task: Task) {
 		await task.accept();
-		const threadId = task.thread?.id;
-		if (threadId) openChat(threadId);
 	}
 
 	function declineOffer(task: Task) {
