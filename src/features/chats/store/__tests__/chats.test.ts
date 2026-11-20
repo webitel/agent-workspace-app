@@ -489,7 +489,7 @@ describe('chats store', () => {
 			expect(offers.retainOnly).toHaveBeenLastCalledWith('chat', []);
 		});
 
-		it('accepts the chat and opens it', async () => {
+		it('accepts the chat without opening it', async () => {
 			const store = useChatsStore();
 			store.initialize();
 
@@ -502,7 +502,7 @@ describe('chats store', () => {
 			await offers.notify.mock.calls[0][0].onAccept();
 
 			expect(offer.accept).toHaveBeenCalledTimes(1);
-			expect(store.isOpen('thread-1')).toBe(true);
+			expect(store.isOpen('thread-1')).toBe(false);
 		});
 
 		it('declines without opening the chat', async () => {

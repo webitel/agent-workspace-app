@@ -16,6 +16,7 @@ vi.mock('../../../../../store/chats', () => ({
 
 const previewsStore = {
 	lastMessages: {} as Record<string, unknown>,
+	isUnread: vi.fn((_threadId: string) => false),
 };
 vi.mock('../../../store/chat-previews', () => ({
 	useChatPreviewsStore: () => previewsStore,
@@ -69,6 +70,7 @@ describe('chat-preview', () => {
 	beforeEach(() => {
 		openChatMock.mockClear();
 		chatsStore.mainChat = undefined;
+		previewsStore.isUnread.mockReturnValue(false);
 		previewsStore.lastMessages = {
 			t1: {
 				id: 'm1',
@@ -87,7 +89,7 @@ describe('chat-preview', () => {
 		const wrapper = mountPreview();
 
 		expect(wrapper.find('.client-identity-block__name').text()).toBe('@john');
-		expect(wrapper.find('.chat-preview-body__text').text()).toBe(
+		expect(wrapper.find('.last-message-text__body').text()).toBe(
 			'message text',
 		);
 		expect(wrapper.find('.chat-preview-footer').text()).toContain('Support');
@@ -133,10 +135,21 @@ describe('chat-preview', () => {
 		it("shows the client's message in the client look", () => {
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--client',
+			expect(wrapper.find('.last-message-text').classes()).toContain(
+				'last-message-text--client-read',
 			);
 			expect(wrapper.find('.chat-preview-body .wt-avatar').exists()).toBe(true);
+		});
+
+		// AC_02.03.01: an unread client message is the coloured one
+		it("shows the client's unread message in the unread look", () => {
+			previewsStore.isUnread.mockReturnValue(true);
+			const wrapper = mountPreview();
+
+			expect(previewsStore.isUnread).toHaveBeenCalledWith('t1');
+			expect(wrapper.find('.last-message-text').classes()).toContain(
+				'last-message-text--client-unread',
+			);
 		});
 
 		it("shows the agent's own message in the agent look", () => {
@@ -153,8 +166,8 @@ describe('chat-preview', () => {
 			};
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body').classes()).toContain(
-				'chat-preview-body--agent',
+			expect(wrapper.find('.last-message-text').classes()).toContain(
+				'last-message-text--agent',
 			);
 		});
 
@@ -163,7 +176,7 @@ describe('chat-preview', () => {
 			accountStore.account = null;
 			const wrapper = mountPreview();
 
-			expect(wrapper.find('.chat-preview-body__text').text()).toBe(
+			expect(wrapper.find('.last-message-text__body').text()).toBe(
 				'message text',
 			);
 			expect(wrapper.find('.chat-preview-body .wt-avatar').exists()).toBe(

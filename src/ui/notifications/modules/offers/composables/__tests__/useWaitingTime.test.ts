@@ -42,6 +42,20 @@ describe('useWaitingTime', () => {
 		stop();
 	});
 
+	it('counts down from the supplied accept timeout', () => {
+		const since = Date.now() - 5_000;
+		const [{ formatted }, stop] = withScope(() =>
+			useWaitingTime(since, 20, true),
+		);
+
+		expect(formatted.value).toBe('00:15');
+
+		vi.advanceTimersByTime(20_000);
+		expect(formatted.value).toBe('00:00');
+
+		stop();
+	});
+
 	it('grows an hours segment once the wait passes an hour', () => {
 		const [{ formatted }, stop] = withScope(() =>
 			useWaitingTime(Date.now() - 3_725_000, undefined),
@@ -51,10 +65,7 @@ describe('useWaitingTime', () => {
 		stop();
 	});
 
-	/**
-	 * A channel with no trustworthy queue-entry timestamp (chats, until WS-35)
-	 * must hide the block rather than render a counter from a wrong epoch.
-	 */
+	/** A timer without a trustworthy start epoch must stay hidden. */
 	it('reports no waiting time when the producer has no epoch', () => {
 		const [{ hasWaitingTime, elapsedSec, progress, level }, stop] = withScope(
 			() => useWaitingTime(undefined, 100),
@@ -77,7 +88,7 @@ describe('useWaitingTime', () => {
 		stop();
 	});
 
-	// the backend does not expose the queue max wait time yet (WS-16 / WS-35)
+	// without a queue limit, an elapsed timer still renders without the bar
 	it('reports no progress when there is no max wait time', () => {
 		const [{ progress, level }, stop] = withScope(() =>
 			useWaitingTime(Date.now(), undefined),

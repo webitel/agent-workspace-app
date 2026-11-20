@@ -35,6 +35,7 @@ export default {
 				queue: 'Hàng đợi',
 				channel: 'Kênh',
 				waitingTime: 'Thời gian chờ',
+				timeToAccept: 'Thời gian để chấp nhận',
 				accept: 'Chấp nhận',
 				decline: 'Từ chối',
 			},

@@ -25,8 +25,8 @@ import { ComponentSize } from '@webitel/ui-sdk/enums';
 import type { OfferSource } from '../../types/Offer.types';
 
 /**
- * `${label}: ${value}` — the chat's gateway and the call's queue are the same
- * line with a different icon, so both channels render through this.
+ * `${label}: ${value}` — the chat's gateway, the queue and each variable are the
+ * same line, with or without an icon, so all of them render through this.
  */
 defineProps<{
 	source: OfferSource;

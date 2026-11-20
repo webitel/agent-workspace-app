@@ -17,11 +17,11 @@ import { isChatTask } from './isChatTask';
  *
  * What is left is the timestamps, which the SDK does maintain:
  *
- * - `offeringAt > 0` — it has actually been offered to this agent, rather than
+ * - `offeringAt` is truthy — it has actually been offered to this agent, rather than
  *   merely created by a `distribute` frame
- * - `bridgedAt === 0` — nobody has taken it yet (`setBridged` records this and
+ * - `bridgedAt` is falsy — nobody has taken it yet (`setBridged` records this and
  *   leaves `state` alone)
- * - `closedAt === 0` — it has not been closed out
+ * - `closedAt` is falsy — it has not been closed out
  *
  * Missed and closed tasks leave the feed entirely: the agent drops them from
  * its task map, so `allTask()` stops returning them.
@@ -30,9 +30,6 @@ export function isIncomingChatOffer(task: Task): boolean {
 	if (!task) return false;
 
 	return (
-		isChatTask(task) &&
-		task.offeringAt > 0 &&
-		task.bridgedAt === 0 &&
-		task.closedAt === 0
+		isChatTask(task) && !!task.offeringAt && !task.bridgedAt && !task.closedAt
 	);
 }

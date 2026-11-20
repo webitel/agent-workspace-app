@@ -35,6 +35,7 @@ export default {
 				queue: 'Coadă',
 				channel: 'Canal',
 				waitingTime: 'Timp de așteptare',
+				timeToAccept: 'Timp pentru acceptare',
 				accept: 'Acceptă',
 				decline: 'Respinge',
 			},

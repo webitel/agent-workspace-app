@@ -1,11 +1,9 @@
 <template>
-    <Teleport to="body">
-        <div class="the-notifications-layer">
-            <!-- most urgent first: an offer has a deadline, a toast does not -->
-            <the-offers />
-            <wt-notifications-bar />
-        </div>
-    </Teleport>
+    <div class="the-notifications-layer">
+        <!-- most urgent first: an offer has a deadline, a toast does not -->
+        <the-offers />
+        <wt-notifications-bar />
+    </div>
 </template>
 
 <script
@@ -22,11 +20,16 @@ import TheOffers from '../modules/offers/components/the-offers.vue';
  * One stacking context for everything that appears in the corner. Each surface
  * used to fix itself to the viewport independently, so they overlapped instead
  * of stacking.
+ *
+ * Anchored to the page body (`wt-page__body` is `position: relative`), not to
+ * the viewport: the body starts right below the app header, so the corner sits
+ * under the header and flush with the screen edge, as in DES-727. The header's
+ * height follows its content, so a fixed `top` would drift from it.
  */
 .the-notifications-layer {
-    position: fixed;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
+    position: absolute;
+    top: 0;
+    right: 0;
     z-index: 1100;
     display: flex;
     flex-direction: column;
