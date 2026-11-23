@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Входящий звонок',
-					chat: 'Входящий запрос чата',
+					call: 'Запрос входящего звонка',
+					chat: 'Запрос входящего чата',
 				},
 				unknownContact: 'Неизвестный контакт',
 				queue: 'Очередь',
@@ -46,7 +46,7 @@ export default {
 		reusable: {
 			run: 'Запустить',
 			nothingToShowHere: 'Здесь ничего нет',
-			startedAt: 'Начало',
+			startedAt: 'Начато',
 			endedAt: 'Завершено',
 			username: 'Имя пользователя',
 			message: 'Сообщение',
@@ -106,7 +106,7 @@ export default {
 					selfAssigned: 'Самостоятельно назначенные',
 				},
 				tabs: {
-					info: 'Инфо',
+					info: 'Информация',
 					postProcessing: 'Пост-обработка',
 					interaction: 'Взаимодействия',
 					screenshots: 'Скриншоты',

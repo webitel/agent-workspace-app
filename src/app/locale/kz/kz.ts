@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Кіріс қоңырау',
-					chat: 'Кіріс чат',
+					call: 'Кіріс қоңырау сұрауы',
+					chat: 'Кіріс чат сұрауы',
 				},
 				unknownContact: 'Белгісіз контакт',
 				queue: 'Кезек',

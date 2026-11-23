@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Połączenie przychodzące',
-					chat: 'Czat przychodzący',
+					call: 'Żądanie połączenia przychodzącego',
+					chat: 'Żądanie czatu przychodzącego',
 				},
 				unknownContact: 'Nieznany kontakt',
 				queue: 'Kolejka',

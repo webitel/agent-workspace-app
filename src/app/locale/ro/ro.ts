@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Apel primit',
-					chat: 'Chat primit',
+					call: 'Solicitare de apel primit',
+					chat: 'Solicitare de chat primit',
 				},
 				unknownContact: 'Contact necunoscut',
 				queue: 'Coadă',
@@ -46,7 +46,7 @@ export default {
 		reusable: {
 			run: 'Rulează',
 			nothingToShowHere: 'Nu există nimic de afișat aici',
-			startedAt: 'Început la',
+			startedAt: 'Început',
 			endedAt: 'Încheiat la',
 			username: 'Nume utilizator',
 			message: 'Mesaj',

@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Kiruvchi qoʻngʻiroq',
-					chat: 'Kiruvchi chat',
+					call: 'Kiruvchi qoʻngʻiroq soʻrovi',
+					chat: 'Kiruvchi chat soʻrovi',
 				},
 				unknownContact: 'Nomaʼlum kontakt',
 				queue: 'Navbat',

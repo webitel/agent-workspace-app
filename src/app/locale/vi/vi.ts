@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Cuộc gọi đến',
-					chat: 'Trò chuyện đến',
+					call: 'Yêu cầu cuộc gọi đến',
+					chat: 'Yêu cầu trò chuyện đến',
 				},
 				unknownContact: 'Liên hệ không xác định',
 				queue: 'Hàng đợi',
@@ -46,7 +46,7 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
-			startedAt: 'Bắt đầu lúc',
+			startedAt: 'Bắt đầu',
 			endedAt: 'Kết thúc lúc',
 			username: 'Tên người dùng',
 			message: 'Tin nhắn',
