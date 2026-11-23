@@ -66,19 +66,20 @@
 				@digit="emit('sendDigit', $event)"
 			/>
 
-		<call-dock-actions
-			:is-numpad-open="isNumpadOpen"
-			:is-muted="preview.isMuted"
-			:is-hold="preview.isHold"
-			:can-transfer="preview.canTransfer"
-			:can-bridge="canBridge"
-			@toggle-numpad="isNumpadOpen = !isNumpadOpen"
-			@toggle-mute="emit('toggleMute')"
-			@toggle-hold="emit('toggleHold')"
-			@transfer="emit('transfer')"
-			@bridge="emit('bridge')"
-			@hangup="emit('hangup')"
-		/>
+			<call-dock-actions
+				:is-numpad-open="isNumpadOpen"
+				:is-muted="preview.isMuted"
+				:is-hold="preview.isHold"
+				:can-transfer="preview.canTransfer"
+				:can-bridge="canBridge"
+				@toggle-numpad="isNumpadOpen = !isNumpadOpen"
+				@toggle-mute="emit('toggleMute')"
+				@toggle-hold="emit('toggleHold')"
+				@transfer="emit('transfer')"
+				@bridge="emit('bridge')"
+				@hangup="emit('hangup')"
+			/>
+		</template>
 	</div>
 </template>
 

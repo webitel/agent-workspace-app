@@ -15,6 +15,7 @@ const preview: ActiveCallContent = {
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	canTransfer: false,
 	dtmfDigits: '',
 };
 
