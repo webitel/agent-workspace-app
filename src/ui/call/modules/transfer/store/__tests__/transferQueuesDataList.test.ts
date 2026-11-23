@@ -1,6 +1,6 @@
 import { createTestingPinia } from '@pinia/testing';
-import { QueueType } from '@webitel/ui-sdk/enums';
 import { flushPromises } from '@vue/test-utils';
+import { QueueType } from '@webitel/ui-sdk/enums';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
