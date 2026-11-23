@@ -184,14 +184,14 @@ export default {
 			},
 			transfer: {
 				title: 'Przekieruj połączenie',
-				phoneLabel: 'Przekieruj na numer',
-				phonePlaceholder: 'Wpisz numer telefonu',
 				emptyList: 'Nic nie znaleziono',
 				columns: {
 					name: 'Nazwa',
 					status: 'Status',
 					team: 'Zespół',
 				},
+				phoneLabel: 'Przekieruj na numer',
+				phonePlaceholder: 'Wpisz numer telefonu',
 				modes: {
 					blind: 'Bez konsultacji',
 					consult: 'Z konsultacją',

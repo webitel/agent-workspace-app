@@ -3,7 +3,7 @@
 		class="transfer-agents-table"
 		:data="dataList"
 		:headers="shownHeaders"
-		:active-row="activeRow"
+		:active-row="selectedRow"
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -117,7 +117,13 @@ function getStatusLabel(status?: TransferAgentStatus): string {
 	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
 }
 
-const activeRow = computed(
+/**
+ * @author Oleksandr Palonnyi
+ * wt-table paints its active row itself (ui-sdk >= 26.12.26), so the selected
+ * row needs no token or class of the table's own, see ADR-0027
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const selectedRow = computed(
 	() => dataList.value.find((row) => row.id === selectedRowId.value) ?? null,
 );
 

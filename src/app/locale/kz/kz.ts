@@ -184,14 +184,14 @@ export default {
 			},
 			transfer: {
 				title: 'Қоңырауды ауыстыру',
-				phoneLabel: 'Нөмірге ауыстыру',
-				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
 				emptyList: 'Ештеңе табылмады',
 				columns: {
 					name: 'Аты',
-					status: 'Күйі',
+					status: 'Мәртебе',
 					team: 'Команда',
 				},
+				phoneLabel: 'Нөмірге ауыстыру',
+				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
 				modes: {
 					blind: 'Тікелей',
 					consult: 'Кеңесумен',

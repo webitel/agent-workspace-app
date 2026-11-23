@@ -184,14 +184,14 @@ export default {
 			},
 			transfer: {
 				title: 'Transfer apel',
-				phoneLabel: 'Transfer la numărul',
-				phonePlaceholder: 'Introduceți numărul de telefon',
 				emptyList: 'Nu s-a găsit nimic',
 				columns: {
 					name: 'Nume',
 					status: 'Stare',
 					team: 'Echipă',
 				},
+				phoneLabel: 'Transfer la numărul',
+				phonePlaceholder: 'Introduceți numărul de telefon',
 				modes: {
 					blind: 'Direct',
 					consult: 'Cu consultare',
