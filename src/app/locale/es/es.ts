@@ -164,6 +164,7 @@ export default {
 			activeCall: {
 				inCall: 'En llamada',
 				onHold: 'En espera',
+				hungUp: 'Finalizada',
 				actions: {
 					numpad: 'Teclado',
 					mute: 'Silenciar',

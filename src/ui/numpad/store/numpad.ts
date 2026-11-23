@@ -3,10 +3,8 @@ import { ref } from 'vue';
 
 export const useNumpadStore = defineStore('numpad', () => {
 	const isOpen = ref(false);
-	const prefilledNumber = ref('');
 
-	function open(numberToPrefill = '') {
-		prefilledNumber.value = numberToPrefill;
+	function open() {
 		isOpen.value = true;
 	}
 
@@ -24,7 +22,6 @@ export const useNumpadStore = defineStore('numpad', () => {
 
 	return {
 		isOpen,
-		prefilledNumber,
 
 		open,
 		close,

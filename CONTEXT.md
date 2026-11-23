@@ -92,6 +92,10 @@ and should not be carried over wholesale.
   (inbound, outbound call; later chat, email), built from the shared
   `communication-info-header` and `communication-info-fields` and picked from a
   `Record`, not rendered from a config.
+- [ADR-0024](docs/adr/0024-work-sans-typography-override.md) — the new Work Sans
+  typography overrides the styleguide's `typo-*` classes locally until the
+  styleguide ships it, keeps the old class names, and falls back to Montserrat
+  for Cyrillic.
 
 ## Language
 

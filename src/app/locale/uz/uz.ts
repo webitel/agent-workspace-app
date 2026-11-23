@@ -164,6 +164,7 @@ export default {
 			activeCall: {
 				inCall: 'Suhbatda',
 				onHold: 'Kutishda',
+				hungUp: 'Tugadi',
 				actions: {
 					numpad: 'Klaviatura',
 					mute: 'Mikrofonni oʻchirish',

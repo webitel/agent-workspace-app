@@ -32,15 +32,6 @@ import { useI18n } from 'vue-i18n';
 
 import NumpadKeys from './numpad-keys.vue';
 
-const props = withDefaults(
-	defineProps<{
-		initialNumber?: string;
-	}>(),
-	{
-		initialNumber: '',
-	},
-);
-
 const emit = defineEmits<{
 	call: [
 		destination: string,
@@ -49,7 +40,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const number = ref(props.initialNumber);
+const number = ref('');
 
 const numberInput =
 	useTemplateRef<InstanceType<typeof WtInputText>>('numberInput');

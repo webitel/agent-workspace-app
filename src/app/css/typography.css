@@ -1,0 +1,166 @@
+@import "./fonts.css";
+
+/**
+ * @author Oleksandr Palonnyi
+ * Overrides the `typo-*` classes of `@webitel/styleguide` with the new Work Sans
+ * typography from the "New-WorkSpace" Figma file (Typography section, node 7854:49976),
+ * until the styleguide ships it. Same layer as the library's, so PrimeVue and
+ * component styles keep winning over it. Work Sans has no Cyrillic glyphs, so
+ * Montserrat (loaded by the styleguide) stays as the per-glyph fallback.
+ * Remove this file, `fonts.css` and `assets/fonts/work-sans` once the styleguide
+ * carries the same tokens.
+ * [WTEL-WS-95](https://webitel.atlassian.net/browse/WTEL-WS-95)
+ */
+@layer wt-typography {
+	.typo-heading-1 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 40px;
+		font-weight: 600;
+		line-height: 48px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-heading-2 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 32px;
+		font-weight: 600;
+		line-height: 40px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-heading-3 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 24px;
+		font-weight: 600;
+		line-height: 32px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-heading-4 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 20px;
+		font-weight: 600;
+		line-height: 28px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-heading-5 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 18px;
+		font-weight: 600;
+		line-height: 28px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-heading-6 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 16px;
+		font-weight: 600;
+		line-height: 24px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-subtitle-1 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 20px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-subtitle-2 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 24px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-body-1 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 12px;
+		font-weight: 300;
+		line-height: 16px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-body-1-bold {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 12px;
+		font-weight: 600;
+		line-height: 16px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-body-2 {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 14px;
+		font-weight: 300;
+		line-height: 24px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-body-2-bold {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 14px;
+		font-weight: 600;
+		line-height: 24px;
+		letter-spacing: -0.01em;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-caption {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 12px;
+		font-style: italic;
+		font-weight: 300;
+		line-height: 16px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-caption-bold {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 12px;
+		font-style: italic;
+		font-weight: 500;
+		line-height: 16px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+
+	.typo-overline {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+		font-size: 12px;
+		font-weight: 400;
+		line-height: 16px;
+		letter-spacing: 0;
+		font-feature-settings: "cpsp" 1;
+		text-transform: none;
+	}
+}
