@@ -92,14 +92,18 @@ and should not be carried over wholesale.
   (inbound, outbound call; later chat, email), built from the shared
   `communication-info-header` and `communication-info-fields` and picked from a
   `Record`, not rendered from a config.
-- [ADR-0024](docs/adr/0024-transfer-queues-list.md) — the transfer popup's queues
-  list is a table store like the agents list, its selected row is painted by
-  `wt-table`'s `active-row` rather than by a token that does not exist, and a
-  disabled queue is still listed.
+- [ADR-0024](docs/adr/0024-work-sans-typography-override.md) — the new Work Sans
+  typography overrides the styleguide's `typo-*` classes locally until the
+  styleguide ships it, keeps the old class names, and falls back to Montserrat
+  for Cyrillic.
 - [ADR-0025](docs/adr/0025-handed-over-call-is-a-hung-up-call.md) — a call the
   agent transferred away is an ordinary hung-up call, not a status of its own;
   the SDK marks it so about 0.5 s after a blind transfer, which ends the
   transfer button.
+- [ADR-0027](docs/adr/0027-transfer-queues-list.md) — the transfer popup's queues
+  list is a table store like the agents list, its selected row is painted by
+  `wt-table`'s `active-row` rather than by a token that does not exist, and a
+  disabled queue is still listed.
 
 ## Language
 

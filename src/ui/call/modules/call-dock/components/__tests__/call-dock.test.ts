@@ -20,11 +20,15 @@ const buildPreview = (
 	...overrides,
 });
 
-const mountCard = (preview: ActiveCallContent = buildPreview()) =>
+const mountCard = (
+	preview: ActiveCallContent = buildPreview(),
+	isHungUp = false,
+) =>
 	mount(CallDock, {
 		props: {
 			preview,
 			displayedTime: '00:05:52',
+			isHungUp,
 			canBridge: false,
 		},
 		global: {
@@ -152,5 +156,48 @@ describe('call-dock', () => {
 		expect(wrapper.emitted('toggleMute')).toHaveLength(1);
 		expect(wrapper.emitted('toggleHold')).toHaveLength(1);
 		expect(wrapper.emitted('hangup')).toHaveLength(1);
+	});
+	describe('when the call has hung up', () => {
+		it('shows the hung-up status with the displayed time', () => {
+			const wrapper = mountCard(buildPreview(), true);
+
+			expect(wrapper.find('.call-dock__status').text()).toContain(
+				'ui.call.activeCall.hungUp',
+			);
+			expect(wrapper.find('.call-dock__status').text()).toContain('00:05:52');
+		});
+
+		it('shows the hung-up status even when the call was on hold', () => {
+			const wrapper = mountCard(
+				buildPreview({
+					isHold: true,
+				}),
+				true,
+			);
+
+			expect(wrapper.find('.call-dock__status').text()).toContain(
+				'ui.call.activeCall.hungUp',
+			);
+		});
+
+		it('has no call actions and no numpad', () => {
+			const wrapper = mountCard(buildPreview(), true);
+
+			expect(wrapper.findComponent(CallDockActions).exists()).toBe(false);
+			expect(wrapper.findComponent(CallDockNumpad).exists()).toBe(false);
+		});
+
+		it('keeps the contact, the number, the queue and the open-full-view button', async () => {
+			const wrapper = mountCard(buildPreview(), true);
+
+			expect(wrapper.find('.call-dock__identity').text()).toContain(
+				'Emily Johnson',
+			);
+			expect(wrapper.find('.call-dock__queue').text()).toContain('Sales');
+
+			await wrapper.find('[data-icon="ws-open-full-view"]').trigger('click');
+
+			expect(wrapper.emitted('openFullView')).toHaveLength(1);
+		});
 	});
 });

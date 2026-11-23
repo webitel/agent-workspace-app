@@ -164,6 +164,7 @@ export default {
 			activeCall: {
 				inCall: 'Сөйлесуде',
 				onHold: 'Күтуде',
+				hungUp: 'Аяқталды',
 				actions: {
 					numpad: 'Пернетақта',
 					mute: 'Микрофонды өшіру',

@@ -164,6 +164,7 @@ export default {
 			activeCall: {
 				inCall: 'Đang gọi',
 				onHold: 'Đang giữ máy',
+				hungUp: 'Đã cúp máy',
 				actions: {
 					numpad: 'Bàn phím',
 					mute: 'Tắt micrô',
