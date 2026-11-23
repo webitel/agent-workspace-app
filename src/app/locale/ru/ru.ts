@@ -172,8 +172,29 @@ export default {
 					camera: 'Камера',
 					message: 'Сообщение',
 					transfer: 'Переадресация',
+					bridge: 'Соединить звонки',
 					hangup: 'Завершить звонок',
 					openFullView: 'Открыть полный вид',
+				},
+			},
+			bridge: {
+				title: 'Соединение звонков',
+				connect: 'Соединить',
+				unknownContact: 'Неизвестный контакт',
+			},
+			transfer: {
+				title: 'Перевод звонка',
+				emptyList: 'Ничего не найдено',
+				columns: {
+					name: 'Имя',
+					status: 'Статус',
+					team: 'Команда',
+				},
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введите номер телефона',
+				modes: {
+					blind: 'Слепой',
+					consult: 'Консультативный',
 				},
 			},
 			outboundCall: {
@@ -195,6 +216,8 @@ export default {
 			holdToggleFailed:
 				'Не удалось поставить звонок на удержание или снять с него. Попробуйте ещё раз.',
 			dtmfFailed: 'Не удалось отправить цифру. Попробуйте ещё раз.',
+			transferFailed: 'Не удалось перевести звонок. Попробуйте ещё раз.',
+			bridgeFailed: 'Не удалось соединить звонки. Попробуйте ещё раз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

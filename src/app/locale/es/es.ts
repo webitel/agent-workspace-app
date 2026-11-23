@@ -172,8 +172,29 @@ export default {
 					camera: 'Cámara',
 					message: 'Mensaje',
 					transfer: 'Transferir',
+					bridge: 'Conectar llamadas',
 					hangup: 'Finalizar llamada',
 					openFullView: 'Abrir vista completa',
+				},
+			},
+			bridge: {
+				title: 'Conectar llamadas',
+				connect: 'Conectar',
+				unknownContact: 'Contacto desconocido',
+			},
+			transfer: {
+				title: 'Transferir llamada',
+				emptyList: 'No se encontró nada',
+				columns: {
+					name: 'Nombre',
+					status: 'Estado',
+					team: 'Equipo',
+				},
+				phoneLabel: 'Transferir al número',
+				phonePlaceholder: 'Introduzca el número de teléfono',
+				modes: {
+					blind: 'Ciega',
+					consult: 'Con consulta',
 				},
 			},
 			outboundCall: {
@@ -196,6 +217,8 @@ export default {
 			holdToggleFailed:
 				'No se pudo poner la llamada en espera ni reanudarla. Inténtalo de nuevo.',
 			dtmfFailed: 'No se pudo enviar el dígito. Inténtalo de nuevo.',
+			transferFailed: 'No se pudo transferir la llamada. Inténtalo de nuevo.',
+			bridgeFailed: 'No se pudieron conectar las llamadas. Inténtalo de nuevo.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

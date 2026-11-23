@@ -172,8 +172,29 @@ export default {
 					camera: 'Camera',
 					message: 'Tin nhắn',
 					transfer: 'Chuyển cuộc gọi',
+					bridge: 'Kết nối cuộc gọi',
 					hangup: 'Kết thúc cuộc gọi',
 					openFullView: 'Mở chế độ xem đầy đủ',
+				},
+			},
+			bridge: {
+				title: 'Kết nối cuộc gọi',
+				connect: 'Kết nối',
+				unknownContact: 'Liên hệ không xác định',
+			},
+			transfer: {
+				title: 'Chuyển cuộc gọi',
+				emptyList: 'Không tìm thấy gì',
+				columns: {
+					name: 'Tên',
+					status: 'Trạng thái',
+					team: 'Nhóm',
+				},
+				phoneLabel: 'Chuyển đến số',
+				phonePlaceholder: 'Nhập số điện thoại',
+				modes: {
+					blind: 'Chuyển thẳng',
+					consult: 'Chuyển có tham vấn',
 				},
 			},
 			outboundCall: {
@@ -195,6 +216,8 @@ export default {
 			holdToggleFailed:
 				'Không thể giữ máy hoặc tiếp tục cuộc gọi. Vui lòng thử lại.',
 			dtmfFailed: 'Không thể gửi chữ số. Vui lòng thử lại.',
+			transferFailed: 'Không thể chuyển cuộc gọi. Vui lòng thử lại.',
+			bridgeFailed: 'Không thể kết nối các cuộc gọi. Vui lòng thử lại.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

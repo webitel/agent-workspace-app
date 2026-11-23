@@ -76,7 +76,11 @@ vi.mock(
 			props: [
 				'call',
 			],
-			template: '<div class="top-bar-stub" />',
+			emits: [
+				'transfer',
+			],
+			template:
+				'<div class="top-bar-stub"><button class="transfer" @click="$emit(\'transfer\')" /></div>',
 		},
 	}),
 );
@@ -88,6 +92,7 @@ vi.mock('../../../../components/sidebar-toggle-btn.vue', () => ({
 	},
 }));
 
+import { useCallTransferPopupStore } from '../../../../../call/modules/transfer/store/callTransferPopup';
 import TheCallWindow from '../the-call-window.vue';
 
 let nextId = 1;
@@ -164,6 +169,15 @@ describe('the-call-window', () => {
 	beforeEach(() => {
 		route.params.callId = 'call-1';
 		for (const key of Object.keys(callsById)) delete callsById[key];
+	});
+
+	it('opens the transfer popup for its call when the top bar asks to transfer', async () => {
+		callsById['call-1'] = makeCall('call-1', makeTask());
+		const wrapper = mountWindow();
+
+		await wrapper.find('.transfer').trigger('click');
+
+		expect(useCallTransferPopupStore().transferCallId).toBe('call-1');
 	});
 
 	it('opens on Info, with no post-processing tab while there is no form', () => {

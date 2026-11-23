@@ -15,6 +15,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	canTransfer: true,
 	dtmfDigits: '',
 	...overrides,
 });
@@ -28,6 +29,7 @@ const mountCard = (
 			preview,
 			displayedTime: '00:05:52',
 			isHungUp,
+			canBridge: false,
 		},
 		global: {
 			stubs: {
