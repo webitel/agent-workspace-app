@@ -51,21 +51,10 @@ interaction.
 `webitel-sdk` or `@webitel/chat-web-sdk`; nothing in a domain store renders.
 
 **The contract is channel-neutral.** `OfferPreview` carries
-`kind`, `name`, `identifier`, `source`, `queueName`, `variables`, `body`,
-`waitingSince`, `maxWaitSec` and `isCountdown`.
-Calls fill `identifier` with a (possibly masked) number; chats fill it with a
-username and `source` with the gateway, once the backend supplies it. Both fill
-`queueName`, which heads the variables block below the wait bar. `variables` are
-display-ready `label: value` lines that no producer fills yet: which variables
-reach the card, and in what shape, is the Flow setting of US_06.02. Producers map
-their own SDK objects onto it.
-
-**The timer has two modes.** Calls count customer queue wait upward from their
-start epoch; their limit, when available, is the queue's Max wait time. Chats
-count down from the team Chat accept timeout to zero. A chat starts that
-countdown at `offeringAt`, which belongs to the current distribution, and uses
-`acceptTimeoutSec` as its limit. This is deliberately not a customer queue-wait
-counter: `offeringAt` resets on every redistribution.
+`kind`, `name`, `identifier`, `source`, `body`, `waitingSince` and `maxWaitSec`.
+Calls fill `identifier` with a (possibly masked) number and `source` with the
+queue; chats fill them with a username and, once the backend supplies it, the
+gateway. Producers map their own SDK objects onto it.
 
 **The preview is carried as a ref, never a snapshot**, so the card tracks the
 live entity — the waiting timer ticks and late identification appears without
@@ -94,9 +83,9 @@ call-feed update cannot dismiss a chat offer.
 **A field is absent when we do not trust it.** Where the backend has no value —
 the queue's max wait time, the queue-entry epoch, a chat's gateway — the field
 stays `undefined` and the UI hides that part. An approximation is worse: a
-counter started from the wrong epoch reads as fact. `offeringAt` is not trusted
-for customer queue wait because it resets on redistribution, but it is the
-correct start for that distribution's accept countdown.
+counter started from the wrong epoch reads as fact, and `offeringAt` resets on
+every redistribution, so the bar would go *greener* the longer a customer
+actually waited.
 
 ## Consequences
 
@@ -108,8 +97,8 @@ masking a number to `*****678`, treating an empty `displayName` as "not
 identified", failing closed on `hideContact`.
 
 Offer cards ship with visible gaps until the backend catches up. The chat card
-in particular has no source line and often no name. Its accept countdown is
-available when the SDK exposes both `offeringAt` and `acceptTimeoutSec`.
+in particular has no source line, no waiting block and often no name. That is
+deliberate, and it is the part most likely to be mistaken for a bug.
 
 Deriving offers costs a `deep` watcher over the SDK collection. Diffing by id
 is mandatory, not stylistic: array identity does not change when the SDK mutates
@@ -136,12 +125,8 @@ Tracked on [WS-16](https://webitel.atlassian.net/browse/WS-16) (calls) and
 
 - `max_wait_time` on the queue payload — without it the progress bar stays hidden
 - a queue-entry epoch — calls fall back to `call.createdAt`, which undercounts;
-  chat offers use `offeringAt` only for their accept countdown, not queue wait
+  chats show no waiting block at all
 - the gateway a chat arrived through, for the `Channel` line
-- the variables the schema passes to the card, and their format — US_06.02,
-  [WS-66](https://webitel.atlassian.net/browse/WS-66) /
-  [WS-67](https://webitel.atlassian.net/browse/WS-67); the block shows the queue
-  alone until then
 
 ## How an offer is detected
 
@@ -167,3 +152,65 @@ feed entirely, because the agent drops them from its task map.
 The SDK's permission getters are not an alternative: `allowAccept`,
 `allowDecline` and `allowClose` are hardcoded to `channel === 'task'`, so all
 three are `false` for every `im` task.
+
+## Amendment (2026-11-24): a chat offer counts down its accept timeout and carries its queue and variables
+
+[WS-19](https://webitel.atlassian.net/browse/WS-19) (US_06.01, chats). The chat
+card shipped with the gaps listed above: no waiting block, no gateway, a name
+that often repeated the username, and no variables. The product has since
+changed what the chat's timer means (AC_06.01.05, settled on WS-19 on
+2026-11-03): it is the time left to accept the chat, counted down from the
+queue's Chat accept timeout, not how long the client has waited.
+
+**A chat's timer counts down to its accept timeout.** `toChatOfferContent` sets
+`waitingSince` to `offeringAt`, `maxWaitSec` to `Task.acceptTimeoutSec` (the
+distribute event's `team_accept_timeout`) and `isCountdown`. `useWaitingTime`
+then shows the seconds left, never below zero, under "Time to accept", and the
+bar fills as that timeout runs out. A countdown with no timeout hides the whole
+block rather than counting down from nothing. That `offeringAt` resets on every
+redistribution, the reason it was refused as a queue-wait epoch above, is what
+is wanted here: each offer has its own accept window. Calls keep the elapsed
+wait from `createdAt`.
+
+**The queue is its own field, and the card labels it.** The single `source`
+meant the queue for calls and the gateway for chats, and the card chose where to
+put it by `kind`. Now `source` is the chat's gateway only, shown beside the
+username, and `queueName` is the queue for both channels. The card builds the
+"Queue:" line itself and puts it at the head of the details block below the
+timer.
+
+**Variables are shown as the task carries them.** `variables` is a list of
+`OfferSource` lines built from `Task.variables` (the SDK has already dropped the
+`cc_*` keys) and formatted by `formatVariableValue`. Every variable is shown
+until US_06.02 ([WS-66](https://webitel.atlassian.net/browse/WS-66)) lets Flow
+pick which reach the card. `offer-variables` shows the first three, with a
+toggle when there are more; the toggle stops its click, so expanding the list
+does not open the chat (AC_06.01.04). With neither a queue nor variables the
+card has no details block and no divider (AC_06.01.06).
+
+**The gateway is read from the raw distribute event.** The call-center payload
+carries it as `distribute.communication.thread.channel.name`. The SDK keeps that
+event on the `Task` but does not type the channel, so `resolveSource` reads it
+through a cast. With no name the Channel line stays absent, as before.
+
+**The name is the thread's subject first.** `thread.subject` is the client's
+name as the chat backend knows it. `distribute.member_name` (`displayName`),
+which the card used alone at first, often repeats the username and is now only
+the fallback. The username (`displayNumber`) is dropped when it equals the name,
+as the SDK does for a call's number.
+
+**Accept keeps the agent where they are.** The spec now has Accept take the chat
+without navigating (AC_06.01.04); only a click on the card body opens it.
+`acceptOffer` no longer calls `openChat`.
+
+**The corner sits under the header.** `the-notifications-layer` is no longer
+teleported to `body` and fixed to the viewport. It renders inside `wt-page` and
+is positioned against `wt-page__body`, so it sits right under the app header
+and flush with the screen edge, as in DES-727, whatever the header's height.
+
+The derived feed, the channel-neutral contract and "absent rather than
+approximated" are unchanged. Of the chat's Known gaps, the gateway is now read
+and the waiting block is replaced by the countdown. Whether
+`distribute.communication.thread.channel` arrives on a live instance is not yet
+checked; if it does not, the Channel line simply stays hidden. The call-side
+gaps are unchanged.

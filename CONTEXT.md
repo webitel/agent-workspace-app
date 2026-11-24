@@ -14,7 +14,9 @@ and should not be carried over wholesale.
 - [ADR-0001](docs/adr/0001-incoming-interaction-offers.md) — incoming call and
   chat offers: the notifications module boundary, the channel-neutral preview
   contract, offers derived from the SDK feeds, and why a field is left absent
-  rather than approximated.
+  rather than approximated. Amended: a chat offer counts down its accept
+  timeout, the queue and the schema's variables are fields of their own, and
+  Accept on a chat keeps the agent where they are.
 - [ADR-0002](docs/adr/0002-offer-sound-and-os-notifications.md) — ringtone vs
   chirp, the cross-tab sound lock, and the notification-only service worker.
 - [ADR-0003](docs/adr/0003-agent-status-transport.md) — agent status is written
