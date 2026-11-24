@@ -46,7 +46,8 @@ export default {
 		reusable: {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
-			startedAt: 'Розпочато',
+			started: 'Розпочато',
+			startedAt: 'Початок',
 			endedAt: 'Завершено',
 			username: "Ім'я користувача",
 			message: 'Повідомлення',

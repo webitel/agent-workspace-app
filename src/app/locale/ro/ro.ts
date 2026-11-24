@@ -46,7 +46,8 @@ export default {
 		reusable: {
 			run: 'Rulează',
 			nothingToShowHere: 'Nu există nimic de afișat aici',
-			startedAt: 'Început',
+			started: 'Început',
+			startedAt: 'Început la',
 			endedAt: 'Încheiat la',
 			username: 'Nume utilizator',
 			message: 'Mesaj',

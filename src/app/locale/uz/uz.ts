@@ -46,8 +46,9 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
-			startedAt: 'Boshlangan',
-			endedAt: 'Tugagan',
+			started: 'Boshlangan',
+			startedAt: 'Boshlanish vaqti',
+			endedAt: 'Tugash vaqti',
 			username: 'Foydalanuvchi nomi',
 			message: 'Xabar',
 			phoneNumber: 'Telefon raqami',

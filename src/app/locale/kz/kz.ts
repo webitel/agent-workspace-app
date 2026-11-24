@@ -46,8 +46,9 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 			nothingToShowHere: 'Мұнда ештеңе жоқ',
-			startedAt: 'Басталды',
-			endedAt: 'Аяқталды',
+			started: 'Басталды',
+			startedAt: 'Басталу уақыты',
+			endedAt: 'Аяқталу уақыты',
 			username: 'Пайдаланушы аты',
 			message: 'Хабарлама',
 			phoneNumber: 'Телефон нөмірі',

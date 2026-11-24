@@ -46,8 +46,9 @@ export default {
 		reusable: {
 			run: 'Uruchom',
 			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
-			startedAt: 'Rozpoczęto',
-			endedAt: 'Zakończono',
+			started: 'Rozpoczęto',
+			startedAt: 'Czas rozpoczęcia',
+			endedAt: 'Czas zakończenia',
 			username: 'Nazwa użytkownika',
 			message: 'Wiadomość',
 			phoneNumber: 'Numer telefonu',

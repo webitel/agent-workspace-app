@@ -46,7 +46,8 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
-			startedAt: 'Bắt đầu',
+			started: 'Bắt đầu',
+			startedAt: 'Bắt đầu lúc',
 			endedAt: 'Kết thúc lúc',
 			username: 'Tên người dùng',
 			message: 'Tin nhắn',
