@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import type { ContactsPhoneNumber } from '@webitel/api-services/gen/models';
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { describe, expect, it, vi } from 'vitest';
 
 import ContactPhonesCell from '../contact-phones-cell.vue';
@@ -36,7 +37,11 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 		template: '<span class="more-chip"><slot /></span>',
 	},
 	WtIcon: {
-		template: '<i />',
+		props: [
+			'icon',
+			'color',
+		],
+		template: '<i class="icon" :data-icon="icon" :data-color="color" />',
 	},
 }));
 
@@ -44,6 +49,17 @@ const mountCell = (phones?: ContactsPhoneNumber[]) =>
 	mount(ContactPhonesCell, {
 		props: {
 			phones,
+		},
+		global: {
+			stubs: {
+				'wt-icon': {
+					props: [
+						'icon',
+						'color',
+					],
+					template: '<i class="icon" :data-icon="icon" :data-color="color" />',
+				},
+			},
 		},
 	});
 
@@ -53,6 +69,13 @@ describe('contact-phones-cell', () => {
 
 		expect(wrapper.find('.call-button').exists()).toBe(false);
 		expect(wrapper.text()).toContain('ui.pages.contacts.phones.noPhone');
+	});
+
+	it('shows a disabled call icon when the contact has no phone', () => {
+		const icon = mountCell([]).find('.icon');
+
+		expect(icon.attributes('data-icon')).toBe('call--filled');
+		expect(icon.attributes('data-color')).toBe(IconColor.DISABLED);
 	});
 
 	it('shows the primary number, not the first one', () => {

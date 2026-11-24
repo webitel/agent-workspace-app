@@ -153,6 +153,12 @@ export default {
 					moreNumbers: '+{count} ещё номер(ов)',
 					noPhone: 'Нет телефона',
 				},
+				chats: {
+					noChat: 'Нет чата',
+				},
+				emails: {
+					noEmail: 'Нет email',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {

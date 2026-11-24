@@ -153,6 +153,12 @@ export default {
 					moreNumbers: '+{count} нөмір тағы',
 					noPhone: 'Телефон жоқ',
 				},
+				chats: {
+					noChat: 'Чат жоқ',
+				},
+				emails: {
+					noEmail: 'Email жоқ',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {

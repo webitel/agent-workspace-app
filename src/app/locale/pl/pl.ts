@@ -153,6 +153,12 @@ export default {
 					moreNumbers: '+{count} numer(ów) więcej',
 					noPhone: 'Brak telefonu',
 				},
+				chats: {
+					noChat: 'Brak czatu',
+				},
+				emails: {
+					noEmail: 'Brak e-maila',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {

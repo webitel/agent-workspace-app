@@ -153,6 +153,12 @@ export default {
 					moreNumbers: '+{count} număr(e) în plus',
 					noPhone: 'Fără telefon',
 				},
+				chats: {
+					noChat: 'Fără chat',
+				},
+				emails: {
+					noEmail: 'Fără e-mail',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {

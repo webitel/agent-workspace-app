@@ -153,6 +153,12 @@ export default {
 					moreNumbers: '+{count} số khác',
 					noPhone: 'Không có số điện thoại',
 				},
+				chats: {
+					noChat: 'Không có chat',
+				},
+				emails: {
+					noEmail: 'Không có email',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {
