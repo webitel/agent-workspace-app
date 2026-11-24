@@ -104,6 +104,11 @@ and should not be carried over wholesale.
   list is a table store like the agents list, its selected row is painted by
   `wt-table`'s `active-row` rather than by a token that does not exist, and a
   disabled queue is still listed.
+- [ADR-0028](docs/adr/0028-transfer-users-list.md) — the transfer popup's users
+  list reads user statuses rather than the users list, a user who is not an
+  agent shows no status, a blind transfer dials the user's extension read from
+  the tab's store and is disabled for a user without one, and the three tab
+  lists share one composable.
 
 ## Language
 
