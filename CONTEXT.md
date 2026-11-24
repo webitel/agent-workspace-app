@@ -46,7 +46,7 @@ and should not be carried over wholesale.
 - [ADR-0012](docs/adr/0012-contact-card-communication.md) — the contact card's
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
-  its gateway icon alone.
+  its gateway icon alone; phones and emails are added inline on their tab.
 - [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
   one of several identified contacts while the call is active or on hold, the
   link shows at once, a failed one is silent, and CREATE follows the same
@@ -395,6 +395,11 @@ legacy chat client, which carries the client's `user` from the external service,
 or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
+
+**Communication type** — the label every phone and email of a contact carries
+(e.g. Work, Mobile), picked from a dictionary the admin keeps in CRM. Each type
+belongs to one channel, so a phone can only get a phone type and an email only
+an email type. A phone or email cannot be added without one.
 
 **Identified contact** — a contact the search by a call's number found. There
 can be none, one or several; with several, the right panel shows them one at a

@@ -13,7 +13,10 @@
 
 			<wt-divider />
 
-			<contact-card-communication :contact="contact" />
+			<contact-card-communication
+				:contact="contact"
+				@changed="reload"
+			/>
 		</div>
 	</div>
 </template>
@@ -29,7 +32,7 @@ const props = defineProps<{
 	contactId: string;
 }>();
 
-const { contact, isLoading } = useContact(toRef(props, 'contactId'));
+const { contact, isLoading, reload } = useContact(toRef(props, 'contactId'));
 </script>
 
 <style scoped>
