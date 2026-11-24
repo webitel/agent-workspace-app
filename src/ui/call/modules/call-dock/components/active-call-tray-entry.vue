@@ -10,8 +10,12 @@
 			<call-dock
 				:preview="preview"
 				:displayed-time="timer.formatted.value"
+				@open-full-view="emit('openFullView')"
+				:can-bridge="canBridge"
 				@toggle-mute="emit('toggleMute')"
 				@toggle-hold="emit('toggleHold')"
+				@transfer="emit('transfer')"
+				@bridge="emit('bridge')"
 				@hangup="emit('hangup')"
 				@send-digit="emit('sendDigit', $event)"
 			/>
@@ -42,6 +46,7 @@ import FloatingCallWidget from './floating-call-widget.vue';
 const props = defineProps<{
 	preview: ActiveCallContent;
 	expanded: boolean;
+	canBridge: boolean;
 	/**
 	 * @author Oleksandr Palonnyi
 	 * Elements the host renders beside the dock (the numpad panel), whose clicks are
@@ -59,6 +64,8 @@ const emit = defineEmits<{
 	openFullView: [];
 	toggleMute: [];
 	toggleHold: [];
+	transfer: [];
+	bridge: [];
 	hangup: [];
 	sendDigit: [
 		digit: string,

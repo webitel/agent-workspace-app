@@ -164,6 +164,7 @@ export default {
 			activeCall: {
 				inCall: 'Сөйлесуде',
 				onHold: 'Күтуде',
+				hungUp: 'Аяқталды',
 				actions: {
 					numpad: 'Пернетақта',
 					mute: 'Микрофонды өшіру',
@@ -171,8 +172,29 @@ export default {
 					camera: 'Камера',
 					message: 'Хабарлама',
 					transfer: 'Қайта бағыттау',
+					bridge: 'Қоңырауларды қосу',
 					hangup: 'Қоңырауды аяқтау',
 					openFullView: 'Толық көріністі ашу',
+				},
+			},
+			bridge: {
+				title: 'Қоңырауларды қосу',
+				connect: 'Қосу',
+				unknownContact: 'Белгісіз контакт',
+			},
+			transfer: {
+				title: 'Қоңырауды ауыстыру',
+				emptyList: 'Ештеңе табылмады',
+				columns: {
+					name: 'Аты',
+					status: 'Мәртебе',
+					team: 'Команда',
+				},
+				phoneLabel: 'Нөмірге ауыстыру',
+				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
+				modes: {
+					blind: 'Тікелей',
+					consult: 'Кеңесумен',
 				},
 			},
 			outboundCall: {
@@ -194,6 +216,8 @@ export default {
 			holdToggleFailed:
 				'Қоңырауды күтуге қою немесе жалғастыру мүмкін болмады. Қайталап көріңіз.',
 			dtmfFailed: 'Санды жіберу мүмкін болмады. Қайталап көріңіз.',
+			transferFailed: 'Қоңырауды ауыстыру мүмкін болмады. Қайталап көріңіз.',
+			bridgeFailed: 'Қоңырауларды қосу мүмкін болмады. Қайталап көріңіз.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

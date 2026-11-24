@@ -22,6 +22,9 @@ const buildCall = (overrides: Record<string, unknown> = {}): Call =>
 		id: 'call-1',
 		muted: false,
 		isHold: false,
+		answeredAt: 1_700_000_000_000,
+		hangupAt: 0,
+		allowTransfer: true,
 		...overrides,
 	}) as unknown as Call;
 
@@ -55,14 +58,33 @@ describe('call-top-bar-actions', () => {
 		hangupMock.mockClear();
 	});
 
-	it('holds a place for the actions not built yet, disabled (AC_13.01.03, .05, .07, .08)', () => {
+	it('asks to transfer the call, leaving the popup to its parent (AC_13.01.08)', async () => {
+		const wrapper = mountActions();
+
+		await findAction(wrapper, 'transfer').trigger('click');
+
+		expect(wrapper.emitted('transfer')).toHaveLength(1);
+	});
+
+	it('disables transfer when the call cannot be transferred', () => {
+		const wrapper = mountActions(
+			buildCall({
+				allowTransfer: false,
+			}),
+		);
+
+		expect(
+			findAction(wrapper, 'transfer').attributes('disabled'),
+		).toBeDefined();
+	});
+
+	it('holds a place for the actions not built yet, disabled (AC_13.01.03, .05, .07)', () => {
 		const wrapper = mountActions();
 
 		for (const name of [
 			'numpad',
 			'camera',
 			'message',
-			'transfer',
 		]) {
 			expect(findAction(wrapper, name).attributes('disabled')).toBeDefined();
 		}

@@ -180,6 +180,7 @@ export default {
 			activeCall: {
 				inCall: 'У розмові',
 				onHold: 'На утриманні',
+				hungUp: 'Завершено',
 				actions: {
 					numpad: 'Клавіатура',
 					mute: 'Вимкнути мікрофон',
@@ -187,8 +188,29 @@ export default {
 					camera: 'Камера',
 					message: 'Повідомлення',
 					transfer: 'Переадресація',
+					bridge: "З'єднати дзвінки",
 					hangup: 'Завершити дзвінок',
 					openFullView: 'Відкрити повний вигляд',
+				},
+			},
+			bridge: {
+				title: "З'єднання дзвінків",
+				connect: "З'єднати",
+				unknownContact: 'Невідомий контакт',
+			},
+			transfer: {
+				title: 'Переведення дзвінка',
+				emptyList: 'Нічого не знайдено',
+				columns: {
+					name: "Ім'я",
+					status: 'Статус',
+					team: 'Команда',
+				},
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введіть номер телефону',
+				modes: {
+					blind: 'Сліпий',
+					consult: 'Консультативний',
 				},
 			},
 			outboundCall: {
@@ -210,6 +232,8 @@ export default {
 			holdToggleFailed:
 				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
 			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
+			transferFailed: 'Не вдалося переадресувати дзвінок. Спробуйте ще раз.',
+			bridgeFailed: "Не вдалося з'єднати дзвінки. Спробуйте ще раз.",
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

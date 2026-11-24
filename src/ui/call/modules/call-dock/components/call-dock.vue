@@ -57,23 +57,29 @@
 			</span>
 		</wt-chip>
 
-		<wt-divider />
+		<template v-if="!isHungUp">
+			<wt-divider />
 
-		<call-dock-numpad
-			v-if="isNumpadOpen"
-			:digits="preview.dtmfDigits"
-			@digit="emit('sendDigit', $event)"
-		/>
+			<call-dock-numpad
+				v-if="isNumpadOpen"
+				:digits="preview.dtmfDigits"
+				@digit="emit('sendDigit', $event)"
+			/>
 
-		<call-dock-actions
-			:is-numpad-open="isNumpadOpen"
-			:is-muted="preview.isMuted"
-			:is-hold="preview.isHold"
-			@toggle-numpad="isNumpadOpen = !isNumpadOpen"
-			@toggle-mute="emit('toggleMute')"
-			@toggle-hold="emit('toggleHold')"
-			@hangup="emit('hangup')"
-		/>
+			<call-dock-actions
+				:is-numpad-open="isNumpadOpen"
+				:is-muted="preview.isMuted"
+				:is-hold="preview.isHold"
+				:can-transfer="preview.canTransfer"
+				:can-bridge="canBridge"
+				@toggle-numpad="isNumpadOpen = !isNumpadOpen"
+				@toggle-mute="emit('toggleMute')"
+				@toggle-hold="emit('toggleHold')"
+				@transfer="emit('transfer')"
+				@bridge="emit('bridge')"
+				@hangup="emit('hangup')"
+			/>
+		</template>
 	</div>
 </template>
 
@@ -89,14 +95,30 @@ import type { ActiveCallContent } from '../types/ActiveCallContent.types';
 import CallDockActions from './call-dock-actions.vue';
 import CallDockNumpad from './call-dock-numpad.vue';
 
-const props = defineProps<{
-	preview: ActiveCallContent;
-	displayedTime: string;
-}>();
+/**
+ * @author Oleksandr Palonnyi
+ * `isHungUp` is the card of a call that has ended and waits in post-processing:
+ * the same identity, queue and status chip, but nothing to control, so the
+ * actions are not rendered. `displayedTime` is then the time left, not the talk time.
+ * [WS-159](https://webitel.atlassian.net/browse/WS-159)
+ */
+const props = withDefaults(
+	defineProps<{
+		preview: ActiveCallContent;
+		displayedTime: string;
+		canBridge: boolean;
+		isHungUp?: boolean;
+	}>(),
+	{
+		isHungUp: false,
+	},
+);
 
 const emit = defineEmits<{
 	toggleMute: [];
 	toggleHold: [];
+	transfer: [];
+	bridge: [];
 	hangup: [];
 	openFullView: [];
 	sendDigit: [
@@ -115,15 +137,17 @@ const { t } = useI18n();
  */
 const isNumpadOpen = ref(false);
 
-const statusLabel = computed(() =>
-	props.preview.isHold
+const statusLabel = computed(() => {
+	if (props.isHungUp) return t('ui.call.activeCall.hungUp');
+	return props.preview.isHold
 		? t('ui.call.activeCall.onHold')
-		: t('ui.call.activeCall.inCall'),
-);
+		: t('ui.call.activeCall.inCall');
+});
 
-const statusChipColor = computed(() =>
-	props.preview.isHold ? ChipColor.WARNING : ChipColor.SUCCESS,
-);
+const statusChipColor = computed(() => {
+	if (props.isHungUp) return ChipColor.SECONDARY;
+	return props.preview.isHold ? ChipColor.WARNING : ChipColor.SUCCESS;
+});
 </script>
 
 <style scoped>

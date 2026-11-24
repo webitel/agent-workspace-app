@@ -14,18 +14,18 @@
 			<div
 				v-for="item of items"
 				:key="item.id"
-				class="key-value-list__item typo-body-2"
+				class="key-value-list__item"
 			>
-				<dt class="key-value-list__key typo-body-2-bold">{{ item.key }}:</dt>
+				<dt class="key-value-list__key typo-caption-bold">{{ item.key }}:</dt>
 				<!-- the template compiler drops whitespace between tags on separate lines -->
 				{{ ' ' }}
-				<dd class="key-value-list__value">{{ item.value }}</dd>
+				<dd class="key-value-list__value typo-caption">{{ item.value }}</dd>
 			</div>
 		</dl>
 
 		<p
 			v-else-if="emptyText"
-			class="key-value-list__empty typo-body-2"
+			class="key-value-list__empty typo-caption"
 		>
 			{{ emptyText }}
 		</p>

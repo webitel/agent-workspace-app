@@ -1,6 +1,7 @@
 import type { Call } from 'webitel-sdk';
 
 import type { ActiveCallContent } from '../../../ui/call/modules/call-dock/types/ActiveCallContent.types';
+import { canTransferCall } from './canTransferCall';
 import { maskNumber } from './toCallOfferContent';
 
 function resolveName(call: Call): string | undefined {
@@ -24,6 +25,7 @@ export function toActiveCallContent(call: Call): ActiveCallContent {
 		answeredAt: call.answeredAt,
 		isHold: call.isHold,
 		isMuted: Boolean(call.muted),
+		canTransfer: canTransferCall(call),
 		/**
 		 * @author Oleksandr Palonnyi
 		 * `digits` is filled from the server's `dtmf` event, not from our own

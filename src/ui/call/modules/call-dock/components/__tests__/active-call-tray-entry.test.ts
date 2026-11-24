@@ -15,6 +15,7 @@ const buildPreview = (
 	answeredAt: Date.now(),
 	isHold: false,
 	isMuted: false,
+	canTransfer: true,
 	dtmfDigits: '',
 	...overrides,
 });
@@ -27,6 +28,7 @@ const mountBar = (
 		props: {
 			preview: buildPreview(),
 			expanded,
+			canBridge: false,
 			outsideClickIgnoredTargets,
 		},
 		global: {
@@ -95,6 +97,14 @@ describe('active-call-tray-entry', () => {
 		const wrapper = mountBar();
 
 		await wrapper.find('.floating-call-widget .button').trigger('click');
+
+		expect(wrapper.emitted('openFullView')).toHaveLength(1);
+	});
+
+	it('passes on openFullView from the dock header', async () => {
+		const wrapper = mountBar(true);
+
+		await wrapper.find('.call-dock__identity .button').trigger('click');
 
 		expect(wrapper.emitted('openFullView')).toHaveLength(1);
 	});

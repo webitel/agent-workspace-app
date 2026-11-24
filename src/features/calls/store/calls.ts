@@ -13,11 +13,14 @@ import { useOffersStore } from '../../../ui/notifications/modules/offers/store/o
 import { OfferKind } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { CallsRouteName } from '../../../ui/pages/modules/calls/enums/CallsRouteName.enum';
 import { useCallAudio } from '../composables/useCallAudio';
+import { getStunEnabled } from '../scripts/getStunEnabled';
 import { hasCallWindow } from '../scripts/hasCallWindow';
 import { isActiveCall } from '../scripts/isActiveCall';
 import { isCallAudible } from '../scripts/isCallAudible';
 import { isIncomingCallOffer } from '../scripts/isIncomingCallOffer';
+import { isRingingConsultCall } from '../scripts/isRingingConsultCall';
 import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
+import { notifyCallError } from '../scripts/notifyCallError';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
 import { toDialedCallIds } from '../scripts/toDialedCallIds';
@@ -58,6 +61,10 @@ export const useCallsStore = defineStore('calls', () => {
 	);
 
 	const activeCalls = computed(() => callList.value.filter(isActiveCall));
+
+	const ringingConsultCalls = computed(() =>
+		callList.value.filter((call) => isRingingConsultCall(call, callList.value)),
+	);
 
 	// Active calls plus the ended ones still in post-processing (WS-91).
 	const windowedCalls = computed(() => callList.value.filter(hasCallWindow));
@@ -321,6 +328,40 @@ export const useCallsStore = defineStore('calls', () => {
 		}
 	}
 
+	/**
+	 * @author Oleksandr Palonnyi
+	 * joins two Active calls to each other (AC_14.02.07), whichever side started
+	 * them. resolves true once the backend accepted it. nothing is closed here:
+	 * per BA the two connected calls stay active and a queue call goes on to
+	 * post-processing like any ended call, so the windows follow the call list.
+	 * Whether `bridgeTo` needs one of the calls held is not verified on a live
+	 * instance
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	async function bridgeCalls(
+		callId: string,
+		otherCallId: string,
+	): Promise<boolean> {
+		const call = getCallById(callId);
+		const otherCall = getCallById(otherCallId);
+		if (
+			callId === otherCallId ||
+			!isActiveCall(call) ||
+			!isActiveCall(otherCall)
+		) {
+			return false;
+		}
+
+		try {
+			await call.bridgeTo(otherCall);
+			return true;
+		} catch (err) {
+			console.warn('[calls] bridging the calls failed', err);
+			notifyCallError('bridgeFailed');
+			return false;
+		}
+	}
+
 	async function sendDtmf(callId: string, digit: string) {
 		const call = getCallById(callId);
 		if (!call?.allowDtmf) return;
@@ -440,6 +481,7 @@ export const useCallsStore = defineStore('calls', () => {
 		callList,
 		incomingOffers,
 		activeCalls,
+		ringingConsultCalls,
 		windowedCalls,
 		newCallsCount,
 		isOutboundCallRequestPending,
@@ -453,17 +495,11 @@ export const useCallsStore = defineStore('calls', () => {
 		toggleMute,
 		toggleHold,
 		holdOtherLiveCalls,
+		bridgeCalls,
 		sendDtmf,
 		hangup,
 	};
 });
-
-function notifyCallError(errorKey: 'holdToggleFailed' | 'dtmfFailed'): void {
-	eventBus.$emit('notification', {
-		type: 'error',
-		text: i18n.global.t(`error.calls.${errorKey}`),
-	});
-}
 
 async function ensureMicrophoneAllowed(): Promise<boolean> {
 	if (await isMicrophoneAllowed()) return true;
@@ -473,19 +509,6 @@ async function ensureMicrophoneAllowed(): Promise<boolean> {
 		text: i18n.global.t(`error.websocket.${DeviceNotAllowPermissionError.id}`),
 	});
 	return false;
-}
-
-function getStunEnabled(): boolean {
-	try {
-		const config = JSON.parse(localStorage.getItem('CONFIG') ?? '{}') as {
-			CLI?: {
-				stun?: boolean;
-			};
-		};
-		return config.CLI?.stun ?? true;
-	} catch {
-		return true;
-	}
 }
 
 if (import.meta.hot) {
