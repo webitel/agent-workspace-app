@@ -83,6 +83,7 @@ import {
 	ButtonVariant,
 	ComponentSize,
 } from '@webitel/ui-sdk/enums';
+import { storeToRefs } from 'pinia';
 import { type Component, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -95,9 +96,11 @@ import { TransferTab } from '../enums/TransferTab.enum';
 import { TRANSFER_MODE_BUTTON_COLORS } from '../mappings/transferModeButtonColors';
 import { getTransferActionAvailability } from '../scripts/getTransferActionAvailability';
 import { useCallTransferPopupStore } from '../store/callTransferPopup';
+import { useTransferUsersDataListStore } from '../store/transferUsersDataList';
 import type { TransferRequest } from '../types/CallTransfer.types';
 import TransferAgentsTable from './transfer-agents-table.vue';
 import TransferQueuesTable from './transfer-queues-table.vue';
+import TransferUsersTable from './transfer-users-table.vue';
 
 const emit = defineEmits<{
 	transfer: [
@@ -109,6 +112,9 @@ const { t } = useI18n();
 const callsStore = useCallsStore();
 const callTransfersStore = useCallTransfersStore();
 const callTransferPopupStore = useCallTransferPopupStore();
+const { dataList: transferUsers } = storeToRefs(
+	useTransferUsersDataListStore(),
+);
 
 const transferModes = Object.values(TransferMode);
 
@@ -158,6 +164,7 @@ const tabs = computed<
 	{
 		value: TransferTab.Users,
 		text: t('objects.user', 2),
+		component: TransferUsersTable,
 	},
 	{
 		value: TransferTab.Dialplans,
@@ -170,11 +177,35 @@ const activeTabConfig = computed(
 		tabs.value.find(({ value }) => value === activeTab.value) ?? tabs.value[0],
 );
 
+/**
+ * @author Oleksandr Palonnyi
+ * the popup holds only the selected row's id, so a Users row's extension is
+ * read from the Users tab's store, which is alive while that tab is shown
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const selectedUserExtension = computed<string | undefined>(() => {
+	if (activeTab.value !== TransferTab.Users) return undefined;
+
+	return transferUsers.value.find((user) => user.id === selectedRowId.value)
+		?.extension;
+});
+
+/**
+ * @author Oleksandr Palonnyi
+ * a user without an extension has nothing to dial: BLIND is disabled for them
+ * and the call stays with the agent (BA, AC_13.07.10, ADR-0028)
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+const hasSelectionDestination = computed(
+	() => activeTab.value !== TransferTab.Users || !!selectedUserExtension.value,
+);
+
 const availability = computed(() =>
 	getTransferActionAvailability({
 		phone: phone.value,
 		tab: activeTab.value,
 		hasSelection: selectedRowId.value !== null,
+		hasSelectionDestination: hasSelectionDestination.value,
 	}),
 );
 
@@ -225,13 +256,17 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 		return;
 	}
 
+	await blindTransferToNumber(destinationPhone);
+}
+
+async function blindTransferToNumber(destination: string): Promise<void> {
 	const { transferCallId } = callTransferPopupStore;
 	if (isSubmitting.value || transferCallId === null) return;
 
 	isSubmitting.value = true;
 	const isTransferAccepted = await callTransfersStore.blindTransfer(
 		transferCallId,
-		destinationPhone,
+		destination,
 	);
 
 	/**
@@ -247,10 +282,10 @@ async function requestTransferToPhone(mode: TransferMode): Promise<void> {
 /**
  * @author Oleksandr Palonnyi
  * only a consult to an Agents row is executed here, a Queues row goes through
- * requestTransferToQueue, Users and Dialplans are later stories and still just
- * emit the request. Unlike a blind transfer the original
- * call stays in the list, so the popup is closed here on success instead of
- * waiting for the call to leave
+ * requestTransferToQueue and a Users row through blindTransferToUser, Dialplans
+ * is a later story and still just emits the request. Unlike a blind transfer
+ * the original call stays in the list, so the popup is closed here on success
+ * instead of waiting for the call to leave
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 async function requestTransferToRow(mode: TransferMode): Promise<void> {
@@ -258,6 +293,11 @@ async function requestTransferToRow(mode: TransferMode): Promise<void> {
 
 	if (activeTab.value === TransferTab.Queues) {
 		await requestTransferToQueue(mode, selectedRowId.value);
+		return;
+	}
+
+	if (mode === TransferMode.Blind && activeTab.value === TransferTab.Users) {
+		await blindTransferToUser();
 		return;
 	}
 
@@ -317,6 +357,19 @@ async function requestTransferToQueue(
 	} finally {
 		isSubmitting.value = false;
 	}
+}
+
+/**
+ * @author Oleksandr Palonnyi
+ * a user is reached on their extension, dialled like a typed number, so the
+ * call ends and the popup waits for it to leave the list
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+async function blindTransferToUser(): Promise<void> {
+	const extension = selectedUserExtension.value;
+	if (!extension) return;
+
+	await blindTransferToNumber(extension);
 }
 
 const isTransferredCallActive = computed(() =>
