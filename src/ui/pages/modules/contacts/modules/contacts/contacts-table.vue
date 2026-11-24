@@ -43,7 +43,7 @@
 			</template>
 
 			<template #imclients="{ item }">
-				<contact-chats-cell :imclients="item.imclients?.data" />
+				<contact-chats-cell :contact-clients="item.imclients?.data" />
 			</template>
 
 			<template #about="{ item }">

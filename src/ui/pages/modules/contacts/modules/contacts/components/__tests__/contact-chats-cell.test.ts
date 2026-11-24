@@ -5,10 +5,10 @@ import { describe, expect, it } from 'vitest';
 
 import ContactChatsCell from '../contact-chats-cell.vue';
 
-const mountCell = (imclients?: ContactsIMClient[]) =>
+const mountCell = (contactClients?: ContactsIMClient[]) =>
 	mount(ContactChatsCell, {
 		props: {
-			imclients,
+			contactClients,
 		},
 		global: {
 			stubs: {

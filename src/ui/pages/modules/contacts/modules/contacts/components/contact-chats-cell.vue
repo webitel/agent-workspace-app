@@ -29,7 +29,7 @@ import TableCellInfo from '../../../../../components/table-cell-info.vue';
 import CommunicationCellEmpty from './communication-cell-empty.vue';
 
 const props = defineProps<{
-	imclients?: ContactsIMClient[];
+	contactClients?: ContactsIMClient[];
 }>();
 
 const { t } = useI18n();
@@ -42,7 +42,7 @@ const CHAT_ICON = 'ws-chat';
  * name to show, yet the contact can still be reached there
  * [WS-178](https://webitel.atlassian.net/browse/WS-178)
  */
-const hasChat = computed(() => Boolean(props.imclients?.length));
+const hasChat = computed(() => Boolean(props.contactClients?.length));
 
 /**
  * @author Polina Sukhorukova
@@ -51,7 +51,7 @@ const hasChat = computed(() => Boolean(props.imclients?.length));
  * [WS-178](https://webitel.atlassian.net/browse/WS-178)
  */
 const namedChats = computed(() =>
-	(props.imclients ?? [])
+	(props.contactClients ?? [])
 		.map(({ id, user }) => ({
 			id,
 			name: user?.name,
