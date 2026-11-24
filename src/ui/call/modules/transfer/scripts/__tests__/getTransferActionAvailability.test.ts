@@ -18,6 +18,7 @@ describe('getTransferActionAvailability', () => {
 			phone: '',
 			tab: TransferTab.Agents,
 			hasSelection: false,
+			hasSelectionDestination: false,
 		});
 
 		expect(availability.byPhone).toEqual(NONE);
@@ -30,6 +31,7 @@ describe('getTransferActionAvailability', () => {
 				phone: '1001',
 				tab,
 				hasSelection: false,
+				hasSelectionDestination: false,
 			});
 
 			expect(availability.byPhone).toEqual(BOTH);
@@ -42,6 +44,7 @@ describe('getTransferActionAvailability', () => {
 			phone: '   ',
 			tab: TransferTab.Agents,
 			hasSelection: false,
+			hasSelectionDestination: false,
 		});
 
 		expect(availability.byPhone).toEqual(NONE);
@@ -52,6 +55,7 @@ describe('getTransferActionAvailability', () => {
 			phone: ' ( - ) ',
 			tab: TransferTab.Agents,
 			hasSelection: false,
+			hasSelectionDestination: false,
 		});
 
 		expect(availability.byPhone).toEqual(NONE);
@@ -62,6 +66,7 @@ describe('getTransferActionAvailability', () => {
 			phone: '1001',
 			tab: TransferTab.Queues,
 			hasSelection: true,
+			hasSelectionDestination: true,
 		});
 
 		expect(availability.byPhone).toEqual(NONE);
@@ -99,8 +104,21 @@ describe('getTransferActionAvailability', () => {
 			phone: '',
 			tab,
 			hasSelection: true,
+			hasSelectionDestination: true,
 		});
 
 		expect(availability.bySelection).toEqual(expected);
+	});
+
+	it('disables every button for a selected row with nothing to send to', () => {
+		const availability = getTransferActionAvailability({
+			phone: '1001',
+			tab: TransferTab.Users,
+			hasSelection: true,
+			hasSelectionDestination: false,
+		});
+
+		expect(availability.byPhone).toEqual(NONE);
+		expect(availability.bySelection).toEqual(NONE);
 	});
 });

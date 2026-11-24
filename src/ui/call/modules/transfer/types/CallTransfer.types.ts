@@ -25,6 +25,13 @@ export interface TransferAgentRow {
 	status?: TransferAgentStatus;
 }
 
+export interface TransferUserRow {
+	id: string;
+	name: string;
+	extension?: string;
+	status?: TransferAgentStatus;
+}
+
 export interface TransferQueueRow {
 	id: string;
 	name: string;

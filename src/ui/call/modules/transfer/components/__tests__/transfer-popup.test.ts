@@ -36,13 +36,16 @@ vi.mock('../../../../../../features/calls/store/callTransfers', () => ({
 }));
 
 import { useCallTransferPopupStore } from '../../store/callTransferPopup';
+import { useTransferUsersDataListStore } from '../../store/transferUsersDataList';
 import TransferAgentsTable from '../transfer-agents-table.vue';
 import TransferPopup from '../transfer-popup.vue';
 import TransferQueuesTable from '../transfer-queues-table.vue';
+import TransferUsersTable from '../transfer-users-table.vue';
 
 const stubs = {
 	TransferAgentsTable: true,
 	TransferQueuesTable: true,
+	TransferUsersTable: true,
 	'wt-popup': {
 		emits: [
 			'close',
@@ -376,6 +379,87 @@ describe('transfer-popup', () => {
 
 			finishTransfer(false);
 			await flushPromises();
+
+			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(false);
+		});
+	});
+
+	describe('blind transfer to a selected user', () => {
+		const selectUser = async (wrapper: Wrapper, userId: string) => {
+			await wrapper.find('[data-tab="users"]').trigger('click');
+			wrapper
+				.findComponent(TransferUsersTable)
+				.vm.$emit('update:selectedRowId', userId);
+			await flushPromises();
+		};
+
+		beforeEach(() => {
+			useTransferUsersDataListStore().$patch({
+				dataList: [
+					{
+						id: '5',
+						name: 'Jo',
+						extension: '105',
+					},
+					{
+						id: '6',
+						name: 'Desk',
+					},
+				],
+			});
+		});
+
+		it("blind-transfers the call to the selected user's extension and leaves the popup open", async () => {
+			const wrapper = mountPopup();
+			await selectUser(wrapper, '5');
+
+			await bottomButtons(wrapper)[0].trigger('click');
+			await flushPromises();
+
+			expect(blindTransferMock).toHaveBeenCalledWith('call-1', '105');
+			expect(wrapper.emitted('transfer')).toBeUndefined();
+			expect(useCallTransferPopupStore().isOpenTransferPopup).toBe(true);
+		});
+
+		it('keeps the buttons locked after an accepted transfer, so it cannot be sent twice', async () => {
+			const wrapper = mountPopup();
+			await selectUser(wrapper, '5');
+
+			await bottomButtons(wrapper)[0].trigger('click');
+			await flushPromises();
+			await bottomButtons(wrapper)[0].trigger('click');
+
+			expect(blindTransferMock).toHaveBeenCalledTimes(1);
+			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(true);
+		});
+
+		it('gives the buttons back when the transfer is refused', async () => {
+			blindTransferMock.mockResolvedValue(false);
+			const wrapper = mountPopup();
+			await selectUser(wrapper, '5');
+
+			await bottomButtons(wrapper)[0].trigger('click');
+			await flushPromises();
+
+			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(false);
+		});
+
+		it('disables BLIND for a user without an extension and sends nothing', async () => {
+			const wrapper = mountPopup();
+			await selectUser(wrapper, '6');
+
+			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(true);
+
+			await bottomButtons(wrapper)[0].trigger('click');
+			await flushPromises();
+
+			expect(blindTransferMock).not.toHaveBeenCalled();
+			expect(wrapper.emitted('transfer')).toBeUndefined();
+		});
+
+		it('enables BLIND for a user with an extension', async () => {
+			const wrapper = mountPopup();
+			await selectUser(wrapper, '5');
 
 			expect(isDisabled(bottomButtons(wrapper)[0])).toBe(false);
 		});
