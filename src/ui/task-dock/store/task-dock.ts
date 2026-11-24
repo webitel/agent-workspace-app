@@ -16,11 +16,15 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 	 * from it. A call the client hung up, one hung up from the Call window, or one
 	 * gone to post-processing leaves its id behind, so an id is an open dock only
 	 * while its call is still active; otherwise the next answered call would never
-	 * expand
+	 * expand. A held call does not count either: dialling from the numpad holds the
+	 * call whose dock is open, and the dock would then stay on it while the answered
+	 * call, the one the agent is talking on, sat collapsed
 	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
 	 */
-	const isExpandedCallActive = computed(() =>
-		callsStore.activeCalls.some((call) => call.id === expandedCallId.value),
+	const isExpandedCallLive = computed(() =>
+		callsStore.activeCalls.some(
+			(call) => call.id === expandedCallId.value && !call.isHold,
+		),
 	);
 
 	let isInitialized = false;
@@ -36,13 +40,13 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 	/**
 	 * @author Oleksandr Palonnyi
 	 * Unlike `setCallExpanded`, this is not the agent's own choice, so it never takes
-	 * the dock from a call the agent has open: they may be mid-DTMF or mid-transfer
-	 * there. The answered call then stays a collapsed pill, and of two calls answered
-	 * together the first one is expanded
+	 * the dock from a live call the agent has open: they may be mid-DTMF or
+	 * mid-transfer there. The answered call then stays a collapsed pill, and of two
+	 * calls answered together the first one is expanded
 	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
 	 */
 	function expandAnsweredCall(id: string): void {
-		if (isExpandedCallActive.value) return;
+		if (isExpandedCallLive.value) return;
 
 		expandedCallId.value = id;
 	}

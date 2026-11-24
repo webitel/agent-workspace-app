@@ -15,7 +15,7 @@ export interface OutboundCallAttempt {
 	callIdsBeforeDial: ReadonlySet<string>;
 	/**
 	 * @author Oleksandr Palonnyi
-	 * Empty until `callsStore.call` resolves, and for good when the SDK returns no ids
+	 * Empty until `callsStore.call` resolves, and for good when the dial returns no ids
 	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
 	 */
 	dialedCallIds: DialedCallIds;
@@ -31,7 +31,13 @@ export interface OutboundCallAttemptView {
 	isMuted: boolean;
 }
 
+/**
+ * @author Oleksandr Palonnyi
+ * `call: null` takes a call away from the attempt: its ids name another call, or an
+ * attempt whose ids name this one claimed it. The attempt is back to Dialing
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ */
 export interface OutboundCallAssignment {
 	attemptId: string;
-	call: Call;
+	call: Call | null;
 }

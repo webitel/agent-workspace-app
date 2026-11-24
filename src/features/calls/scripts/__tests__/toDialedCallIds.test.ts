@@ -27,17 +27,11 @@ describe('toDialedCallIds', () => {
 		});
 	});
 
-	it('drops ids that are empty or not strings', () => {
+	it('has no ids for an empty id', () => {
 		expect(
 			toDialedCallIds({
 				callId: '',
-				sipId: 42,
 			}),
 		).toEqual({});
-	});
-
-	it('has no ids for a value that is not an object', () => {
-		expect(toDialedCallIds('call-1')).toEqual({});
-		expect(toDialedCallIds(null)).toEqual({});
 	});
 });

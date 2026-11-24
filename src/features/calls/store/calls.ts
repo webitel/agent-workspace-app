@@ -249,13 +249,7 @@ export const useCallsStore = defineStore('calls', () => {
 			if (!(await ensureMicrophoneAllowed())) return null;
 
 			await holdOtherLiveCalls();
-			/**
-			 * @author Oleksandr Palonnyi
-			 * Typed `unknown`: the installed SDK declares `void` here, the next release
-			 * returns the dialled call's ids (see `toDialedCallIds`)
-			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
-			 */
-			const dialResult: unknown = await getClient().call({
+			const dialResult = await getClient().call({
 				destination,
 				params: {
 					disableStun: !getStunEnabled(),

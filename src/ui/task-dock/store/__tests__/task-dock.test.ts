@@ -35,11 +35,12 @@ vi.mock('../../../../features/calls/store/calls', () => ({
 	useCallsStore: () => callsStore,
 }));
 
-function setActiveCallIds(callIds: string[]): void {
+function setActiveCallIds(callIds: string[], heldCallIds: string[] = []): void {
 	callsStore.activeCalls = callIds.map(
 		(id) =>
 			({
 				id,
+				isHold: heldCallIds.includes(id),
 			}) as Call,
 	);
 }
@@ -140,6 +141,24 @@ describe('useTaskDockStore', () => {
 			store.expandAnsweredCall('call-2');
 
 			expect(store.expandedCallId).toBe('call-1');
+		});
+
+		it('expands the call when the expanded one is on hold', () => {
+			const store = useTaskDockStore();
+			setActiveCallIds(
+				[
+					'call-1',
+					'call-2',
+				],
+				[
+					'call-1',
+				],
+			);
+			store.setCallExpanded('call-1', true);
+
+			store.expandAnsweredCall('call-2');
+
+			expect(store.expandedCallId).toBe('call-2');
 		});
 
 		it('expands the first of two calls answered together', () => {

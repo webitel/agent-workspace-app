@@ -173,7 +173,7 @@ describe('useOutboundCallAttemptsStore', () => {
 		expect(callsStore.hangup).not.toHaveBeenCalled();
 	});
 
-	it('announces the id of the call the callee picks up', async () => {
+	it('announces nothing for a call linked by elimination', async () => {
 		const store = setup();
 		const onAnswered = vi.fn();
 		store.onAttemptAnswered(onAnswered);
@@ -184,8 +184,8 @@ describe('useOutboundCallAttemptsStore', () => {
 		call.answeredAt = 1000;
 		await nextTick();
 
-		expect(onAnswered).toHaveBeenCalledTimes(1);
-		expect(onAnswered).toHaveBeenCalledWith('outbound-1');
+		expect(store.attempts).toEqual([]);
+		expect(onAnswered).not.toHaveBeenCalled();
 	});
 
 	it('announces nothing for a call that is not an attempt of this tab', async () => {
@@ -519,6 +519,43 @@ describe('useOutboundCallAttemptsStore', () => {
 			await dialling;
 
 			expect(store.attempts[0].placedCall?.id).toBe('own-call');
+		});
+
+		it('follows its own call when its sip id is filled in after it rang', async () => {
+			const store = setup();
+			await store.start('100');
+			const call = buildCall({
+				id: 'own-call',
+				sipId: null,
+			});
+			await ring(call);
+
+			call.sipId = 'abc';
+			await nextTick();
+
+			expect(store.attempts[0].placedCall?.id).toBe('own-call');
+		});
+
+		it('goes back to dialing when its ids name another call than the one it took', async () => {
+			let resolveRequest: (dialedCallIds: DialedCallIds | null) => void =
+				() => {};
+			callsStore.call.mockImplementationOnce(
+				() =>
+					new Promise<DialedCallIds | null>((resolve) => {
+						resolveRequest = resolve;
+					}),
+			);
+			const store = setup();
+
+			const dialling = store.start('100');
+			await ring(foreignCall());
+			resolveRequest({
+				sipId: 'abcfromtag',
+			});
+			await dialling;
+
+			expect(store.attempts[0].placedCall).toBeNull();
+			expect(store.attempts[0].status).toBe(OutboundCallStatus.Dialing);
 		});
 
 		it('announces its own call when the callee picks up', async () => {

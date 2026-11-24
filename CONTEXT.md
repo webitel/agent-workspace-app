@@ -102,9 +102,8 @@ and should not be carried over wholesale.
   transfer button.
 - [ADR-0026](docs/adr/0026-outbound-attempt-names-its-call.md) — an outbound
   attempt is linked to the call named by the ids its dial returns (`sipId` with
-  a web phone, `callId` without), and by elimination only while it has none;
-  the ids are read as `unknown` until the `webitel-sdk` release that returns
-  them.
+  a web phone, `callId` without), and by elimination only while it has none,
+  and only a call its ids name expands the call dock when answered.
 - [ADR-0027](docs/adr/0027-transfer-queues-list.md) — the transfer popup's queues
   list is a table store like the agents list, its selected row is painted by
   `wt-table`'s `active-row` rather than by a token that does not exist, and a

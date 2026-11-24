@@ -4,9 +4,8 @@ Date: 2026-11-19
 
 ## Status
 
-Accepted. Implemented in [WS-155](https://webitel.atlassian.net/browse/WS-155).
-Needs a `webitel-sdk` release that is not out yet (WTEL); until then the app
-behaves as before.
+Accepted. Implemented in [WS-155](https://webitel.atlassian.net/browse/WS-155)
+on `webitel-sdk` 26.4.45, the release that returns the ids.
 
 ## Context
 
@@ -36,18 +35,24 @@ A change to `webitel-sdk` makes `Client.call` resolve with
 ## Decision
 
 `callsStore.call` returns `DialedCallIds | null` (`null` when nothing was
-placed). The attempt keeps the ids. `linkAttemptsToCalls` first gives an
-attempt with ids only the call they name (`isDialedCall`: `callId` equal to
-`call.id`, or `sipId` starting with `call.sipId`). It never adopts another call
-by elimination, and a call it took by elimination before the ids came is
-swapped for the named one. Attempts without ids (the request still open, or
-an SDK that returns none) are matched by elimination as before, after the
-attempts with ids, so they cannot take a call another attempt named.
+placed), copied from the SDK's `OutboundCallResult` by `toDialedCallIds`. The
+attempt keeps the ids. `linkAttemptsToCalls` first gives an attempt with ids
+only the call they name (`isDialedCall`: `callId` equal to `call.id`, or `sipId`
+starting with `call.sipId`) and that was not listed when it dialled. It never
+adopts another call by elimination. A call it took by elimination before the
+ids came is given up as soon as the ids name another call, so until its own
+call rings its card controls nothing. A call held only by elimination does not
+count as owned against the ids: the attempt they name takes it, and the
+attempt that held it goes back to Dialing. Attempts without ids (the request
+still open, an external phone, a failed web phone dial) are matched by
+elimination as before, after the attempts with ids, so they cannot take a call
+another attempt named. Linking reruns when a listed call's `id` or `sipId`
+changes, not only when the list does, because the SDK may fill `sipId` in on a
+later event.
 
-The value `client.call()` resolves with is read as `unknown` through
-`toDialedCallIds`. The installed SDK declares `void`, and a cast would hide
-that. Anything other than an object of non-empty strings counts as no ids, so
-the same code runs on 26.4.44 and on the new release.
+Only an attempt whose call its ids name announces the answer that expands the
+call dock. A call linked by elimination may be one answered on a desk phone or
+in another tab, so it stays a collapsed pill.
 
 ## Considered options
 
@@ -64,11 +69,11 @@ the same code runs on 26.4.44 and on the new release.
 ## Consequences
 
 - Without a web phone, the attempt is still linked by elimination while it
-  rings. The id only arrives after the answer, when the attempt has closed.
-- A failed `phone.call()` still resolves without ids, like a dial with no web
-  phone, so that attempt can still adopt a foreign call. Telling the two apart
-  needs an `error` in `OutboundCallResult`.
+  rings, until the `callId` arrives. If it arrives only after the callee
+  answered, the attempt has closed and the dock does not expand for that call.
+- A failed `phone.call()` and an external phone both resolve without ids, so
+  such an attempt can still adopt a foreign call. It no longer expands the dock
+  for it. Telling a failure apart needs an `error` in `OutboundCallResult`.
 - An attempt that has ids but whose call never comes (the web phone session
-  fails after the dial) stays in Dialing. It no longer adopts a foreign call.
-- When the SDK release is out: bump `webitel-sdk`. `toDialedCallIds` can then
-  take `OutboundCallResult` instead of `unknown`.
+  fails after the dial) stays in Dialing, with no deadline (see the rejected
+  link deadline above). It no longer adopts a foreign call.

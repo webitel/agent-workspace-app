@@ -5,6 +5,7 @@ import type { Call } from 'webitel-sdk';
 
 import { OutboundCallStatus } from '../enums/OutboundCallStatus.enum';
 import { getOutboundCallStatus } from '../scripts/getOutboundCallStatus';
+import { isDialedCall } from '../scripts/isDialedCall';
 import { linkAttemptsToCalls } from '../scripts/linkAttemptsToCalls';
 import { toOutboundCallPreview } from '../scripts/toOutboundCallPreview';
 import type {
@@ -65,6 +66,24 @@ export const useOutboundCallAttemptsStore = defineStore(
 					isMuted: Boolean(attempt.placedCall?.muted),
 				})),
 		);
+
+		/**
+		 * @author Oleksandr Palonnyi
+		 * Only a call the dial named is known to be this tab's. One linked by elimination
+		 * (an external phone, a failed web phone dial) may be a call answered on a desk
+		 * phone or in another tab, so it is not announced as this tab's answer
+		 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+		 */
+		function isNamedByItsDial(
+			attempt: OutboundCallAttempt,
+		): attempt is OutboundCallAttempt & {
+			placedCall: Call;
+		} {
+			return Boolean(
+				attempt.placedCall &&
+					isDialedCall(attempt.placedCall, attempt.dialedCallIds),
+			);
+		}
 
 		function findAttemptById(
 			attemptId: string,
@@ -187,6 +206,20 @@ export const useOutboundCallAttemptsStore = defineStore(
 			await callsStore.toggleMute(placedCall.id);
 		}
 
+		/**
+		 * @author Oleksandr Palonnyi
+		 * The call was this attempt's only by elimination, so it leaves the claimed set
+		 * too: another attempt may still be the one that dialled it
+		 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+		 */
+		function releasePlacedCall(attemptId: string) {
+			const releasedCall = findAttemptById(attemptId)?.placedCall;
+			if (releasedCall) claimedCallIds.delete(releasedCall.id);
+			updateAttempt(attemptId, {
+				placedCall: null,
+			});
+		}
+
 		function linkPlacedCalls(callList: Call[]) {
 			const currentCallIds = new Set(callList.map((call) => call.id));
 			for (const claimedCallId of claimedCallIds) {
@@ -201,7 +234,19 @@ export const useOutboundCallAttemptsStore = defineStore(
 				claimedCallIds,
 			});
 
+			/**
+			 * @author Oleksandr Palonnyi
+			 * Releases go first: a call taken from one attempt and given to another must end
+			 * up claimed, whatever order the two assignments come in
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+			 */
 			for (const { attemptId, call } of assignments) {
+				if (!call) releasePlacedCall(attemptId);
+			}
+
+			for (const { attemptId, call } of assignments) {
+				if (!call) continue;
+
 				claimedCallIds.add(call.id);
 
 				if (findAttemptById(attemptId)?.isHangupRequested) {
@@ -222,10 +267,22 @@ export const useOutboundCallAttemptsStore = defineStore(
 			/**
 			 * @author Oleksandr Palonnyi
 			 * The `Call` reaches `callList` only later (on `Ringing`), at an unknown moment,
-			 * so each list change is checked for the call of an attempt that has none yet
+			 * so each list change is checked for the call of an attempt that has none yet.
+			 * The ids are watched too, not only the list: the SDK fills a listed call's
+			 * `sipId` in place on a later event, and a dial's `sipId` names the call only then
 			 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
 			 */
-			watch(() => callsStore.callList, linkPlacedCalls);
+			watch(
+				() =>
+					callsStore.callList.map((call) => ({
+						id: call.id,
+						sipId: call.sipId,
+					})),
+				() => linkPlacedCalls(callsStore.callList),
+				{
+					deep: true,
+				},
+			);
 
 			/**
 			 * @author Oleksandr Palonnyi
@@ -234,11 +291,14 @@ export const useOutboundCallAttemptsStore = defineStore(
 			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
 			 */
 			watch(attempts, (currentAttempts) => {
-				for (const { id, placedCall, status } of currentAttempts) {
+				for (const { id, status } of currentAttempts) {
 					if (status !== OutboundCallStatus.Answered) continue;
 
+					const answeredAttempt = findAttemptById(id);
 					clearAttempt(id);
-					if (placedCall) answeredHook.trigger(placedCall.id);
+					if (answeredAttempt && isNamedByItsDial(answeredAttempt)) {
+						answeredHook.trigger(answeredAttempt.placedCall.id);
+					}
 				}
 			});
 		}

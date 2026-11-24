@@ -249,6 +249,93 @@ describe('linkAttemptsToCalls', () => {
 			]);
 		});
 
+		it('gives up a call taken by elimination once its ids name another', () => {
+			const foreignCall = buildCall(
+				'foreign-call',
+				CallDirection.Outbound,
+				'xyz',
+			);
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						placedCall: foreignCall,
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					foreignCall,
+				],
+				claimedCallIds: new Set([
+					'foreign-call',
+				]),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-1',
+					call: null,
+				},
+			]);
+		});
+
+		it('takes the call its ids name from an attempt that took it by elimination', () => {
+			const namedCall = buildCall('named-call', CallDirection.Outbound, 'abc');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-without-ids', {
+						placedCall: namedCall,
+					}),
+					buildAttempt('attempt-with-ids', {
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					namedCall,
+				],
+				claimedCallIds: new Set([
+					'named-call',
+				]),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-without-ids',
+					call: null,
+				},
+				{
+					attemptId: 'attempt-with-ids',
+					call: namedCall,
+				},
+			]);
+		});
+
+		it('does not take a call that was listed before it dialled', () => {
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-1', {
+						callIdsBeforeDial: new Set([
+							'old-call',
+						]),
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					buildCall('old-call', CallDirection.Outbound, 'abc'),
+				],
+				claimedCallIds: new Set(),
+			});
+
+			expect(assignments).toEqual([]);
+		});
+
 		it('keeps its own call once linked', () => {
 			const ownCall = buildCall('own-call', CallDirection.Outbound, 'abc');
 
