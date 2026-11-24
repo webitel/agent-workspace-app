@@ -16,7 +16,14 @@
 				v-for="item of communication[currentTab.value]"
 				:key="item.id"
 				:item="item"
-			/>
+			>
+				<template
+					v-if="currentTab.value === 'phones'"
+					#actions
+				>
+					<contact-card-phone-call-button :number="item.value" />
+				</template>
+			</contact-card-communication-item>
 		</ul>
 	</section>
 </template>
@@ -29,6 +36,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import ContactCardCommunicationItem from './contact-card-communication-item.vue';
+import ContactCardPhoneCallButton from './contact-card-phone-call-button.vue';
 import {
 	type ContactCommunication,
 	toContactCommunication,
