@@ -46,6 +46,7 @@ export default {
 		reusable: {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
+			started: 'Started',
 			startedAt: 'Started at',
 			endedAt: 'Ended at',
 			username: 'Username',

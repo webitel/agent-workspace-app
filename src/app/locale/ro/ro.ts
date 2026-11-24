@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Apel primit',
-					chat: 'Chat primit',
+					call: 'Solicitare de apel primit',
+					chat: 'Solicitare de chat primit',
 				},
 				unknownContact: 'Contact necunoscut',
 				queue: 'Coadă',
@@ -46,7 +46,9 @@ export default {
 		reusable: {
 			run: 'Rulează',
 			nothingToShowHere: 'Nu există nimic de afișat aici',
+			started: 'Început',
 			startedAt: 'Început la',
+			endedAt: 'Încheiat la',
 			username: 'Nume utilizator',
 			message: 'Mesaj',
 			phoneNumber: 'Număr de telefon',
@@ -55,6 +57,13 @@ export default {
 		},
 		numpad: {
 			call: 'Apelează',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Post-procesare',
+				extend: 'Prelungește post-procesarea',
+				extensionsLeft: 'Prelungiri rămase: {count}',
+			},
 		},
 		variables: {
 			empty: 'Nu există variabile',
@@ -109,6 +118,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Active',
+					closed: 'Închise',
 				},
 				tabs: {
 					chat: 'Chat',
@@ -122,6 +132,13 @@ export default {
 					pin: 'Fixează chatul',
 					transfer: 'Transferă chatul',
 					end: 'Încheie chatul',
+				},
+				closed: {
+					notFound: 'Chatul nu a fost găsit',
+					loadError: 'Chatul nu a putut fi încărcat',
+					retry: 'Încearcă din nou',
+					taskVariablesUnavailable:
+						'Variabilele contact center nu sunt disponibile pentru chaturile închise',
 				},
 			},
 			history: {
