@@ -1,6 +1,6 @@
 <template>
     <div class="task-dock-call-lane">
-      <the-numpad-panel ref="numpadPanel" />
+        <the-numpad-panel ref="numpadPanel" />
         <transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
         <bridge-popup
             v-if="bridgeCallId !== null"
@@ -60,7 +60,7 @@
     setup
     lang="ts"
 >
-import { computed, useTemplateRef, ref } from 'vue';
+import { computed, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { OutboundCallStatus } from '../../../features/calls/enums/OutboundCallStatus.enum';
