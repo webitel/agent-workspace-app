@@ -91,6 +91,17 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 		],
 		template: '<div class="audio-player" />',
 	},
+	WtVidstackPlayer: {
+		name: 'WtVidstackPlayer',
+		props: [
+			'src',
+			'title',
+		],
+		emits: [
+			'close',
+		],
+		template: '<div class="video-player" />',
+	},
 }));
 
 // the real filters entry point pulls in the library i18n setup
@@ -130,17 +141,6 @@ const stubs = {
 			'mosAvg',
 		],
 		template: '<div class="metric" />',
-	},
-	'wt-vidstack-player': {
-		name: 'WtVidstackPlayer',
-		props: [
-			'src',
-			'title',
-		],
-		emits: [
-			'close',
-		],
-		template: '<div class="video-player" />',
 	},
 	CallsHistoryNameCell: {
 		name: 'CallsHistoryNameCell',
