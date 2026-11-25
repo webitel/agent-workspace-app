@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Кіріс қоңырау',
-					chat: 'Кіріс чат',
+					call: 'Кіріс қоңырау сұрауы',
+					chat: 'Кіріс чат сұрауы',
 				},
 				unknownContact: 'Белгісіз контакт',
 				queue: 'Кезек',
@@ -46,7 +46,9 @@ export default {
 		reusable: {
 			run: 'Іске қосу',
 			nothingToShowHere: 'Мұнда ештеңе жоқ',
-			startedAt: 'Басталды',
+			started: 'Басталды',
+			startedAt: 'Басталу уақыты',
+			endedAt: 'Аяқталу уақыты',
 			username: 'Пайдаланушы аты',
 			message: 'Хабарлама',
 			phoneNumber: 'Телефон нөмірі',
@@ -55,6 +57,13 @@ export default {
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Кейінгі өңдеу',
+				extend: 'Кейінгі өңдеуді ұзарту',
+				extensionsLeft: 'Қалған ұзартулар: {count}',
+			},
 		},
 		variables: {
 			empty: 'Айнымалылар жоқ',
@@ -109,6 +118,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Белсенді',
+					closed: 'Жабық',
 				},
 				tabs: {
 					chat: 'Чат',
@@ -122,6 +132,13 @@ export default {
 					pin: 'Чатты бекіту',
 					transfer: 'Чатты қайта бағыттау',
 					end: 'Чатты аяқтау',
+				},
+				closed: {
+					notFound: 'Чат табылмады',
+					loadError: 'Чатты жүктеу мүмкін болмады',
+					retry: 'Қайталап көру',
+					taskVariablesUnavailable:
+						'Жабық чаттар үшін байланыс орталығының айнымалылары қолжетімсіз',
 				},
 			},
 			history: {
@@ -152,6 +169,12 @@ export default {
 					call: '{number} нөміріне қоңырау шалу',
 					moreNumbers: '+{count} нөмір тағы',
 					noPhone: 'Телефон жоқ',
+				},
+				chats: {
+					noChat: 'Чат жоқ',
+				},
+				emails: {
+					noEmail: 'Email жоқ',
 				},
 			},
 			tableActionPanel: {

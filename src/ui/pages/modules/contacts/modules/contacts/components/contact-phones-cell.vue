@@ -47,7 +47,11 @@
 			</wt-context-menu>
 		</template>
 
-		<span v-else>{{ t('ui.pages.contacts.phones.noPhone') }}</span>
+		<communication-cell-empty
+			v-else
+			icon="call--filled"
+			:text="t('ui.pages.contacts.phones.noPhone')"
+		/>
 	</div>
 </template>
 
@@ -69,6 +73,7 @@ import {
 } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import CommunicationCellEmpty from './communication-cell-empty.vue';
 
 const props = defineProps<{
 	phones?: ContactsPhoneNumber[];

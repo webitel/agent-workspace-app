@@ -113,7 +113,14 @@
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import type { EngineHistoryCall } from '@webitel/api-services/gen/models';
 import { ColumnFilterComponent as ColumnFilter } from '@webitel/ui-datalist/filters';
-import { WtPlayer, WtTable } from '@webitel/ui-sdk/components';
+// imported from the same entry as WtPlayer, not the globally registered dist
+// build: dist bundles its own vidstack copy, and two copies on one page register
+// `media-*` tags from both, which leaves the video controls dead (WS-175)
+import {
+	WtPlayer,
+	WtTable,
+	WtVidstackPlayer,
+} from '@webitel/ui-sdk/components';
 import { ComponentSize, FormatDateMode } from '@webitel/ui-sdk/enums';
 import {
 	isVariableHeader,
