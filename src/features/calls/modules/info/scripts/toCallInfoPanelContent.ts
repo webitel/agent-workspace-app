@@ -1,4 +1,4 @@
-import { type Call, CallDirection } from 'webitel-sdk';
+import { type Call, CallActions, CallDirection } from 'webitel-sdk';
 
 import { maskNumber } from '../../../scripts/toCallOfferContent';
 import type { CallInfoPanelContent } from '../types/CallInfoPanelContent.types';
@@ -25,6 +25,6 @@ export function toCallInfoPanelContent(call: Call): CallInfoPanelContent {
 		queueName: call.queue?.queue_name || undefined,
 		createdAt: call.createdAt || undefined,
 		answeredAt: call.answeredAt || undefined,
-		isRinging: !call.answeredAt && !call.hangupAt,
+		isRinging: call.state === CallActions.Ringing,
 	};
 }
