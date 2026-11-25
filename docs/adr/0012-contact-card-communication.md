@@ -5,7 +5,7 @@ Date: 2026-11-10
 ## Status
 
 Accepted. Implemented in [WS-125](https://webitel.atlassian.net/browse/WS-125)
-and [WS-171](https://webitel.atlassian.net/browse/WS-171) (US_07.07).
+and [WS-170](https://webitel.atlassian.net/browse/WS-170) (US_07.07).
 
 ## Context
 
@@ -47,30 +47,14 @@ else on the record is shown in place of the name — what the backend does not
 return is left out, not approximated, as in ADR-0001 and ADR-0010. Phones and
 emails without a value are dropped.
 
-**A phone or an email is added inline, on its own tab** (AC_07.07.08–09). An
-add button sits at the right of the tab row on Phones and Emails; Messaging has
-none (AC_07.07.10 is not built). It opens a form between the tabs and the list:
-the value (Phone number / Email) and a **Communication type** of that tab's
-channel, loaded with `CommunicationsAPI.getLookup`, with no type picked in
-advance. A second click leaves the open form as it is. Cancel and save sit
-below, cancel first, as in the design. Switching the tab or the contact drops
-the form and what was typed.
-
-The rules are CRM's, taken from `contactPhoneSchema` / `contactEmailSchema` in
-api-services: a value and a type are required, an email must look like one, a
-phone number has no format. Save stays disabled until they pass, and a malformed
-email is marked under the field. The record goes through `PhonesAPI.add` /
-`EmailsAPI.add` with `primary` set when it is the first on its tab, as CRM and
-cc-workspaces do. While it is saving, save is disabled; a failure is notified by
-api-services and leaves the form open with what was typed. On success the form
-closes and the card refetches the contact in place (`useContact().reload`): no
-loader, the order stays the API's.
-
-The add button is shown to every agent: the spec sets no rights for it and
-cc-workspaces checks none. A save the backend refuses fails like any other.
-
-Call and Send message (AC_07.07.05–06) are not rendered; each row has an empty
-`actions` slot for them.
+**Actions go into the row's `actions` slot, filled by the section per tab,** so
+the row and the mapper stay unaware of them. On Phones the slot holds the shared
+`phone-call-button` (AC_07.07.05), the same green handset as in the phone
+columns of the tables, at the right end of the row. A click dials through
+`useOutboundCall`, so the agent gets the outbound call card; the section's call
+buttons are disabled while a call is starting. It is shown in every panel that
+renders the card, during a call too. Send message and Add
+(AC_07.07.06, 07.08–07.10) are not rendered.
 
 ## Considered options
 

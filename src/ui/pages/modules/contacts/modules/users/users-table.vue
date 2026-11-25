@@ -35,10 +35,7 @@
 			</template>
 
 			<template #extension="{ item }">
-				<contact-phones-cell
-					:phones="getExtensionPhones(item)"
-					@call="onCall"
-				/>
+				<contact-phones-cell :phones="getExtensionPhones(item)" />
 			</template>
 		</wt-table>
 	</div>
@@ -52,7 +49,6 @@ import type {
 import { WtTable } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import { useOutboundCallAttemptsStore } from '../../../../../../features/calls/store/outboundCallAttempts';
 import { UserStatusColorMappings } from '../../../../../../features/user-status/enums/UserStatusColorMappings';
 import { getUserStatusByPriority } from '../../../../../../features/user-status/scripts/getUserStatusByPriority';
 import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
@@ -75,8 +71,6 @@ const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
 const { selectContactOrUnknown } = useSidebarSelectionStore();
 
-const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
-
 /**
  * @author Polina Sukhorukova
  * A user has a single extension, so it is wrapped into the phones shape to
@@ -91,16 +85,6 @@ function getExtensionPhones({ extension }: ApiUser): ContactsPhoneNumber[] {
 				},
 			]
 		: [];
-}
-
-/**
- * @author Polina Sukhorukova
- * Dialled through an outbound attempt, same as from the contacts table,
- * so the agent gets the outbound call card
- * [WS-30](https://webitel.atlassian.net/browse/WS-30)
- */
-function onCall(number: string): void {
-	outboundCallAttemptsStore.start(number);
 }
 
 const isInitializing = ref(true);

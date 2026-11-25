@@ -43,7 +43,18 @@
 				v-for="item of communication[currentTab.value]"
 				:key="item.id"
 				:item="item"
-			/>
+			>
+				<template
+					v-if="currentTab.value === 'phones'"
+					#actions
+				>
+					<phone-call-button
+						:number="item.value"
+						:disabled="callingNumber === item.value"
+						@click="call(item.value)"
+					/>
+				</template>
+			</contact-card-communication-item>
 		</ul>
 	</section>
 </template>
@@ -59,6 +70,8 @@ import {
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useOutboundCall } from '../../../../features/calls/composables/useOutboundCall';
+import PhoneCallButton from '../../../components/phone-call-button/phone-call-button.vue';
 import ContactCardCommunicationAddForm from './contact-card-communication-add-form.vue';
 import ContactCardCommunicationItem from './contact-card-communication-item.vue';
 import { isAddableCommunicationTab } from './scripts/contactCommunicationAdd';
@@ -84,6 +97,8 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 const communication = computed(() => toContactCommunication(props.contact));
+
+const { callingNumber, call } = useOutboundCall();
 
 const tabs = computed<CommunicationTabItem[]>(() => [
 	{

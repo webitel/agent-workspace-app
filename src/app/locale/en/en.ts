@@ -46,6 +46,7 @@ export default {
 		reusable: {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
+			started: 'Started',
 			startedAt: 'Started at',
 			endedAt: 'Ended at',
 			username: 'Username',
@@ -168,6 +169,12 @@ export default {
 					call: 'Call {number}',
 					moreNumbers: '+{count} more number(s)',
 					noPhone: 'No phone',
+				},
+				chats: {
+					noChat: 'No chat',
+				},
+				emails: {
+					noEmail: 'No email',
 				},
 			},
 			tableActionPanel: {
