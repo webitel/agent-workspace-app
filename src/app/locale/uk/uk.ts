@@ -184,6 +184,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Виклик',
 			activeCall: {
 				inCall: 'У розмові',
 				onHold: 'На утриманні',
@@ -221,7 +222,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Виклик',
 				noAnswer: 'Немає відповіді',
 				noAnswerDescription: 'Телефон одержувача не відповів на запит.',
 				retryCall: 'Повторити дзвінок',

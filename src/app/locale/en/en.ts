@@ -184,6 +184,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Ringing',
 			activeCall: {
 				inCall: 'In call',
 				onHold: 'On hold',
@@ -221,7 +222,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Ringing',
 				noAnswer: 'No answer',
 				noAnswerDescription:
 					"The recipient's phone did not answer the request.",

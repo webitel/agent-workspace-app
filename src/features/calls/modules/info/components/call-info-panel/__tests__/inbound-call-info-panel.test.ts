@@ -21,6 +21,7 @@ const buildContent = (
 	queueName: 'Sales',
 	createdAt: CREATED_AT,
 	answeredAt: ANSWERED_AT,
+	isRinging: false,
 	...overrides,
 });
 
@@ -90,6 +91,30 @@ describe('inbound-call-info-panel', () => {
 
 		expect(wrapper.find('.subtitle').text()).toBe('');
 		expect(wrapper.find('.aside').text()).toBe('');
+	});
+
+	it('shows Ringing instead of the timer while the call is not answered', () => {
+		const wrapper = mountPanel(
+			buildContent({
+				answeredAt: undefined,
+				isRinging: true,
+			}),
+		);
+
+		expect(wrapper.find('.aside').text()).toBe('ui.call.ringing');
+	});
+
+	it('keeps the start time under the title while the call is ringing', () => {
+		const wrapper = mountPanel(
+			buildContent({
+				answeredAt: undefined,
+				isRinging: true,
+			}),
+		);
+
+		expect(wrapper.find('.subtitle').text()).toBe(
+			`ui.reusable.startedAt: ${formatDate(CREATED_AT, FormatDateMode.TIME_SEC)}`,
+		);
 	});
 
 	it('shows From, To and Queue in this order', () => {
