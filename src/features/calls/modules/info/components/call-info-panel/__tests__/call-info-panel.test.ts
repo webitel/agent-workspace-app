@@ -25,6 +25,7 @@ describe('call-info-panel', () => {
 		const content: CallInfoPanelContent = {
 			direction: CallDirection.Inbound,
 			from: '+12023417842',
+			isRinging: false,
 		};
 		const wrapper = mountPanel(content);
 
@@ -37,6 +38,7 @@ describe('call-info-panel', () => {
 		const content: CallInfoPanelContent = {
 			direction: CallDirection.Outbound,
 			to: '+12023417842',
+			isRinging: false,
 		};
 		const wrapper = mountPanel(content);
 
@@ -47,7 +49,9 @@ describe('call-info-panel', () => {
 	});
 
 	it('shows nothing for a call without a direction', () => {
-		const wrapper = mountPanel({});
+		const wrapper = mountPanel({
+			isRinging: false,
+		});
 
 		expect(wrapper.html()).toBe('<!--v-if-->');
 	});

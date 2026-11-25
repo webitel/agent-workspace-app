@@ -19,6 +19,14 @@
 					{{ duration }}
 				</span>
 			</template>
+			<template
+				v-else-if="content.isRinging"
+				#aside
+			>
+				<span class="inbound-call-info-panel__status typo-heading-6">
+					{{ t('ui.call.ringing') }}
+				</span>
+			</template>
 		</communication-info-header>
 		<wt-divider />
 		<communication-info-fields :fields="fields" />

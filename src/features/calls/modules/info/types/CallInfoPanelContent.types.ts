@@ -11,4 +11,5 @@ export interface CallInfoPanelContent {
 	queueName?: string;
 	createdAt?: number;
 	answeredAt?: number;
+	isRinging: boolean;
 }

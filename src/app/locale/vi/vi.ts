@@ -184,6 +184,7 @@ export default {
 			},
 		},
 		call: {
+			ringing: 'Đang đổ chuông',
 			activeCall: {
 				inCall: 'Đang gọi',
 				onHold: 'Đang giữ máy',
@@ -221,7 +222,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',
 				noAnswerDescription: 'Điện thoại người nhận không trả lời cuộc gọi.',
 				retryCall: 'Gọi lại',

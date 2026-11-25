@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { type Call, CallDirection } from 'webitel-sdk';
+import { type Call, CallActions, CallDirection } from 'webitel-sdk';
 
 import { toCallInfoPanelContent } from '../toCallInfoPanelContent';
 
@@ -29,6 +29,7 @@ const buildCall = (overrides: Partial<Call> = {}): Call =>
 		},
 		createdAt: 1_700_000_000_000,
 		answeredAt: 1_700_000_015_000,
+		state: CallActions.Active,
 		...overrides,
 	}) as unknown as Call;
 
@@ -41,7 +42,41 @@ describe('toCallInfoPanelContent', () => {
 			queueName: 'Sales',
 			createdAt: 1_700_000_000_000,
 			answeredAt: 1_700_000_015_000,
+			isRinging: false,
 		});
+	});
+
+	it('marks a call that is not answered yet as ringing', () => {
+		const info = toCallInfoPanelContent(
+			buildCall({
+				answeredAt: 0,
+				state: CallActions.Ringing,
+			}),
+		);
+
+		expect(info.isRinging).toBe(true);
+	});
+
+	it('does not mark a held call as ringing', () => {
+		const info = toCallInfoPanelContent(
+			buildCall({
+				state: CallActions.Hold,
+			}),
+		);
+
+		expect(info.isRinging).toBe(false);
+	});
+
+	it('does not mark a call that ended unanswered as ringing', () => {
+		const info = toCallInfoPanelContent(
+			buildCall({
+				answeredAt: 0,
+				hangupAt: 1_700_000_030_000,
+				state: CallActions.Hangup,
+			}),
+		);
+
+		expect(info.isRinging).toBe(false);
 	});
 
 	it('masks the caller on an inbound call with a hidden number', () => {
@@ -86,6 +121,7 @@ describe('toCallInfoPanelContent', () => {
 				queue: null,
 				createdAt: 0,
 				answeredAt: 0,
+				state: CallActions.Ringing,
 			}),
 		);
 
@@ -96,6 +132,7 @@ describe('toCallInfoPanelContent', () => {
 			queueName: undefined,
 			createdAt: undefined,
 			answeredAt: undefined,
+			isRinging: true,
 		});
 	});
 
