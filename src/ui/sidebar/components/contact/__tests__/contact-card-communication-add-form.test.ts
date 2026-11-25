@@ -1,6 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import { EmailsAPI, PhonesAPI } from '@webitel/api-services/api';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CommunicationsAPI } from '@webitel/api-services/api';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@webitel/api-services/api', () => ({
 	PhonesAPI: {
@@ -21,7 +21,7 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 			'modelValue',
 			'label',
 			'placeholder',
-			'v',
+			'regleValidation',
 		],
 		emits: [
 			'update:modelValue',
@@ -64,14 +64,13 @@ const workType = {
 const mountForm = (
 	props: Partial<{
 		tab: 'phones' | 'emails';
-		isFirst: boolean;
+		isSaving: boolean;
 	}> = {},
 ) =>
 	mount(ContactCardCommunicationAddForm, {
 		props: {
 			tab: 'phones',
-			contactId: '15',
-			isFirst: false,
+			isSaving: false,
 			...props,
 		},
 	});
@@ -86,31 +85,22 @@ const selectOf = (wrapper: Wrapper) =>
 	wrapper.findComponent({
 		name: 'WtSingleSelect',
 	});
-const saveButtonOf = (wrapper: Wrapper) =>
+const buttonOf = (wrapper: Wrapper, icon: string) =>
 	wrapper
 		.findAllComponents({
 			name: 'WtButton',
 		})
-		.find((button) => button.props('icon') === 'tick');
-const cancelButtonOf = (wrapper: Wrapper) =>
-	wrapper
-		.findAllComponents({
-			name: 'WtButton',
-		})
-		.find((button) => button.props('icon') === 'close');
+		.find((button) => button.props('icon') === icon);
+const saveButtonOf = (wrapper: Wrapper) => buttonOf(wrapper, 'tick');
+const cancelButtonOf = (wrapper: Wrapper) => buttonOf(wrapper, 'close');
 
 const fill = async (wrapper: Wrapper, value: string, type = workType) => {
 	inputOf(wrapper).vm.$emit('update:modelValue', value);
 	selectOf(wrapper).vm.$emit('update:modelValue', type);
-	await wrapper.vm.$nextTick();
+	await flushPromises();
 };
 
 describe('ContactCardCommunicationAddForm', () => {
-	beforeEach(() => {
-		vi.mocked(PhonesAPI.add).mockReset();
-		vi.mocked(EmailsAPI.add).mockReset();
-	});
-
 	it('asks for a phone number and a communication type on Phones', () => {
 		const wrapper = mountForm();
 
@@ -124,6 +114,21 @@ describe('ContactCardCommunicationAddForm', () => {
 		});
 
 		expect(inputOf(wrapper).props('label')).toBe('vocabulary.emails');
+	});
+
+	it('offers the communication types of its tab channel', () => {
+		const wrapper = mountForm({
+			tab: 'emails',
+		});
+
+		selectOf(wrapper).props('searchMethod')({
+			search: 'wo',
+		});
+
+		expect(CommunicationsAPI.getLookup).toHaveBeenCalledWith({
+			search: 'wo',
+			channel: 'Email',
+		});
 	});
 
 	it('puts cancel before save', () => {
@@ -146,11 +151,11 @@ describe('ContactCardCommunicationAddForm', () => {
 		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(true);
 
 		inputOf(wrapper).vm.$emit('update:modelValue', '380991358573');
-		await wrapper.vm.$nextTick();
+		await flushPromises();
 		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(true);
 
 		selectOf(wrapper).vm.$emit('update:modelValue', workType);
-		await wrapper.vm.$nextTick();
+		await flushPromises();
 		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(false);
 	});
 
@@ -161,78 +166,80 @@ describe('ContactCardCommunicationAddForm', () => {
 
 		await fill(wrapper, 'agent@');
 
-		expect(inputOf(wrapper).props('v')).toMatchObject({
-			$error: true,
-			email: {
-				$invalid: true,
-			},
-		});
+		expect(inputOf(wrapper).props('regleValidation').$error).toBe(true);
 		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(true);
 	});
 
-	it('saves the record and reports it', async () => {
-		vi.mocked(PhonesAPI.add).mockResolvedValueOnce({});
+	it('marks nothing before the agent types', () => {
 		const wrapper = mountForm({
-			isFirst: true,
+			tab: 'emails',
 		});
 
-		await fill(wrapper, '380991358573');
-		await saveButtonOf(wrapper)?.trigger('click');
-		await flushPromises();
-
-		expect(PhonesAPI.add).toHaveBeenCalledWith({
-			parentId: '15',
-			itemInstance: {
-				number: '380991358573',
-				type: workType,
-				primary: true,
-			},
-		});
-		expect(wrapper.emitted('saved')).toHaveLength(1);
+		expect(inputOf(wrapper).props('regleValidation').$error).toBe(false);
 	});
 
-	it('blocks a second save while the first is in flight', async () => {
-		let resolve!: (value: unknown) => void;
-		vi.mocked(PhonesAPI.add).mockReturnValueOnce(
-			new Promise((res) => {
-				resolve = res;
-			}),
-		);
+	it('accepts a well-formed email', async () => {
+		const wrapper = mountForm({
+			tab: 'emails',
+		});
+
+		await fill(wrapper, 'agent@webitel.com');
+
+		expect(inputOf(wrapper).props('regleValidation').$error).toBe(false);
+		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(false);
+	});
+
+	it('hands over what was typed on save', async () => {
 		const wrapper = mountForm();
 
 		await fill(wrapper, '380991358573');
 		await saveButtonOf(wrapper)?.trigger('click');
 
+		expect(wrapper.emitted('submit')).toEqual([
+			[
+				{
+					number: '380991358573',
+					type: workType,
+				},
+			],
+		]);
+	});
+
+	it('hands over nothing while invalid', async () => {
+		const wrapper = mountForm();
+
+		await fill(wrapper, '380991358573', null);
+		await wrapper.find('form').trigger('submit');
+
+		expect(wrapper.emitted('submit')).toBeUndefined();
+	});
+
+	it('blocks save while its record is being saved, keeping what was typed', async () => {
+		const wrapper = mountForm();
+		await fill(wrapper, '380991358573');
+
+		await wrapper.setProps({
+			isSaving: true,
+		});
 		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(true);
 		await saveButtonOf(wrapper)?.trigger('click');
-		expect(PhonesAPI.add).toHaveBeenCalledTimes(1);
+		expect(wrapper.emitted('submit')).toBeUndefined();
 
-		resolve({});
-		await flushPromises();
-		expect(wrapper.emitted('saved')).toHaveLength(1);
-	});
-
-	it('keeps what was typed when saving fails', async () => {
-		vi.mocked(PhonesAPI.add).mockRejectedValueOnce(new Error('fail'));
-		const wrapper = mountForm();
-
-		await fill(wrapper, '380991358573');
-		await saveButtonOf(wrapper)?.trigger('click');
-		await flushPromises();
-
-		expect(wrapper.emitted('saved')).toBeUndefined();
+		await wrapper.setProps({
+			isSaving: false,
+		});
 		expect(inputOf(wrapper).props('modelValue')).toBe('380991358573');
 		expect(selectOf(wrapper).props('modelValue')).toEqual(workType);
 		expect(saveButtonOf(wrapper)?.props('disabled')).toBe(false);
 	});
 
-	it('cancels without saving', async () => {
+	it('cancels without handing anything over', async () => {
 		const wrapper = mountForm();
 
 		await fill(wrapper, '380991358573');
 		await cancelButtonOf(wrapper)?.trigger('click');
 
 		expect(wrapper.emitted('cancel')).toHaveLength(1);
-		expect(PhonesAPI.add).not.toHaveBeenCalled();
+		expect(wrapper.emitted('submit')).toBeUndefined();
 	});
 });

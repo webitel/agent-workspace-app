@@ -1,13 +1,13 @@
 <template>
 	<form
 		class="contact-card-communication-add-form"
-		@submit.prevent="save"
+		@submit.prevent="submit"
 	>
 		<wt-input-text
-			v-model="draft.value"
+			v-model="draft[valueField]"
 			:label="valueLabel"
 			:placeholder="valueLabel"
-			:v="valueValidation"
+			:regle-validation="r$.$fields[valueField]"
 		/>
 
 		<wt-single-select
@@ -35,13 +35,14 @@
 				:variant="ButtonVariant.OUTLINED"
 				:disabled="!canSave"
 				:aria-label="t('reusable.save')"
-				@click="save"
+				@click="submit"
 			/>
 		</div>
 	</form>
 </template>
 
 <script setup lang="ts">
+import { useRegleSchema } from '@regle/schemas';
 import {
 	WtButton,
 	WtInputText,
@@ -52,43 +53,56 @@ import {
 	ButtonVariant,
 	ComponentSize,
 } from '@webitel/ui-sdk/enums';
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
 	type AddableCommunicationTab,
-	addCommunication,
-	type CommunicationDraft,
-	isInvalidCommunicationValue,
-	isValidCommunicationDraft,
+	communicationSchema,
+	communicationValueField,
 	loadCommunicationTypes,
+	type NewCommunication,
 } from './scripts/contactCommunicationAdd';
 
 /**
  * @author Polina Sukhorukova
- * Adds a phone or an email to the contact, inline on its tab
- * (AC_07.07.08, AC_07.07.09)
+ * The inline form for a new phone or email on its tab (AC_07.07.08,
+ * AC_07.07.09); it only checks what is typed and hands it over, the section
+ * saves it, so a save outlives the form when the agent switches tabs
  * [WS-171](https://webitel.atlassian.net/browse/WS-171)
  */
 const props = defineProps<{
 	tab: AddableCommunicationTab;
-	contactId: string;
-	/** the tab has no records yet, so the new one becomes primary */
-	isFirst: boolean;
+	/** a record from this form is being saved */
+	isSaving: boolean;
 }>();
 
 const emit = defineEmits<{
-	saved: [];
+	submit: [
+		record: NewCommunication,
+	];
 	cancel: [];
 }>();
 
 const { t } = useI18n();
 
-const draft = reactive<CommunicationDraft>({
-	value: '',
-	type: null,
+/** the form lives on one tab: switching it closes the form */
+const valueField = communicationValueField(props.tab);
+
+const draft = ref<NewCommunication>({
+	[valueField]: '',
 });
 
-const isSaving = ref(false);
+/**
+ * @author Polina Sukhorukova
+ * Checked against the same api-services schema CRM uses for a new phone or
+ * email; regle gives both the validity and the value field's error text. The
+ * type select shows no error: it cannot be cleared once picked, so a missing
+ * type only keeps save disabled
+ * [WS-171](https://webitel.atlassian.net/browse/WS-171)
+ */
+const { r$ } = useRegleSchema(draft, communicationSchema(props.tab), {
+	autoDirty: true,
+});
 
 const valueLabel = computed(() =>
 	props.tab === 'phones'
@@ -96,42 +110,16 @@ const valueLabel = computed(() =>
 		: t('vocabulary.emails', 1),
 );
 
-/**
- * @author Polina Sukhorukova
- * wt-input-text reads a vuelidate-shaped field: only the email format can be
- * broken by a non-empty value, and ui-sdk words it as `validation.email`
- * [WS-171](https://webitel.atlassian.net/browse/WS-171)
- */
-const valueValidation = computed(() => {
-	const invalid = isInvalidCommunicationValue(props.tab, draft.value);
-	return {
-		$error: invalid,
-		email: {
-			$invalid: invalid,
-		},
-	};
-});
-
-const canSave = computed(
-	() => !isSaving.value && isValidCommunicationDraft(props.tab, draft),
-);
+const canSave = computed(() => !props.isSaving && !r$.$invalid);
 
 const searchTypes = (params: Record<string, unknown>) =>
 	loadCommunicationTypes(props.tab, params);
 
-async function save() {
+function submit() {
 	if (!canSave.value) return;
-	isSaving.value = true;
-	try {
-		await addCommunication(props.tab, props.contactId, draft, {
-			primary: props.isFirst,
-		});
-		emit('saved');
-	} catch {
-		// notified by api-services; the form keeps what the agent typed
-	} finally {
-		isSaving.value = false;
-	}
+	emit('submit', {
+		...draft.value,
+	});
 }
 </script>
 

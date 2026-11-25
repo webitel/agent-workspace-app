@@ -30,6 +30,7 @@
 		"test:e2e:sw": "playwright test --project=service-worker --workers=1"
 	},
 	"dependencies": {
+		"@regle/schemas": "^1.x",
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.12",
 		"@webitel/chat-web-sdk": "^0.0.23",

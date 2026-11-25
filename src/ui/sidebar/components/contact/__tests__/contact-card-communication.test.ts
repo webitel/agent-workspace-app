@@ -1,6 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // the real store pulls in the socket client and the i18n singleton
 const outboundCallAttemptsStore = {
@@ -15,13 +15,14 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	WtButton: {
 		name: 'WtButton',
 		props: [
+			'icon',
 			'disabled',
 		],
 		emits: [
 			'click',
 		],
 		template:
-			'<button class="call-button" :disabled="disabled" @click="$emit(\'click\')" />',
+			'<button :class="\'button-\' + icon" :disabled="disabled" @click="$emit(\'click\')" />',
 	},
 	WtTabs: {
 		name: 'WtTabs',
@@ -36,26 +37,31 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
-// the form is covered on its own; here it only has to show up and report back
+// the form is covered on its own; here it only has to show up and hand over
 vi.mock('../contact-card-communication-add-form.vue', () => ({
 	default: {
 		name: 'ContactCardCommunicationAddForm',
 		props: [
 			'tab',
-			'contactId',
-			'isFirst',
+			'isSaving',
 		],
 		emits: [
-			'saved',
+			'submit',
 			'cancel',
 		],
 		template: '<form class="add-form-stub" />',
 	},
 }));
 
+vi.mock('../scripts/contactCommunicationAdd', async (importOriginal) => ({
+	...(await importOriginal<Record<string, unknown>>()),
+	addCommunication: vi.fn(),
+}));
+
 import PhoneCallButton from '../../../../components/phone-call-button/phone-call-button.vue';
 import ContactCardCommunication from '../contact-card-communication.vue';
 import ContactCardCommunicationItem from '../contact-card-communication-item.vue';
+import { addCommunication } from '../scripts/contactCommunicationAdd';
 
 const contact: WebitelContactsContact = {
 	id: '15',
@@ -186,7 +192,7 @@ describe('ContactCardCommunication', () => {
 		outboundCallAttemptsStore.start.mockReset();
 		const wrapper = mountSection();
 
-		await wrapper.findAll('.call-button')[1].trigger('click');
+		await wrapper.findAll('.phone-call-button')[1].trigger('click');
 
 		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith(
 			'380671112233',
@@ -201,7 +207,7 @@ describe('ContactCardCommunication', () => {
 			}),
 		);
 		const wrapper = mountSection();
-		const buttons = () => wrapper.findAll('.call-button');
+		const buttons = () => wrapper.findAll('.phone-call-button');
 
 		await buttons()[1].trigger('click');
 		expect(buttons()[0].attributes('disabled')).toBeUndefined();
@@ -301,20 +307,10 @@ describe('ContactCardCommunication', () => {
 
 			expect(formOf(wrapper).props()).toEqual({
 				tab: 'phones',
-				contactId: '15',
-				isFirst: false,
+				isSaving: false,
 			});
-			expect(itemsOf(wrapper)).toHaveLength(1);
-		});
-
-		it('makes the first record of a tab primary', async () => {
-			const wrapper = mountSection({
-				id: '15',
-			});
-
-			await openForm(wrapper);
-
-			expect(formOf(wrapper).props('isFirst')).toBe(true);
+			// the list stays below the form
+			expect(itemsOf(wrapper)).toHaveLength(contact.phones?.data?.length ?? 0);
 		});
 
 		it('keeps one form open on a second click of add', async () => {
@@ -341,15 +337,155 @@ describe('ContactCardCommunication', () => {
 			expect(wrapper.emitted('changed')).toBeUndefined();
 		});
 
-		it('closes the form and reports the change once saved', async () => {
-			const wrapper = mountSection();
-			await openForm(wrapper);
+		describe('saving', () => {
+			const record = {
+				number: '380501234567',
+				type: {
+					id: '7',
+					name: 'Work',
+				},
+			};
 
-			formOf(wrapper).vm.$emit('saved');
-			await wrapper.vm.$nextTick();
+			const deferAdd = () => {
+				let resolve!: () => void;
+				let reject!: (reason?: unknown) => void;
+				vi.mocked(addCommunication).mockReturnValueOnce(
+					new Promise((res, rej) => {
+						resolve = () => res(undefined);
+						reject = rej;
+					}),
+				);
+				return {
+					resolve,
+					reject,
+				};
+			};
 
-			expect(formOf(wrapper).exists()).toBe(false);
-			expect(wrapper.emitted('changed')).toHaveLength(1);
+			const submit = async (wrapper: Wrapper) => {
+				formOf(wrapper).vm.$emit('submit', record);
+				await wrapper.vm.$nextTick();
+			};
+
+			beforeEach(() => {
+				vi.mocked(addCommunication).mockReset();
+			});
+
+			it('adds the record to the shown contact on its tab', async () => {
+				vi.mocked(addCommunication).mockResolvedValueOnce(undefined);
+				const wrapper = mountSection();
+				await openForm(wrapper);
+
+				await submit(wrapper);
+
+				expect(addCommunication).toHaveBeenCalledWith('phones', '15', record, {
+					primary: false,
+				});
+			});
+
+			it('makes the first record of a tab primary', async () => {
+				vi.mocked(addCommunication).mockResolvedValueOnce(undefined);
+				const wrapper = mountSection({
+					id: '15',
+				});
+				await openForm(wrapper);
+
+				await submit(wrapper);
+
+				expect(addCommunication).toHaveBeenCalledWith('phones', '15', record, {
+					primary: true,
+				});
+			});
+
+			it('marks the form saving until the request settles', async () => {
+				const request = deferAdd();
+				const wrapper = mountSection();
+				await openForm(wrapper);
+
+				await submit(wrapper);
+				expect(formOf(wrapper).props('isSaving')).toBe(true);
+
+				request.resolve();
+				await flushPromises();
+				expect(wrapper.emitted('changed')).toHaveLength(1);
+			});
+
+			it('closes the form and reports the change once saved', async () => {
+				vi.mocked(addCommunication).mockResolvedValueOnce(undefined);
+				const wrapper = mountSection();
+				await openForm(wrapper);
+
+				await submit(wrapper);
+				await flushPromises();
+
+				expect(formOf(wrapper).exists()).toBe(false);
+				expect(wrapper.emitted('changed')).toHaveLength(1);
+			});
+
+			it('still reports the change when the agent switched tabs mid-save', async () => {
+				const request = deferAdd();
+				const wrapper = mountSection();
+				await openForm(wrapper);
+				await submit(wrapper);
+
+				await selectTab(wrapper, 'emails');
+				expect(formOf(wrapper).exists()).toBe(false);
+
+				request.resolve();
+				await flushPromises();
+
+				expect(wrapper.emitted('changed')).toHaveLength(1);
+			});
+
+			it('leaves a form opened on another tab mid-save alone', async () => {
+				const request = deferAdd();
+				const wrapper = mountSection();
+				await openForm(wrapper);
+				await submit(wrapper);
+
+				await selectTab(wrapper, 'emails');
+				await openForm(wrapper);
+				expect(formOf(wrapper).props()).toEqual({
+					tab: 'emails',
+					isSaving: false,
+				});
+
+				request.resolve();
+				await flushPromises();
+
+				expect(formOf(wrapper).exists()).toBe(true);
+			});
+
+			it('reports nothing when another contact was shown mid-save', async () => {
+				const request = deferAdd();
+				const wrapper = mountSection();
+				await openForm(wrapper);
+				await submit(wrapper);
+
+				await wrapper.setProps({
+					contact: {
+						...contact,
+						id: '16',
+					},
+				});
+				request.resolve();
+				await flushPromises();
+
+				expect(wrapper.emitted('changed')).toBeUndefined();
+			});
+
+			it('keeps the form open and reports nothing when saving fails', async () => {
+				const request = deferAdd();
+				const wrapper = mountSection();
+				await openForm(wrapper);
+				await submit(wrapper);
+
+				request.reject(new Error('fail'));
+				await flushPromises();
+
+				expect(formOf(wrapper).exists()).toBe(true);
+				expect(formOf(wrapper).props('isSaving')).toBe(false);
+				expect(wrapper.emitted('changed')).toBeUndefined();
+			});
 		});
 
 		it('drops the form when the agent switches tabs', async () => {

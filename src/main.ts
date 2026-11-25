@@ -6,6 +6,7 @@ import './app/assets/icons/sprite';
 import { setConfig as setApiServicesConfig } from '@webitel/api-services';
 import { setConfig as setChatsServicesConfig } from '@webitel/ui-chats';
 import { eventBus } from '@webitel/ui-sdk/scripts';
+import { configureZod } from '@webitel/ui-sdk/validations';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import { createUserAccessControl } from './app/composables/useUserAccessControl';
@@ -27,6 +28,15 @@ setTokenFromUrl();
 
 setApiServicesConfig({
 	eventBus,
+});
+/**
+ * @author Polina Sukhorukova
+ * Puts the zod issues of the api-services schemas into the app's words, so a
+ * regle-validated field shows a translated error, as in CRM
+ * [WS-171](https://webitel.atlassian.net/browse/WS-171)
+ */
+configureZod({
+	t: i18n.global.t,
 });
 setChatsServicesConfig({
 	i18n,

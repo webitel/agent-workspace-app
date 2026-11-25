@@ -30,11 +30,9 @@
 
 		<contact-card-communication-add-form
 			v-if="addableTab && isAdding"
-			:key="`${contact.id}-${addableTab}`"
 			:tab="addableTab"
-			:contact-id="contact.id ?? ''"
-			:is-first="!communication[addableTab].length"
-			@saved="onSaved"
+			:is-saving="savingKey === formKey"
+			@submit="save(addableTab, $event)"
 			@cancel="isAdding = false"
 		/>
 
@@ -74,7 +72,12 @@ import { useOutboundCall } from '../../../../features/calls/composables/useOutbo
 import PhoneCallButton from '../../../components/phone-call-button/phone-call-button.vue';
 import ContactCardCommunicationAddForm from './contact-card-communication-add-form.vue';
 import ContactCardCommunicationItem from './contact-card-communication-item.vue';
-import { isAddableCommunicationTab } from './scripts/contactCommunicationAdd';
+import {
+	type AddableCommunicationTab,
+	addCommunication,
+	isAddableCommunicationTab,
+	type NewCommunication,
+} from './scripts/contactCommunicationAdd';
 import {
 	type ContactCommunication,
 	toContactCommunication,
@@ -141,8 +144,9 @@ const isAddButtonHidden = computed(() => !addableTab.value);
 
 /**
  * @author Polina Sukhorukova
- * The add form belongs to one tab of one contact: switching either drops it
- * with whatever was typed, a reload of the same contact keeps it
+ * The add form belongs to one tab of one contact: switching either closes it,
+ * and closing unmounts it with whatever was typed, so no `key` is needed to
+ * reset it; a reload of the same contact keeps it
  * [WS-171](https://webitel.atlassian.net/browse/WS-171)
  */
 const isAdding = ref(false);
@@ -159,8 +163,43 @@ watch(
 	},
 );
 
-function onSaved() {
-	isAdding.value = false;
+const toFormKey = (contactId: string | undefined, tab: string) =>
+	`${contactId}-${tab}`;
+
+/** the contact and tab the form is open for, to match it with a save */
+const formKey = computed(() =>
+	toFormKey(props.contact.id, addableTab.value ?? ''),
+);
+
+/** the contact and tab whose record is being saved, as a `formKey` */
+const savingKey = ref<string | null>(null);
+
+/**
+ * @author Polina Sukhorukova
+ * The section saves, not the form: a tab switch drops the form mid-save, and an
+ * unmounted form's emit is ignored, so the list would not learn of the new
+ * record. The contact is reported stale whether the form is still open or not,
+ * unless the panel has moved to another contact meanwhile, which it loads anew.
+ * The first record on a tab becomes primary, as in CRM; a failure is notified
+ * by api-services and leaves an open form with what was typed
+ * [WS-171](https://webitel.atlassian.net/browse/WS-171)
+ */
+async function save(tab: AddableCommunicationTab, record: NewCommunication) {
+	const contactId = props.contact.id ?? '';
+	const key = toFormKey(contactId, tab);
+	savingKey.value = key;
+	try {
+		await addCommunication(tab, contactId, record, {
+			primary: !communication.value[tab].length,
+		});
+	} catch {
+		return;
+	} finally {
+		if (savingKey.value === key) savingKey.value = null;
+	}
+
+	if (props.contact.id !== contactId) return;
+	if (formKey.value === key) isAdding.value = false;
 	emit('changed');
 }
 </script>

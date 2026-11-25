@@ -20,14 +20,14 @@ export type AddableCommunicationTab = Exclude<
 	'messaging'
 >;
 
-export interface CommunicationTypeOption {
-	id: string;
-	name: string;
-}
-
-export interface CommunicationDraft {
-	value: string;
-	type: CommunicationTypeOption | null;
+/** a new phone or email as its tab's schema has it, before it is saved */
+export interface NewCommunication {
+	number?: string;
+	email?: string;
+	type?: {
+		id?: string | number;
+		name?: string;
+	};
 }
 
 /**
@@ -55,53 +55,11 @@ export const isAddableCommunicationTab = (
 	tab: keyof ContactCommunication,
 ): tab is AddableCommunicationTab => Object.hasOwn(ADDABLE_TABS, tab);
 
-const toRecord = (
-	tab: AddableCommunicationTab,
-	{ value, type }: CommunicationDraft,
-	{
-		primary,
-	}: {
-		primary: boolean;
-	},
-) => ({
-	[ADDABLE_TABS[tab].field]: value.trim(),
-	type: type
-		? {
-				id: type.id,
-				name: type.name,
-			}
-		: undefined,
-	primary,
-});
+export const communicationValueField = (tab: AddableCommunicationTab) =>
+	ADDABLE_TABS[tab].field;
 
-/**
- * @author Polina Sukhorukova
- * Whether the draft passes the rules CRM applies to a new phone / email
- * [WS-171](https://webitel.atlassian.net/browse/WS-171)
- */
-export const isValidCommunicationDraft = (
-	tab: AddableCommunicationTab,
-	draft: CommunicationDraft,
-): boolean =>
-	ADDABLE_TABS[tab].schema.safeParse(
-		toRecord(tab, draft, {
-			primary: false,
-		}),
-	).success;
-
-/**
- * @author Polina Sukhorukova
- * Whether the typed value itself breaks a rule, an empty one does not
- * [WS-171](https://webitel.atlassian.net/browse/WS-171)
- */
-export const isInvalidCommunicationValue = (
-	tab: AddableCommunicationTab,
-	value: string,
-): boolean => {
-	const { schema, field } = ADDABLE_TABS[tab];
-	const trimmed = value.trim();
-	return !!trimmed && !schema.shape[field].safeParse(trimmed).success;
-};
+export const communicationSchema = (tab: AddableCommunicationTab) =>
+	ADDABLE_TABS[tab].schema;
 
 export const loadCommunicationTypes = (
 	tab: AddableCommunicationTab,
@@ -121,7 +79,7 @@ export const loadCommunicationTypes = (
 export const addCommunication = (
 	tab: AddableCommunicationTab,
 	contactId: string,
-	draft: CommunicationDraft,
+	record: NewCommunication,
 	{
 		primary,
 	}: {
@@ -130,7 +88,8 @@ export const addCommunication = (
 ) =>
 	ADDABLE_TABS[tab].add({
 		parentId: contactId,
-		itemInstance: toRecord(tab, draft, {
+		itemInstance: {
+			...record,
 			primary,
-		}),
+		},
 	});

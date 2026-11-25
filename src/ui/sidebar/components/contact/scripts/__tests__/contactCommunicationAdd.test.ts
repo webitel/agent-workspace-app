@@ -19,9 +19,8 @@ vi.mock('@webitel/api-services/api', () => ({
 
 import {
 	addCommunication,
+	communicationValueField,
 	isAddableCommunicationTab,
-	isInvalidCommunicationValue,
-	isValidCommunicationDraft,
 	loadCommunicationTypes,
 } from '../contactCommunicationAdd';
 
@@ -41,65 +40,9 @@ describe('contactCommunicationAdd', () => {
 		expect(isAddableCommunicationTab('messaging')).toBe(false);
 	});
 
-	describe('isValidCommunicationDraft', () => {
-		it('needs a value and a communication type', () => {
-			expect(
-				isValidCommunicationDraft('phones', {
-					value: '380991358573',
-					type: workType,
-				}),
-			).toBe(true);
-			expect(
-				isValidCommunicationDraft('phones', {
-					value: '380991358573',
-					type: null,
-				}),
-			).toBe(false);
-			expect(
-				isValidCommunicationDraft('phones', {
-					value: '   ',
-					type: workType,
-				}),
-			).toBe(false);
-		});
-
-		it('takes any non-empty phone number, with no format check', () => {
-			expect(
-				isValidCommunicationDraft('phones', {
-					value: '*100#ext',
-					type: workType,
-				}),
-			).toBe(true);
-		});
-
-		it('needs an email to look like one', () => {
-			expect(
-				isValidCommunicationDraft('emails', {
-					value: 'agent@webitel.com',
-					type: workType,
-				}),
-			).toBe(true);
-			expect(
-				isValidCommunicationDraft('emails', {
-					value: 'agent@',
-					type: workType,
-				}),
-			).toBe(false);
-		});
-	});
-
-	describe('isInvalidCommunicationValue', () => {
-		it('flags a malformed email, but not an empty one', () => {
-			expect(isInvalidCommunicationValue('emails', 'agent@')).toBe(true);
-			expect(isInvalidCommunicationValue('emails', '')).toBe(false);
-			expect(isInvalidCommunicationValue('emails', 'agent@webitel.com')).toBe(
-				false,
-			);
-		});
-
-		it('never flags a typed phone number', () => {
-			expect(isInvalidCommunicationValue('phones', '12ab')).toBe(false);
-		});
+	it('keeps a phone under `number` and an email under `email`', () => {
+		expect(communicationValueField('phones')).toBe('number');
+		expect(communicationValueField('emails')).toBe('email');
 	});
 
 	it('loads the communication types of the tab channel', () => {
@@ -117,12 +60,12 @@ describe('contactCommunicationAdd', () => {
 		});
 	});
 
-	it('adds a trimmed phone number with its type and primary flag', async () => {
+	it('adds a phone number with its type and primary flag', async () => {
 		await addCommunication(
 			'phones',
 			'15',
 			{
-				value: ' 380991358573 ',
+				number: '380991358573',
 				type: workType,
 			},
 			{
@@ -146,7 +89,7 @@ describe('contactCommunicationAdd', () => {
 			'emails',
 			'15',
 			{
-				value: 'agent@webitel.com',
+				email: 'agent@webitel.com',
 				type: workType,
 			},
 			{
