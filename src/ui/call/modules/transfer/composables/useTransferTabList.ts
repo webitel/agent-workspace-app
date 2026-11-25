@@ -14,7 +14,6 @@ export interface TransferTabListStoreActions {
 	setupStore(): Promise<void>;
 	appendToDataList(): Promise<void>;
 	addFilter(params: { name: string; value: string }): unknown;
-	$reset(): void;
 }
 
 /**
@@ -25,8 +24,6 @@ export interface TransferTabListStoreActions {
  * from page 1 whenever a filter changes once the store is set up. Adding the
  * search filter after setupStore is that change, so every mount loads exactly
  * once; `initialize` would load as well and, on a remount, race the watcher.
- * The store is a singleton and the popup opens many times, so it is reset on
- * unmount, which also drops the search filter for the next mount to add.
  * addFilter replaces a filter of the same name, so a search typed while the
  * store is still being set up needs no separate path (ADR-0016)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
@@ -75,7 +72,19 @@ export function useTransferTabList<
 
 	loadFirstPage();
 
-	onUnmounted(() => store.$reset());
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the store is a singleton the popup remounts many times, yet it is not
+	 * `$reset`: that clears the filters while the store stays set up, so its
+	 * filter watcher sends a request for a list no longer shown. Only the rows
+	 * go, so a remount does not show the old ones while it loads; the next
+	 * mount's addFilter puts in a new search filter, which the watcher reloads
+	 * page 1 on even when the search is the same (ADR-0029)
+	 * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+	 */
+	onUnmounted(() => {
+		dataList.value = [];
+	});
 
 	/**
 	 * @author Oleksandr Palonnyi

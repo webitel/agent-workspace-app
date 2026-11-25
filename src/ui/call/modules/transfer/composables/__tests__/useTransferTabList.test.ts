@@ -13,7 +13,6 @@ function createStore() {
 		setupStore: vi.fn().mockResolvedValue(undefined),
 		appendToDataList: vi.fn().mockResolvedValue(undefined),
 		addFilter: vi.fn(),
-		$reset: vi.fn(),
 	};
 }
 
@@ -120,14 +119,43 @@ describe('useTransferTabList', () => {
 		expect(store.appendToDataList).toHaveBeenCalledTimes(1);
 	});
 
-	it('resets the store on unmount', () => {
+	it('clears the list on unmount without touching the filters', async () => {
+		const dataList = ref<TestRow[]>([
+			{
+				id: '1',
+			},
+		]);
 		const { wrapper } = mountTabList({
 			store,
+			dataList,
 		});
+		await flushPromises();
 
 		wrapper.unmount();
 
-		expect(store.$reset).toHaveBeenCalledTimes(1);
+		expect(dataList.value).toEqual([]);
+		expect(store.addFilter).toHaveBeenCalledTimes(1);
+	});
+
+	it('adds the search filter again on a remount with the same search', async () => {
+		const search = ref('jo');
+		mountTabList({
+			store,
+			search,
+		}).wrapper.unmount();
+		await flushPromises();
+
+		mountTabList({
+			store,
+			search,
+		});
+		await flushPromises();
+
+		expect(store.addFilter).toHaveBeenCalledTimes(2);
+		expect(store.addFilter).toHaveBeenLastCalledWith({
+			name: 'search',
+			value: 'jo',
+		});
 	});
 
 	it('selects a clicked row and resolves it from the list', () => {

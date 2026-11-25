@@ -5,6 +5,8 @@ Date: 2026-11-10
 ## Status
 
 Accepted. Implemented by [WS-95](https://webitel.atlassian.net/browse/WS-95).
+The reset on unmount is superseded by
+[ADR-0029](0029-transfer-tab-lists-keep-filters-on-unmount.md).
 
 ## Context
 
