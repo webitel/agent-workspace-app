@@ -23,6 +23,7 @@ vi.mock('../../../../../app/composables/useThemedImage', async () => {
 });
 
 import { ContactsSearchMode } from '@webitel/api-services/api';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import emptyFiltersLight from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-light.svg';
 import ContactCard from '../contact-card.vue';
 import ContactCardUnknown from '../contact-card-unknown.vue';
@@ -31,13 +32,22 @@ import ContactPanelEmpty from '../contact-panel-empty.vue';
 import ContactSearch from '../contact-search.vue';
 import FoundContactsNavigator from '../found-contacts-navigator.vue';
 
+const buildContact = (id: string): WebitelContactsContact => ({
+	id,
+	name: {
+		commonName: `Contact ${id}`,
+	},
+});
+
+const buildContacts = (...ids: string[]) => ids.map(buildContact);
+
 const WtLoaderStub = {
 	name: 'WtLoader',
 	template: '<div class="wt-loader-stub" />',
 };
 
 type BlockProps = {
-	contactIds: string[];
+	contacts: WebitelContactsContact[];
 	isLoading?: boolean;
 	canSelect?: boolean;
 	canSearch?: boolean;
@@ -83,20 +93,14 @@ const findSelectButtonByLabel = (wrapper: ReturnType<typeof mountBlock>) =>
 
 const severalFound = (overrides: Partial<BlockProps> = {}) =>
 	mountBlock({
-		contactIds: [
-			'101',
-			'102',
-			'103',
-		],
+		contacts: buildContacts('101', '102', '103'),
 		...overrides,
 	});
 
 describe('contact-identification', () => {
 	it('shows the loader while identifying, whatever is already found', () => {
 		const wrapper = mountBlock({
-			contactIds: [
-				'101',
-			],
+			contacts: buildContacts('101'),
 			isLoading: true,
 		});
 
@@ -106,7 +110,7 @@ describe('contact-identification', () => {
 
 	it('shows the unknown contact when no contact matches', () => {
 		const wrapper = mountBlock({
-			contactIds: [],
+			contacts: buildContacts(),
 		});
 
 		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(true);
@@ -116,7 +120,7 @@ describe('contact-identification', () => {
 	describe('search', () => {
 		it('shows the search only when the agent can search', async () => {
 			const wrapper = mountBlock({
-				contactIds: [],
+				contacts: buildContacts(),
 			});
 
 			expect(wrapper.findComponent(ContactSearch).exists()).toBe(false);
@@ -130,7 +134,7 @@ describe('contact-identification', () => {
 
 		it('passes the search up', () => {
 			const wrapper = mountBlock({
-				contactIds: [],
+				contacts: buildContacts(),
 				canSearch: true,
 			});
 			const request = {
@@ -149,7 +153,7 @@ describe('contact-identification', () => {
 
 		it('clears the typed query once the search ends', async () => {
 			const wrapper = mountBlock({
-				contactIds: [],
+				contacts: buildContacts(),
 				canSearch: true,
 				isSearchActive: true,
 			});
@@ -166,7 +170,7 @@ describe('contact-identification', () => {
 
 		it('shows "no results" instead of the unknown contact when a search found nothing', () => {
 			const wrapper = mountBlock({
-				contactIds: [],
+				contacts: buildContacts(),
 				canSearch: true,
 				isSearchActive: true,
 			});
@@ -182,23 +186,18 @@ describe('contact-identification', () => {
 
 		it('shows what a search found like any other result', () => {
 			const wrapper = mountBlock({
-				contactIds: [
-					'101',
-					'102',
-				],
+				contacts: buildContacts('101', '102'),
 				canSearch: true,
 				isSearchActive: true,
 			});
 
-			expect(findCard(wrapper).props('contactId')).toBe('101');
+			expect(findCard(wrapper).props('contact').id).toBe('101');
 			expect(findSwitcher(wrapper).props('count')).toBe(2);
 		});
 
 		it('offers select for a single match of a search, without linking it', async () => {
 			const wrapper = mountBlock({
-				contactIds: [
-					'101',
-				],
+				contacts: buildContacts('101'),
 				canSelect: true,
 				canSearch: true,
 				isSearchActive: true,
@@ -211,16 +210,14 @@ describe('contact-identification', () => {
 
 			expect(wrapper.emitted('select')).toEqual([
 				[
-					'101',
+					buildContact('101'),
 				],
 			]);
 		});
 
 		it('offers no select for a single search match without canSelect', () => {
 			const wrapper = mountBlock({
-				contactIds: [
-					'101',
-				],
+				contacts: buildContacts('101'),
 				canSearch: true,
 				isSearchActive: true,
 			});
@@ -231,7 +228,7 @@ describe('contact-identification', () => {
 		it('offers cancel beside the parent actions only after a search', async () => {
 			const wrapper = mountBlock(
 				{
-					contactIds: [],
+					contacts: buildContacts(),
 					canSearch: true,
 				},
 				{
@@ -258,13 +255,11 @@ describe('contact-identification', () => {
 
 	it('shows the card of the only match, without the switcher', () => {
 		const wrapper = mountBlock({
-			contactIds: [
-				'101',
-			],
+			contacts: buildContacts('101'),
 			canSelect: true,
 		});
 
-		expect(findCard(wrapper).props('contactId')).toBe('101');
+		expect(findCard(wrapper).props('contact').id).toBe('101');
 		expect(findSwitcher(wrapper).exists()).toBe(false);
 		expect(findSelectButton(wrapper).exists()).toBe(false);
 	});
@@ -272,7 +267,7 @@ describe('contact-identification', () => {
 	it('hides the parent actions while identifying', () => {
 		const wrapper = mountBlock(
 			{
-				contactIds: [],
+				contacts: buildContacts(),
 				isLoading: true,
 			},
 			{
@@ -286,7 +281,7 @@ describe('contact-identification', () => {
 	it('shows the parent actions in every result', async () => {
 		const wrapper = mountBlock(
 			{
-				contactIds: [],
+				contacts: buildContacts(),
 				isLoading: true,
 			},
 			{
@@ -294,18 +289,13 @@ describe('contact-identification', () => {
 			},
 		);
 
-		for (const contactIds of [
-			[],
-			[
-				'101',
-			],
-			[
-				'101',
-				'102',
-			],
+		for (const contacts of [
+			buildContacts(),
+			buildContacts('101'),
+			buildContacts('101', '102'),
 		]) {
 			await wrapper.setProps({
-				contactIds,
+				contacts,
 				isLoading: false,
 			});
 			expect(wrapper.find('.parent-action').exists()).toBe(true);
@@ -316,7 +306,7 @@ describe('contact-identification', () => {
 		it('shows the first contact by default', () => {
 			const wrapper = severalFound();
 
-			expect(findCard(wrapper).props('contactId')).toBe('101');
+			expect(findCard(wrapper).props('contact').id).toBe('101');
 			expect(findSwitcher(wrapper).props()).toEqual({
 				position: 1,
 				count: 3,
@@ -331,14 +321,28 @@ describe('contact-identification', () => {
 			findSwitcher(wrapper).vm.$emit('next');
 			await nextTick();
 
-			expect(findCard(wrapper).props('contactId')).toBe('103');
+			expect(findCard(wrapper).props('contact').id).toBe('103');
 			expect(findSwitcher(wrapper).props('position')).toBe(3);
 
 			findSwitcher(wrapper).vm.$emit('prev');
 			await nextTick();
 
-			expect(findCard(wrapper).props('contactId')).toBe('102');
+			expect(findCard(wrapper).props('contact').id).toBe('102');
 			expect(findSwitcher(wrapper).props('position')).toBe(2);
+		});
+
+		it('shows the found contact itself in the same card, with nothing to load (WS-186)', async () => {
+			const contacts = buildContacts('101', '102');
+			const wrapper = mountBlock({
+				contacts,
+			});
+			const card = findCard(wrapper).vm;
+
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+
+			expect(findCard(wrapper).vm).toBe(card);
+			expect(findCard(wrapper).props('contact')).toEqual(contacts[1]);
 		});
 
 		it('starts from the first contact of a new result', async () => {
@@ -347,13 +351,10 @@ describe('contact-identification', () => {
 			await nextTick();
 
 			await wrapper.setProps({
-				contactIds: [
-					'201',
-					'202',
-				],
+				contacts: buildContacts('201', '202'),
 			});
 
-			expect(findCard(wrapper).props('contactId')).toBe('201');
+			expect(findCard(wrapper).props('contact').id).toBe('201');
 			expect(findSwitcher(wrapper).props()).toEqual({
 				position: 1,
 				count: 2,
@@ -372,7 +373,7 @@ describe('contact-identification', () => {
 			expect(findSelectButton(wrapper).text()).toBe('ui.reusable.select');
 			expect(wrapper.emitted('select')).toEqual([
 				[
-					'102',
+					buildContact('102'),
 				],
 			]);
 		});
@@ -380,10 +381,7 @@ describe('contact-identification', () => {
 		it('puts select after the parent actions, in one row', () => {
 			const wrapper = mountBlock(
 				{
-					contactIds: [
-						'101',
-						'102',
-					],
+					contacts: buildContacts('101', '102'),
 					canSelect: true,
 				},
 				{

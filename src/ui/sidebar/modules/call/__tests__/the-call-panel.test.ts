@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, toRaw } from 'vue';
 import { type Call, CallActions, CallDirection } from 'webitel-sdk';
@@ -27,7 +28,7 @@ vi.mock(
 );
 
 const identification = {
-	contactIds: ref<string[]>([]),
+	contacts: ref<WebitelContactsContact[]>([]),
 	isLoading: ref(false),
 	isContactHidden: ref(false),
 	selectContact: vi.fn(),
@@ -49,7 +50,7 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 	default: {
 		name: 'ContactIdentification',
 		props: [
-			'contactIds',
+			'contacts',
 			'isLoading',
 			'canSelect',
 		],
@@ -121,7 +122,7 @@ const findCreateButton = (wrapper: ReturnType<typeof mountPanel>) =>
 
 describe('the-call-panel', () => {
 	beforeEach(() => {
-		identification.contactIds.value = [];
+		identification.contacts.value = [];
 		identification.isLoading.value = false;
 		identification.isContactHidden.value = false;
 		identifiedCall = undefined;
@@ -153,17 +154,25 @@ describe('the-call-panel', () => {
 	it('passes the identification result to the block', async () => {
 		const wrapper = mountPanel();
 
-		identification.contactIds.value = [
-			'15',
-			'16',
+		identification.contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		];
 		identification.isLoading.value = true;
 		await nextTick();
 
 		const block = findIdentification(wrapper);
-		expect(block.props('contactIds')).toEqual([
-			'15',
-			'16',
+		expect(block.props('contacts')).toEqual([
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		]);
 		expect(block.props('isLoading')).toBe(true);
 	});

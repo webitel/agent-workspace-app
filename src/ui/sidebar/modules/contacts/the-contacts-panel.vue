@@ -5,7 +5,7 @@
 			v-if="isCreateFormOpen"
 			@cancel="closeCreateForm"
 		/>
-		<contact-card
+		<contact-card-by-id
 			v-else-if="contactId"
 			:contact-id="contactId"
 		/>
@@ -29,7 +29,7 @@ import { WtButton } from '@webitel/ui-sdk/components';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ContactCard from '../../components/contact/contact-card.vue';
+import ContactCardById from '../../components/contact/contact-card-by-id.vue';
 import ContactCardUnknown from '../../components/contact/contact-card-unknown.vue';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';

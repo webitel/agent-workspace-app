@@ -5,7 +5,16 @@ import {
 	type WebitelContactsContact,
 } from '@webitel/api-services/gen/models';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type EffectScope, effectScope, nextTick, reactive, ref } from 'vue';
+import {
+	type EffectScope,
+	effectScope,
+	nextTick,
+	type Ref,
+	reactive,
+	ref,
+} from 'vue';
+
+import { CONTACT_FIELDS } from '../../../../../../features/calls/modules/contact/constants/contactFields';
 
 import { useContactIdentificationByNumber } from '../useContactIdentificationByNumber';
 
@@ -34,8 +43,11 @@ type ContactsResponse = {
 	next: boolean;
 };
 
-const found = (...ids: string[]): ContactsResponse => ({
-	items: ids.map((id) => ({
+const ids = (contacts: Ref<WebitelContactsContact[]>) =>
+	contacts.value.map(({ id }) => id);
+
+const found = (...contactIds: string[]): ContactsResponse => ({
+	items: contactIds.map((id) => ({
 		id,
 	})),
 	next: false,
@@ -74,10 +86,10 @@ afterEach(() => {
 
 describe('useContactIdentificationByNumber', () => {
 	it('searches nothing without a number', () => {
-		const { contactIds, isLoading } = setup(undefined);
+		const { contacts, isLoading } = setup(undefined);
 
 		expect(getList).not.toHaveBeenCalled();
-		expect(contactIds.value).toEqual([]);
+		expect(contacts.value).toEqual([]);
 		expect(isLoading.value).toBe(false);
 	});
 
@@ -90,6 +102,7 @@ describe('useContactIdentificationByNumber', () => {
 			q: '380501112233',
 			qin: 'phones',
 			size: 100,
+			fields: CONTACT_FIELDS,
 		});
 	});
 
@@ -97,14 +110,14 @@ describe('useContactIdentificationByNumber', () => {
 		const response = createDeferred<ContactsResponse>();
 		getList.mockReturnValue(response.promise);
 
-		const { contactIds, isLoading } = setup('380501112233');
+		const { contacts, isLoading } = setup('380501112233');
 		expect(isLoading.value).toBe(true);
 
 		response.resolve(found('15', '16'));
 		await flushPromises();
 
 		expect(isLoading.value).toBe(false);
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'15',
 			'16',
 		]);
@@ -113,11 +126,11 @@ describe('useContactIdentificationByNumber', () => {
 	it('finds none when the search fails', async () => {
 		getList.mockRejectedValue(new Error('network'));
 
-		const { contactIds, isLoading } = setup('380501112233');
+		const { contacts, isLoading } = setup('380501112233');
 		await flushPromises();
 
 		expect(isLoading.value).toBe(false);
-		expect(contactIds.value).toEqual([]);
+		expect(contacts.value).toEqual([]);
 	});
 
 	it('searches again for another member number', async () => {
@@ -140,14 +153,14 @@ describe('useContactIdentificationByNumber', () => {
 		getList
 			.mockReturnValueOnce(stale.promise)
 			.mockResolvedValueOnce(found('22'));
-		const { contactIds, phoneNumber } = setup('111');
+		const { contacts, phoneNumber } = setup('111');
 
 		phoneNumber.value = '222';
 		await flushPromises();
 		stale.resolve(found('11'));
 		await flushPromises();
 
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'22',
 		]);
 	});
@@ -155,11 +168,11 @@ describe('useContactIdentificationByNumber', () => {
 	it('neither searches nor shows a contact while contacts are hidden', async () => {
 		settings[EngineSystemSettingName.WbtHideContact] = true;
 
-		const { contactIds, isContactHidden } = setup('380501112233');
+		const { contacts, isContactHidden } = setup('380501112233');
 		await nextTick();
 
 		expect(isContactHidden.value).toBe(true);
 		expect(getList).not.toHaveBeenCalled();
-		expect(contactIds.value).toEqual([]);
+		expect(contacts.value).toEqual([]);
 	});
 });

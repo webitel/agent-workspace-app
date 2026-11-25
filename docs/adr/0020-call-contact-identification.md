@@ -5,10 +5,12 @@ Date: 2026-11-13
 ## Status
 
 Accepted, recorded after the fact. Implemented in
-[WS-80](https://webitel.atlassian.net/browse/WS-80) (US_07.05, calls). Selecting
-one of several found contacts is ADR-0013, which made `useCallContact` the one
-owner of this logic. The number search is reused by the table pages' panels
-(ADR-0014, ADR-0015, Missed).
+[WS-80](https://webitel.atlassian.net/browse/WS-80) (US_07.05, calls); found
+contacts shown from the search's answer in
+[WS-186](https://webitel.atlassian.net/browse/WS-186). Selecting one of several
+found contacts is ADR-0013, which made `useCallContact` the one owner of this
+logic. The number search is reused by the table pages' panels (ADR-0014,
+ADR-0015, Missed).
 
 ## Context
 
@@ -26,8 +28,14 @@ The backend needed no changes for this. Contacts are searched with
 `cc-workspaces` identified a call this way: the linked contact, the bridged
 call's contact for a transfer, otherwise a search by number in the contacts'
 phones (`q: number`, 100 results, WTEL-7906), and `setContact` when exactly one
-contact is found. It hid the contact block when the call's `hideContact` or the
-`wbt_hide_contact` system setting was on.
+contact is found. It kept the found contacts as the search returned them and
+showed each one from that list, so switching between them made no request; only
+a linked contact was loaded by its id. It hid the contact block when the call's
+`hideContact` or the `wbt_hide_contact` system setting was on.
+
+The search's answer carries every field of a contact asked for in `fields`.
+Without `fields`, `ContactsAPI.getList` asks for all the contact card shows
+except `groups`.
 
 ## Decision
 
@@ -35,12 +43,23 @@ contact is found. It hid the contact block when the call's `hideContact` or the
 
 **The linked contact comes first.** The call's own `contact`, otherwise, for a
 transferred call, the contact of the call it is bridged to (`bridgedId`). It
-is shown at once, with no request and no loader.
+is loaded by its id (`ContactsAPI.get`), with a loader, unless it is one of the
+contacts the panel already holds: the only match it has just linked, the one the
+agent selected, or a found contact someone else linked. That one is shown at
+once, with no request and no loader, so the socket event that links it changes
+nothing on screen.
 
 **Otherwise the number is searched in the contacts' phones**: `call.displayNumber`,
-`qin: 'phones'`, `q: number`, 100 results (`findContactIdsByNumber`). This is
+`qin: 'phones'`, `q: number`, 100 results (`findContactsByNumber`). This is
 the same loose match as `cc-workspaces`, not the exact `q==+E.164`. A call with
 `hideNumber` is not searched.
+
+**Found contacts are shown from the search's answer**, as in `cc-workspaces`.
+The search asks for the fields the contact card shows, with `id` to link a
+contact (`CONTACT_FIELDS`), and the panel keeps the contacts, not their ids. Switching between several found contacts makes no request and shows
+no loader. The agent's own search (ADR-0013) asks for the same fields. The
+contact card only renders a contact it is given; `contact-card-by-id` loads one
+known only by its id, for the table pages' panels.
 
 **The only match is linked at once** with `call.setContact`. Several are left
 for the agent to choose from (ADR-0013). None found gives the not-found state.
@@ -62,8 +81,8 @@ the newest request may write its result.
 
 **It lives in the calls feature, not in the panel.** `features/calls/modules/contact`
 holds everything about a call's contact: `getCallContactId`,
-`identifyCallContact`, `findContactIdsByNumber`, and `useCallContact`, which the
-call panel uses. The panel only renders the result. The incoming call's offer
+`identifyCallContact`, `findContactsByNumber`, `CONTACT_FIELDS`, and
+`useCallContact`, which the call panel uses. The panel only renders the result. The incoming call's offer
 card, which will need a call's contacts too, is meant to use the same module.
 
 ## Considered options
@@ -79,6 +98,13 @@ card, which will need a call's contacts too, is meant to use the same module.
   (ADR-0013).
 - **The Unknown contact card for a hidden contact.** Hiding is meant to keep
   the contact off the screen, and `cc-workspaces` hid the whole block.
+- **Found contacts as ids, each loaded when shown.** Every switch between them
+  would replace the card with a loader while one more request runs, though the
+  search has already returned the contact.
+- **Caching or preloading each found contact by its id.** Up to 100 requests
+  for what one answer already holds.
+- **The `getList` default fields.** The card would show no groups for a found
+  contact, but would for the same contact once it is linked and loaded by id.
 - **Identification inside the panel component.** Kept out of it in review: it
   is the call's logic, and the offer card and later actions (selecting, linking
   a created contact) need the same state.
@@ -94,6 +120,12 @@ card, which will need a call's contacts too, is meant to use the same module.
   is active or on hold; the automatic link has no such condition.
 - The search runs each time the panel opens on a call with no linked contact:
   the identification lives as long as the panel.
+- A found contact is shown as the search returned it. Changes made to it
+  elsewhere while it is on screen show only after the next search or link.
+- A field the card starts to show has to be added to `CONTACT_FIELDS` too, or
+  a found contact shows it empty while a contact loaded by its id does not.
+- A linked contact opened with the call is loaded once, with a loader; the
+  panel shows the call info meanwhile.
 - The table pages' panels search a row's number with the same
-  `findContactIdsByNumber`, but repeat the hiding check and the stale-answer
+  `findContactsByNumber`, but repeat the hiding check and the stale-answer
   guard on their own (ADR-0014).

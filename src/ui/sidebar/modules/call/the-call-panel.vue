@@ -7,7 +7,7 @@
 		/>
 		<template v-else-if="!isContactHidden">
 			<contact-identification
-				:contact-ids="contactIds"
+				:contacts="contacts"
 				:is-loading="isLoading"
 				:can-select="isCallActive"
 				:can-search="isCallActive"
@@ -50,7 +50,7 @@ const { t } = useI18n();
 const content = computed(() => toCallInfoPanelContent(props.call));
 
 const {
-	contactIds,
+	contacts,
 	isLoading,
 	isContactHidden,
 	isSearchActive,

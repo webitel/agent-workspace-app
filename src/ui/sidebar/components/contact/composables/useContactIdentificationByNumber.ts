@@ -1,7 +1,10 @@
-import { EngineSystemSettingName } from '@webitel/api-services/gen/models';
+import {
+	EngineSystemSettingName,
+	type WebitelContactsContact,
+} from '@webitel/api-services/gen/models';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 
-import { findContactIdsByNumber } from '../../../../../features/calls/modules/contact/scripts/findContactIdsByNumber';
+import { findContactsByNumber } from '../../../../../features/calls/modules/contact/scripts/findContactsByNumber';
 import { useSystemSettingsStore } from '../../../../../features/system-settings/store/systemSettings';
 
 /**
@@ -16,7 +19,7 @@ export function useContactIdentificationByNumber(
 ) {
 	const systemSettingsStore = useSystemSettingsStore();
 
-	const contactIds = ref<string[]>([]);
+	const contacts = ref<WebitelContactsContact[]>([]);
 	const isLoading = ref(false);
 
 	// as for a call: a hidden contact is neither shown nor searched for
@@ -26,8 +29,8 @@ export function useContactIdentificationByNumber(
 		),
 	);
 
-	const showResult = (ids: string[]) => {
-		contactIds.value = ids;
+	const showResult = (result: WebitelContactsContact[]) => {
+		contacts.value = result;
 		isLoading.value = false;
 	};
 
@@ -40,12 +43,12 @@ export function useContactIdentificationByNumber(
 
 		if (isContactHidden.value || !number) return showResult([]);
 
-		contactIds.value = [];
+		contacts.value = [];
 		isLoading.value = true;
 
 		try {
-			const foundContactIds = await findContactIdsByNumber(number);
-			if (!isStale()) showResult(foundContactIds);
+			const foundContacts = await findContactsByNumber(number);
+			if (!isStale()) showResult(foundContacts);
 		} catch {
 			// error notification is shown by api-services
 			if (!isStale()) showResult([]);
@@ -64,7 +67,7 @@ export function useContactIdentificationByNumber(
 	);
 
 	return {
-		contactIds,
+		contacts,
 		isLoading,
 		isContactHidden,
 	};

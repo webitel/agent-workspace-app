@@ -1,51 +1,37 @@
 <template>
 	<div class="contact-card">
-		<wt-loader v-if="isLoading" />
-		<div
-			v-else-if="contact"
-			class="contact-card__content"
-		>
-			<contact-card-header :contact="contact" />
+		<contact-card-header :contact="contact" />
 
-			<wt-divider />
+		<wt-divider />
 
-			<contact-card-info :contact="contact" />
+		<contact-card-info :contact="contact" />
 
-			<wt-divider />
+		<wt-divider />
 
-			<contact-card-communication :contact="contact" />
-		</div>
+		<contact-card-communication :contact="contact" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
-import { useContact } from './composables/useContact';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import ContactCardCommunication from './contact-card-communication.vue';
 import ContactCardHeader from './contact-card-header.vue';
 import ContactCardInfo from './contact-card-info.vue';
 
-const props = defineProps<{
-	contactId: string;
+/**
+ * Shows a contact it is given and loads nothing: found contacts come with every
+ * field it shows, a contact known only by its id is loaded by contact-card-by-id
+ * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+ */
+defineProps<{
+	contact: WebitelContactsContact;
 }>();
-
-const { contact, isLoading } = useContact(toRef(props, 'contactId'));
 </script>
 
 <style scoped>
 .contact-card {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-}
-
-.contact-card__content {
-	display: flex;
-	flex-direction: column;
 	gap: var(--spacing-xs);
-}
-
-.contact-card .wt-loader {
-	margin: auto;
 }
 </style>

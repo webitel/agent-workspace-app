@@ -18,7 +18,7 @@
 		</template>
 		<contact-card
 			v-else-if="identificationMode === ContactIdentificationMode.Single"
-			:contact-id="contactIds[0]"
+			:contact="contacts[0]"
 		/>
 		<div
 			v-else
@@ -26,11 +26,12 @@
 		>
 			<found-contacts-navigator
 				:position="shownIndex + 1"
-				:count="contactIds.length"
+				:count="contacts.length"
 				@prev="showPrev"
 				@next="showNext"
 			/>
-			<contact-card :contact-id="shownContactId" />
+			<!-- the found contacts come with every field the card shows: switching loads nothing (WS-186) -->
+			<contact-card :contact="shownContact" />
 		</div>
 		<!-- the parent's own actions (e.g. CREATE) share one row with SELECT -->
 		<div
@@ -48,7 +49,7 @@
 			<wt-button
 				v-if="isSelectShown"
 				:color="ButtonColor.SUCCESS"
-				@click="emit('select', shownContactId)"
+				@click="emit('select', shownContact)"
 			>
 				{{ t('ui.reusable.select') }}
 			</wt-button>
@@ -58,6 +59,7 @@
 
 <script setup lang="ts">
 import { ContactsSearchMode } from '@webitel/api-services/api';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { WtButton } from '@webitel/ui-sdk/components';
 import { ButtonColor } from '@webitel/ui-sdk/enums';
 import emptyFiltersDark from '@webitel/ui-sdk/src/modules/TableComponentModule/_internals/assets/empty-filters-dark.svg';
@@ -74,7 +76,7 @@ import { ContactIdentificationMode } from './enums/ContactIdentificationMode.enu
 import FoundContactsNavigator from './found-contacts-navigator.vue';
 
 const props = defineProps<{
-	contactIds: string[];
+	contacts: WebitelContactsContact[];
 	isLoading?: boolean;
 	// whether the shown contact can be chosen; the block itself links nothing
 	canSelect?: boolean;
@@ -86,7 +88,7 @@ const props = defineProps<{
 	canSearch?: boolean;
 	/**
 	 * @author Oleksandr Palonnyi
-	 * whether contactIds is the agent's search result rather than the identified contacts; an empty one then reads "no results" and Cancel shows
+	 * whether contacts is the agent's search result rather than the identified contacts; an empty one then reads "no results" and Cancel shows
 	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
 	 */
 	isSearchActive?: boolean;
@@ -94,7 +96,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	select: [
-		contactId: string,
+		contact: WebitelContactsContact,
 	];
 	search: [
 		payload: {
@@ -124,8 +126,8 @@ const { t } = useI18n();
 
 const identificationMode = computed<ContactIdentificationMode>(() => {
 	if (props.isLoading) return ContactIdentificationMode.Loading;
-	if (!props.contactIds.length) return ContactIdentificationMode.NotFound;
-	if (props.contactIds.length === 1) return ContactIdentificationMode.Single;
+	if (!props.contacts.length) return ContactIdentificationMode.NotFound;
+	if (props.contacts.length === 1) return ContactIdentificationMode.Single;
 	return ContactIdentificationMode.Multiple;
 });
 
@@ -146,11 +148,11 @@ const isSelectShown = computed(() => {
 
 const shownIndex = ref(0);
 
-const shownContactId = computed(() => props.contactIds[shownIndex.value]);
+const shownContact = computed(() => props.contacts[shownIndex.value]);
 
 // a new result starts from its first contact
 watch(
-	() => props.contactIds,
+	() => props.contacts,
 	() => {
 		shownIndex.value = 0;
 	},

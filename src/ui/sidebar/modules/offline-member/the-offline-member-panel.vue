@@ -6,10 +6,10 @@
 			:title="t('ui.sidebar.contact.selectContact.title')"
 			:text="t('ui.sidebar.contact.selectContact.text')"
 		/>
-		<contact-card-unknown v-else-if="!isLoading && !contactIds.length" />
+		<contact-card-unknown v-else-if="!isLoading && !contacts.length" />
 		<contact-identification
 			v-else
-			:contact-ids="contactIds"
+			:contacts="contacts"
 			:is-loading="isLoading"
 		/>
 	</div>
@@ -44,13 +44,13 @@ const phoneNumberSelection = computed(() =>
  * is no call yet to link one to (ADR-0013)
  * [WS-30](https://webitel.atlassian.net/browse/WS-30)
  */
-const { contactIds, isLoading } = useContactIdentificationByNumber(
+const { contacts, isLoading } = useContactIdentificationByNumber(
 	() => phoneNumberSelection.value?.phoneNumber,
 );
 
 // a contact card is on screen, whether it is the only one found or one of several
 const title = computed(() =>
-	!isLoading.value && contactIds.value.length
+	!isLoading.value && contacts.value.length
 		? t('ui.sidebar.contact.profile')
 		: t('objects.contact', 2),
 );
