@@ -48,12 +48,12 @@ return is left out, not approximated, as in ADR-0001 and ADR-0010. Phones and
 emails without a value are dropped.
 
 **Actions go into the row's `actions` slot, filled by the section per tab,** so
-the row and the mapper stay unaware of them. On Phones the slot holds
-`contact-card-phone-call-button` (AC_07.07.05): it looks like the call button in
-the Phones column of the Contacts table, sits at the right end of the row, and
-dials through `outboundCallAttemptsStore.start`, so the agent gets the outbound
-call card; it is disabled while the call is starting. It is shown in every panel
-that renders the card, during a call too. Send message and Add
+the row and the mapper stay unaware of them. On Phones the slot holds the shared
+`phone-call-button` (AC_07.07.05), the same green handset as in the phone
+columns of the tables, at the right end of the row. A click dials through
+`useOutboundCall`, so the agent gets the outbound call card; the section's call
+buttons are disabled while a call is starting. It is shown in every panel that
+renders the card, during a call too. Send message and Add
 (AC_07.07.06, 07.08–07.10) are not rendered.
 
 ## Considered options

@@ -1,18 +1,27 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { describe, expect, it, vi } from 'vitest';
 
 // the real store pulls in the socket client and the i18n singleton
+const outboundCallAttemptsStore = {
+	start: vi.fn(),
+};
+
 vi.mock('../../../../../features/calls/store/outboundCallAttempts', () => ({
-	useOutboundCallAttemptsStore: () => ({
-		start: vi.fn(),
-	}),
+	useOutboundCallAttemptsStore: () => outboundCallAttemptsStore,
 }));
 
 vi.mock('@webitel/ui-sdk/components', () => ({
 	WtButton: {
 		name: 'WtButton',
-		template: '<button class="call-button" />',
+		props: [
+			'disabled',
+		],
+		emits: [
+			'click',
+		],
+		template:
+			'<button class="call-button" :disabled="disabled" @click="$emit(\'click\')" />',
 	},
 	WtTabs: {
 		name: 'WtTabs',
@@ -27,9 +36,9 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 	},
 }));
 
+import PhoneCallButton from '../../../../components/phone-call-button/phone-call-button.vue';
 import ContactCardCommunication from '../contact-card-communication.vue';
 import ContactCardCommunicationItem from '../contact-card-communication-item.vue';
-import ContactCardPhoneCallButton from '../contact-card-phone-call-button.vue';
 
 const contact: WebitelContactsContact = {
 	phones: {
@@ -91,7 +100,7 @@ const itemsOf = (wrapper: Wrapper) =>
 
 const callNumbersOf = (wrapper: Wrapper) =>
 	wrapper
-		.findAllComponents(ContactCardPhoneCallButton)
+		.findAllComponents(PhoneCallButton)
 		.map((button) => button.props('number'));
 
 const selectTab = async (wrapper: Wrapper, value: string) => {
@@ -153,6 +162,36 @@ describe('ContactCardCommunication', () => {
 			'380991358573',
 			'380671112233',
 		]);
+	});
+
+	it('calls the number of the clicked row', async () => {
+		outboundCallAttemptsStore.start.mockReset();
+		const wrapper = mountSection();
+
+		await wrapper.findAll('.call-button')[1].trigger('click');
+
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith(
+			'380671112233',
+		);
+	});
+
+	it('disables only the clicked row while its call is starting', async () => {
+		let finishCall: () => void = () => {};
+		outboundCallAttemptsStore.start.mockReturnValue(
+			new Promise<void>((resolve) => {
+				finishCall = resolve;
+			}),
+		);
+		const wrapper = mountSection();
+		const buttons = () => wrapper.findAll('.call-button');
+
+		await buttons()[1].trigger('click');
+		expect(buttons()[0].attributes('disabled')).toBeUndefined();
+		expect(buttons()[1].attributes('disabled')).toBeDefined();
+
+		finishCall();
+		await flushPromises();
+		expect(buttons()[1].attributes('disabled')).toBeUndefined();
 	});
 
 	it('shows no call button on Messaging and Emails', async () => {
