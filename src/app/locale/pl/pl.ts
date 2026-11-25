@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Będziesz otrzymywać połączenia tylko z kolejek',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Nieznany kontakt',
-		},
 		chatPreview: {
 			onlyUnread: 'Tylko nieprzeczytane czaty',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Żądanie połączenia przychodzącego',
 					chat: 'Żądanie czatu przychodzącego',
 				},
-				unknownContact: 'Nieznany kontakt',
-				queue: 'Kolejka',
 				channel: 'Kanał',
-				waitingTime: 'Czas oczekiwania',
 				accept: 'Odbierz',
 				decline: 'Odrzuć',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Numer telefonu',
 			waitTime: 'Czas oczekiwania',
 			select: 'Wybierz',
+			unknownContact: 'Nieznany kontakt',
+			info: 'Informacje',
+			interactions: 'Interakcje',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Utwórz kontakt',
 				addContacts: 'Dodaj kontakty',
 				profile: 'Profil',
-				info: 'Informacje',
 				groups: 'Grupy',
 				attributes: 'Atrybuty',
 				noAttributes: 'Brak zdefiniowanych zmiennych niestandardowych',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Ręcznie przypisane',
 				},
 				tabs: {
-					info: 'Informacje',
-					postProcessing: 'Przetwarzanie końcowe',
-					interaction: 'Interakcje',
-					screenshots: 'Zrzuty ekranu',
-					contact: 'Kontakt',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Aktywne',
 					closed: 'Zamknięte',
 				},
 				tabs: {
-					chat: 'Czat',
-					info: 'Informacje',
-					postProcessing: 'Przetwarzanie końcowe',
-					interaction: 'Interakcja',
-					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Informacje',
-						postprocessing: 'Przetwarzanie końcowe',
 						agentDescription: 'Komentarz agenta',
 					},
 				},
@@ -177,11 +161,6 @@ export default {
 					noEmail: 'Brak e-maila',
 				},
 			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Wybierz kolumny zmiennych',
-				},
-			},
 		},
 		call: {
 			ringing: 'Dzwonienie',
@@ -194,7 +173,6 @@ export default {
 					mute: 'Wycisz',
 					hold: 'Wstrzymaj',
 					camera: 'Kamera',
-					message: 'Wiadomość',
 					transfer: 'Przekieruj',
 					bridge: 'Połącz rozmowy',
 					hangup: 'Zakończ połączenie',
@@ -204,15 +182,12 @@ export default {
 			bridge: {
 				title: 'Łączenie rozmów',
 				connect: 'Połącz',
-				unknownContact: 'Nieznany kontakt',
 			},
 			transfer: {
 				title: 'Przekieruj połączenie',
 				emptyList: 'Nic nie znaleziono',
 				columns: {
 					name: 'Nazwa',
-					status: 'Status',
-					team: 'Zespół',
 				},
 				phoneLabel: 'Przekieruj na numer',
 				phonePlaceholder: 'Wpisz numer telefonu',

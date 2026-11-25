@@ -289,11 +289,11 @@ describe('the-chat-window', () => {
 		const wrapper = mountWindow();
 
 		expect(tabsOf(wrapper).map((tab) => tab.text)).toEqual([
-			'ui.pages.chats.tabs.chat',
-			'ui.pages.chats.tabs.info',
-			'ui.pages.chats.tabs.postProcessing',
-			'ui.pages.chats.tabs.interaction',
-			'ui.pages.chats.tabs.contact',
+			'objects.chat.chat',
+			'ui.reusable.info',
+			'ui.processing.postProcessing.title',
+			'ui.reusable.interactions',
+			'objects.contact',
 			'ui.pages.chats.tabs.iframe',
 		]);
 	});

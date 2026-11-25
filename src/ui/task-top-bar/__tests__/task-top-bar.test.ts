@@ -57,7 +57,7 @@ describe('task-top-bar', () => {
 	it('names an unknown contact rather than leaving the name blank', () => {
 		const wrapper = mountBar();
 
-		expect(wrapper.text()).toContain('ui.notifications.offer.unknownContact');
+		expect(wrapper.text()).toContain('ui.reusable.unknownContact');
 	});
 
 	it('renders no subtitle line when there is none', () => {

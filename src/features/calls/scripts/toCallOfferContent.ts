@@ -60,7 +60,7 @@ export function toCallOfferContent(call: Call): OfferCardContent {
 		identifier: call.hideNumber ? maskNumber(number) : number,
 		source: call.queue?.queue_name
 			? {
-					label: i18n.global.t('ui.notifications.offer.queue'),
+					label: i18n.global.t('objects.queue.queue'),
 					value: call.queue.queue_name,
 				}
 			: undefined,

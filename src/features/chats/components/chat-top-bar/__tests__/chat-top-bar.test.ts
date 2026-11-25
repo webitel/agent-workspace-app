@@ -137,7 +137,7 @@ describe('chat-top-bar', () => {
 		expect(wrapper.find('.avatar').text()).toBe('client_username');
 		expect(wrapper.text()).toContain('client_username');
 		expect(wrapper.text()).toContain('Support');
-		expect(wrapper.text()).toContain('ui.notifications.offer.queue');
+		expect(wrapper.text()).toContain('objects.queue.queue');
 	});
 
 	it('offers to end a live chat and no timer', () => {

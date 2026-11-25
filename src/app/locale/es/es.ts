@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Recibirás llamadas solo de las colas',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Contacto desconocido',
-		},
 		chatPreview: {
 			onlyUnread: 'Solo chats no leídos',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Solicitud de llamada entrante',
 					chat: 'Solicitud de chat entrante',
 				},
-				unknownContact: 'Contacto desconocido',
-				queue: 'Cola',
 				channel: 'Canal',
-				waitingTime: 'Tiempo de espera',
 				accept: 'Aceptar',
 				decline: 'Rechazar',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Número de teléfono',
 			waitTime: 'Tiempo de espera',
 			select: 'Seleccionar',
+			unknownContact: 'Contacto desconocido',
+			info: 'Información',
+			interactions: 'Interacciones',
 		},
 		numpad: {
 			call: 'Llamar',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Crear un contacto',
 				addContacts: 'Añadir contactos',
 				profile: 'Perfil',
-				info: 'Información',
 				groups: 'Grupos',
 				attributes: 'Atributos',
 				noAttributes: 'No hay variables personalizadas definidas',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Autoasignadas',
 				},
 				tabs: {
-					info: 'Información',
-					postProcessing: 'Posprocesamiento',
-					interaction: 'Interacciones',
-					screenshots: 'Capturas de pantalla',
-					contact: 'Contacto',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Activos',
 					closed: 'Cerrados',
 				},
 				tabs: {
-					chat: 'Chat',
-					info: 'Información',
-					postProcessing: 'Posprocesamiento',
-					interaction: 'Interacción',
-					contact: 'Contacto',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Información',
-						postprocessing: 'Posprocesamiento',
 						agentDescription: 'Comentario del agente',
 					},
 				},
@@ -177,11 +161,6 @@ export default {
 					noEmail: 'Sin correo electrónico',
 				},
 			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Seleccionar columnas de variables',
-				},
-			},
 		},
 		call: {
 			ringing: 'Sonando',
@@ -194,7 +173,6 @@ export default {
 					mute: 'Silenciar',
 					hold: 'Poner en espera',
 					camera: 'Cámara',
-					message: 'Mensaje',
 					transfer: 'Transferir',
 					bridge: 'Conectar llamadas',
 					hangup: 'Finalizar llamada',
@@ -204,15 +182,12 @@ export default {
 			bridge: {
 				title: 'Conectar llamadas',
 				connect: 'Conectar',
-				unknownContact: 'Contacto desconocido',
 			},
 			transfer: {
 				title: 'Transferir llamada',
 				emptyList: 'No se encontró nada',
 				columns: {
 					name: 'Nombre',
-					status: 'Estado',
-					team: 'Equipo',
 				},
 				phoneLabel: 'Transferir al número',
 				phonePlaceholder: 'Introduzca el número de teléfono',

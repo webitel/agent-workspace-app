@@ -312,7 +312,7 @@ test.describe('closed chats', () => {
 				'Chat',
 				'Info',
 				'Post-processing',
-				'Interaction',
+				'Interactions',
 				'Contact',
 				'Iframe',
 			]);

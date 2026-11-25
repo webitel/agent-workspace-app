@@ -5,7 +5,7 @@
 			<div class="task-top-bar__info">
 				<span class="task-top-bar__name-line">
 					<span class="task-top-bar__name typo-body-2-bold">
-						{{ name || t('ui.notifications.offer.unknownContact') }}
+						{{ name || t('ui.reusable.unknownContact') }}
 					</span>
 					<slot name="name-append" />
 				</span>

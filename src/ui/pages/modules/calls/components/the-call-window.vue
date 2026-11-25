@@ -104,27 +104,27 @@ const tabs = computed<CallWindowTabItem[]>(() => [
 		? [
 				{
 					value: 'processing',
-					text: t('ui.pages.calls.tabs.postProcessing'),
+					text: t('ui.processing.postProcessing.title'),
 				},
 			]
 		: []),
 	{
 		value: 'info',
-		text: t('ui.pages.calls.tabs.info'),
+		text: t('ui.reusable.info'),
 	},
 	{
 		value: 'interaction',
-		text: t('ui.pages.calls.tabs.interaction'),
+		text: t('ui.reusable.interactions'),
 		disabled: true,
 	},
 	{
 		value: 'screenshots',
-		text: t('ui.pages.calls.tabs.screenshots'),
+		text: t('objects.screenshots', 2),
 		disabled: true,
 	},
 	{
 		value: 'contact',
-		text: t('ui.pages.calls.tabs.contact'),
+		text: t('objects.contact'),
 		disabled: true,
 	},
 	{

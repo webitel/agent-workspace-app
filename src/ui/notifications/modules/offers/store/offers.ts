@@ -82,8 +82,7 @@ export const useOffersStore = defineStore('offers', () => {
 	function pushOsNotification(offer: Offer) {
 		const content = toValue(offer.content);
 		const title = i18n.global.t(`ui.notifications.offer.title.${content.kind}`);
-		const name =
-			content.name ?? i18n.global.t('ui.notifications.offer.unknownContact');
+		const name = content.name ?? i18n.global.t('ui.reusable.unknownContact');
 
 		osNotifications.show({
 			id: offer.id,

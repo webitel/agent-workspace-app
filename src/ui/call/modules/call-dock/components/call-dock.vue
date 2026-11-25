@@ -8,7 +8,7 @@
 
 			<div class="call-dock__identity-info">
 				<span class="call-dock__identity-name typo-body-2-bold">
-					{{ preview.name || t('ui.notifications.offer.unknownContact') }}
+					{{ preview.name || t('ui.reusable.unknownContact') }}
 				</span>
 
 				<span
@@ -40,7 +40,7 @@
 			class="call-dock__queue typo-caption"
 		>
 			<span class="typo-caption-bold">
-				{{ t('ui.notifications.offer.queue') }}:
+				{{ t('objects.queue.queue') }}:
 			</span>
 			{{ preview.queueName }}
 		</p>

@@ -5,7 +5,7 @@
         class="offer-waiting-time"
     >
         <div class="offer-waiting-time__row">
-            <span class="typo-caption-bold">{{ t('ui.notifications.offer.waitingTime') }}</span>
+            <span class="typo-caption-bold">{{ t('ui.reusable.waitTime') }}</span>
             <span class="typo-caption">{{ formatted }}</span>
         </div>
         <!-- hidden until the backend exposes the queue Max wait time (WS-16 / WS-35) -->

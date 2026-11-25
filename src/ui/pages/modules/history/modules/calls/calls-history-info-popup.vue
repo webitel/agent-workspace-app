@@ -81,7 +81,7 @@ const tabs = computed(() => [
 	},
 	{
 		value: CallInfoTab.Postprocessing,
-		text: t('ui.pages.history.calls.callInfo.postprocessing'),
+		text: t('ui.processing.postProcessing.title'),
 		component: CallsHistoryInfoPostprocessing,
 		props: {
 			forms: callInfo.value?.forms,
