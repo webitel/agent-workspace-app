@@ -16,7 +16,18 @@
 				v-for="item of communication[currentTab.value]"
 				:key="item.id"
 				:item="item"
-			/>
+			>
+				<template
+					v-if="currentTab.value === 'phones'"
+					#actions
+				>
+					<phone-call-button
+						:number="item.value"
+						:disabled="callingNumber === item.value"
+						@click="call(item.value)"
+					/>
+				</template>
+			</contact-card-communication-item>
 		</ul>
 	</section>
 </template>
@@ -28,6 +39,8 @@ import { ComponentSize } from '@webitel/ui-sdk/enums';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useOutboundCall } from '../../../../features/calls/composables/useOutboundCall';
+import PhoneCallButton from '../../../components/phone-call-button/phone-call-button.vue';
 import ContactCardCommunicationItem from './contact-card-communication-item.vue';
 import {
 	type ContactCommunication,
@@ -46,6 +59,8 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const communication = computed(() => toContactCommunication(props.contact));
+
+const { callingNumber, call } = useOutboundCall();
 
 const tabs = computed<CommunicationTabItem[]>(() => [
 	{

@@ -5,7 +5,8 @@ Date: 2026-11-12
 ## Status
 
 Accepted. Implemented in [WS-34](https://webitel.atlassian.net/browse/WS-34)
-(Calls section, Offline tab).
+and [WS-170](https://webitel.atlassian.net/browse/WS-170) (Calls section,
+Offline tab).
 
 ## Context
 
@@ -34,8 +35,10 @@ contact identification.
 cell emits the whole communication, not its number, and the table asks the queue
 with `directMember(memberId, communicationId)`. The call stays the queue's, and
 the member leaves the offline queue. The cell looks like the contacts' one: the
-first communication with a destination on the button, the others behind a "+N"
-menu that lists numbers only (a member has no primary communication).
+first communication with a destination on the shared `phone-call-button`, the
+others behind a "+N" menu that lists numbers only (a member has no primary
+communication). Only the button's look is shared: its click goes to the cell,
+not to `useOutboundCall`, which dials by number.
 
 **As in `cc-workspaces` around the request.** One request at a time per member,
 with the loader on its button; once the queue has taken the call the list is

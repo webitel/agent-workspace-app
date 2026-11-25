@@ -1,7 +1,20 @@
 import { mount } from '@vue/test-utils';
 import type { ContactsPhoneNumber } from '@webitel/api-services/gen/models';
 import { IconColor } from '@webitel/ui-sdk/enums';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// the real store pulls in the socket client and the i18n singleton;
+// the cell only needs `start`
+const outboundCallAttemptsStore = {
+	start: vi.fn(),
+};
+
+vi.mock(
+	'../../../../../../../../features/calls/store/outboundCallAttempts',
+	() => ({
+		useOutboundCallAttemptsStore: () => outboundCallAttemptsStore,
+	}),
+);
 
 import ContactPhonesCell from '../contact-phones-cell.vue';
 
@@ -64,6 +77,11 @@ const mountCell = (phones?: ContactsPhoneNumber[]) =>
 	});
 
 describe('contact-phones-cell', () => {
+	beforeEach(() => {
+		outboundCallAttemptsStore.start.mockReset();
+		outboundCallAttemptsStore.start.mockResolvedValue(undefined);
+	});
+
 	it('shows a placeholder and no call button when the contact has no phone', () => {
 		const wrapper = mountCell([]);
 
@@ -118,11 +136,7 @@ describe('contact-phones-cell', () => {
 
 		await wrapper.find('.call-button').trigger('click');
 
-		expect(wrapper.emitted('call')).toEqual([
-			[
-				'222',
-			],
-		]);
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith('222');
 	});
 
 	it('shows no counter for a single number', () => {
@@ -171,11 +185,7 @@ describe('contact-phones-cell', () => {
 				},
 			});
 
-		expect(wrapper.emitted('call')).toEqual([
-			[
-				'222',
-			],
-		]);
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith('222');
 	});
 
 	it('ignores entries without a number', () => {
