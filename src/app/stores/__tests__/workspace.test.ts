@@ -8,6 +8,8 @@ const initializeAgent = vi.fn(async () => {});
 const watchProcessingDisposal = vi.fn(() => {});
 const initializeChats = vi.fn(() => {});
 const initializeCalls = vi.fn(() => {});
+const initializeOutboundCallAttempts = vi.fn(() => {});
+const initializeTaskDock = vi.fn(() => {});
 const initializeGlobalHandlers = vi.fn(() => {});
 const initializeUserStatus = vi.fn(async () => {});
 
@@ -32,6 +34,16 @@ vi.mock('../../../features/chats/store/chats', () => ({
 vi.mock('../../../features/calls/store/calls', () => ({
 	useCallsStore: () => ({
 		initialize: () => initializeCalls(),
+	}),
+}));
+vi.mock('../../../features/calls/store/outboundCallAttempts', () => ({
+	useOutboundCallAttemptsStore: () => ({
+		initialize: () => initializeOutboundCallAttempts(),
+	}),
+}));
+vi.mock('../../../ui/task-dock/store/task-dock', () => ({
+	useTaskDockStore: () => ({
+		initialize: () => initializeTaskDock(),
 	}),
 }));
 vi.mock('../../../features/global-handlers/store/globalHandlers', () => ({
@@ -99,6 +111,8 @@ describe('useWorkspaceStore', () => {
 
 		expect(initializeChats).toHaveBeenCalledTimes(1);
 		expect(initializeCalls).toHaveBeenCalledTimes(1);
+		expect(initializeOutboundCallAttempts).toHaveBeenCalledTimes(1);
+		expect(initializeTaskDock).toHaveBeenCalledTimes(1);
 		expect(initializeGlobalHandlers).toHaveBeenCalledTimes(1);
 		expect(initializeUserStatus).toHaveBeenCalledTimes(1);
 	});

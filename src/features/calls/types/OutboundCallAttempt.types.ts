@@ -16,7 +16,7 @@ export interface OutboundCallAttempt {
 	/**
 	 * @author Oleksandr Palonnyi
 	 * Empty until `callsStore.call` resolves, and for good when the dial returns no ids
-	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+	 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
 	 */
 	dialedCallIds: DialedCallIds;
 	isHangupRequested: boolean;
@@ -35,7 +35,7 @@ export interface OutboundCallAttemptView {
  * @author Oleksandr Palonnyi
  * `call: null` takes a call away from the attempt: its ids name another call, or an
  * attempt whose ids name this one claimed it. The attempt is back to Dialing
- * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
  */
 export interface OutboundCallAssignment {
 	attemptId: string;

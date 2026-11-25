@@ -521,21 +521,6 @@ describe('useOutboundCallAttemptsStore', () => {
 			expect(store.attempts[0].placedCall?.id).toBe('own-call');
 		});
 
-		it('follows its own call when its sip id is filled in after it rang', async () => {
-			const store = setup();
-			await store.start('100');
-			const call = buildCall({
-				id: 'own-call',
-				sipId: null,
-			});
-			await ring(call);
-
-			call.sipId = 'abc';
-			await nextTick();
-
-			expect(store.attempts[0].placedCall?.id).toBe('own-call');
-		});
-
 		it('goes back to dialing when its ids name another call than the one it took', async () => {
 			let resolveRequest: (dialedCallIds: DialedCallIds | null) => void =
 				() => {};
@@ -571,6 +556,79 @@ describe('useOutboundCallAttemptsStore', () => {
 			await nextTick();
 
 			expect(onAnswered).toHaveBeenCalledWith('own-call');
+		});
+
+		it('hangs up only its own call after an early hangup', async () => {
+			const store = setup();
+			await store.start('100');
+			await store.hangup(store.attempts[0].id);
+
+			await ring(foreignCall());
+			await ring(ownCall());
+
+			expect(callsStore.hangup).toHaveBeenCalledTimes(1);
+			expect(callsStore.hangup).toHaveBeenCalledWith('own-call');
+			expect(store.attempts).toEqual([]);
+		});
+
+		it('takes its own call back from an attempt without ids that had it answered', async () => {
+			let resolveRequest: (dialedCallIds: DialedCallIds | null) => void =
+				() => {};
+			callsStore.call.mockResolvedValueOnce({});
+			callsStore.call.mockImplementationOnce(
+				() =>
+					new Promise<DialedCallIds | null>((resolve) => {
+						resolveRequest = resolve;
+					}),
+			);
+			const store = setup();
+			const onAnswered = vi.fn();
+			store.onAttemptAnswered(onAnswered);
+			await store.start('100');
+			const dialling = store.start('200');
+			const call = ownCall();
+			await ring(call);
+			call.answeredAt = 1000;
+			await nextTick();
+
+			resolveRequest({
+				sipId: 'abcfromtag',
+			});
+			await dialling;
+			await nextTick();
+
+			expect(store.attempts).toEqual([]);
+			expect(onAnswered).toHaveBeenCalledTimes(1);
+			expect(onAnswered).toHaveBeenCalledWith('own-call');
+		});
+
+		it('keeps the call its ids took from an attempt without ids once answered', async () => {
+			let resolveRequest: (dialedCallIds: DialedCallIds | null) => void =
+				() => {};
+			callsStore.call.mockResolvedValueOnce({});
+			callsStore.call.mockImplementationOnce(
+				() =>
+					new Promise<DialedCallIds | null>((resolve) => {
+						resolveRequest = resolve;
+					}),
+			);
+			const store = setup();
+			await store.start('100');
+			const dialling = store.start('200');
+			const call = ownCall();
+			await ring(call);
+			resolveRequest({
+				sipId: 'abcfromtag',
+			});
+			await dialling;
+			call.answeredAt = 1000;
+			await nextTick();
+
+			await ring(foreignCall());
+
+			expect(store.attempts).toHaveLength(1);
+			expect(store.attempts[0].destination).toBe('100');
+			expect(store.attempts[0].placedCall?.id).toBe('foreign-call');
 		});
 	});
 });

@@ -52,7 +52,7 @@ const props = defineProps<{
 	 * Elements the host renders beside the dock (the numpad panel), whose clicks are
 	 * not an outside click: the numpad can be open when the dock expands by itself on
 	 * an answer, and its first key would collapse the dock again
-	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+	 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
 	 */
 	outsideClickIgnoredTargets?: MaybeElementRef[];
 }>();

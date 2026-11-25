@@ -36,7 +36,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					buildCall('call-1'),
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			}),
 		).toEqual([]);
 	});
@@ -51,7 +52,8 @@ describe('linkAttemptsToCalls', () => {
 			callList: [
 				call,
 			],
-			claimedCallIds: new Set(),
+			callIdsClaimedByDial: new Set(),
+			callIdsClaimedByElimination: new Set(),
 		});
 
 		expect(assignments).toEqual([
@@ -75,7 +77,8 @@ describe('linkAttemptsToCalls', () => {
 				buildCall('old-call'),
 				buildCall('inbound-call', CallDirection.Inbound),
 			],
-			claimedCallIds: new Set(),
+			callIdsClaimedByDial: new Set(),
+			callIdsClaimedByElimination: new Set(),
 		});
 
 		expect(assignments).toEqual([]);
@@ -94,7 +97,8 @@ describe('linkAttemptsToCalls', () => {
 				firstCall,
 				secondCall,
 			],
-			claimedCallIds: new Set(),
+			callIdsClaimedByDial: new Set(),
+			callIdsClaimedByElimination: new Set(),
 		});
 
 		expect(assignments).toEqual([
@@ -122,7 +126,8 @@ describe('linkAttemptsToCalls', () => {
 			callList: [
 				ownedCall,
 			],
-			claimedCallIds: new Set(),
+			callIdsClaimedByDial: new Set(),
+			callIdsClaimedByElimination: new Set(),
 		});
 
 		expect(assignments).toEqual([]);
@@ -132,12 +137,17 @@ describe('linkAttemptsToCalls', () => {
 		const assignments = linkAttemptsToCalls({
 			attempts: [
 				buildAttempt('attempt-2'),
+				buildAttempt('attempt-3'),
 			],
 			callList: [
-				buildCall('call-1'),
+				buildCall('call-claimed-by-dial'),
+				buildCall('call-claimed-by-elimination'),
 			],
-			claimedCallIds: new Set([
-				'call-1',
+			callIdsClaimedByDial: new Set([
+				'call-claimed-by-dial',
+			]),
+			callIdsClaimedByElimination: new Set([
+				'call-claimed-by-elimination',
 			]),
 		});
 
@@ -160,7 +170,8 @@ describe('linkAttemptsToCalls', () => {
 					buildCall('foreign-call', CallDirection.Outbound, 'xyz'),
 					ownCall,
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([
@@ -186,7 +197,8 @@ describe('linkAttemptsToCalls', () => {
 					buildCall('foreign-call'),
 					ownCall,
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([
@@ -209,7 +221,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					buildCall('foreign-call', CallDirection.Outbound, 'xyz'),
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([]);
@@ -236,9 +249,8 @@ describe('linkAttemptsToCalls', () => {
 					foreignCall,
 					ownCall,
 				],
-				claimedCallIds: new Set([
-					'foreign-call',
-				]),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([
@@ -268,9 +280,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					foreignCall,
 				],
-				claimedCallIds: new Set([
-					'foreign-call',
-				]),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([
@@ -298,9 +309,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					namedCall,
 				],
-				claimedCallIds: new Set([
-					'named-call',
-				]),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([
@@ -330,7 +340,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					buildCall('old-call', CallDirection.Outbound, 'abc'),
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([]);
@@ -351,7 +362,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					ownCall,
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([]);
@@ -372,7 +384,8 @@ describe('linkAttemptsToCalls', () => {
 				callList: [
 					namedCall,
 				],
-				claimedCallIds: new Set(),
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set(),
 			});
 
 			expect(assignments).toEqual([
@@ -381,6 +394,55 @@ describe('linkAttemptsToCalls', () => {
 					call: namedCall,
 				},
 			]);
+		});
+
+		it('takes the call its ids name from an attempt that is gone and had it by elimination', () => {
+			const namedCall = buildCall('named-call', CallDirection.Outbound, 'abc');
+
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-with-ids', {
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					namedCall,
+				],
+				callIdsClaimedByDial: new Set(),
+				callIdsClaimedByElimination: new Set([
+					'named-call',
+				]),
+			});
+
+			expect(assignments).toEqual([
+				{
+					attemptId: 'attempt-with-ids',
+					call: namedCall,
+				},
+			]);
+		});
+
+		it('does not take a call another dial named', () => {
+			const assignments = linkAttemptsToCalls({
+				attempts: [
+					buildAttempt('attempt-with-ids', {
+						dialedCallIds: {
+							sipId: 'abcfromtag',
+						},
+					}),
+				],
+				callList: [
+					buildCall('named-call', CallDirection.Outbound, 'abc'),
+				],
+				callIdsClaimedByDial: new Set([
+					'named-call',
+				]),
+				callIdsClaimedByElimination: new Set(),
+			});
+
+			expect(assignments).toEqual([]);
 		});
 	});
 });

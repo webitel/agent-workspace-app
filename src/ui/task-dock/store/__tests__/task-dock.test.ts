@@ -11,7 +11,7 @@ import { useTaskDockStore } from '../task-dock';
  * @author Oleksandr Palonnyi
  * The attempts store is replaced by its answered hook, which is all the dock store
  * listens to
- * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
  */
 const answeredHook = createEventHook<string>();
 
@@ -25,7 +25,7 @@ vi.mock('../../../../features/calls/store/outboundCallAttempts', () => ({
  * @author Oleksandr Palonnyi
  * The calls store is replaced by its active calls, which is all the dock store
  * reads to tell an open dock from a stale id
- * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
  */
 const callsStore = reactive({
 	activeCalls: [] as Call[],

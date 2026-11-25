@@ -1,25 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasDialedCallIds, isDialedCall } from '../isDialedCall';
-
-describe('hasDialedCallIds', () => {
-	it('is false without ids', () => {
-		expect(hasDialedCallIds({})).toBe(false);
-	});
-
-	it('is true with either id', () => {
-		expect(
-			hasDialedCallIds({
-				sipId: 'abc',
-			}),
-		).toBe(true);
-		expect(
-			hasDialedCallIds({
-				callId: 'call-1',
-			}),
-		).toBe(true);
-	});
-});
+import { isDialedCall } from '../isDialedCall';
 
 describe('isDialedCall', () => {
 	it('matches the call whose sip id starts the dialled one', () => {

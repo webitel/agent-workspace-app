@@ -86,7 +86,7 @@ const numpadPanel = useTemplateRef('numpadPanel');
  * The array holds the ref itself, not its value: the tray entry resolves it on each
  * click, so the panel counts whether it was mounted before or after the entry. The
  * lane renders both, so it is the one to say the numpad belongs to the dock's area
- * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
  */
 const outsideClickIgnoredTargets = [
 	numpadPanel,

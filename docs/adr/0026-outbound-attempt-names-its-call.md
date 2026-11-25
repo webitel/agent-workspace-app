@@ -43,12 +43,16 @@ adopts another call by elimination. A call it took by elimination before the
 ids came is given up as soon as the ids name another call, so until its own
 call rings its card controls nothing. A call held only by elimination does not
 count as owned against the ids: the attempt they name takes it, and the
-attempt that held it goes back to Dialing. Attempts without ids (the request
-still open, an external phone, a failed web phone dial) are matched by
-elimination as before, after the attempts with ids, so they cannot take a call
-another attempt named. Linking reruns when a listed call's `id` or `sipId`
-changes, not only when the list does, because the SDK may fill `sipId` in on a
-later event.
+attempt that held it goes back to Dialing. The same holds once that attempt is
+gone (answered, closed): a call handed out earlier is claimed together with how
+it was linked, and only a claim by the ids keeps it from another attempt's ids.
+Otherwise an attempt whose `sipId` arrives after an attempt without ids took and
+answered its call would stay in Dialing beside that call for good. Attempts
+without ids (the request still open, an external phone, a failed web phone dial)
+are matched by elimination as before, after the attempts with ids, so they
+cannot take a call another attempt named, nor any claimed call. Linking reruns
+on a change to the call list only: `webitel-sdk` 26.4.45 sets a call's `id` and
+`sipId` when it creates the call and never later.
 
 Only an attempt whose call its ids name announces the answer that expands the
 call dock. A call linked by elimination may be one answered on a desk phone or

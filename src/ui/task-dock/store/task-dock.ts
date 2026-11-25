@@ -19,7 +19,7 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 	 * expand. A held call does not count either: dialling from the numpad holds the
 	 * call whose dock is open, and the dock would then stay on it while the answered
 	 * call, the one the agent is talking on, sat collapsed
-	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+	 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
 	 */
 	const isExpandedCallLive = computed(() =>
 		callsStore.activeCalls.some(
@@ -43,7 +43,7 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 	 * the dock from a live call the agent has open: they may be mid-DTMF or
 	 * mid-transfer there. The answered call then stays a collapsed pill, and of two
 	 * calls answered together the first one is expanded
-	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+	 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
 	 */
 	function expandAnsweredCall(id: string): void {
 		if (isExpandedCallLive.value) return;
@@ -60,7 +60,7 @@ export const useTaskDockStore = defineStore('taskDock', () => {
 	 * The subscription belongs to the store that owns `expandedCallId`, not to the
 	 * lane component: a lane that is unmounted or rendered conditionally would lose
 	 * the event without any error
-	 * [WS-155](https://webitel.atlassian.net/browse/WS-155)
+	 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
 	 */
 	function initialize() {
 		if (isInitialized) return;
