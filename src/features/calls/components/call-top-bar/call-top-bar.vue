@@ -43,6 +43,7 @@
 			/>
 			<call-top-bar-actions
 				v-else-if="isConnected"
+					@transfer="emit('transfer')"
 				:call="call"
 			/>
 		</template>
@@ -65,6 +66,10 @@ import CallTopBarActions from './call-top-bar-actions.vue';
 
 const props = defineProps<{
 	call: Call;
+}>();
+
+const emit = defineEmits<{
+	transfer: [];
 }>();
 
 const { t } = useI18n();

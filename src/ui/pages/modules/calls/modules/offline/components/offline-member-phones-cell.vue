@@ -1,16 +1,9 @@
 <template>
 	<div class="offline-member-phones-cell">
 		<template v-if="firstCommunication">
-			<wt-button
-				class="offline-member-phones-cell__call"
-				icon="call--filled"
-				:size="ComponentSize.SM"
-				:color="ButtonColor.SUCCESS"
-				:icon-color="IconColor.SUCCESS"
-				:variant="ButtonVariant.TEXT"
+			<phone-call-button
+				:number="firstCommunication.destination"
 				:loading="loading"
-				:aria-label="t('ui.pages.contacts.phones.call', { number: firstCommunication.destination })"
-				width-by-content
 				@click="call(firstCommunication)"
 			/>
 			<span class="offline-member-phones-cell__number">{{ firstCommunication.destination }}</span>
@@ -55,21 +48,15 @@
 
 <script setup lang="ts">
 import {
-	WtButton,
 	WtChip,
 	WtContextMenu,
 	WtIcon,
 	WtTooltip,
 } from '@webitel/ui-sdk/components';
-import {
-	ButtonColor,
-	ButtonVariant,
-	ChipColor,
-	ComponentSize,
-	IconColor,
-} from '@webitel/ui-sdk/enums';
+import { ChipColor, ComponentSize, IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import PhoneCallButton from '../../../../../../components/phone-call-button/phone-call-button.vue';
 import type { OfflineMemberCommunication } from '../types/OfflineMember.types';
 
 const props = defineProps<{
@@ -136,10 +123,6 @@ function onCommunicationOptionClick({
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
-}
-
-.offline-member-phones-cell__call {
-	flex-shrink: 0;
 }
 
 .offline-member-phones-cell__more {

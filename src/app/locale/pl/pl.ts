@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Połączenie przychodzące',
-					chat: 'Czat przychodzący',
+					call: 'Żądanie połączenia przychodzącego',
+					chat: 'Żądanie czatu przychodzącego',
 				},
 				unknownContact: 'Nieznany kontakt',
 				queue: 'Kolejka',
@@ -46,7 +46,9 @@ export default {
 		reusable: {
 			run: 'Uruchom',
 			nothingToShowHere: 'Nie ma tu nic do wyświetlenia',
-			startedAt: 'Rozpoczęto',
+			started: 'Rozpoczęto',
+			startedAt: 'Czas rozpoczęcia',
+			endedAt: 'Czas zakończenia',
 			username: 'Nazwa użytkownika',
 			message: 'Wiadomość',
 			phoneNumber: 'Numer telefonu',
@@ -55,6 +57,13 @@ export default {
 		},
 		numpad: {
 			call: 'Zadzwoń',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Przetwarzanie końcowe',
+				extend: 'Przedłuż przetwarzanie końcowe',
+				extensionsLeft: 'Pozostałe przedłużenia: {count}',
+			},
 		},
 		variables: {
 			empty: 'Brak zmiennych',
@@ -109,6 +118,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Aktywne',
+					closed: 'Zamknięte',
 				},
 				tabs: {
 					chat: 'Czat',
@@ -122,6 +132,13 @@ export default {
 					pin: 'Przypnij czat',
 					transfer: 'Przekieruj czat',
 					end: 'Zakończ czat',
+				},
+				closed: {
+					notFound: 'Nie znaleziono czatu',
+					loadError: 'Nie udało się załadować czatu',
+					retry: 'Spróbuj ponownie',
+					taskVariablesUnavailable:
+						'Zmienne contact center są niedostępne dla zamkniętych czatów',
 				},
 			},
 			history: {
@@ -153,6 +170,12 @@ export default {
 					moreNumbers: '+{count} numer(ów) więcej',
 					noPhone: 'Brak telefonu',
 				},
+				chats: {
+					noChat: 'Brak czatu',
+				},
+				emails: {
+					noEmail: 'Brak e-maila',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {
@@ -173,8 +196,29 @@ export default {
 					camera: 'Kamera',
 					message: 'Wiadomość',
 					transfer: 'Przekieruj',
+					bridge: 'Połącz rozmowy',
 					hangup: 'Zakończ połączenie',
 					openFullView: 'Otwórz pełny widok',
+				},
+			},
+			bridge: {
+				title: 'Łączenie rozmów',
+				connect: 'Połącz',
+				unknownContact: 'Nieznany kontakt',
+			},
+			transfer: {
+				title: 'Przekieruj połączenie',
+				emptyList: 'Nic nie znaleziono',
+				columns: {
+					name: 'Nazwa',
+					status: 'Status',
+					team: 'Zespół',
+				},
+				phoneLabel: 'Przekieruj na numer',
+				phonePlaceholder: 'Wpisz numer telefonu',
+				modes: {
+					blind: 'Bez konsultacji',
+					consult: 'Z konsultacją',
 				},
 			},
 			outboundCall: {
@@ -196,6 +240,9 @@ export default {
 			holdToggleFailed:
 				'Nie udało się wstrzymać ani wznowić połączenia. Spróbuj ponownie.',
 			dtmfFailed: 'Nie udało się wysłać cyfry. Spróbuj ponownie.',
+			transferFailed:
+				'Nie udało się przekierować połączenia. Spróbuj ponownie.',
+			bridgeFailed: 'Nie udało się połączyć rozmów. Spróbuj ponownie.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

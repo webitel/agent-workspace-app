@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Вхідний дзвінок',
-					chat: 'Вхідний чат',
+					call: 'Запит вхідного дзвінка',
+					chat: 'Запит вхідного чату',
 				},
 				unknownContact: 'Невідомий контакт',
 				queue: 'Черга',
@@ -46,6 +46,7 @@ export default {
 		reusable: {
 			run: 'Запустити',
 			nothingToShowHere: 'Тут нічого немає',
+			started: 'Розпочато',
 			startedAt: 'Початок',
 			endedAt: 'Завершено',
 			username: "Ім'я користувача",
@@ -55,12 +56,12 @@ export default {
 			select: 'Обрати',
 		},
 		numpad: {
-			call: 'Зателефонувати',
+			call: 'Подзвонити',
 		},
 		processing: {
 			postProcessing: {
-				title: 'Постобробка',
-				extend: 'Продовжити постобробку',
+				title: 'Пост-обробка',
+				extend: 'Продовжити пост-обробку',
 				extensionsLeft: 'Залишилось продовжень: {count}',
 			},
 		},
@@ -76,7 +77,7 @@ export default {
 				},
 				selectOrCreateContact: {
 					title: 'Виберіть контакт або створіть новий',
-					text: 'Виберіть контакт зі списку, щоб переглянути його дані, або створіть новий.',
+					text: 'Виберіть контакт зі списку для перегляду деталей або створіть новий.',
 				},
 				createContact: 'Створити контакт',
 				addContacts: 'Додати контакти',
@@ -106,8 +107,8 @@ export default {
 					selfAssigned: 'Самостійно призначені',
 				},
 				tabs: {
-					info: 'Інфо',
-					postProcessing: 'Постобробка',
+					info: 'Інформація',
+					postProcessing: 'Пост-обробка',
 					interaction: 'Взаємодії',
 					screenshots: 'Скріншоти',
 					contact: 'Контакт',
@@ -122,7 +123,7 @@ export default {
 				tabs: {
 					chat: 'Чат',
 					info: 'Інфо',
-					postProcessing: 'Постобробка',
+					postProcessing: 'Пост-обробка',
 					interaction: 'Взаємодія',
 					contact: 'Контакт',
 					iframe: 'Iframe',
@@ -158,16 +159,22 @@ export default {
 					},
 					callInfo: {
 						title: 'Інформація',
-						postprocessing: 'Постобробка',
+						postprocessing: 'Пост-обробка',
 						agentDescription: 'Коментар оператора',
 					},
 				},
 			},
 			contacts: {
 				phones: {
-					call: 'Зателефонувати на {number}',
+					call: 'Подзвонити на {number}',
 					moreNumbers: '+{count} ще номер(ів)',
 					noPhone: 'Немає телефону',
+				},
+				chats: {
+					noChat: 'Немає чату',
+				},
+				emails: {
+					noEmail: 'Немає email',
 				},
 			},
 			tableActionPanel: {
@@ -189,15 +196,36 @@ export default {
 					camera: 'Камера',
 					message: 'Повідомлення',
 					transfer: 'Переадресація',
+					bridge: "З'єднати дзвінки",
 					hangup: 'Завершити дзвінок',
 					openFullView: 'Відкрити повний вигляд',
 				},
 			},
+			bridge: {
+				title: "З'єднання дзвінків",
+				connect: "З'єднати",
+				unknownContact: 'Невідомий контакт',
+			},
+			transfer: {
+				title: 'Переведення дзвінка',
+				emptyList: 'Нічого не знайдено',
+				columns: {
+					name: "Ім'я",
+					status: 'Статус',
+					team: 'Команда',
+				},
+				phoneLabel: 'Перевести на номер',
+				phonePlaceholder: 'Введіть номер телефону',
+				modes: {
+					blind: 'Сліпий',
+					consult: 'Консультативний',
+				},
+			},
 			outboundCall: {
 				noAnswer: 'Немає відповіді',
-				noAnswerDescription: 'Телефон абонента не відповів на виклик.',
+				noAnswerDescription: 'Телефон одержувача не відповів на запит.',
 				retryCall: 'Повторити дзвінок',
-				backToDialpad: 'Назад до набору номера',
+				backToDialpad: 'Повернутися до набору номера',
 			},
 			direction: {
 				[CallDirection.Inbound]: 'Вхідний дзвінок',
@@ -211,6 +239,8 @@ export default {
 			holdToggleFailed:
 				'Не вдалося поставити дзвінок на утримання або зняти з нього. Спробуйте ще раз.',
 			dtmfFailed: 'Не вдалося надіслати цифру. Спробуйте ще раз.',
+			transferFailed: 'Не вдалося переадресувати дзвінок. Спробуйте ще раз.',
+			bridgeFailed: "Не вдалося з'єднати дзвінки. Спробуйте ще раз.",
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

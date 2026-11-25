@@ -46,6 +46,7 @@ export default {
 		reusable: {
 			run: 'Run',
 			nothingToShowHere: 'Nothing to show here',
+			started: 'Started',
 			startedAt: 'Started at',
 			endedAt: 'Ended at',
 			username: 'Username',
@@ -169,6 +170,12 @@ export default {
 					moreNumbers: '+{count} more number(s)',
 					noPhone: 'No phone',
 				},
+				chats: {
+					noChat: 'No chat',
+				},
+				emails: {
+					noEmail: 'No email',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {
@@ -189,8 +196,29 @@ export default {
 					camera: 'Camera',
 					message: 'Message',
 					transfer: 'Transfer',
+					bridge: 'Connect calls',
 					hangup: 'End call',
 					openFullView: 'Open full view',
+				},
+			},
+			bridge: {
+				title: 'Bridge calls',
+				connect: 'Connect',
+				unknownContact: 'Unknown contact',
+			},
+			transfer: {
+				title: 'Transfer Call',
+				emptyList: 'Nothing found',
+				columns: {
+					name: 'Name',
+					status: 'Status',
+					team: 'Team',
+				},
+				phoneLabel: 'Transfer to number',
+				phonePlaceholder: 'Enter phone number',
+				modes: {
+					blind: 'Blind',
+					consult: 'Consult',
 				},
 			},
 			outboundCall: {
@@ -212,6 +240,8 @@ export default {
 			holdToggleFailed:
 				'The call could not be put on hold or resumed. Please try again.',
 			dtmfFailed: 'The digit could not be sent. Please try again.',
+			transferFailed: 'The call could not be transferred. Please try again.',
+			bridgeFailed: 'The calls could not be connected. Please try again.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

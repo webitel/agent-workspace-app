@@ -5,6 +5,7 @@
 		class="post-processing-call-bar"
 		:preview="preview"
 		:displayed-time="timeLeft"
+		:can-bridge="false"
 		is-hung-up
 		@open-full-view="emit('openFullView')"
 	/>

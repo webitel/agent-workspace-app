@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Kiruvchi qoʻngʻiroq',
-					chat: 'Kiruvchi chat',
+					call: 'Kiruvchi qoʻngʻiroq soʻrovi',
+					chat: 'Kiruvchi chat soʻrovi',
 				},
 				unknownContact: 'Nomaʼlum kontakt',
 				queue: 'Navbat',
@@ -46,7 +46,9 @@ export default {
 		reusable: {
 			run: 'Ishga tushirish',
 			nothingToShowHere: 'Bu yerda hech narsa yoʼq',
-			startedAt: 'Boshlangan',
+			started: 'Boshlangan',
+			startedAt: 'Boshlanish vaqti',
+			endedAt: 'Tugash vaqti',
 			username: 'Foydalanuvchi nomi',
 			message: 'Xabar',
 			phoneNumber: 'Telefon raqami',
@@ -55,6 +57,13 @@ export default {
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Keyingi ishlov',
+				extend: 'Keyingi ishlovni uzaytirish',
+				extensionsLeft: 'Qolgan uzaytirishlar: {count}',
+			},
 		},
 		variables: {
 			empty: "O'zgaruvchilar yo'q",
@@ -109,6 +118,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Faol',
+					closed: 'Yopilgan',
 				},
 				tabs: {
 					chat: 'Chat',
@@ -122,6 +132,13 @@ export default {
 					pin: 'Chatni mahkamlash',
 					transfer: 'Chatni yoʻnaltirish',
 					end: 'Chatni tugatish',
+				},
+				closed: {
+					notFound: 'Chat topilmadi',
+					loadError: 'Chatni yuklab boʻlmadi',
+					retry: 'Qayta urinish',
+					taskVariablesUnavailable:
+						'Yopilgan chatlar uchun kontakt-markaz oʻzgaruvchilari mavjud emas',
 				},
 			},
 			history: {
@@ -153,6 +170,12 @@ export default {
 					moreNumbers: '+{count} ta raqam yana',
 					noPhone: 'Telefon yo‘q',
 				},
+				chats: {
+					noChat: 'Chat yo‘q',
+				},
+				emails: {
+					noEmail: 'Email yo‘q',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {
@@ -173,8 +196,29 @@ export default {
 					camera: 'Kamera',
 					message: 'Xabar',
 					transfer: 'Yoʻnaltirish',
+					bridge: 'Qoʻngʻiroqlarni ulash',
 					hangup: 'Qoʻngʻiroqni tugatish',
 					openFullView: 'Toʻliq koʻrinishni ochish',
+				},
+			},
+			bridge: {
+				title: 'Qoʻngʻiroqlarni ulash',
+				connect: 'Ulash',
+				unknownContact: 'Nomaʼlum kontakt',
+			},
+			transfer: {
+				title: 'Qoʻngʻiroqni oʻtkazish',
+				emptyList: 'Hech narsa topilmadi',
+				columns: {
+					name: 'Nomi',
+					status: 'Holati',
+					team: 'Jamoa',
+				},
+				phoneLabel: 'Raqamga oʻtkazish',
+				phonePlaceholder: 'Telefon raqamini kiriting',
+				modes: {
+					blind: 'Toʻgʻridan-toʻgʻri',
+					consult: 'Maslahat bilan',
 				},
 			},
 			outboundCall: {
@@ -195,6 +239,9 @@ export default {
 			holdToggleFailed:
 				'Qoʻngʻiroqni kutishga qoʻyib yoki davom ettirib boʻlmadi. Qaytadan urinib koʻring.',
 			dtmfFailed: 'Raqamni yuborib boʻlmadi. Qaytadan urinib koʻring.',
+			transferFailed:
+				'Qoʻngʻiroqni oʻtkazib boʻlmadi. Qaytadan urinib koʻring.',
+			bridgeFailed: 'Qoʻngʻiroqlarni ulab boʻlmadi. Qaytadan urinib koʻring.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:

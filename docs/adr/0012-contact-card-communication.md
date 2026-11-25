@@ -5,7 +5,7 @@ Date: 2026-11-10
 ## Status
 
 Accepted. Implemented in [WS-125](https://webitel.atlassian.net/browse/WS-125)
-(US_07.07, display only).
+and [WS-170](https://webitel.atlassian.net/browse/WS-170) (US_07.07).
 
 ## Context
 
@@ -47,9 +47,14 @@ else on the record is shown in place of the name — what the backend does not
 return is left out, not approximated, as in ADR-0001 and ADR-0010. Phones and
 emails without a value are dropped.
 
-**Actions are not part of this section yet.** Call, Send message and Add
-(AC_07.07.05–06, 07.08–07.10) are not rendered; each row has an empty `actions`
-slot for them.
+**Actions go into the row's `actions` slot, filled by the section per tab,** so
+the row and the mapper stay unaware of them. On Phones the slot holds the shared
+`phone-call-button` (AC_07.07.05), the same green handset as in the phone
+columns of the tables, at the right end of the row. A click dials through
+`useOutboundCall`, so the agent gets the outbound call card; the section's call
+buttons are disabled while a call is starting. It is shown in every panel that
+renders the card, during a call too. Send message and Add
+(AC_07.07.06, 07.08–07.10) are not rendered.
 
 ## Considered options
 

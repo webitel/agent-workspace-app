@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import { IconColor } from '@webitel/ui-sdk/enums';
 import { describe, expect, it } from 'vitest';
 
 import CallDockActions from '../call-dock-actions.vue';
@@ -9,6 +8,8 @@ const mountActions = (
 		isNumpadOpen: boolean;
 		isMuted: boolean;
 		isHold: boolean;
+		canTransfer: boolean;
+		canBridge: boolean;
 	}> = {},
 ) =>
 	mount(CallDockActions, {
@@ -16,6 +17,8 @@ const mountActions = (
 			isNumpadOpen: false,
 			isMuted: false,
 			isHold: false,
+			canTransfer: true,
+			canBridge: false,
 			...props,
 		},
 		global: {
@@ -88,16 +91,57 @@ describe('call-dock-actions', () => {
 		).toBeUndefined();
 	});
 
-	it('toggles the transfer icon active on each click', async () => {
+	it('disables transfer when the call cannot be transferred', () => {
+		const wrapper = mountActions({
+			canTransfer: false,
+		});
+
+		expect(
+			findAction(wrapper, 'transfer').attributes('disabled'),
+		).toBeDefined();
+	});
+
+	it('hides bridge while there is no other call to connect', () => {
 		const wrapper = mountActions();
-		const transferIcon = () =>
-			findAction(wrapper, 'transfer').find('[data-icon]');
-		const inactiveColor = transferIcon().attributes('data-color');
+
+		expect(findAction(wrapper, 'bridge').exists()).toBe(false);
+	});
+
+	it('places bridge right after hold and before transfer', () => {
+		const wrapper = mountActions({
+			canBridge: true,
+		});
+
+		const labels = wrapper
+			.findAll('button')
+			.map((button) => button.attributes('aria-label'));
+
+		expect(labels.indexOf('ui.call.activeCall.actions.bridge')).toBe(
+			labels.indexOf('ui.call.activeCall.actions.hold') + 1,
+		);
+		expect(labels.indexOf('ui.call.activeCall.actions.transfer')).toBe(
+			labels.indexOf('ui.call.activeCall.actions.bridge') + 1,
+		);
+	});
+
+	it('emits bridge when the agent has another call to connect', async () => {
+		const wrapper = mountActions({
+			canBridge: true,
+		});
+
+		await findAction(wrapper, 'bridge').trigger('click');
+
+		expect(wrapper.emitted('bridge')).toHaveLength(1);
+	});
+
+	it('emits transfer without marking the action pressed', async () => {
+		const wrapper = mountActions();
 
 		await findAction(wrapper, 'transfer').trigger('click');
-		expect(transferIcon().attributes('data-color')).toBe(IconColor.ACTIVE);
 
-		await findAction(wrapper, 'transfer').trigger('click');
-		expect(transferIcon().attributes('data-color')).toBe(inactiveColor);
+		expect(wrapper.emitted('transfer')).toHaveLength(1);
+		expect(
+			findAction(wrapper, 'transfer').attributes('aria-pressed'),
+		).toBeUndefined();
 	});
 });

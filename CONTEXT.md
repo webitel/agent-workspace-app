@@ -1,4 +1,4 @@
-# agent-workspace-app
+﻿# agent-workspace-app
 
 Operator (agent) workspace, built on the current frontend stack: Vue 3 +
 Pinia, Vite, Biome, vitest and Playwright. Served under the `/agent-workspace`
@@ -60,6 +60,15 @@ and should not be carried over wholesale.
   platform's auto-answer with the other calls held first (an offline member's
   too), and its own panel searches the contact by the call's number, without
   SELECT.
+- [ADR-0016](docs/adr/0016-transfer-agents-list.md) — the transfer popup's agents
+  list is a ui-datalist table store, one table per tab under one search field
+  that applies on the debounced event, and the known race it leaves open.
+- [ADR-0017](docs/adr/0017-consult-call-is-derived.md) — a Consult call is
+  derived from the call list by its parent, shown as a ringing card until
+  answered, and why it is not stored.
+- [ADR-0018](docs/adr/0018-bridge-is-offered-from-the-live-call.md) — bridging
+  is offered between any two Active calls, from the live one only, with Connect
+  bridging at once and the app closing nothing afterwards.
 - [ADR-0019](docs/adr/0019-right-panel-follows-the-route.md) — the right
   panel shows what the current route resolves to, a row picked in a table is
   held in a selection store (a contact, an unknown contact or a number to search
@@ -87,6 +96,14 @@ and should not be carried over wholesale.
   typography overrides the styleguide's `typo-*` classes locally until the
   styleguide ships it, keeps the old class names, and falls back to Montserrat
   for Cyrillic.
+- [ADR-0025](docs/adr/0025-handed-over-call-is-a-hung-up-call.md) — a call the
+  agent transferred away is an ordinary hung-up call, not a status of its own;
+  the SDK marks it so about 0.5 s after a blind transfer, which ends the
+  transfer button.
+- [ADR-0027](docs/adr/0027-transfer-queues-list.md) — the transfer popup's queues
+  list is a table store like the agents list, its selected row is painted by
+  `wt-table`'s `active-row` rather than by a token that does not exist, and a
+  disabled queue is still listed.
 
 ## Language
 
@@ -186,6 +203,44 @@ agent's yet, so there is nothing to link one to.
 **Active call** — a call that is connected, whichever side started it. Any number
 can exist at once, one live and the rest on hold. Derived from the SDK's call
 list; no store of its own.
+
+**Blind transfer** — handing an Active call to a destination (a number, a user,
+a queue, a dialplan) without speaking to it first. The agent is out of the call
+the moment it is sent.
+
+**Consult transfer** — handing an Active call to a destination (a number, an
+agent, a queue) after speaking to it first: the original call is put on hold,
+the agent places a **Consult call** to the destination, and then either bridges
+the two or cancels the consult and goes back to the original call.
+
+**Consult call** — the call to the destination of a Consult transfer, placed
+while the original call is on hold. It is a call of its own, not the original;
+once the destination answers it is an Active call like any other. Until then it
+shows as a ringing card in the call dock, and it is recognised by the original
+call being its parent, not remembered (ADR-0017).
+
+**Bridge** — joining two Active calls to each other so the agent drops out and
+the two parties talk (AC_14.02.07, ADR-0018). It is not a transfer and not part of a
+**Consult transfer** only: it applies to any two Active calls, and is offered
+whenever the agent has more than one (its icon is in the call dock's action bar
+only then, not for a single call). The agent opens it from one call and picks the
+other one in a popup. Afterwards the two connected calls are active and the third
+is dropped; a call that came from a queue goes on to its **Post-processing**
+(BA, not yet seen on a live call).
+
+**Handed-over call** — a call the agent transferred away with a **Blind
+transfer**. For that agent the transfer ends the call (WTEL-8983): it shows as
+hung up in the Call window, with its Post-processing if it has one, and its
+transfer is no longer offered. It has no status of its own, neither open nor
+closed; the receiving agent gets a call that is theirs, not a Handed-over call
+(ADR-0025).
+
+**Transfer popup** — the popup an agent uses to pick where an Active call goes,
+opened from the Call window's top bar or from the call dock. It has a number
+field and four tabs of destinations (Agents, Queues, Users, Dialplans) under one
+search; selecting a row and choosing Blind or Consult starts a **Blind transfer**
+or a **Consult transfer**. Which of the two a row allows depends on its tab. It
+works on one call, the one it was opened for.
 
 **Call window** — the central-area card for one call, the call's counterpart of
 the chat window. It hosts the call while it is an **Active call** and stays on
@@ -340,6 +395,13 @@ legacy chat client, which carries the client's `user` from the external service,
 or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
+
+**No phone / No chat / No email** — what the Phone number, Chat and Email
+columns of the Contacts and Users tabs show for a contact that cannot be reached
+that way: the column's icon, disabled, with the text. A contact has a chat when
+it has any IM client, named or not: one without a name still counts, it just has
+no name to show. A phone or email record without a value does not count. A user
+without an extension has no phone.
 
 **Identified contact** — a contact the search by a call's number found. There
 can be none, one or several; with several, the right panel shows them one at a

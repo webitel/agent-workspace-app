@@ -32,27 +32,15 @@
 			</template>
 
 			<template #phones="{ item }">
-				<contact-phones-cell
-					:phones="item.phones?.data"
-					@call="onCall"
-				/>
+				<contact-phones-cell :phones="item.phones?.data" />
 			</template>
 
 			<template #emails="{ item }">
-				<table-cell-info
-					icon="ws-navigation-email"
-					:icon-color="IconColor.MAIL"
-					:items="item.emails?.data"
-					item-label="email"
-				/>
+				<contact-emails-cell :emails="item.emails?.data" />
 			</template>
 
 			<template #imclients="{ item }">
-				<table-cell-info
-					icon="ws-chat"
-					:icon-color="IconColor.CHAT"
-					:items="getImclientItems(item)"
-				/>
+				<contact-chats-cell :contact-clients="item.imclients?.data" />
 			</template>
 
 			<template #about="{ item }">
@@ -65,13 +53,13 @@
 <script setup lang="ts">
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { WtTable } from '@webitel/ui-sdk/components';
-import { IconColor } from '@webitel/ui-sdk/enums';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import { useOutboundCallAttemptsStore } from '../../../../../../features/calls/store/outboundCallAttempts';
 import { useSidebarSelectionStore } from '../../../../../sidebar/store/sidebar-selection';
 import TableCellInfo from '../../../../components/table-cell-info.vue';
 import UsernameTableCell from '../../../../components/username-table-cell.vue';
+import ContactChatsCell from './components/contact-chats-cell.vue';
+import ContactEmailsCell from './components/contact-emails-cell.vue';
 import ContactPhonesCell from './components/contact-phones-cell.vue';
 import type { useContactsDataListStore } from './store/contacts';
 
@@ -90,19 +78,6 @@ const { dataList, shownHeaders, next, isLoading } = storeToRefs(props.store);
 
 const { selectContact } = useSidebarSelectionStore();
 
-const outboundCallAttemptsStore = useOutboundCallAttemptsStore();
-
-/**
- * @author Oleksandr Palonnyi
- * Dialled through an outbound attempt rather than `callsStore.call`, so the
- * agent gets the outbound call card (AC_20.03.01); opening the call page per
- * `open_new_interaction_card` (E28) is not built
- * [WTEL-WS-27](https://webitel.atlassian.net/browse/WTEL-WS-27)
- */
-function onCall(number: string): void {
-	outboundCallAttemptsStore.start(number);
-}
-
 const isInitializing = ref(true);
 
 const onLoading = async () => {
@@ -112,17 +87,6 @@ const onLoading = async () => {
 
 function getGroupItems(item: WebitelContactsContact) {
 	return item.groups?.data?.map(({ group }) => group).filter(Boolean) ?? [];
-}
-
-function getImclientItems(item: WebitelContactsContact) {
-	return (
-		item.imclients?.data
-			?.map(({ id, user }) => ({
-				id,
-				name: user?.name,
-			}))
-			.filter(({ name }) => Boolean(name)) ?? []
-	);
 }
 
 initialize().finally(() => {

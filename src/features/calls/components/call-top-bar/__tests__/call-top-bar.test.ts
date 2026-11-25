@@ -72,7 +72,11 @@ const stubs = {
 		props: [
 			'call',
 		],
-		template: '<div class="actions-stub" />',
+		emits: [
+			'transfer',
+		],
+		template:
+			'<div class="actions-stub"><button class="transfer" @click="$emit(\'transfer\')" /></div>',
 	},
 	TaskTopBarOfferActions: {
 		props: [
@@ -163,6 +167,14 @@ describe('call-top-bar', () => {
 
 		expect(hidden.find('.copy-action').exists()).toBe(false);
 		expect(absent.find('.copy-action').exists()).toBe(false);
+	});
+
+	it('passes on the request to transfer the call', async () => {
+		const bar = mountBar(buildCall());
+
+		await bar.find('.transfer').trigger('click');
+
+		expect(bar.emitted('transfer')).toHaveLength(1);
 	});
 
 	it('offers the call actions while connected, without a timer', () => {

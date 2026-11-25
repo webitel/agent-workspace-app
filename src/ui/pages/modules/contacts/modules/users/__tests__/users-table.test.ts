@@ -4,7 +4,6 @@ import type { ApiUser } from '@webitel/api-services/gen/models';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive, ref } from 'vue';
 
-import { useOutboundCallAttemptsStore } from '../../../../../../../features/calls/store/outboundCallAttempts';
 import { useSidebarSelectionStore } from '../../../../../../sidebar/store/sidebar-selection';
 import type { useUsersDataListStore } from '../store/users';
 import UsersTable from '../users-table.vue';
@@ -54,9 +53,6 @@ const stubs = {
 		name: 'ContactPhonesCell',
 		props: [
 			'phones',
-		],
-		emits: [
-			'call',
 		],
 		template: '<div class="phones-cell" />',
 	},
@@ -163,17 +159,5 @@ describe('users-table', () => {
 		});
 
 		expect(phonesCellOf(wrapper).props('phones')).toEqual([]);
-	});
-
-	it('starts an outbound attempt on the extension chosen in the phones cell', () => {
-		const wrapper = mountTable({
-			id: '1',
-			name: 'John Doe',
-			extension: '101',
-		});
-
-		phonesCellOf(wrapper).vm.$emit('call', '101');
-
-		expect(useOutboundCallAttemptsStore().start).toHaveBeenCalledWith('101');
 	});
 });

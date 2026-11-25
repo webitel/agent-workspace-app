@@ -28,8 +28,8 @@ export default {
 		notifications: {
 			offer: {
 				title: {
-					call: 'Cuộc gọi đến',
-					chat: 'Trò chuyện đến',
+					call: 'Yêu cầu cuộc gọi đến',
+					chat: 'Yêu cầu trò chuyện đến',
 				},
 				unknownContact: 'Liên hệ không xác định',
 				queue: 'Hàng đợi',
@@ -46,7 +46,9 @@ export default {
 		reusable: {
 			run: 'Chạy',
 			nothingToShowHere: 'Không có gì để hiển thị ở đây',
+			started: 'Bắt đầu',
 			startedAt: 'Bắt đầu lúc',
+			endedAt: 'Kết thúc lúc',
 			username: 'Tên người dùng',
 			message: 'Tin nhắn',
 			phoneNumber: 'Số điện thoại',
@@ -55,6 +57,13 @@ export default {
 		},
 		numpad: {
 			call: 'Gọi',
+		},
+		processing: {
+			postProcessing: {
+				title: 'Xử lý sau',
+				extend: 'Gia hạn xử lý sau',
+				extensionsLeft: 'Số lần gia hạn còn lại: {count}',
+			},
 		},
 		variables: {
 			empty: 'Không có biến',
@@ -109,6 +118,7 @@ export default {
 			chats: {
 				pageTabs: {
 					active: 'Đang hoạt động',
+					closed: 'Đã đóng',
 				},
 				tabs: {
 					chat: 'Trò chuyện',
@@ -122,6 +132,13 @@ export default {
 					pin: 'Ghim cuộc trò chuyện',
 					transfer: 'Chuyển cuộc trò chuyện',
 					end: 'Kết thúc cuộc trò chuyện',
+				},
+				closed: {
+					notFound: 'Không tìm thấy cuộc trò chuyện',
+					loadError: 'Không thể tải cuộc trò chuyện',
+					retry: 'Thử lại',
+					taskVariablesUnavailable:
+						'Biến của trung tâm liên lạc không khả dụng cho các cuộc trò chuyện đã đóng',
 				},
 			},
 			history: {
@@ -153,6 +170,12 @@ export default {
 					moreNumbers: '+{count} số khác',
 					noPhone: 'Không có số điện thoại',
 				},
+				chats: {
+					noChat: 'Không có chat',
+				},
+				emails: {
+					noEmail: 'Không có email',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {
@@ -173,8 +196,29 @@ export default {
 					camera: 'Camera',
 					message: 'Tin nhắn',
 					transfer: 'Chuyển cuộc gọi',
+					bridge: 'Kết nối cuộc gọi',
 					hangup: 'Kết thúc cuộc gọi',
 					openFullView: 'Mở chế độ xem đầy đủ',
+				},
+			},
+			bridge: {
+				title: 'Kết nối cuộc gọi',
+				connect: 'Kết nối',
+				unknownContact: 'Liên hệ không xác định',
+			},
+			transfer: {
+				title: 'Chuyển cuộc gọi',
+				emptyList: 'Không tìm thấy gì',
+				columns: {
+					name: 'Tên',
+					status: 'Trạng thái',
+					team: 'Nhóm',
+				},
+				phoneLabel: 'Chuyển đến số',
+				phonePlaceholder: 'Nhập số điện thoại',
+				modes: {
+					blind: 'Chuyển thẳng',
+					consult: 'Chuyển có tham vấn',
 				},
 			},
 			outboundCall: {
@@ -195,6 +239,8 @@ export default {
 			holdToggleFailed:
 				'Không thể giữ máy hoặc tiếp tục cuộc gọi. Vui lòng thử lại.',
 			dtmfFailed: 'Không thể gửi chữ số. Vui lòng thử lại.',
+			transferFailed: 'Không thể chuyển cuộc gọi. Vui lòng thử lại.',
+			bridgeFailed: 'Không thể kết nối các cuộc gọi. Vui lòng thử lại.',
 		},
 		websocket: {
 			[DeviceNotAllowPermissionError.id]:
