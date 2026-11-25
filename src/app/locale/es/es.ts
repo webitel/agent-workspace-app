@@ -35,6 +35,7 @@ export default {
 				queue: 'Cola',
 				channel: 'Canal',
 				waitingTime: 'Tiempo de espera',
+				timeToAccept: 'Tiempo para aceptar',
 				accept: 'Aceptar',
 				decline: 'Rechazar',
 			},

@@ -35,6 +35,7 @@ export default {
 				queue: 'Кезек',
 				channel: 'Арна',
 				waitingTime: 'Күту уақыты',
+				timeToAccept: 'Қабылдауға уақыт',
 				accept: 'Қабылдау',
 				decline: 'Бас тарту',
 			},

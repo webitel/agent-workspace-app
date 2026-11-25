@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { WtDivider } from '@webitel/ui-sdk/components';
 import { describe, expect, it } from 'vitest';
 
 import { type OfferCardContent, OfferKind } from '../../../types/Offer.types';
@@ -23,11 +24,7 @@ const mountCard = (props: Record<string, unknown> = {}) =>
 	});
 
 describe('offer-card', () => {
-	/**
-	 * An offer carries one `source`, and where it belongs is the only channel
-	 * decision the card's parts cannot make for themselves: chats name their
-	 * gateway beside the contact, calls name their queue below the wait bar.
-	 */
+	// a chat names its gateway beside the contact, not in the details block
 	it('renders a chat offer’s source inside the identity block', () => {
 		const wrapper = mountCard({
 			content: buildContent({
@@ -42,22 +39,54 @@ describe('offer-card', () => {
 		expect(wrapper.find('.offer-identity .offer-source-line').text()).toContain(
 			'Telegram',
 		);
-		expect(wrapper.find('.offer-card__queue').exists()).toBe(false);
+		expect(wrapper.find('.offer-card__details').exists()).toBe(false);
 	});
 
-	it('renders a call offer’s source as the queue line', () => {
+	it.each([
+		OfferKind.Call,
+		OfferKind.Chat,
+	])('renders the queue line of a %s offer', (kind) => {
 		const wrapper = mountCard({
 			content: buildContent({
-				source: {
-					label: 'Queue',
-					value: 'Support',
-				},
+				kind,
+				queueName: 'Support',
 			}),
 		});
 
 		expect(wrapper.find('.offer-card__queue').text()).toContain('Support');
 		expect(wrapper.find('.offer-identity .offer-source-line').exists()).toBe(
 			false,
+		);
+	});
+
+	it('renders the variables without a queue', () => {
+		const wrapper = mountCard({
+			content: buildContent({
+				variables: [
+					{
+						label: 'Language',
+						value: 'EN',
+					},
+				],
+			}),
+		});
+
+		expect(wrapper.find('.offer-card__queue').exists()).toBe(false);
+		expect(wrapper.find('.offer-variables').text()).toContain('EN');
+	});
+
+	// AC_06.01.06: neither a queue nor variables — no block and no divider
+	it('drops the details block and its divider when there is nothing to show', () => {
+		const empty = mountCard();
+		const withQueue = mountCard({
+			content: buildContent({
+				queueName: 'Support',
+			}),
+		});
+
+		expect(empty.find('.offer-card__details').exists()).toBe(false);
+		expect(withQueue.findAllComponents(WtDivider)).toHaveLength(
+			empty.findAllComponents(WtDivider).length + 1,
 		);
 	});
 

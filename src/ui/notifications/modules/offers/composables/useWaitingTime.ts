@@ -4,8 +4,8 @@ import { computed, type MaybeRefOrGetter, toValue } from 'vue';
 import { useElapsedSec } from '../../../../composables/useElapsedSec';
 
 /**
- * Ticking "waiting time" plus the queue-wait progress bar (AC_14.01.04 /
- * AC_06.01.05).
+ * Ticking elapsed queue wait or remaining accept time, plus a progress bar
+ * (AC_14.01.04 / AC_06.01.05).
  *
  * The producer passes an absolute `waitingSince`, not a duration, so the counter
  * stays correct across re-renders and tab sleep without anyone pushing updates.
@@ -22,9 +22,16 @@ export type WaitingLevel = (typeof WaitingLevel)[keyof typeof WaitingLevel];
 export function useWaitingTime(
 	waitingSince: MaybeRefOrGetter<number | undefined>,
 	maxWaitSec: MaybeRefOrGetter<number | undefined>,
+	isCountdown: MaybeRefOrGetter<boolean | undefined> = false,
 ) {
-	/** False when the producer has no trustworthy epoch — the consumer hides the block. */
-	const hasWaitingTime = computed(() => !!toValue(waitingSince));
+	/** False when the producer has no usable timer data — the consumer hides the block. */
+	const hasWaitingTime = computed(() => {
+		if (!toValue(waitingSince)) return false;
+		if (!toValue(isCountdown)) return true;
+
+		const max = toValue(maxWaitSec);
+		return !!max && max > 0;
+	});
 
 	const elapsedSec = useElapsedSec(waitingSince);
 
@@ -34,15 +41,25 @@ export function useWaitingTime(
 	 * because DES-727 shows the offer card's timer as `01:22` — a card that lives
 	 * for a minute or two should not carry a permanent `00:`.
 	 */
+	const formattedSec = computed(() => {
+		if (toValue(isCountdown)) {
+			const acceptTimeoutSec = toValue(maxWaitSec) ?? 0;
+			return Math.max(0, acceptTimeoutSec - elapsedSec.value);
+		}
+
+		return elapsedSec.value;
+	});
+
 	const formatted = computed(() =>
-		convertDuration(elapsedSec.value, {
+		convertDuration(formattedSec.value, {
 			alwaysShowHours: false,
 		}),
 	);
 
 	/**
-	 * Undefined until the backend exposes the queue's Max wait time (WS-16 /
-	 * WS-35). The consumer hides the bar and keeps the counter.
+	 * For elapsed wait, the denominator is the queue's Max wait time. For a
+	 * countdown, it is the chat's accept timeout. Without either limit, the
+	 * consumer hides the bar and keeps an elapsed counter.
 	 */
 	const progress = computed(() => {
 		if (!hasWaitingTime.value) return undefined;
