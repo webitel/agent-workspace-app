@@ -171,9 +171,11 @@ export default {
 					noPhone: 'Sin teléfono',
 				},
 				chats: {
+					moreChats: '+{count} chat(s) más',
 					noChat: 'Sin chat',
 				},
 				emails: {
+					moreEmails: '+{count} correo(s) electrónico(s) más',
 					noEmail: 'Sin correo electrónico',
 				},
 			},

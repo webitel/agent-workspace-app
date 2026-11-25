@@ -1,12 +1,9 @@
 <template>
 	<div class="communication-cell-empty">
-		<span class="communication-cell-empty__icon">
-			<wt-icon
-				:icon="icon"
-				:size="ComponentSize.SM"
-				:color="IconColor.DISABLED"
-			/>
-		</span>
+		<communication-cell-icon
+			:icon="icon"
+			:color="IconColor.DISABLED"
+		/>
 		<span class="typo-body-2">{{ text }}</span>
 	</div>
 </template>
@@ -18,7 +15,8 @@
  * communication columns: the column's own icon, disabled, with the text
  * [WS-178](https://webitel.atlassian.net/browse/WS-178)
  */
-import { ComponentSize, IconColor } from '@webitel/ui-sdk/enums';
+import { IconColor } from '@webitel/ui-sdk/enums';
+import CommunicationCellIcon from './communication-cell-icon.vue';
 
 defineProps<{
 	icon: string;
@@ -31,15 +29,5 @@ defineProps<{
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
-}
-
-/**
- * Same box as the SM icon button in the filled phone cell (an SM icon with
- * --spacing-xs padding), so an empty row lines up with a filled one
- */
-.communication-cell-empty__icon {
-	display: flex;
-	flex-shrink: 0;
-	padding: var(--spacing-xs);
 }
 </style>

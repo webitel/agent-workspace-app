@@ -171,9 +171,11 @@ export default {
 					noPhone: 'Telefon yo‘q',
 				},
 				chats: {
+					moreChats: '+{count} ta chat yana',
 					noChat: 'Chat yo‘q',
 				},
 				emails: {
+					moreEmails: '+{count} ta email yana',
 					noEmail: 'Email yo‘q',
 				},
 			},

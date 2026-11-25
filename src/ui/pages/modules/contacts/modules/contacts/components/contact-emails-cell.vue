@@ -1,11 +1,15 @@
 <template>
-	<table-cell-info
-		v-if="addresses.length"
+	<communication-cell-list
+		v-if="primaryEmail"
+		:value="primaryEmail"
+		:options="emailAddresses"
 		:icon="EMAIL_ICON"
 		:icon-color="IconColor.MAIL"
-		:items="addresses"
-		item-label="email"
-	/>
+	>
+		<template #more-tooltip="{ count }">
+			{{ t('ui.pages.contacts.emails.moreEmails', { count }) }}
+		</template>
+	</communication-cell-list>
 
 	<communication-cell-empty
 		v-else
@@ -19,8 +23,8 @@ import type { ContactsEmailAddress } from '@webitel/api-services/gen/models';
 import { IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import TableCellInfo from '../../../../../components/table-cell-info.vue';
 import CommunicationCellEmpty from './communication-cell-empty.vue';
+import CommunicationCellList from './communication-cell-list.vue';
 
 const props = defineProps<{
 	emails?: ContactsEmailAddress[];
@@ -38,5 +42,22 @@ const EMAIL_ICON = 'ws-navigation-email';
  */
 const addresses = computed(() =>
 	(props.emails ?? []).filter(({ email }) => Boolean(email)),
+);
+
+/**
+ * @author Polina Sukhorukova
+ * Shown like the phone column: the primary address, or the first one when
+ * none is marked primary. A menu row has no action: writing an email from
+ * the table (US_20.05) is described separately
+ * [WS-177](https://webitel.atlassian.net/browse/WS-177)
+ */
+const primaryEmail = computed(
+	() =>
+		(addresses.value.find(({ primary }) => primary) ?? addresses.value[0])
+			?.email ?? '',
+);
+
+const emailAddresses = computed(() =>
+	addresses.value.map(({ email }) => email ?? ''),
 );
 </script>

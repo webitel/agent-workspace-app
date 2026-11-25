@@ -1,32 +1,30 @@
 <template>
-	<communication-cell-empty
-		v-if="!hasChat"
-		:icon="CHAT_ICON"
-		:text="t('ui.pages.contacts.chats.noChat')"
-	/>
-
-	<table-cell-info
-		v-else-if="namedChats.length"
+	<communication-cell-list
+		v-if="hasChat"
+		:value="chatNames[0]"
+		:options="chatNames"
 		:icon="CHAT_ICON"
 		:icon-color="IconColor.CHAT"
-		:items="namedChats"
-	/>
+	>
+		<template #more-tooltip="{ count }">
+			{{ t('ui.pages.contacts.chats.moreChats', { count }) }}
+		</template>
+	</communication-cell-list>
 
-	<wt-icon
+	<communication-cell-empty
 		v-else
 		:icon="CHAT_ICON"
-		:size="ComponentSize.SM"
-		:color="IconColor.CHAT"
+		:text="t('ui.pages.contacts.chats.noChat')"
 	/>
 </template>
 
 <script setup lang="ts">
 import type { ContactsIMClient } from '@webitel/api-services/gen/models';
-import { ComponentSize, IconColor } from '@webitel/ui-sdk/enums';
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import TableCellInfo from '../../../../../components/table-cell-info.vue';
 import CommunicationCellEmpty from './communication-cell-empty.vue';
+import CommunicationCellList from './communication-cell-list.vue';
 
 const props = defineProps<{
 	contactClients?: ContactsIMClient[];
@@ -46,16 +44,15 @@ const hasChat = computed(() => Boolean(props.contactClients?.length));
 
 /**
  * @author Polina Sukhorukova
- * Only named clients get a chip; a contact whose clients are all nameless
- * shows the chat icon alone, never a "-"
- * [WS-178](https://webitel.atlassian.net/browse/WS-178)
+ * Only named clients are shown and counted, the first one in the column: an
+ * IM client has no primary flag, and the chat select defaults to the first
+ * (US_20.04). A contact whose clients are all nameless shows the chat icon
+ * alone. A menu row has no action: sending a message from the table is not MVP
+ * [WS-177](https://webitel.atlassian.net/browse/WS-177)
  */
-const namedChats = computed(() =>
+const chatNames = computed(() =>
 	(props.contactClients ?? [])
-		.map(({ id, user }) => ({
-			id,
-			name: user?.name,
-		}))
-		.filter(({ name }) => Boolean(name)),
+		.map(({ user }) => user?.name ?? '')
+		.filter(Boolean),
 );
 </script>

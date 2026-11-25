@@ -171,9 +171,11 @@ export default {
 					noPhone: 'Телефон жоқ',
 				},
 				chats: {
+					moreChats: '+{count} чат тағы',
 					noChat: 'Чат жоқ',
 				},
 				emails: {
+					moreEmails: '+{count} email тағы',
 					noEmail: 'Email жоқ',
 				},
 			},

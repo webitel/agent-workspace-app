@@ -107,7 +107,7 @@ describe('contact-phones-cell', () => {
 			},
 		]);
 
-		expect(wrapper.find('.contact-phones-cell__number').text()).toBe('222');
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe('222');
 	});
 
 	it('falls back to the first number when none is primary', () => {
@@ -120,7 +120,7 @@ describe('contact-phones-cell', () => {
 			},
 		]);
 
-		expect(wrapper.find('.contact-phones-cell__number').text()).toBe('111');
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe('111');
 	});
 
 	it('calls the shown number on button click', async () => {
@@ -181,7 +181,7 @@ describe('contact-phones-cell', () => {
 			})
 			.vm.$emit('click', {
 				option: {
-					number: '222',
+					text: '222',
 				},
 			});
 
@@ -196,7 +196,7 @@ describe('contact-phones-cell', () => {
 			},
 		]);
 
-		expect(wrapper.find('.contact-phones-cell__number').text()).toBe('111');
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe('111');
 		expect(wrapper.find('.phones-menu').exists()).toBe(false);
 	});
 });
