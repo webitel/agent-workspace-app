@@ -396,6 +396,13 @@ or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
 
+**No phone / No chat / No email** — what the Phone number, Chat and Email
+columns of the Contacts and Users tabs show for a contact that cannot be reached
+that way: the column's icon, disabled, with the text. A contact has a chat when
+it has any IM client, named or not: one without a name still counts, it just has
+no name to show. A phone or email record without a value does not count. A user
+without an extension has no phone.
+
 **Identified contact** — a contact the search by a call's number found. There
 can be none, one or several; with several, the right panel shows them one at a
 time. Being identified does not link the contact to the call.

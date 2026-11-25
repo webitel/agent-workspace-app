@@ -170,6 +170,12 @@ export default {
 					moreNumbers: '+{count} ta raqam yana',
 					noPhone: 'Telefon yo‘q',
 				},
+				chats: {
+					noChat: 'Chat yo‘q',
+				},
+				emails: {
+					noEmail: 'Email yo‘q',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {

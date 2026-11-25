@@ -170,6 +170,12 @@ export default {
 					moreNumbers: '+{count} ще номер(ів)',
 					noPhone: 'Немає телефону',
 				},
+				chats: {
+					noChat: 'Немає чату',
+				},
+				emails: {
+					noEmail: 'Немає email',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {

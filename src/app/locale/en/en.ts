@@ -170,6 +170,12 @@ export default {
 					moreNumbers: '+{count} more number(s)',
 					noPhone: 'No phone',
 				},
+				chats: {
+					noChat: 'No chat',
+				},
+				emails: {
+					noEmail: 'No email',
+				},
 			},
 			tableActionPanel: {
 				variableColumnSelect: {
