@@ -35,6 +35,7 @@ export default {
 				queue: 'Kolejka',
 				channel: 'Kanał',
 				waitingTime: 'Czas oczekiwania',
+				timeToAccept: 'Czas na przyjęcie',
 				accept: 'Odbierz',
 				decline: 'Odrzuć',
 			},

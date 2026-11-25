@@ -1,29 +1,38 @@
 <template>
-    <p class="offer-last-message typo-body-1">
-        {{ text }}
-    </p>
+    <div class="offer-last-message">
+        <wt-avatar
+            size="xs"
+            :username="name"
+        />
+        <!-- a new chat's message is the client's and not read yet, per DES-727 -->
+        <last-message-text
+            :text="text"
+            sender="client"
+            is-unread
+        />
+    </div>
 </template>
 
 <script
     setup
     lang="ts"
 >
+import { WtAvatar } from '@webitel/ui-sdk/components';
+
+import LastMessageText from '../../../../../components/last-message-text/last-message-text.vue';
+
 /** The customer's last message — chats only. */
 defineProps<{
 	text: string;
+	/** The client's name, for their avatar. */
+	name?: string;
 }>();
 </script>
 
 <style scoped>
-/* styled as an incoming bubble, so it reads as the customer's words */
 .offer-last-message {
-    display: -webkit-box;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
     width: 100%;
-    padding: var(--spacing-2xs, 4px) var(--spacing-xs);
-    border-radius: var(--border-radius, 8px);
-    background-color: var(--chat-client-message-background-color, var(--secondary-color-50, #d5e3f6));
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
 }
 </style>

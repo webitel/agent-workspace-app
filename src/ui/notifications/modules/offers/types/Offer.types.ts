@@ -17,7 +17,7 @@ export type OfferKind = (typeof OfferKind)[keyof typeof OfferKind];
 /** What the agent can do with an offer; also the in-flight marker's value. */
 export type OfferAction = 'accept' | 'decline';
 
-/** A secondary line rendered as `${label}: ${value}` — `Queue:` / `Channel:`. */
+/** A secondary line rendered as `${label}: ${value}` — `Channel:`, `Queue:`, a variable. */
 export interface OfferSource {
 	label: string;
 	value: string;
@@ -38,23 +38,37 @@ export interface OfferCardContent {
 	additionalContacts?: number;
 	/** Masked phone number (calls) or username (chats). */
 	identifier?: string;
-	/** Queue name (calls) or gateway name (chats). */
+	/** Gateway name — chats only, shown beside the username. */
 	source?: OfferSource;
+	/** Queue the offer came through; heads the variables block. */
+	queueName?: string;
+	/**
+	 * Variables passed on the schema (AC_06.01.01), display-ready. Chats fill
+	 * them with every task variable; narrowing that down is the Flow setting of
+	 * US_06.02 (WS-66 / WS-67). Absent renders no variables.
+	 */
+	variables?: OfferSource[];
 	/** Last customer message — chats only. */
 	body?: string;
 	/**
 	 * Epoch ms the customer started waiting; the timer ticks from this. Optional
 	 * because not every channel can supply one: chat tasks expose no queue-entry
 	 * timestamp we trust yet (WS-35), and a wrong number is worse than none —
-	 * the whole waiting block is hidden instead.
+	 * the elapsed-wait block is hidden instead.
+	 *
+	 * For a countdown, this is the offer epoch.
 	 */
 	waitingSince?: number;
 	/**
 	 * Queue "Max wait time" in seconds, the progress bar denominator. Undefined
 	 * until the backend exposes it (WS-16 / WS-35) — the bar hides, the counter
 	 * still runs.
+	 *
+	 * For a countdown, this is the accept timeout in seconds.
 	 */
 	maxWaitSec?: number;
+	/** Enables a countdown where an accept timeout is available. */
+	isCountdown?: boolean;
 }
 
 export interface Offer {

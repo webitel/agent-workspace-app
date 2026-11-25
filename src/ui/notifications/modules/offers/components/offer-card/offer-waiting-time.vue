@@ -1,14 +1,16 @@
 <template>
-    <!-- hidden outright when the channel has no trustworthy epoch (WS-35) -->
     <div
         v-if="hasWaitingTime"
         class="offer-waiting-time"
     >
         <div class="offer-waiting-time__row">
-            <span class="typo-caption-bold">{{ t('ui.notifications.offer.waitingTime') }}</span>
+            <span class="typo-caption-bold">
+                {{ t(isCountdown
+                    ? 'ui.notifications.offer.timeToAccept'
+                    : 'ui.notifications.offer.waitingTime') }}
+            </span>
             <span class="typo-caption">{{ formatted }}</span>
         </div>
-        <!-- hidden until the backend exposes the queue Max wait time (WS-16 / WS-35) -->
         <div
             v-if="progress !== undefined"
             class="offer-waiting-time__track"
@@ -43,13 +45,12 @@ const SEGMENTS = [
 ];
 
 /**
- * How long the customer has been waiting, and how close that is to the queue's
- * limit. Takes the raw epoch rather than a formatted string so the clock lives
- * with the thing that shows it.
+ * The timer start and limit, kept raw so the clock stays correct across renders.
  */
-const { waitingSince, maxWaitSec } = defineProps<{
+const { waitingSince, maxWaitSec, isCountdown } = defineProps<{
 	waitingSince?: number;
 	maxWaitSec?: number;
+	isCountdown?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -57,6 +58,7 @@ const { t } = useI18n();
 const { hasWaitingTime, formatted, progress, level } = useWaitingTime(
 	() => waitingSince,
 	() => maxWaitSec,
+	() => isCountdown,
 );
 
 const filledSegments = computed(() =>

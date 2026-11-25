@@ -14,8 +14,8 @@
                 </div>
                 <the-task-dock-panel />
             </section>
+            <the-notifications-layer />
         </wt-page>
-        <the-notifications-layer />
     </main>
 </template>
 
