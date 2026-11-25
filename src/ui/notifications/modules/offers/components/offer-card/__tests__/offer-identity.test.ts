@@ -11,7 +11,7 @@ describe('offer-identity', () => {
 			},
 		});
 
-		expect(wrapper.text()).toContain('ui.notifications.offer.unknownContact');
+		expect(wrapper.text()).toContain('ui.reusable.unknownContact');
 	});
 
 	/**

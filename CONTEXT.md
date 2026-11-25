@@ -104,6 +104,9 @@ and should not be carried over wholesale.
   list is a table store like the agents list, its selected row is painted by
   `wt-table`'s `active-row` rather than by a token that does not exist, and a
   disabled queue is still listed.
+- [ADR-0030](docs/adr/0030-one-locale-key-per-meaning.md) — one locale key per
+  meaning: a text ui-sdk already translates is read from ui-sdk, one shared in
+  the app is one key, and a test with reasoned allow-lists keeps it that way.
 
 ## Language
 

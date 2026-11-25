@@ -104,7 +104,7 @@ const bridgeTargets = computed(() =>
 
 			return {
 				id: call.id,
-				name: name || t('ui.call.bridge.unknownContact'),
+				name: name || t('ui.reusable.unknownContact'),
 				number,
 			};
 		}),

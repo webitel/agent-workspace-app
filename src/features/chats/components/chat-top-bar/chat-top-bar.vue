@@ -3,7 +3,7 @@
 		class="chat-top-bar"
 		:name="header.name"
 		:subtitle="header.queueName"
-		:subtitle-label="t('ui.notifications.offer.queue')"
+		:subtitle-label="t('objects.queue.queue')"
 	>
 		<template #leading>
 			<wt-icon

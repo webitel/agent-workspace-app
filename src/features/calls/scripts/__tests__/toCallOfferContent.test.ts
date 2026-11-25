@@ -96,7 +96,7 @@ describe('toCallOfferContent', () => {
 		);
 
 		expect(content.source).toEqual({
-			label: 'ui.notifications.offer.queue',
+			label: 'objects.queue.queue',
 			value: 'Support',
 		});
 	});

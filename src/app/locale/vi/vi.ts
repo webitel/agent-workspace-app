@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Bạn sẽ chỉ nhận cuộc gọi từ hàng đợi',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Liên hệ không xác định',
-		},
 		chatPreview: {
 			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
 		},
@@ -31,8 +28,6 @@ export default {
 					call: 'Yêu cầu cuộc gọi đến',
 					chat: 'Yêu cầu trò chuyện đến',
 				},
-				unknownContact: 'Liên hệ không xác định',
-				queue: 'Hàng đợi',
 				channel: 'Kênh',
 				waitingTime: 'Thời gian chờ',
 				accept: 'Chấp nhận',
@@ -54,6 +49,8 @@ export default {
 			phoneNumber: 'Số điện thoại',
 			waitTime: 'Thời gian chờ',
 			select: 'Chọn',
+			unknownContact: 'Liên hệ không xác định',
+			info: 'Thông tin',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Tạo liên hệ',
 				addContacts: 'Thêm liên hệ',
 				profile: 'Hồ sơ',
-				info: 'Thông tin',
 				groups: 'Nhóm',
 				attributes: 'Thuộc tính',
 				noAttributes: 'Chưa xác định biến tùy chỉnh',
@@ -107,25 +103,18 @@ export default {
 					selfAssigned: 'Tự gán',
 				},
 				tabs: {
-					info: 'Thông tin',
-					postProcessing: 'Xử lý sau',
 					interaction: 'Tương tác',
 					screenshots: 'Ảnh chụp màn hình',
-					contact: 'Liên hệ',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Đang hoạt động',
 					closed: 'Đã đóng',
 				},
 				tabs: {
-					chat: 'Trò chuyện',
 					info: 'Thông tin',
-					postProcessing: 'Xử lý sau',
 					interaction: 'Tương tác',
-					contact: 'Liên hệ',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -177,11 +166,6 @@ export default {
 					noEmail: 'Không có email',
 				},
 			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Chọn cột biến',
-				},
-			},
 		},
 		call: {
 			activeCall: {
@@ -193,7 +177,6 @@ export default {
 					mute: 'Tắt micrô',
 					hold: 'Giữ máy',
 					camera: 'Camera',
-					message: 'Tin nhắn',
 					transfer: 'Chuyển cuộc gọi',
 					bridge: 'Kết nối cuộc gọi',
 					hangup: 'Kết thúc cuộc gọi',
@@ -203,15 +186,12 @@ export default {
 			bridge: {
 				title: 'Kết nối cuộc gọi',
 				connect: 'Kết nối',
-				unknownContact: 'Liên hệ không xác định',
 			},
 			transfer: {
 				title: 'Chuyển cuộc gọi',
 				emptyList: 'Không tìm thấy gì',
 				columns: {
 					name: 'Tên',
-					status: 'Trạng thái',
-					team: 'Nhóm',
 				},
 				phoneLabel: 'Chuyển đến số',
 				phonePlaceholder: 'Nhập số điện thoại',

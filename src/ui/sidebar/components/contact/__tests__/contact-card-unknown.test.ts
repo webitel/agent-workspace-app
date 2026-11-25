@@ -25,7 +25,7 @@ describe('contact-card-unknown', () => {
 			unknownContactAvatar,
 		);
 		expect(wrapper.find('.contact-card-unknown__name').text()).toBe(
-			'ui.clientIdentity.unknownContact',
+			'ui.reusable.unknownContact',
 		);
 	});
 });

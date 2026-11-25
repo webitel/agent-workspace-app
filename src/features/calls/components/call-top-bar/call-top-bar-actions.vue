@@ -42,7 +42,7 @@
 			@click="callsStore.toggleHold(call.id)"
 		/>
 		<wt-button
-			:aria-label="t('ui.call.activeCall.actions.message')"
+			:aria-label="t('ui.reusable.message')"
 			color="secondary"
 			icon="chat"
 			size="sm"

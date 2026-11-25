@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Ви будете отримувати дзвінки тільки з черг',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Невідомий контакт',
-		},
 		chatPreview: {
 			onlyUnread: 'Лише непрочитані чати',
 		},
@@ -31,8 +28,6 @@ export default {
 					call: 'Запит вхідного дзвінка',
 					chat: 'Запит вхідного чату',
 				},
-				unknownContact: 'Невідомий контакт',
-				queue: 'Черга',
 				channel: 'Канал',
 				waitingTime: 'Час очікування',
 				accept: 'Прийняти',
@@ -54,6 +49,8 @@ export default {
 			phoneNumber: 'Номер телефону',
 			waitTime: 'Час очікування',
 			select: 'Обрати',
+			unknownContact: 'Невідомий контакт',
+			info: 'Інформація',
 		},
 		numpad: {
 			call: 'Подзвонити',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Створити контакт',
 				addContacts: 'Додати контакти',
 				profile: 'Профіль',
-				info: 'Інформація',
 				groups: 'Групи',
 				attributes: 'Атрибути',
 				noAttributes: 'Користувацькі змінні не задано',
@@ -107,25 +103,18 @@ export default {
 					selfAssigned: 'Самостійно призначені',
 				},
 				tabs: {
-					info: 'Інформація',
-					postProcessing: 'Пост-обробка',
 					interaction: 'Взаємодії',
 					screenshots: 'Скріншоти',
-					contact: 'Контакт',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Активні',
 					closed: 'Закриті',
 				},
 				tabs: {
-					chat: 'Чат',
 					info: 'Інфо',
-					postProcessing: 'Пост-обробка',
 					interaction: 'Взаємодія',
-					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -177,11 +166,6 @@ export default {
 					noEmail: 'Немає email',
 				},
 			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Вибрати колонки зі змінними',
-				},
-			},
 		},
 		call: {
 			activeCall: {
@@ -193,7 +177,6 @@ export default {
 					mute: 'Вимкнути мікрофон',
 					hold: 'Утримання',
 					camera: 'Камера',
-					message: 'Повідомлення',
 					transfer: 'Переадресація',
 					bridge: "З'єднати дзвінки",
 					hangup: 'Завершити дзвінок',
@@ -203,15 +186,12 @@ export default {
 			bridge: {
 				title: "З'єднання дзвінків",
 				connect: "З'єднати",
-				unknownContact: 'Невідомий контакт',
 			},
 			transfer: {
 				title: 'Переведення дзвінка',
 				emptyList: 'Нічого не знайдено',
 				columns: {
 					name: "Ім'я",
-					status: 'Статус',
-					team: 'Команда',
 				},
 				phoneLabel: 'Перевести на номер',
 				phonePlaceholder: 'Введіть номер телефону',

@@ -19,7 +19,7 @@ describe('client-identity-block', () => {
 			name: undefined,
 		});
 
-		expect(wrapper.text()).toContain('ui.clientIdentity.unknownContact');
+		expect(wrapper.text()).toContain('ui.reusable.unknownContact');
 	});
 
 	it.each([

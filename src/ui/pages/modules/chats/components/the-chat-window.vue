@@ -161,7 +161,7 @@ const activeTab = ref<ChatWindowTab>(defaultTab());
 const tabs = computed<ChatWindowTabItem[]>(() => [
 	{
 		value: 'chat',
-		text: t('ui.pages.chats.tabs.chat'),
+		text: t('objects.chat.chat'),
 	},
 	{
 		value: 'info',
@@ -171,7 +171,7 @@ const tabs = computed<ChatWindowTabItem[]>(() => [
 		? [
 				{
 					value: 'processing',
-					text: t('ui.pages.chats.tabs.postProcessing'),
+					text: t('ui.processing.postProcessing.title'),
 					disabled: true,
 				},
 			]
@@ -179,7 +179,7 @@ const tabs = computed<ChatWindowTabItem[]>(() => [
 			? [
 					{
 						value: 'processing',
-						text: t('ui.pages.chats.tabs.postProcessing'),
+						text: t('ui.processing.postProcessing.title'),
 					},
 				]
 			: []),
@@ -190,7 +190,7 @@ const tabs = computed<ChatWindowTabItem[]>(() => [
 	},
 	{
 		value: 'contact',
-		text: t('ui.pages.chats.tabs.contact'),
+		text: t('objects.contact'),
 		disabled: true,
 	},
 	{

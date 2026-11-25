@@ -3,7 +3,7 @@
 		class="call-top-bar"
 		:name="preview.number"
 		:subtitle="preview.queueName"
-		:subtitle-label="t('ui.notifications.offer.queue')"
+		:subtitle-label="t('objects.queue.queue')"
 	>
 		<template #leading>
 			<wt-icon

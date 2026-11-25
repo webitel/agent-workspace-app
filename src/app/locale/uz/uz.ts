@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Siz faqat navbatlardan qo‘ng‘iroqlarni qabul qilasiz',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Nomaʼlum kontakt',
-		},
 		chatPreview: {
 			onlyUnread: 'Faqat o‘qilmagan chatlar',
 		},
@@ -31,8 +28,6 @@ export default {
 					call: 'Kiruvchi qoʻngʻiroq soʻrovi',
 					chat: 'Kiruvchi chat soʻrovi',
 				},
-				unknownContact: 'Nomaʼlum kontakt',
-				queue: 'Navbat',
 				channel: 'Kanal',
 				waitingTime: 'Kutish vaqti',
 				accept: 'Qabul qilish',
@@ -54,6 +49,8 @@ export default {
 			phoneNumber: 'Telefon raqami',
 			waitTime: 'Kutish vaqti',
 			select: 'Tanlash',
+			unknownContact: 'Nomaʼlum kontakt',
+			info: 'Maʼlumot',
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Kontakt yaratish',
 				addContacts: 'Kontaktlarni qoʼshish',
 				profile: 'Profil',
-				info: 'Maʼlumot',
 				groups: 'Guruhlar',
 				attributes: 'Atributlar',
 				noAttributes: 'Maxsus oʼzgaruvchilar belgilanmagan',
@@ -107,25 +103,18 @@ export default {
 					selfAssigned: 'Qoʼlda tayinlangan',
 				},
 				tabs: {
-					info: "Ma'lumot",
-					postProcessing: 'Keyingi ishlov',
 					interaction: "O'zaro aloqalar",
 					screenshots: 'Skrinshotlar',
-					contact: 'Kontakt',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Faol',
 					closed: 'Yopilgan',
 				},
 				tabs: {
-					chat: 'Chat',
 					info: "Ma'lumot",
-					postProcessing: 'Keyingi ishlov',
 					interaction: "O'zaro aloqa",
-					contact: 'Kontakt',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -177,11 +166,6 @@ export default {
 					noEmail: 'Email yo‘q',
 				},
 			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'O‘zgaruvchilar ustunini tanlash',
-				},
-			},
 		},
 		call: {
 			activeCall: {
@@ -193,7 +177,6 @@ export default {
 					mute: 'Mikrofonni oʻchirish',
 					hold: 'Kutishga qoʻyish',
 					camera: 'Kamera',
-					message: 'Xabar',
 					transfer: 'Yoʻnaltirish',
 					bridge: 'Qoʻngʻiroqlarni ulash',
 					hangup: 'Qoʻngʻiroqni tugatish',
@@ -203,15 +186,12 @@ export default {
 			bridge: {
 				title: 'Qoʻngʻiroqlarni ulash',
 				connect: 'Ulash',
-				unknownContact: 'Nomaʼlum kontakt',
 			},
 			transfer: {
 				title: 'Qoʻngʻiroqni oʻtkazish',
 				emptyList: 'Hech narsa topilmadi',
 				columns: {
 					name: 'Nomi',
-					status: 'Holati',
-					team: 'Jamoa',
 				},
 				phoneLabel: 'Raqamga oʻtkazish',
 				phonePlaceholder: 'Telefon raqamini kiriting',
