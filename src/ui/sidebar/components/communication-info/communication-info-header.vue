@@ -64,7 +64,7 @@ const slots = defineSlots<{
 }
 
 .communication-info-header--success .communication-info-header__icon {
-	background: var(--success-on-color);
+	background: var(--wt-ws-details-sidebar-interaction-icon-colors-inbound-call-background);
 }
 
 .communication-info-header--info {
@@ -72,7 +72,7 @@ const slots = defineSlots<{
 }
 
 .communication-info-header--info .communication-info-header__icon {
-	background: var(--info-on-color);
+	background: var(--wt-ws-details-sidebar-interaction-icon-colors-outbound-call-background);
 }
 
 .communication-info-header__icon {
