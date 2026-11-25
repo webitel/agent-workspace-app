@@ -34,7 +34,7 @@
 	setup
 	lang="ts"
 >
-import { onClickOutside } from '@vueuse/core';
+import { type MaybeElementRef, onClickOutside } from '@vueuse/core';
 import { useTemplateRef } from 'vue';
 
 import SlideUpOverlay from '../../../../components/slide-up-overlay/slide-up-overlay.vue';
@@ -47,6 +47,14 @@ const props = defineProps<{
 	preview: ActiveCallContent;
 	expanded: boolean;
 	canBridge: boolean;
+	/**
+	 * @author Oleksandr Palonnyi
+	 * Elements the host renders beside the dock (the numpad panel), whose clicks are
+	 * not an outside click: the numpad can be open when the dock expands by itself on
+	 * an answer, and its first key would collapse the dock again
+	 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
+	 */
+	outsideClickIgnoredTargets?: MaybeElementRef[];
 }>();
 
 const emit = defineEmits<{
@@ -72,9 +80,15 @@ const root = useTemplateRef<HTMLElement>('root');
  * the collapsed pill from emitting on every click elsewhere on the page
  * [WS-23](https://webitel.atlassian.net/browse/WS-23)
  */
-onClickOutside(root, () => {
-	if (props.expanded) emit('update:expanded', false);
-});
+onClickOutside(
+	root,
+	() => {
+		if (props.expanded) emit('update:expanded', false);
+	},
+	{
+		ignore: () => props.outsideClickIgnoredTargets ?? [],
+	},
+);
 
 /**
  * @author Oleksandr Palonnyi
