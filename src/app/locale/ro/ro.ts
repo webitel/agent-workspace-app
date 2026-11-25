@@ -29,7 +29,6 @@ export default {
 					chat: 'Solicitare de chat primit',
 				},
 				channel: 'Canal',
-				waitingTime: 'Timp de așteptare',
 				accept: 'Acceptă',
 				decline: 'Respinge',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Selectează',
 			unknownContact: 'Contact necunoscut',
 			info: 'Informații',
+			interactions: 'Interacțiuni',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Auto-atribuite',
 				},
 				tabs: {
-					interaction: 'Interacțiuni',
-					screenshots: 'Capturi de ecran',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Închise',
 				},
 				tabs: {
-					info: 'Informații',
-					interaction: 'Interacțiune',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Informații',
-						postprocessing: 'Postprocesare',
 						agentDescription: 'Comentariul agentului',
 					},
 				},

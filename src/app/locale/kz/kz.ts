@@ -29,7 +29,6 @@ export default {
 					chat: 'Кіріс чат сұрауы',
 				},
 				channel: 'Арна',
-				waitingTime: 'Күту уақыты',
 				accept: 'Қабылдау',
 				decline: 'Бас тарту',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Таңдау',
 			unknownContact: 'Белгісіз контакт',
 			info: 'Ақпарат',
+			interactions: 'Өзара әрекеттер',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Өзіне тағайындалған',
 				},
 				tabs: {
-					interaction: 'Өзара әрекеттер',
-					screenshots: 'Скриншоттар',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Жабық',
 				},
 				tabs: {
-					info: 'Ақпарат',
-					interaction: 'Өзара әрекет',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Ақпарат',
-						postprocessing: 'Кейінгі өңдеу',
 						agentDescription: 'Оператордың пікірі',
 					},
 				},

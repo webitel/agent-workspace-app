@@ -59,12 +59,10 @@ const uiSdkUk = flattenMessages(uiSdkMessages.uk);
  * [WS-163](https://webitel.atlassian.net/browse/WS-163) [NWS][FE] Додати локалізації для NWS
  */
 const ALLOWED_APP_DUPLICATES: Record<string, string> = {
-	'ui.pages.chats.tabs.info':
-		'the chat window tab is «Інфо»/«Инфо» by the localization table, unlike ui.reusable.info',
 	'ui.pages.calls.tabs.iframe':
-		'"iFrame" vs "Iframe" (chat window) is an open question for the product',
+		'the iFrame tab is not built yet and may be renamed; its texts wait until then',
 	'ui.pages.chats.tabs.iframe':
-		'"Iframe" vs "iFrame" (call window) is an open question for the product',
+		'the iFrame tab is not built yet and may be renamed; its texts wait until then',
 	'ui.call.transfer.columns.name':
 		"an agent's name; ui.sidebar.contact.search.modes.* is a key family read by the search mode id",
 };

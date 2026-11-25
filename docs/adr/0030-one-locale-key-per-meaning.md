@@ -25,13 +25,16 @@ merged into the same i18n instance and already translated into all nine locales.
   `objects.contact`, `objects.chat.chat`, `objects.team`, `reusable.status`,
   `reusable.name`, `webitelUI.iconAction.hints.variables`.
 - Inside the app, one meaning has one key. A text shared by several modules goes
-  under `ui.reusable.*` (`unknownContact`, `info`, `message`); a domain term
-  stays with its domain (`ui.processing.postProcessing.title` for every
-  Post-processing tab, `ui.chatList.tabs.active` for both Active chats tabs).
+  under `ui.reusable.*` (`unknownContact`, `info`, `interactions`, `message`,
+  `waitTime`); a domain term stays with its domain
+  (`ui.processing.postProcessing.title` for every Post-processing tab and the
+  call history popup, `ui.chatList.tabs.active` for both Active chats tabs).
 - Equal English text is not enough to merge. Keys stay apart when the meaning
-  differs (an action vs a channel state, an agent's name vs a queue's) or when
-  the localization table gives them different wording in uk/ru (the chat
-  window's «Інфо» vs the call window's «Інформація»).
+  differs (an action vs a channel state, an agent's name vs a queue's).
+- Where two keys had different wording, the product chose one (2026-11-25):
+  "Wait time", "Post-processing", «Інформація» for every Info tab,
+  "Interactions" for both windows, and ui-sdk's «Знімки екрана»
+  (`objects.screenshots`).
 - `src/app/locale/__tests__/locale-duplicates.test.ts` fails on two app keys
   with the same English text, and on an app key whose English and Ukrainian
   match a ui-sdk key. Each deliberate exception sits in an allow-list with its
@@ -39,11 +42,9 @@ merged into the same i18n instance and already translated into all nine locales.
 
 ## Consequences
 
-- Texts that differ only in spelling ("iFrame"/"Iframe", "Waiting time"/"Wait
-  time", "Post-processing"/"Postprocessing") are left as they are and handed to
-  the product as open questions, because they may come from the design or the
-  localization table. The first is allow-listed; the other two do not trip the
-  test, which compares whole texts ignoring case.
+- The iFrame tab keeps its two keys ("iFrame" in the call window, "Iframe" in
+  the chat window) and is allow-listed: the tab is not built yet and may be
+  renamed, so its texts are settled then.
 - A ui-sdk text changes under the app when ui-sdk changes it. That is the point
   of reusing it, and the reason the test checks the meaning in two languages
   before calling it a duplicate.

@@ -29,7 +29,6 @@ export default {
 					chat: 'Solicitud de chat entrante',
 				},
 				channel: 'Canal',
-				waitingTime: 'Tiempo de espera',
 				accept: 'Aceptar',
 				decline: 'Rechazar',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Seleccionar',
 			unknownContact: 'Contacto desconocido',
 			info: 'Información',
+			interactions: 'Interacciones',
 		},
 		numpad: {
 			call: 'Llamar',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Autoasignadas',
 				},
 				tabs: {
-					interaction: 'Interacciones',
-					screenshots: 'Capturas de pantalla',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Cerrados',
 				},
 				tabs: {
-					info: 'Información',
-					interaction: 'Interacción',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Información',
-						postprocessing: 'Posprocesamiento',
 						agentDescription: 'Comentario del agente',
 					},
 				},

@@ -29,7 +29,6 @@ export default {
 					chat: 'Żądanie czatu przychodzącego',
 				},
 				channel: 'Kanał',
-				waitingTime: 'Czas oczekiwania',
 				accept: 'Odbierz',
 				decline: 'Odrzuć',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Wybierz',
 			unknownContact: 'Nieznany kontakt',
 			info: 'Informacje',
+			interactions: 'Interakcje',
 		},
 		numpad: {
 			call: 'Zadzwoń',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Ręcznie przypisane',
 				},
 				tabs: {
-					interaction: 'Interakcje',
-					screenshots: 'Zrzuty ekranu',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Zamknięte',
 				},
 				tabs: {
-					info: 'Informacje',
-					interaction: 'Interakcja',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Informacje',
-						postprocessing: 'Przetwarzanie końcowe',
 						agentDescription: 'Komentarz agenta',
 					},
 				},

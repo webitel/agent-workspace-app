@@ -29,7 +29,6 @@ export default {
 					chat: 'Запит вхідного чату',
 				},
 				channel: 'Канал',
-				waitingTime: 'Час очікування',
 				accept: 'Прийняти',
 				decline: 'Відхилити',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Обрати',
 			unknownContact: 'Невідомий контакт',
 			info: 'Інформація',
+			interactions: 'Взаємодії',
 		},
 		numpad: {
 			call: 'Подзвонити',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Самостійно призначені',
 				},
 				tabs: {
-					interaction: 'Взаємодії',
-					screenshots: 'Скріншоти',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Закриті',
 				},
 				tabs: {
-					info: 'Інфо',
-					interaction: 'Взаємодія',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Інформація',
-						postprocessing: 'Пост-обробка',
 						agentDescription: 'Коментар оператора',
 					},
 				},

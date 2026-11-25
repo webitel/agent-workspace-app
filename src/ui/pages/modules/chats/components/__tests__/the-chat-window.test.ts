@@ -290,9 +290,9 @@ describe('the-chat-window', () => {
 
 		expect(tabsOf(wrapper).map((tab) => tab.text)).toEqual([
 			'objects.chat.chat',
-			'ui.pages.chats.tabs.info',
+			'ui.reusable.info',
 			'ui.processing.postProcessing.title',
-			'ui.pages.chats.tabs.interaction',
+			'ui.reusable.interactions',
 			'objects.contact',
 			'ui.pages.chats.tabs.iframe',
 		]);

@@ -29,7 +29,6 @@ export default {
 					chat: 'Incoming chat request',
 				},
 				channel: 'Channel',
-				waitingTime: 'Waiting time',
 				accept: 'Accept',
 				decline: 'Decline',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Select',
 			unknownContact: 'Unknown contact',
 			info: 'Info',
+			interactions: 'Interactions',
 		},
 		numpad: {
 			call: 'Call',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Self-assigned',
 				},
 				tabs: {
-					interaction: 'Interactions',
-					screenshots: 'Screenshots',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Closed',
 				},
 				tabs: {
-					info: 'Info',
-					interaction: 'Interaction',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Information',
-						postprocessing: 'Postprocessing',
 						agentDescription: "Agent's comment",
 					},
 				},

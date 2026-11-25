@@ -114,12 +114,12 @@ const tabs = computed<CallWindowTabItem[]>(() => [
 	},
 	{
 		value: 'interaction',
-		text: t('ui.pages.calls.tabs.interaction'),
+		text: t('ui.reusable.interactions'),
 		disabled: true,
 	},
 	{
 		value: 'screenshots',
-		text: t('ui.pages.calls.tabs.screenshots'),
+		text: t('objects.screenshots', 2),
 		disabled: true,
 	},
 	{

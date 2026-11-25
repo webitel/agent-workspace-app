@@ -29,7 +29,6 @@ export default {
 					chat: 'Yêu cầu trò chuyện đến',
 				},
 				channel: 'Kênh',
-				waitingTime: 'Thời gian chờ',
 				accept: 'Chấp nhận',
 				decline: 'Từ chối',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Chọn',
 			unknownContact: 'Liên hệ không xác định',
 			info: 'Thông tin',
+			interactions: 'Tương tác',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Tự gán',
 				},
 				tabs: {
-					interaction: 'Tương tác',
-					screenshots: 'Ảnh chụp màn hình',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Đã đóng',
 				},
 				tabs: {
-					info: 'Thông tin',
-					interaction: 'Tương tác',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Thông tin',
-						postprocessing: 'Xử lý sau cuộc gọi',
 						agentDescription: 'Nhận xét của nhân viên',
 					},
 				},

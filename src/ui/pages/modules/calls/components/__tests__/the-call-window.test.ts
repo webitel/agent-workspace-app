@@ -226,8 +226,8 @@ describe('the-call-window', () => {
 		expect(tabsOf(wrapper).map((tab) => tab.text)).toEqual([
 			'ui.processing.postProcessing.title',
 			'ui.reusable.info',
-			'ui.pages.calls.tabs.interaction',
-			'ui.pages.calls.tabs.screenshots',
+			'ui.reusable.interactions',
+			'objects.screenshots',
 			'objects.contact',
 			'ui.pages.calls.tabs.iframe',
 		]);

@@ -165,7 +165,7 @@ const tabs = computed<ChatWindowTabItem[]>(() => [
 	},
 	{
 		value: 'info',
-		text: t('ui.pages.chats.tabs.info'),
+		text: t('ui.reusable.info'),
 	},
 	...(mode.value === 'closed'
 		? [
@@ -185,7 +185,7 @@ const tabs = computed<ChatWindowTabItem[]>(() => [
 			: []),
 	{
 		value: 'interaction',
-		text: t('ui.pages.chats.tabs.interaction'),
+		text: t('ui.reusable.interactions'),
 		disabled: true,
 	},
 	{

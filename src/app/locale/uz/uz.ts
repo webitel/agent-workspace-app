@@ -29,7 +29,6 @@ export default {
 					chat: 'Kiruvchi chat soʻrovi',
 				},
 				channel: 'Kanal',
-				waitingTime: 'Kutish vaqti',
 				accept: 'Qabul qilish',
 				decline: 'Rad etish',
 			},
@@ -51,6 +50,7 @@ export default {
 			select: 'Tanlash',
 			unknownContact: 'Nomaʼlum kontakt',
 			info: 'Maʼlumot',
+			interactions: "O'zaro aloqalar",
 		},
 		numpad: {
 			call: 'Qoʻngʻiroq qilish',
@@ -103,8 +103,6 @@ export default {
 					selfAssigned: 'Qoʼlda tayinlangan',
 				},
 				tabs: {
-					interaction: "O'zaro aloqalar",
-					screenshots: 'Skrinshotlar',
 					iframe: 'iFrame',
 				},
 			},
@@ -113,8 +111,6 @@ export default {
 					closed: 'Yopilgan',
 				},
 				tabs: {
-					info: "Ma'lumot",
-					interaction: "O'zaro aloqa",
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -148,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Maʼlumot',
-						postprocessing: 'Keyingi ishlov',
 						agentDescription: 'Operator izohi',
 					},
 				},
