@@ -1,9 +1,31 @@
 import { mount } from '@vue/test-utils';
 import type { ContactsEmailAddress } from '@webitel/api-services/gen/models';
 import { IconColor } from '@webitel/ui-sdk/enums';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import ContactEmailsCell from '../contact-emails-cell.vue';
+
+/**
+ * `WtContextMenu` is a `defineAsyncComponent` in ui-sdk, which a `global.stubs`
+ * entry does not replace, so the module is mocked as in contact-phones-cell.test.ts
+ */
+vi.mock('@webitel/ui-sdk/components', () => ({
+	WtContextMenu: {
+		name: 'WtContextMenu',
+		props: [
+			'options',
+		],
+		template:
+			'<div class="emails-menu"><slot name="activator" :toggle="() => {}" /></div>',
+	},
+	WtTooltip: {
+		template:
+			'<div class="tooltip"><slot name="activator" /><span class="tooltip-text"><slot /></span></div>',
+	},
+	WtChip: {
+		template: '<span class="more-chip"><slot /></span>',
+	},
+}));
 
 const mountCell = (emails?: ContactsEmailAddress[]) =>
 	mount(ContactEmailsCell, {
@@ -19,23 +41,13 @@ const mountCell = (emails?: ContactsEmailAddress[]) =>
 					],
 					template: '<i class="icon" :data-icon="icon" :data-color="color" />',
 				},
-				TableCellInfo: {
-					name: 'TableCellInfo',
-					props: [
-						'icon',
-						'iconColor',
-						'items',
-						'itemLabel',
-					],
-					template: '<div class="chips" />',
-				},
 			},
 		},
 	});
 
-const chipsOf = (wrapper: ReturnType<typeof mountCell>) =>
+const menuOf = (wrapper: ReturnType<typeof mountCell>) =>
 	wrapper.findComponent({
-		name: 'TableCellInfo',
+		name: 'WtContextMenu',
 	});
 
 describe('contact-emails-cell', () => {
@@ -46,7 +58,6 @@ describe('contact-emails-cell', () => {
 		expect(wrapper.text()).toContain('ui.pages.contacts.emails.noEmail');
 		expect(icon.attributes('data-icon')).toBe('ws-navigation-email');
 		expect(icon.attributes('data-color')).toBe(IconColor.DISABLED);
-		expect(chipsOf(wrapper).exists()).toBe(false);
 	});
 
 	it('treats a missing email list as no email', () => {
@@ -63,25 +74,98 @@ describe('contact-emails-cell', () => {
 		).toContain('ui.pages.contacts.emails.noEmail');
 	});
 
-	it('shows the addresses as chips, skipping records without one', () => {
-		const chips = chipsOf(
-			mountCell([
-				{
-					id: '1',
-				},
-				{
-					id: '2',
-					email: 'john@example.com',
-				},
-			]),
-		);
+	it('shows the email icon in the mail color', () => {
+		const icon = mountCell([
+			{
+				email: 'a@example.com',
+			},
+		]).find('.icon');
 
-		expect(chips.props('iconColor')).toBe(IconColor.MAIL);
-		expect(chips.props('itemLabel')).toBe('email');
-		expect(chips.props('items')).toEqual([
+		expect(icon.attributes('data-icon')).toBe('ws-navigation-email');
+		expect(icon.attributes('data-color')).toBe(IconColor.MAIL);
+	});
+
+	it('shows the primary address, not the first one', () => {
+		const wrapper = mountCell([
+			{
+				email: 'a@example.com',
+			},
+			{
+				email: 'b@example.com',
+				primary: true,
+			},
+		]);
+
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe(
+			'b@example.com',
+		);
+	});
+
+	it('falls back to the first address when none is primary', () => {
+		const wrapper = mountCell([
+			{
+				email: 'a@example.com',
+			},
+			{
+				email: 'b@example.com',
+			},
+		]);
+
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe(
+			'a@example.com',
+		);
+	});
+
+	it('shows no counter for a single address', () => {
+		expect(
+			menuOf(
+				mountCell([
+					{
+						email: 'a@example.com',
+					},
+				]),
+			).exists(),
+		).toBe(false);
+	});
+
+	it('counts the addresses besides the shown one, with a tooltip', () => {
+		const wrapper = mountCell([
+			{
+				email: 'a@example.com',
+			},
+			{
+				email: 'b@example.com',
+			},
+			{
+				email: 'c@example.com',
+			},
+		]);
+
+		expect(wrapper.find('.more-chip').text()).toBe('+2');
+		expect(wrapper.find('.tooltip-text').text()).toBe(
+			'ui.pages.contacts.emails.moreEmails',
+		);
+	});
+
+	it('lists every address in the menu, skipping records without one', () => {
+		const wrapper = mountCell([
+			{
+				email: 'a@example.com',
+			},
 			{
 				id: '2',
-				email: 'john@example.com',
+			},
+			{
+				email: 'b@example.com',
+			},
+		]);
+
+		expect(menuOf(wrapper).props('options')).toEqual([
+			{
+				text: 'a@example.com',
+			},
+			{
+				text: 'b@example.com',
 			},
 		]);
 	});

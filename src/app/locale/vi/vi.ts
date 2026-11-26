@@ -155,9 +155,11 @@ export default {
 					noPhone: 'Không có số điện thoại',
 				},
 				chats: {
+					moreChats: '+{count} chat khác',
 					noChat: 'Không có chat',
 				},
 				emails: {
+					moreEmails: '+{count} email khác',
 					noEmail: 'Không có email',
 				},
 			},

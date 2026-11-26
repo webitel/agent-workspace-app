@@ -155,9 +155,11 @@ export default {
 					noPhone: 'Fără telefon',
 				},
 				chats: {
+					moreChats: '+{count} chat(uri) în plus',
 					noChat: 'Fără chat',
 				},
 				emails: {
+					moreEmails: '+{count} e-mail(uri) în plus',
 					noEmail: 'Fără e-mail',
 				},
 			},
