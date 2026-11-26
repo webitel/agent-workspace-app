@@ -106,6 +106,7 @@ export default {
 					offline: 'Offline',
 					selfAssigned: 'Ręcznie przypisane',
 				},
+				searchByNumber: 'Szukaj po numerze',
 				tabs: {
 					info: 'Informacje',
 					postProcessing: 'Przetwarzanie końcowe',

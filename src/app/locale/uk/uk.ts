@@ -106,6 +106,7 @@ export default {
 					offline: 'Офлайн',
 					selfAssigned: 'Самостійно призначені',
 				},
+				searchByNumber: 'Пошук за номером',
 				tabs: {
 					info: 'Інформація',
 					postProcessing: 'Пост-обробка',

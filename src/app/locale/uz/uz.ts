@@ -106,6 +106,7 @@ export default {
 					offline: 'Oflayn',
 					selfAssigned: 'Qoʼlda tayinlangan',
 				},
+				searchByNumber: 'Raqam boʼyicha qidirish',
 				tabs: {
 					info: "Ma'lumot",
 					postProcessing: 'Keyingi ishlov',

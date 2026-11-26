@@ -106,6 +106,7 @@ export default {
 					offline: 'Офлайн',
 					selfAssigned: 'Өзіне тағайындалған',
 				},
+				searchByNumber: 'Нөмір бойынша іздеу',
 				tabs: {
 					info: 'Ақпарат',
 					postProcessing: 'Кейінгі өңдеу',

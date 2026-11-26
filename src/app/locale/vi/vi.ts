@@ -106,6 +106,7 @@ export default {
 					offline: 'Ngoại tuyến',
 					selfAssigned: 'Tự gán',
 				},
+				searchByNumber: 'Tìm theo số',
 				tabs: {
 					info: 'Thông tin',
 					postProcessing: 'Xử lý sau',

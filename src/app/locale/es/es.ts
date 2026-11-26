@@ -106,6 +106,7 @@ export default {
 					offline: 'Fuera de línea',
 					selfAssigned: 'Autoasignadas',
 				},
+				searchByNumber: 'Buscar por número',
 				tabs: {
 					info: 'Información',
 					postProcessing: 'Posprocesamiento',

@@ -106,6 +106,7 @@ export default {
 					offline: 'Offline',
 					selfAssigned: 'Self-assigned',
 				},
+				searchByNumber: 'Search by number',
 				tabs: {
 					info: 'Info',
 					postProcessing: 'Post-processing',

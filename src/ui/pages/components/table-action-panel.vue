@@ -1,12 +1,5 @@
 <template>
 	<div class="table-action-panel">
-		<wt-search-bar
-			v-if="isSearch"
-			:value="searchValue"
-			@input="emit('update:searchValue', $event)"
-			@search="emit('search', $event)"
-		/>
-
 		<slot></slot>
 		<wt-action-bar
 			v-if="actions.length"
@@ -49,15 +42,12 @@ import SidebarToggleBtn from './sidebar-toggle-btn.vue';
 
 const props = withDefaults(
 	defineProps<{
-		isSearch?: boolean;
-		searchValue?: string;
 		headers?: DatalistTableHeader[];
 		staticHeaders?: string[];
 		variablesStorageKey?: string;
 		actions?: TableActionPanelAction[];
 	}>(),
 	{
-		isSearch: false,
 		headers: () => [],
 		staticHeaders: () => [],
 		actions: () => [],
@@ -65,12 +55,6 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-	'update:searchValue': [
-		value: string,
-	];
-	search: [
-		value: string,
-	];
 	refresh: [];
 	filter: [];
 	'update:headers': [

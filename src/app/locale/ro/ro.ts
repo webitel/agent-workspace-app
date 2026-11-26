@@ -106,6 +106,7 @@ export default {
 					offline: 'Offline',
 					selfAssigned: 'Auto-atribuite',
 				},
+				searchByNumber: 'Căutare după număr',
 				tabs: {
 					info: 'Informații',
 					postProcessing: 'Post-procesare',
