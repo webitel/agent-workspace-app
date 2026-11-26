@@ -12,7 +12,7 @@ import { useCallsStore } from '../calls';
 // shared ref they would keep reacting to the next test's calls
 let calls = ref<Call[]>([]);
 const subscribeCall = vi.fn();
-const clientCall = vi.fn(async () => undefined);
+const clientCall = vi.fn(async (): Promise<unknown> => undefined);
 const isMicrophoneAllowed = vi.fn(async () => true);
 const playRemoteAudio = vi.fn();
 const stopRemoteAudio = vi.fn();
@@ -511,7 +511,7 @@ describe('useCallsStore', () => {
 				store.call({
 					destination: '+38 (067) 123-45-67',
 				}),
-			).resolves.toBe(true);
+			).resolves.toEqual({});
 
 			expect(clientCall).toHaveBeenCalledWith({
 				destination: '+380671234567',
@@ -660,13 +660,28 @@ describe('useCallsStore', () => {
 				store.call({
 					destination: '100',
 				}),
-			).resolves.toBe(false);
+			).resolves.toBeNull();
 
 			expect(mockEmit).toHaveBeenCalledWith('notification', {
 				type: 'error',
 				text: 'error.calls.outboundCallFailed',
 			});
 			expect(store.isOutboundCallRequestPending).toBe(false);
+		});
+
+		it('passes on the ids of the dialled call the SDK returns', async () => {
+			clientCall.mockResolvedValueOnce({
+				sipId: 'abcfromtag',
+			});
+			const store = useCallsStore();
+
+			await expect(
+				store.call({
+					destination: '100',
+				}),
+			).resolves.toEqual({
+				sipId: 'abcfromtag',
+			});
 		});
 	});
 
