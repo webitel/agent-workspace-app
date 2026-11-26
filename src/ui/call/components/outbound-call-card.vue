@@ -52,7 +52,7 @@
 						aria-hidden="true"
 					/>
 				</div>
-				<p class="outbound-call-card__no-answer-text typo-caption">
+				<p class="outbound-call-card__no-answer-text typo-body-1">
 					{{ t('ui.call.outboundCall.noAnswerDescription') }}
 				</p>
 			</template>
