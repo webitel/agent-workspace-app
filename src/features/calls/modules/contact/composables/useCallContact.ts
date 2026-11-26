@@ -12,6 +12,10 @@ import type { Call } from 'webitel-sdk';
 import { useSystemSettingsStore } from '../../../../system-settings/store/systemSettings';
 import { useCallsStore } from '../../../store/calls';
 import { CONTACT_FIELDS } from '../constants/contactFields';
+import {
+	createContactReloader,
+	replaceContact,
+} from '../scripts/createContactReloader';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
 
@@ -128,6 +132,22 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		showResult([]);
 		hasLinkedContactFailed.value = true;
 	};
+
+	/**
+	 * The card added a phone or an email to a contact the panel holds: it is
+	 * reloaded and put in its place in every list that holds it, so switching
+	 * away from it and back keeps what was added
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	const reloadContact = createContactReloader((contact) => {
+		identifiedContacts.value = replaceContact(
+			identifiedContacts.value,
+			contact,
+		);
+		if (searchedContacts.value)
+			searchedContacts.value = replaceContact(searchedContacts.value, contact);
+		pendingContacts = replaceContact(pendingContacts, contact);
+	});
 
 	let lastRequestId = 0;
 
@@ -276,6 +296,7 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		isLinkedContactUnavailable,
 		isSearchActive,
 		selectContact,
+		reloadContact,
 		search,
 		cancelSearch: resetSearch,
 	};

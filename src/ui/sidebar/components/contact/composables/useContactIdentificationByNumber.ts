@@ -4,6 +4,10 @@ import {
 } from '@webitel/api-services/gen/models';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 
+import {
+	createContactReloader,
+	replaceContact,
+} from '../../../../../features/calls/modules/contact/scripts/createContactReloader';
 import { findContactsByNumber } from '../../../../../features/calls/modules/contact/scripts/findContactsByNumber';
 import { useSystemSettingsStore } from '../../../../../features/system-settings/store/systemSettings';
 
@@ -33,6 +37,15 @@ export function useContactIdentificationByNumber(
 		contacts.value = result;
 		isLoading.value = false;
 	};
+
+	/**
+	 * The card added a phone or an email to a found contact: it is reloaded and
+	 * put in its place, so switching away from it and back keeps what was added
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	const reloadContact = createContactReloader((contact) => {
+		contacts.value = replaceContact(contacts.value, contact);
+	});
 
 	let lastRequestId = 0;
 
@@ -70,5 +83,6 @@ export function useContactIdentificationByNumber(
 		contacts,
 		isLoading,
 		isContactHidden,
+		reloadContact,
 	};
 }

@@ -5,7 +5,7 @@
 			:src="unknownContactAvatar"
 		/>
 		<p class="contact-card-unknown__name typo-body-2-bold">
-			{{ t('ui.clientIdentity.unknownContact') }}
+			{{ t('ui.reusable.unknownContact') }}
 		</p>
 	</div>
 </template>

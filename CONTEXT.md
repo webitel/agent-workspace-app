@@ -46,7 +46,7 @@ and should not be carried over wholesale.
 - [ADR-0012](docs/adr/0012-contact-card-communication.md) — the contact card's
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
-  its gateway icon alone.
+  its gateway icon alone; phones and emails are added inline on their tab.
 - [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
   one of several identified contacts while the call is active or on hold, the
   link shows at once, a failed one is silent, and CREATE follows the same
@@ -105,6 +105,9 @@ and should not be carried over wholesale.
   list is a table store like the agents list, its selected row is painted by
   `wt-table`'s `active-row` rather than by a token that does not exist, and a
   disabled queue is still listed.
+- [ADR-0030](docs/adr/0030-one-locale-key-per-meaning.md) — one locale key per
+  meaning: a text ui-sdk already translates is read from ui-sdk, one shared in
+  the app is one key, and a test with reasoned allow-lists keeps it that way.
 
 ## Language
 

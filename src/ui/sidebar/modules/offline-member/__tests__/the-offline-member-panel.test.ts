@@ -12,6 +12,7 @@ import { useSidebarSelectionStore } from '../../../store/sidebar-selection';
 
 const contacts = ref<WebitelContactsContact[]>([]);
 const isLoading = ref(false);
+const reloadContact = vi.fn();
 let searchedNumber: () => string | undefined = () => undefined;
 
 vi.mock(
@@ -24,6 +25,7 @@ vi.mock(
 			return {
 				contacts,
 				isLoading,
+				reloadContact,
 			};
 		},
 	}),
@@ -173,5 +175,22 @@ describe('the-offline-member-panel', () => {
 
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
 		expect(searchedNumber()).toBeUndefined();
+	});
+
+	it('reloads the found contact the card changed (WS-186)', async () => {
+		const wrapper = mountPanel();
+		contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
+		];
+		await selectMember('380501112233');
+
+		wrapper.findComponent(ContactIdentification).vm.$emit('changed', '16');
+
+		expect(reloadContact).toHaveBeenCalledWith('16');
 	});
 });

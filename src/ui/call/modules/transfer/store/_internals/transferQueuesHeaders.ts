@@ -3,7 +3,7 @@ import type { DatalistTableHeader } from '@webitel/ui-datalist';
 export const transferQueuesHeaders: DatalistTableHeader[] = [
 	{
 		value: 'name',
-		locale: 'ui.call.transfer.columns.name',
+		locale: 'reusable.name',
 		show: true,
 		field: 'name',
 	},

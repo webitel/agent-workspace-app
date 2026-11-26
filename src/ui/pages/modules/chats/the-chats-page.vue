@@ -40,7 +40,7 @@ const router = useRouter();
 
 const tabs = computed<PageTab<ChatsPageStore>[]>(() => [
 	{
-		text: t('ui.pages.chats.pageTabs.active'),
+		text: t('ui.chatList.tabs.active'),
 		value: ChatsPageTab.Active,
 		pathName: ChatsPageTab.Active,
 		component: ChatsActiveTable,

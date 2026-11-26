@@ -14,7 +14,7 @@
         <div class="client-identity-block__info">
             <div class="client-identity-block__name-row">
                 <p class="client-identity-block__name typo-body-1-bold">
-                    {{ name || t('ui.clientIdentity.unknownContact') }}
+                    {{ name || t('ui.reusable.unknownContact') }}
                 </p>
                 <!-- identification can match several contacts; this is the remainder -->
                 <wt-chip

@@ -893,4 +893,74 @@ describe('useCallContact', () => {
 			]);
 		});
 	});
+
+	describe('reloading a contact the card changed', () => {
+		it('puts the reloaded contact in place of the found one, keeping the others', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contacts, reloadContact } = setup(buildCall());
+			await flushPromises();
+			const fresh = {
+				...buildContact('16'),
+				about: 'reloaded',
+			};
+			get.mockResolvedValueOnce(fresh);
+
+			await reloadContact('16');
+
+			expect(contacts.value).toEqual([
+				buildContact('15'),
+				fresh,
+			]);
+			expect(get).toHaveBeenCalledWith({
+				itemId: '16',
+			});
+		});
+
+		it('puts the reloaded contact in the agent search result too, and keeps it after Cancel', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contacts, isSearchActive, search, cancelSearch, reloadContact } =
+				setup(buildCall());
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('16', '31'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+			const fresh = {
+				...buildContact('16'),
+				about: 'reloaded',
+			};
+			get.mockResolvedValueOnce(fresh);
+
+			await reloadContact('16');
+
+			expect(isSearchActive.value).toBe(true);
+			expect(contacts.value).toEqual([
+				fresh,
+				buildContact('31'),
+			]);
+
+			cancelSearch();
+
+			expect(contacts.value).toEqual([
+				buildContact('15'),
+				fresh,
+			]);
+		});
+
+		it('keeps the contact as it is when the reload fails', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contacts, isLoading, reloadContact } = setup(buildCall());
+			await flushPromises();
+			get.mockRejectedValueOnce(new Error('network error'));
+
+			await reloadContact('16');
+
+			expect(isLoading.value).toBe(false);
+			expect(ids(contacts)).toEqual([
+				'15',
+				'16',
+			]);
+		});
+	});
 });

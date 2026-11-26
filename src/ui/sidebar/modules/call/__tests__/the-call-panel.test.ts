@@ -33,6 +33,7 @@ const identification = {
 	isContactHidden: ref(false),
 	isLinkedContactUnavailable: ref(false),
 	selectContact: vi.fn(),
+	reloadContact: vi.fn(),
 };
 let identifiedCall: (() => Call) | undefined;
 
@@ -58,6 +59,7 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 		],
 		emits: [
 			'select',
+			'changed',
 		],
 		template:
 			'<div class="contact-identification-stub"><slot name="actions" /></div>',
@@ -293,5 +295,13 @@ describe('the-call-panel', () => {
 		findIdentification(wrapper).vm.$emit('select', '16');
 
 		expect(identification.selectContact).toHaveBeenCalledWith('16');
+	});
+
+	it('reloads the contact the card changed in the block (WS-186)', () => {
+		const wrapper = mountPanel();
+
+		findIdentification(wrapper).vm.$emit('changed', '16');
+
+		expect(identification.reloadContact).toHaveBeenCalledWith('16');
 	});
 });

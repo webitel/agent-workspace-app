@@ -4,6 +4,7 @@
 		<contact-card
 			v-else-if="contact"
 			:contact="contact"
+			@changed="reload"
 		/>
 	</div>
 </template>
@@ -15,14 +16,15 @@ import ContactCard from './contact-card.vue';
 
 /**
  * The contact card of a contact known only by its id (a table row's, a
- * selection's), loaded with its every field
+ * selection's), loaded with its every field and reloaded in place, with no
+ * loader, once the card changed it
  * [WS-186](https://webitel.atlassian.net/browse/WS-186)
  */
 const props = defineProps<{
 	contactId: string;
 }>();
 
-const { contact, isLoading } = useContact(toRef(props, 'contactId'));
+const { contact, isLoading, reload } = useContact(toRef(props, 'contactId'));
 </script>
 
 <style scoped>

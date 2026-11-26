@@ -15,6 +15,7 @@
 			v-else
 			:contacts="contacts"
 			:is-loading="isLoading"
+			@changed="reloadContact"
 		/>
 	</div>
 </template>
@@ -50,7 +51,7 @@ const phoneNumberSelection = computed(() =>
  * call of the agent's to link one to (ADR-0013, ADR-0015)
  * [WS-39](https://webitel.atlassian.net/browse/WS-39)
  */
-const { contacts, isLoading } = useContactIdentificationByNumber(
+const { contacts, isLoading, reloadContact } = useContactIdentificationByNumber(
 	() => phoneNumberSelection.value?.phoneNumber,
 );
 

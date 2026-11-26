@@ -21,6 +21,7 @@ import { useContactIdentificationByNumber } from '../useContactIdentificationByN
 vi.mock('@webitel/api-services/api', () => ({
 	ContactsAPI: {
 		getList: vi.fn(),
+		get: vi.fn(),
 	},
 }));
 
@@ -174,5 +175,25 @@ describe('useContactIdentificationByNumber', () => {
 		expect(isContactHidden.value).toBe(true);
 		expect(getList).not.toHaveBeenCalled();
 		expect(contacts.value).toEqual([]);
+	});
+
+	it('puts a contact reloaded after the card changed it in its place', async () => {
+		getList.mockResolvedValue(found('15', '16'));
+		const { contacts, reloadContact } = setup('380501112233');
+		await flushPromises();
+		const fresh = {
+			id: '16',
+			about: 'reloaded',
+		};
+		vi.mocked(ContactsAPI.get).mockResolvedValue(fresh);
+
+		await reloadContact('16');
+
+		expect(contacts.value).toEqual([
+			{
+				id: '15',
+			},
+			fresh,
+		]);
 	});
 });

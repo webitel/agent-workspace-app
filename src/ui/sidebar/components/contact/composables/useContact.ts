@@ -8,12 +8,21 @@ export const useContact = (contactId: Ref<string>) => {
 
 	let lastRequestId = 0;
 
-	const loadContact = async (id: string) => {
+	const loadContact = async (
+		id: string,
+		{
+			silent,
+		}: {
+			silent: boolean;
+		},
+	) => {
 		const requestId = ++lastRequestId;
 		const isStale = () => requestId !== lastRequestId;
 
-		contact.value = null;
-		isLoading.value = true;
+		if (!silent) {
+			contact.value = null;
+			isLoading.value = true;
+		}
 
 		try {
 			const loadedContact: WebitelContactsContact = await ContactsAPI.get({
@@ -27,12 +36,31 @@ export const useContact = (contactId: Ref<string>) => {
 		}
 	};
 
-	watch(contactId, loadContact, {
-		immediate: true,
-	});
+	/**
+	 * @author Polina Sukhorukova
+	 * Refetches the shown contact in place, after the card changed it: the card
+	 * keeps what it shows, with no loader, until the fresh one arrives
+	 * [WS-171](https://webitel.atlassian.net/browse/WS-171)
+	 */
+	const reload = () =>
+		loadContact(contactId.value, {
+			silent: true,
+		});
+
+	watch(
+		contactId,
+		(id) =>
+			loadContact(id, {
+				silent: false,
+			}),
+		{
+			immediate: true,
+		},
+	);
 
 	return {
 		contact,
 		isLoading,
+		reload,
 	};
 };

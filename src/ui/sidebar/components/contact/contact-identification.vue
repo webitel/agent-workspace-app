@@ -19,6 +19,7 @@
 		<contact-card
 			v-else-if="identificationMode === ContactIdentificationMode.Single"
 			:contact="contacts[0]"
+			@changed="emitChanged(contacts[0])"
 		/>
 		<!-- a linked contact that failed to load shows nothing in its place (WS-186) -->
 		<div
@@ -32,7 +33,10 @@
 				@next="showNext"
 			/>
 			<!-- the found contacts come with every field the card shows: switching loads nothing (WS-186) -->
-			<contact-card :contact="shownContact" />
+			<contact-card
+				:contact="shownContact"
+				@changed="emitChanged(shownContact)"
+			/>
 		</div>
 		<!-- the parent's own actions (e.g. CREATE) share one row with SELECT -->
 		<div
@@ -112,7 +116,19 @@ const emit = defineEmits<{
 		},
 	];
 	cancelSearch: [];
+	/**
+	 * the card added a phone or an email to this contact: the parent, which
+	 * holds the contacts, reloads it
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	changed: [
+		contactId: string,
+	];
 }>();
+
+function emitChanged(contact: WebitelContactsContact | undefined) {
+	if (contact?.id) emit('changed', contact.id);
+}
 
 const noResultsImage = useThemedImage({
 	light: emptyFiltersLight,
@@ -159,9 +175,14 @@ const shownIndex = ref(0);
 
 const shownContact = computed(() => props.contacts[shownIndex.value]);
 
-// a new result starts from its first contact
+/**
+ * A new result starts from its first contact. A contact reloaded in place
+ * (after the card added a phone or an email) keeps the same ids, so the shown
+ * one stays on screen
+ * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+ */
 watch(
-	() => props.contacts,
+	() => props.contacts.map(({ id }) => id).join(),
 	() => {
 		shownIndex.value = 0;
 	},

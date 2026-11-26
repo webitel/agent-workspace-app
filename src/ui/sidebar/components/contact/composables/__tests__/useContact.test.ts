@@ -125,6 +125,62 @@ describe('useContact', () => {
 		expect(isLoading.value).toBe(false);
 	});
 
+	it('reloads the same contact without clearing it or showing the loader', async () => {
+		vi.mocked(ContactsAPI.get).mockResolvedValueOnce(contactA);
+		const { contact, isLoading, reload } = setup('1');
+		await flushPromises();
+
+		const updatedA = {
+			...contactA,
+			etag: 'new',
+		};
+		const request = createDeferred<WebitelContactsContact>();
+		vi.mocked(ContactsAPI.get).mockReturnValueOnce(request.promise);
+		reload();
+
+		expect(ContactsAPI.get).toHaveBeenLastCalledWith({
+			itemId: '1',
+		});
+		expect(contact.value).toEqual(contactA);
+		expect(isLoading.value).toBe(false);
+
+		request.resolve(updatedA);
+		await flushPromises();
+
+		expect(contact.value).toEqual(updatedA);
+		expect(isLoading.value).toBe(false);
+	});
+
+	it('keeps the shown contact when a reload fails', async () => {
+		vi.mocked(ContactsAPI.get).mockResolvedValueOnce(contactA);
+		const { contact, reload } = setup('1');
+		await flushPromises();
+
+		vi.mocked(ContactsAPI.get).mockRejectedValueOnce(new Error('fail'));
+		await reload();
+
+		expect(contact.value).toEqual(contactA);
+	});
+
+	it('drops a reload that a switch to another contact overtook', async () => {
+		vi.mocked(ContactsAPI.get).mockResolvedValueOnce(contactA);
+		const { contactId, contact, reload } = setup('1');
+		await flushPromises();
+
+		const reloadRequest = createDeferred<WebitelContactsContact>();
+		vi.mocked(ContactsAPI.get)
+			.mockReturnValueOnce(reloadRequest.promise)
+			.mockResolvedValueOnce(contactB);
+		reload();
+		contactId.value = '2';
+		await flushPromises();
+
+		reloadRequest.resolve(contactA);
+		await flushPromises();
+
+		expect(contact.value).toEqual(contactB);
+	});
+
 	it('stops loading and keeps contact empty on error', async () => {
 		vi.mocked(ContactsAPI.get).mockRejectedValueOnce(new Error('fail'));
 

@@ -14,6 +14,7 @@
 				:can-search="isCallActive"
 				:is-search-active="isSearchActive"
 				@select="selectContact"
+				@changed="reloadContact"
 				@search="search"
 				@cancel-search="cancelSearch"
 			>
@@ -57,6 +58,7 @@ const {
 	isLinkedContactUnavailable,
 	isSearchActive,
 	selectContact,
+	reloadContact,
 	search,
 	cancelSearch,
 } = useCallContact(() => props.call);

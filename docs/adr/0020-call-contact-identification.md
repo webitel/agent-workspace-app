@@ -64,10 +64,21 @@ the same loose match as `cc-workspaces`, not the exact `q==+E.164`. A call with
 
 **Found contacts are shown from the search's answer**, as in `cc-workspaces`.
 The search asks for the fields the contact card shows, with `id` to link a
-contact (`CONTACT_FIELDS`), and the panel keeps the contacts, not their ids. Switching between several found contacts makes no request and shows
-no loader. The agent's own search (ADR-0013) asks for the same fields. The
-contact card only renders a contact it is given; `contact-card-by-id` loads one
-known only by its id, for the table pages' panels.
+contact (`CONTACT_FIELDS`), and the panel keeps the contacts, not their ids.
+Switching between several found contacts makes no request and shows no loader.
+The agent's own search (ADR-0013) asks for the same fields. The contact card
+only renders a contact it is given; `contact-card-by-id` loads one known only by
+its id, for the table pages' panels.
+
+**A found contact the card changed is reloaded by whoever holds it.** When a
+phone or an email is added (ADR-0012), the card reports it, and the block passes
+the contact's id up. `useCallContact` reloads it by its id and puts the fresh one
+in its place in every list that holds it (the identified contacts, the agent
+search's result, the candidates being linked); `useContactIdentificationByNumber`
+does the same for a table row's found contacts (`createContactReloader`). The
+shown contact stays on screen, with no loader, and switching away and back
+keeps what was added. Only the newest reload of a contact is put in place; a
+failed one leaves the contact as it was, and api-services notifies the agent.
 
 **The only match is linked at once** with `call.setContact`. Several are left
 for the agent to choose from (ADR-0013). None found gives the not-found state.
@@ -126,6 +137,8 @@ card, which will need a call's contacts too, is meant to use the same module.
   search has already returned the contact.
 - **Caching or preloading each found contact by its id.** Up to 100 requests
   for what one answer already holds.
+- **The card keeping a reloaded copy of a contact it changed.** The list would
+  still hold the old one, so switching away and back would lose what was added.
 - **The `getList` default fields.** The card would show no groups for a found
   contact, but would for the same contact once it is linked and loaded by id.
 - **Identification inside the panel component.** Kept out of it in review: it

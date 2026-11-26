@@ -26,7 +26,7 @@
 				<wt-table-variable-column-select
 					v-if="variablesStorageKey"
 					:storage-key="variablesStorageKey"
-					:title="$t('ui.pages.tableActionPanel.variableColumnSelect.title')"
+					:title="$t('webitelUI.iconAction.hints.variables')"
 					@update:variable-headers="updateVariableHeaders"
 				/>
 			</template>

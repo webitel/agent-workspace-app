@@ -61,7 +61,7 @@ describe('ContactCardInfo', () => {
 	it('renders the Info block with timezone, owner and groups', () => {
 		const [infoList] = mountInfo(contact).findAllComponents(KeyValueList);
 
-		expect(infoList.props('title')).toBe('ui.sidebar.contact.info');
+		expect(infoList.props('title')).toBe('ui.reusable.info');
 		expect(infoList.props('items')).toEqual([
 			{
 				id: 'timezone',

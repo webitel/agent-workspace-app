@@ -8,7 +8,10 @@
 
 		<wt-divider />
 
-		<contact-card-communication :contact="contact" />
+		<contact-card-communication
+			:contact="contact"
+			@changed="emit('changed')"
+		/>
 	</div>
 </template>
 
@@ -25,6 +28,15 @@ import ContactCardInfo from './contact-card-info.vue';
  */
 defineProps<{
 	contact: WebitelContactsContact;
+}>();
+
+const emit = defineEmits<{
+	/**
+	 * a phone or an email was added, so the contact is stale: whoever holds it
+	 * reloads it
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	changed: [];
 }>();
 </script>
 

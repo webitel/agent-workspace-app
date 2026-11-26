@@ -5,6 +5,7 @@ import { nextTick, ref } from 'vue';
 
 const contact = ref<WebitelContactsContact | null>(null);
 const isLoading = ref(false);
+const reload = vi.fn();
 let loadedId: () => string = () => '';
 
 // the loading itself is covered by useContact's own tests
@@ -14,6 +15,7 @@ vi.mock('../composables/useContact', () => ({
 		return {
 			contact,
 			isLoading,
+			reload,
 		};
 	},
 }));
@@ -72,5 +74,18 @@ describe('contact-card-by-id', () => {
 		const wrapper = mountCard();
 
 		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
+	});
+
+	it('reloads the contact in place once the card changed it (WS-171)', () => {
+		contact.value = {
+			id: '42',
+		};
+		isLoading.value = false;
+		reload.mockClear();
+		const wrapper = mountCard();
+
+		wrapper.findComponent(ContactCard).vm.$emit('changed');
+
+		expect(reload).toHaveBeenCalledTimes(1);
 	});
 });

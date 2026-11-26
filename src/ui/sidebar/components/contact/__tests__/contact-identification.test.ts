@@ -297,6 +297,20 @@ describe('contact-identification', () => {
 		expect(findSelectButton(wrapper).exists()).toBe(false);
 	});
 
+	it('passes up the id of the only contact when the card changed it (WS-186)', () => {
+		const wrapper = mountBlock({
+			contacts: buildContacts('101'),
+		});
+
+		findCard(wrapper).vm.$emit('changed');
+
+		expect(wrapper.emitted('changed')).toEqual([
+			[
+				'101',
+			],
+		]);
+	});
+
 	it('hides the parent actions while identifying', () => {
 		const wrapper = mountBlock(
 			{
@@ -392,6 +406,41 @@ describe('contact-identification', () => {
 				position: 1,
 				count: 2,
 			});
+		});
+
+		it('keeps the shown contact when it is reloaded in place (WS-186)', async () => {
+			const wrapper = severalFound();
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+
+			const fresh = {
+				...buildContact('102'),
+				about: 'reloaded',
+			};
+			await wrapper.setProps({
+				contacts: [
+					buildContact('101'),
+					fresh,
+					buildContact('103'),
+				],
+			});
+
+			expect(findSwitcher(wrapper).props('position')).toBe(2);
+			expect(findCard(wrapper).props('contact')).toEqual(fresh);
+		});
+
+		it('passes up the id of the shown contact the card changed (WS-186)', async () => {
+			const wrapper = severalFound();
+			findSwitcher(wrapper).vm.$emit('next');
+			await nextTick();
+
+			findCard(wrapper).vm.$emit('changed');
+
+			expect(wrapper.emitted('changed')).toEqual([
+				[
+					'102',
+				],
+			]);
 		});
 
 		it('emits select with the shown contact', async () => {
