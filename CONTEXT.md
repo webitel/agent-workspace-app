@@ -46,7 +46,7 @@ and should not be carried over wholesale.
 - [ADR-0012](docs/adr/0012-contact-card-communication.md) — the contact card's
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
-  its gateway icon alone.
+  its gateway icon alone; phones and emails are added inline on their tab.
 - [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
   one of several identified contacts while the call is active or on hold, the
   link shows at once, a failed one is silent, and CREATE follows the same
