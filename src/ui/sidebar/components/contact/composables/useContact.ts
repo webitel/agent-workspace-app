@@ -8,7 +8,7 @@ export const useContact = (contactId: Ref<string>) => {
 
 	let lastRequestId = 0;
 
-	const fetchContact = async (
+	const loadContact = async (
 		id: string,
 		{
 			silent,
@@ -43,14 +43,14 @@ export const useContact = (contactId: Ref<string>) => {
 	 * [WS-171](https://webitel.atlassian.net/browse/WS-171)
 	 */
 	const reload = () =>
-		fetchContact(contactId.value, {
+		loadContact(contactId.value, {
 			silent: true,
 		});
 
 	watch(
 		contactId,
 		(id) =>
-			fetchContact(id, {
+			loadContact(id, {
 				silent: false,
 			}),
 		{
