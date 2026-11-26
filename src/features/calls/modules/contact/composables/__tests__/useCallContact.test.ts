@@ -141,10 +141,10 @@ describe('useCallContact', () => {
 		expect(getList).not.toHaveBeenCalled();
 	});
 
-	it('shows nothing when the linked contact fails to load', async () => {
-		get.mockRejectedValue(new Error('network error'));
+	it('reports a linked contact that fails to load as unavailable, not as no contact', async () => {
+		get.mockRejectedValue(new Error('forbidden'));
 
-		const { contacts, isLoading } = setup(
+		const { contacts, isLoading, isLinkedContactUnavailable } = setup(
 			buildCall({
 				contact: {
 					id: 42,
@@ -154,8 +154,68 @@ describe('useCallContact', () => {
 		);
 		await flushPromises();
 
+		expect(isLinkedContactUnavailable.value).toBe(true);
 		expect(contacts.value).toEqual([]);
 		expect(isLoading.value).toBe(false);
+	});
+
+	it('shows the agent search over an unavailable linked contact, and gives it back on cancel', async () => {
+		get.mockRejectedValue(new Error('forbidden'));
+		const { contacts, isLinkedContactUnavailable, search, cancelSearch } =
+			setup(
+				buildCall({
+					contact: {
+						id: 42,
+						hide: false,
+					},
+				}),
+			);
+		await flushPromises();
+
+		getList.mockResolvedValueOnce(found('31'));
+		await search({
+			query: 'sarah',
+			searchMode: ContactsSearchMode.NAME,
+		});
+
+		expect(isLinkedContactUnavailable.value).toBe(false);
+		expect(ids(contacts)).toEqual([
+			'31',
+		]);
+
+		cancelSearch();
+
+		expect(isLinkedContactUnavailable.value).toBe(true);
+	});
+
+	it('does not report a failed number search as an unavailable linked contact', async () => {
+		getList.mockRejectedValue(new Error('network error'));
+
+		const { isLinkedContactUnavailable } = setup(buildCall());
+		await flushPromises();
+
+		expect(isLinkedContactUnavailable.value).toBe(false);
+	});
+
+	it('forgets an unavailable linked contact once another call is opened', async () => {
+		get.mockRejectedValue(new Error('forbidden'));
+		const { isLinkedContactUnavailable, callRef } = setup(
+			buildCall({
+				contact: {
+					id: 42,
+					hide: false,
+				},
+			}),
+		);
+		await flushPromises();
+
+		getList.mockResolvedValueOnce(found());
+		callRef.value = buildCall({
+			id: 'call-2',
+		});
+		await flushPromises();
+
+		expect(isLinkedContactUnavailable.value).toBe(false);
 	});
 
 	it('loads nothing when the only found contact it linked comes back from the socket', async () => {
@@ -173,6 +233,36 @@ describe('useCallContact', () => {
 
 		expect(get).not.toHaveBeenCalled();
 		expect(isLoading.value).toBe(false);
+		expect(ids(contacts)).toEqual([
+			'15',
+		]);
+	});
+
+	it('loads nothing when the link of the only found contact comes from the socket before setContact resolves', async () => {
+		getList.mockResolvedValue(found('15'));
+		const linking = createDeferred<object>();
+		const call = buildCall({
+			setContact: vi.fn().mockReturnValue(linking.promise),
+		});
+
+		const { contacts, isLoading } = setup(call);
+		await flushPromises();
+		// the SDK does not order the `set_contact` event and the request's reply
+		call.contact = {
+			id: 15,
+			hide: false,
+		};
+		await flushPromises();
+
+		expect(get).not.toHaveBeenCalled();
+		expect(isLoading.value).toBe(false);
+		expect(ids(contacts)).toEqual([
+			'15',
+		]);
+
+		linking.resolve({});
+		await flushPromises();
+
 		expect(ids(contacts)).toEqual([
 			'15',
 		]);
@@ -760,6 +850,44 @@ describe('useCallContact', () => {
 			await selectContact(buildContact('32'));
 
 			expect(isSearchActive.value).toBe(false);
+			expect(ids(contacts)).toEqual([
+				'32',
+			]);
+		});
+
+		it('loads nothing when the link of a searched contact comes from the socket before setContact resolves', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const linking = createDeferred<object>();
+			const call = buildCall({
+				setContact: vi.fn().mockReturnValue(linking.promise),
+			});
+			const { contacts, isLoading, isSearchActive, search, selectContact } =
+				setup(call);
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31', '32'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			const selecting = selectContact(buildContact('32'));
+			// the SDK does not order the `set_contact` event and the request's reply
+			call.contact = {
+				id: 32,
+				hide: false,
+			};
+			await flushPromises();
+
+			expect(get).not.toHaveBeenCalled();
+			expect(isLoading.value).toBe(false);
+			expect(isSearchActive.value).toBe(false);
+			expect(ids(contacts)).toEqual([
+				'32',
+			]);
+
+			linking.resolve({});
+			await selecting;
+
 			expect(ids(contacts)).toEqual([
 				'32',
 			]);

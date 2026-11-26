@@ -49,6 +49,14 @@ agent selected, or a found contact someone else linked. That one is shown at
 once, with no request and no loader, so the socket event that links it changes
 nothing on screen.
 
+The SDK does not order the reply to `setContact` and the `set_contact` event:
+they are separate socket messages, handled as they come. So the panel looks the
+linked contact up in every contact it holds, not only the shown ones: the agent
+search's result, the identified contacts, and the contacts the number search
+found while the only one of them is still being linked
+(`identifyCallContact`'s `onFound`, not shown until the link succeeds). An event
+that comes first finds the contact there and loads nothing.
+
 **Otherwise the number is searched in the contacts' phones**: `call.displayNumber`,
 `qin: 'phones'`, `q: number`, 100 results (`findContactsByNumber`). This is
 the same loose match as `cc-workspaces`, not the exact `q==+E.164`. A call with
@@ -69,6 +77,15 @@ than the found one: showing it would present a contact the call is not linked
 to as the call's contact. Only `console.warn` records it, as `cc-workspaces`
 showed nothing either. A failed search also shows nothing; `@webitel/api-services`
 raises the error notification.
+
+**A linked contact that fails to load is not the Unknown contact.** When the
+call is linked but `ContactsAPI.get` fails (no access to the contact, a network
+error), the block shows neither a card nor the Unknown contact card in its place
+(`isLinkedContactUnavailable`): the call has a contact, and showing it as
+unknown would lead the agent to CREATE a duplicate. The search and the row of
+actions stay, as for any linked contact; `@webitel/api-services` notifies the
+agent of the failure. The agent's search shows its result over it, and Cancel
+brings it back.
 
 **A hidden contact is neither searched for nor shown.** With the call's
 `hideContact` or the `WbtHideContact` system setting on, the contact block is
@@ -93,6 +110,12 @@ card, which will need a call's contacts too, is meant to use the same module.
   several found contacts for the agent to choose from.
 - **Showing the found contact when the automatic link fails.** The panel would
   show a contact the call is not linked to, and nothing would say so.
+- **The Unknown contact for a linked contact that fails to load.** The panel
+  would call a linked call's client unknown and invite a duplicate.
+- **Hiding CREATE for a linked contact that fails to load.** CREATE stays beside
+  a linked contact that loads, so hiding it only on a failure would make the
+  row depend on a request's outcome; whether CREATE belongs beside a linked
+  contact at all is a question for the spec.
 - **An error notification on a failed link.** `cc-workspaces` had none, and the
   rejection is a plain `{ id, detail }` object with no ready message
   (ADR-0013).
@@ -115,6 +138,8 @@ card, which will need a call's contacts too, is meant to use the same module.
   call's number. They come up as several found contacts.
 - A failed automatic link looks the same as no contact found; only the console
   tells them apart.
+- A linked contact that fails to load leaves an empty place in the panel, with
+  only the api-services notification to explain it.
 - The only match is linked whatever the call's state, a ringing Offer opened in
   its Call window included. ADR-0013 holds SELECT and CREATE back until the call
   is active or on hold; the automatic link has no such condition.

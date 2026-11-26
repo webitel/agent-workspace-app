@@ -10,10 +10,16 @@ import { getCallContactId } from './getCallContactId';
  * linked to the call, loaded by its id, otherwise contacts found by the
  * client's number. The only match is linked to the call; several are left for
  * the agent to choose from. A failed request is thrown to the caller.
+ *
+ * `onFound` gets the found contacts before the only one is linked: the
+ * socket event of that link may come before `setContact` resolves, and the
+ * caller must know the contact then, not load it again.
+ * [WS-186](https://webitel.atlassian.net/browse/WS-186)
  */
 export async function identifyCallContact(
 	call: Call,
 	getCallById: (callId: string) => Call | undefined,
+	onFound?: (contacts: WebitelContactsContact[]) => void,
 ): Promise<WebitelContactsContact[]> {
 	const linkedContactId = getCallContactId(call, getCallById);
 	if (linkedContactId) {
@@ -29,6 +35,7 @@ export async function identifyCallContact(
 	if (!number || call.hideNumber) return [];
 
 	const contacts = await findContactsByNumber(number);
+	onFound?.(contacts);
 
 	if (contacts.length !== 1) return contacts;
 

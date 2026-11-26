@@ -151,6 +151,39 @@ describe('identifyCallContact', () => {
 		expect(get).not.toHaveBeenCalled();
 	});
 
+	it('passes the found contacts on before linking the only one', async () => {
+		foundContacts('15');
+		const onFound = vi.fn();
+		const call = buildCall();
+
+		await identifyCallContact(call, noCalls, onFound);
+
+		expect(onFound).toHaveBeenCalledWith([
+			buildContact('15'),
+		]);
+		expect(onFound.mock.invocationCallOrder[0]).toBeLessThan(
+			vi.mocked(call.setContact).mock.invocationCallOrder[0],
+		);
+	});
+
+	it('passes nothing on for the linked contact', async () => {
+		get.mockResolvedValue(buildContact('42'));
+		const onFound = vi.fn();
+
+		await identifyCallContact(
+			buildCall({
+				contact: {
+					id: 42,
+					hide: false,
+				},
+			}),
+			noCalls,
+			onFound,
+		);
+
+		expect(onFound).not.toHaveBeenCalled();
+	});
+
 	it('returns every found contact without linking any', async () => {
 		foundContacts('15', '16', '17');
 		const call = buildCall();

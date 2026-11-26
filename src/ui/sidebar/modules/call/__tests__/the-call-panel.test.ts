@@ -31,6 +31,7 @@ const identification = {
 	contacts: ref<WebitelContactsContact[]>([]),
 	isLoading: ref(false),
 	isContactHidden: ref(false),
+	isLinkedContactUnavailable: ref(false),
 	selectContact: vi.fn(),
 };
 let identifiedCall: (() => Call) | undefined;
@@ -52,6 +53,7 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 		props: [
 			'contacts',
 			'isLoading',
+			'isLinkedContactUnavailable',
 			'canSelect',
 		],
 		emits: [
@@ -125,6 +127,7 @@ describe('the-call-panel', () => {
 		identification.contacts.value = [];
 		identification.isLoading.value = false;
 		identification.isContactHidden.value = false;
+		identification.isLinkedContactUnavailable.value = false;
 		identifiedCall = undefined;
 		identification.selectContact.mockClear();
 	});
@@ -175,6 +178,17 @@ describe('the-call-panel', () => {
 			},
 		]);
 		expect(block.props('isLoading')).toBe(true);
+	});
+
+	it('tells the block the linked contact failed to load (WS-186)', async () => {
+		const wrapper = mountPanel();
+
+		identification.isLinkedContactUnavailable.value = true;
+		await nextTick();
+
+		expect(
+			findIdentification(wrapper).props('isLinkedContactUnavailable'),
+		).toBe(true);
 	});
 
 	it('shows neither the block nor CREATE when the contact is hidden', () => {

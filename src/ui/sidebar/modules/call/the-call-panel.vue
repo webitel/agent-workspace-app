@@ -9,6 +9,7 @@
 			<contact-identification
 				:contacts="contacts"
 				:is-loading="isLoading"
+				:is-linked-contact-unavailable="isLinkedContactUnavailable"
 				:can-select="isCallActive"
 				:can-search="isCallActive"
 				:is-search-active="isSearchActive"
@@ -53,6 +54,7 @@ const {
 	contacts,
 	isLoading,
 	isContactHidden,
+	isLinkedContactUnavailable,
 	isSearchActive,
 	selectContact,
 	search,

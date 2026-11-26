@@ -20,8 +20,9 @@
 			v-else-if="identificationMode === ContactIdentificationMode.Single"
 			:contact="contacts[0]"
 		/>
+		<!-- a linked contact that failed to load shows nothing in its place (WS-186) -->
 		<div
-			v-else
+			v-else-if="identificationMode === ContactIdentificationMode.Multiple"
 			class="contact-identification__multiple"
 		>
 			<found-contacts-navigator
@@ -78,6 +79,12 @@ import FoundContactsNavigator from './found-contacts-navigator.vue';
 const props = defineProps<{
 	contacts: WebitelContactsContact[];
 	isLoading?: boolean;
+	/**
+	 * the call is linked to a contact that failed to load: no contact is shown,
+	 * yet it is not the Unknown contact
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	isLinkedContactUnavailable?: boolean;
 	// whether the shown contact can be chosen; the block itself links nothing
 	canSelect?: boolean;
 	/**
@@ -126,6 +133,8 @@ const { t } = useI18n();
 
 const identificationMode = computed<ContactIdentificationMode>(() => {
 	if (props.isLoading) return ContactIdentificationMode.Loading;
+	if (props.isLinkedContactUnavailable)
+		return ContactIdentificationMode.LinkedContactUnavailable;
 	if (!props.contacts.length) return ContactIdentificationMode.NotFound;
 	if (props.contacts.length === 1) return ContactIdentificationMode.Single;
 	return ContactIdentificationMode.Multiple;

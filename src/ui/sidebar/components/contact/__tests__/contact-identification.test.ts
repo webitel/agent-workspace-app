@@ -49,6 +49,7 @@ const WtLoaderStub = {
 type BlockProps = {
 	contacts: WebitelContactsContact[];
 	isLoading?: boolean;
+	isLinkedContactUnavailable?: boolean;
 	canSelect?: boolean;
 	canSearch?: boolean;
 	isSearchActive?: boolean;
@@ -115,6 +116,38 @@ describe('contact-identification', () => {
 
 		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(true);
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
+	});
+
+	it('shows neither a card nor the unknown contact for a linked contact that failed to load, keeping the search and the parent actions (WS-186)', () => {
+		const wrapper = mountBlock(
+			{
+				contacts: buildContacts(),
+				isLinkedContactUnavailable: true,
+				canSelect: true,
+				canSearch: true,
+			},
+			{
+				actions: '<button class="parent-action" />',
+			},
+		);
+
+		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(false);
+		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
+		expect(findCard(wrapper).exists()).toBe(false);
+		expect(findSwitcher(wrapper).exists()).toBe(false);
+		expect(findSelectButtonByLabel(wrapper)).toBeUndefined();
+		expect(wrapper.findComponent(ContactSearch).exists()).toBe(true);
+		expect(wrapper.find('.parent-action').exists()).toBe(true);
+	});
+
+	it('shows the loader over an unavailable linked contact while identifying', () => {
+		const wrapper = mountBlock({
+			contacts: buildContacts(),
+			isLoading: true,
+			isLinkedContactUnavailable: true,
+		});
+
+		expect(wrapper.findComponent(WtLoaderStub).exists()).toBe(true);
 	});
 
 	describe('search', () => {
