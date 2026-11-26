@@ -4,6 +4,7 @@ import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Task } from 'webitel-sdk';
 
+import SlideUpOverlay from '../../../../../components/slide-up-overlay/slide-up-overlay.vue';
 import type { ActiveCallContent } from '../../types/ActiveCallContent.types';
 import CallDock from '../call-dock.vue';
 import PostProcessingCallBar from '../post-processing-call-bar.vue';
@@ -48,6 +49,13 @@ describe('post-processing-call-bar', () => {
 
 		expect(dock.props('isHungUp')).toBe(true);
 		expect(dock.props('preview')).toEqual(preview);
+	});
+
+	it('floats the card over the content instead of taking room in the dock', () => {
+		const overlay = mountBar().findComponent(SlideUpOverlay);
+
+		expect(overlay.props('isOpen')).toBe(true);
+		expect(overlay.findComponent(CallDock).exists()).toBe(true);
 	});
 
 	it('opens the Call window from the card', () => {
