@@ -1,7 +1,7 @@
 <template>
 	<div class="contact-card-info">
 		<key-value-list
-			:title="t('ui.sidebar.contact.info')"
+			:title="t('ui.reusable.info')"
 			:items="infoItems"
 		/>
 

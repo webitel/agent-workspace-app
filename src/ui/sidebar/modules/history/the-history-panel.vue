@@ -1,7 +1,7 @@
 <template>
 	<div class="history-panel">
 		<sidebar-section-header :title="title" />
-		<contact-card
+		<contact-card-by-id
 			v-if="contactId"
 			:contact-id="contactId"
 		/>
@@ -18,7 +18,7 @@
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ContactCard from '../../components/contact/contact-card.vue';
+import ContactCardById from '../../components/contact/contact-card-by-id.vue';
 import ContactCardUnknown from '../../components/contact/contact-card-unknown.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../components/sidebar-section-header.vue';

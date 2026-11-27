@@ -30,6 +30,7 @@
 		"test:e2e:sw": "playwright test --project=service-worker --workers=1"
 	},
 	"dependencies": {
+		"@regle/schemas": "^1.x",
 		"@vueuse/core": "^14.x",
 		"@webitel/api-services": "~26.12",
 		"@webitel/chat-web-sdk": "^0.0.23",
@@ -38,8 +39,8 @@
 		"@webitel/ui-datalist": "~26.12",
 		"@webitel/ui-sdk": "~26.12",
 		"axios": "^1.17.0",
-		"decode-uri-component": "^0.5.1",
 		"date-fns": "^4",
+		"decode-uri-component": "^0.5.1",
 		"dompurify": "^3.4.16",
 		"jszip": "^3.10.2",
 		"markdown-it": "^15.0.3",

@@ -118,7 +118,7 @@ describe('call-top-bar', () => {
 		const text = mountBar(buildCall()).text();
 
 		expect(text).toContain('+12023417842');
-		expect(text).toContain('ui.notifications.offer.queue');
+		expect(text).toContain('objects.queue.queue');
 		expect(text).toContain('Sales');
 	});
 
@@ -133,7 +133,7 @@ describe('call-top-bar', () => {
 			}),
 		).text();
 
-		expect(text).toContain('ui.notifications.offer.unknownContact');
+		expect(text).toContain('ui.reusable.unknownContact');
 		expect(text).not.toContain('Emily Johnson');
 	});
 

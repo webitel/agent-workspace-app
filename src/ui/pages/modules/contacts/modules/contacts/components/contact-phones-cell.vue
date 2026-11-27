@@ -1,86 +1,50 @@
 <template>
-	<div class="contact-phones-cell">
-		<template v-if="primaryPhoneNumber">
-			<wt-button
-				class="contact-phones-cell__call"
-				icon="call--filled"
-				:size="ComponentSize.SM"
-				:color="ButtonColor.SUCCESS"
-				:icon-color="IconColor.SUCCESS"
-				:variant="ButtonVariant.TEXT"
-				:aria-label="t('ui.pages.contacts.phones.call', { number: primaryPhoneNumber })"
-				width-by-content
-				@click="emit('call', primaryPhoneNumber)"
+	<communication-cell-list
+		v-if="primaryPhoneNumber"
+		:value="primaryPhoneNumber"
+		:options="phoneNumbers"
+		icon="call--filled"
+		:icon-color="IconColor.SUCCESS"
+		:disabled="isCalling"
+		@select="call"
+	>
+		<template #icon>
+			<phone-call-button
+				:number="primaryPhoneNumber"
+				:disabled="isCalling"
+				@click="call(primaryPhoneNumber)"
 			/>
-			<span class="contact-phones-cell__number">{{ primaryPhoneNumber }}</span>
-
-			<wt-context-menu
-				v-if="hasOtherPhones"
-				:options="phoneOptions"
-				@click="onPhoneOptionClick"
-			>
-				<template #activator="{ toggle }">
-					<wt-tooltip>
-						<template #activator>
-							<wt-chip
-								class="contact-phones-cell__more"
-                :color="ChipColor.SECONDARY"
-								@click="toggle"
-							>
-								+{{ otherPhonesCount }}
-							</wt-chip>
-						</template>
-						{{ t('ui.pages.contacts.phones.moreNumbers', { count: otherPhonesCount }) }}
-					</wt-tooltip>
-				</template>
-
-				<template #option="{ number }">
-					<span class="contact-phones-cell__option">
-						<wt-icon
-							icon="call--filled"
-							:size="ComponentSize.SM"
-							:color="IconColor.SUCCESS"
-						/>
-						{{ number }}
-					</span>
-				</template>
-			</wt-context-menu>
 		</template>
 
-		<span v-else>{{ t('ui.pages.contacts.phones.noPhone') }}</span>
-	</div>
+		<template #more-tooltip="{ count }">
+			{{ t('ui.pages.contacts.phones.moreNumbers', { count }) }}
+		</template>
+	</communication-cell-list>
+
+	<communication-cell-empty
+		v-else
+		icon="call--filled"
+		:text="t('ui.pages.contacts.phones.noPhone')"
+	/>
 </template>
 
 <script setup lang="ts">
 import type { ContactsPhoneNumber } from '@webitel/api-services/gen/models';
-import {
-	WtButton,
-	WtChip,
-	WtContextMenu,
-	WtIcon,
-	WtTooltip,
-} from '@webitel/ui-sdk/components';
-import {
-	ButtonColor,
-	ButtonVariant,
-	ChipColor,
-	ComponentSize,
-	IconColor,
-} from '@webitel/ui-sdk/enums';
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useOutboundCall } from '../../../../../../../features/calls/composables/useOutboundCall';
+import PhoneCallButton from '../../../../../../components/phone-call-button/phone-call-button.vue';
+import CommunicationCellEmpty from './communication-cell-empty.vue';
+import CommunicationCellList from './communication-cell-list.vue';
 
 const props = defineProps<{
 	phones?: ContactsPhoneNumber[];
 }>();
 
-const emit = defineEmits<{
-	call: [
-		number: string,
-	];
-}>();
-
 const { t } = useI18n();
+
+const { isCalling, call } = useOutboundCall();
 
 /**
  * @author Oleksandr Palonnyi
@@ -105,46 +69,7 @@ const primaryPhoneNumber = computed(
 		)?.number ?? '',
 );
 
-const otherPhonesCount = computed(() => dialablePhones.value.length - 1);
-
-const hasOtherPhones = computed(() => otherPhonesCount.value > 0);
-
-const phoneOptions = computed(() =>
-	dialablePhones.value.map(({ number }) => ({
-		text: number,
-		number,
-	})),
+const phoneNumbers = computed(() =>
+	dialablePhones.value.map(({ number }) => number ?? ''),
 );
-
-function onPhoneOptionClick({
-	option,
-}: {
-	option: {
-		number?: string;
-	};
-}) {
-	if (option.number) emit('call', option.number);
-}
 </script>
-
-<style scoped>
-.contact-phones-cell {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-xs);
-}
-
-.contact-phones-cell__call {
-	flex-shrink: 0;
-}
-
-.contact-phones-cell__more {
-	cursor: pointer;
-}
-
-.contact-phones-cell__option {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-xs);
-}
-</style>

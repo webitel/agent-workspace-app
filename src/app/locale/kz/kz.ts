@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Сіз тек кезектерден қоңыраулар аласыз',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Белгісіз контакт',
-		},
 		chatPreview: {
 			onlyUnread: 'Тек оқылмаған чаттар',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Кіріс қоңырау сұрауы',
 					chat: 'Кіріс чат сұрауы',
 				},
-				unknownContact: 'Белгісіз контакт',
-				queue: 'Кезек',
 				channel: 'Арна',
-				waitingTime: 'Күту уақыты',
 				accept: 'Қабылдау',
 				decline: 'Бас тарту',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Телефон нөмірі',
 			waitTime: 'Күту уақыты',
 			select: 'Таңдау',
+			unknownContact: 'Белгісіз контакт',
+			info: 'Ақпарат',
+			interactions: 'Өзара әрекеттер',
 		},
 		numpad: {
 			call: 'Қоңырау шалу',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Контакт жасау',
 				addContacts: 'Контактілерді қосу',
 				profile: 'Профиль',
-				info: 'Ақпарат',
 				groups: 'Топтар',
 				attributes: 'Атрибуттар',
 				noAttributes: 'Пайдаланушы айнымалылары анықталмаған',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Өзіне тағайындалған',
 				},
 				tabs: {
-					info: 'Ақпарат',
-					postProcessing: 'Кейінгі өңдеу',
-					interaction: 'Өзара әрекеттер',
-					screenshots: 'Скриншоттар',
-					contact: 'Контакт',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Белсенді',
 					closed: 'Жабық',
 				},
 				tabs: {
-					chat: 'Чат',
-					info: 'Ақпарат',
-					postProcessing: 'Кейінгі өңдеу',
-					interaction: 'Өзара әрекет',
-					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Ақпарат',
-						postprocessing: 'Кейінгі өңдеу',
 						agentDescription: 'Оператордың пікірі',
 					},
 				},
@@ -170,14 +154,18 @@ export default {
 					moreNumbers: '+{count} нөмір тағы',
 					noPhone: 'Телефон жоқ',
 				},
-			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Айнымалылар бағандарын таңдау',
+				chats: {
+					moreChats: '+{count} чат тағы',
+					noChat: 'Чат жоқ',
+				},
+				emails: {
+					moreEmails: '+{count} email тағы',
+					noEmail: 'Email жоқ',
 				},
 			},
 		},
 		call: {
+			ringing: 'Қоңырау шалынуда',
 			activeCall: {
 				inCall: 'Сөйлесуде',
 				onHold: 'Күтуде',
@@ -187,7 +175,6 @@ export default {
 					mute: 'Микрофонды өшіру',
 					hold: 'Күтуге қою',
 					camera: 'Камера',
-					message: 'Хабарлама',
 					transfer: 'Қайта бағыттау',
 					bridge: 'Қоңырауларды қосу',
 					hangup: 'Қоңырауды аяқтау',
@@ -197,15 +184,12 @@ export default {
 			bridge: {
 				title: 'Қоңырауларды қосу',
 				connect: 'Қосу',
-				unknownContact: 'Белгісіз контакт',
 			},
 			transfer: {
 				title: 'Қоңырауды ауыстыру',
 				emptyList: 'Ештеңе табылмады',
 				columns: {
 					name: 'Аты',
-					status: 'Мәртебе',
-					team: 'Команда',
 				},
 				phoneLabel: 'Нөмірге ауыстыру',
 				phonePlaceholder: 'Телефон нөмірін енгізіңіз',
@@ -215,7 +199,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Қоңырау шалынуда',
 				noAnswer: 'Жауап жоқ',
 				noAnswerDescription: 'Абоненттің телефоны қоңырауға жауап бермеді.',
 				retryCall: 'Қайта қоңырау шалу',

@@ -1,6 +1,6 @@
 <template>
     <div class="task-dock-call-lane">
-        <the-numpad-panel />
+        <the-numpad-panel ref="numpadPanel" />
         <transfer-popup v-if="callTransferPopupStore.isOpenTransferPopup" />
         <bridge-popup
             v-if="bridgeCallId !== null"
@@ -17,6 +17,7 @@
                     v-if="windowedCall.isActive"
                     :preview="windowedCall.preview"
                     :expanded="taskDockStore.expandedCallId === windowedCall.id"
+                    :outside-click-ignored-targets="outsideClickIgnoredTargets"
                     :can-bridge="windowedCall.canBridge"
                     @update:expanded="taskDockStore.setCallExpanded(windowedCall.id, $event)"
                     @open-full-view="openCallWindow(windowedCall.id)"
@@ -59,7 +60,7 @@
     setup
     lang="ts"
 >
-import { computed, ref } from 'vue';
+import { computed, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { OutboundCallStatus } from '../../../features/calls/enums/OutboundCallStatus.enum';
@@ -77,6 +78,19 @@ import { useCallTransferPopupStore } from '../../call/modules/transfer/store/cal
 import TheNumpadPanel from '../../numpad/components/the-numpad-panel.vue';
 import { CallsRouteName } from '../../pages/modules/calls/enums/CallsRouteName.enum';
 import { useTaskDockStore } from '../store/task-dock';
+
+const numpadPanel = useTemplateRef('numpadPanel');
+
+/**
+ * @author Oleksandr Palonnyi
+ * The array holds the ref itself, not its value: the tray entry resolves it on each
+ * click, so the panel counts whether it was mounted before or after the entry. The
+ * lane renders both, so it is the one to say the numpad belongs to the dock's area
+ * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
+ */
+const outsideClickIgnoredTargets = [
+	numpadPanel,
+];
 
 const taskDockStore = useTaskDockStore();
 const router = useRouter();

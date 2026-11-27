@@ -76,7 +76,7 @@ both.
 **Each page has its own container**, `modules/<page>/the-<page>-panel.vue`. It
 picks the screen from the selection, or from its props, and renders its own
 section header, because the title follows the screen. The screens are shared
-components under `components/contact/` (`contact-card`,
+components under `components/contact/` (`contact-card`, `contact-card-by-id`,
 `contact-card-unknown`, `contact-panel-empty`, `contact-identification`,
 `contact-create-form`): props in, events out, no store and no router.
 

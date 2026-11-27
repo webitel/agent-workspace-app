@@ -1,7 +1,7 @@
 <template>
 	<div class="self-assigned-call-panel">
 		<sidebar-section-header :title="title" />
-		<contact-card
+		<contact-card-by-id
 			v-if="contactId"
 			:contact-id="contactId"
 		/>
@@ -10,11 +10,12 @@
 			:title="t('ui.sidebar.contact.selectContact.title')"
 			:text="t('ui.sidebar.contact.selectContact.text')"
 		/>
-		<contact-card-unknown v-else-if="!isLoading && !contactIds.length" />
+		<contact-card-unknown v-else-if="!isLoading && !contacts.length" />
 		<contact-identification
 			v-else
-			:contact-ids="contactIds"
+			:contacts="contacts"
 			:is-loading="isLoading"
+			@changed="reloadContact"
 		/>
 	</div>
 </template>
@@ -24,7 +25,7 @@ import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useContactIdentificationByNumber } from '../../components/contact/composables/useContactIdentificationByNumber';
-import ContactCard from '../../components/contact/contact-card.vue';
+import ContactCardById from '../../components/contact/contact-card-by-id.vue';
 import ContactCardUnknown from '../../components/contact/contact-card-unknown.vue';
 import ContactIdentification from '../../components/contact/contact-identification.vue';
 import ContactPanelEmpty from '../../components/contact/contact-panel-empty.vue';
@@ -50,7 +51,7 @@ const phoneNumberSelection = computed(() =>
  * call of the agent's to link one to (ADR-0013, ADR-0015)
  * [WS-39](https://webitel.atlassian.net/browse/WS-39)
  */
-const { contactIds, isLoading } = useContactIdentificationByNumber(
+const { contacts, isLoading, reloadContact } = useContactIdentificationByNumber(
 	() => phoneNumberSelection.value?.phoneNumber,
 );
 
@@ -59,7 +60,7 @@ const isSingleContactShown = computed(
 		Boolean(contactId.value) ||
 		(Boolean(phoneNumberSelection.value) &&
 			!isLoading.value &&
-			contactIds.value.length === 1),
+			contacts.value.length === 1),
 );
 
 const title = computed(() =>

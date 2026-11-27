@@ -1,6 +1,20 @@
 import { mount } from '@vue/test-utils';
 import type { ContactsPhoneNumber } from '@webitel/api-services/gen/models';
-import { describe, expect, it, vi } from 'vitest';
+import { IconColor } from '@webitel/ui-sdk/enums';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// the real store pulls in the socket client and the i18n singleton;
+// the cell only needs `start`
+const outboundCallAttemptsStore = {
+	start: vi.fn(),
+};
+
+vi.mock(
+	'../../../../../../../../features/calls/store/outboundCallAttempts',
+	() => ({
+		useOutboundCallAttemptsStore: () => outboundCallAttemptsStore,
+	}),
+);
 
 import ContactPhonesCell from '../contact-phones-cell.vue';
 
@@ -36,7 +50,11 @@ vi.mock('@webitel/ui-sdk/components', () => ({
 		template: '<span class="more-chip"><slot /></span>',
 	},
 	WtIcon: {
-		template: '<i />',
+		props: [
+			'icon',
+			'color',
+		],
+		template: '<i class="icon" :data-icon="icon" :data-color="color" />',
 	},
 }));
 
@@ -45,14 +63,37 @@ const mountCell = (phones?: ContactsPhoneNumber[]) =>
 		props: {
 			phones,
 		},
+		global: {
+			stubs: {
+				'wt-icon': {
+					props: [
+						'icon',
+						'color',
+					],
+					template: '<i class="icon" :data-icon="icon" :data-color="color" />',
+				},
+			},
+		},
 	});
 
 describe('contact-phones-cell', () => {
+	beforeEach(() => {
+		outboundCallAttemptsStore.start.mockReset();
+		outboundCallAttemptsStore.start.mockResolvedValue(undefined);
+	});
+
 	it('shows a placeholder and no call button when the contact has no phone', () => {
 		const wrapper = mountCell([]);
 
 		expect(wrapper.find('.call-button').exists()).toBe(false);
 		expect(wrapper.text()).toContain('ui.pages.contacts.phones.noPhone');
+	});
+
+	it('shows a disabled call icon when the contact has no phone', () => {
+		const icon = mountCell([]).find('.icon');
+
+		expect(icon.attributes('data-icon')).toBe('call--filled');
+		expect(icon.attributes('data-color')).toBe(IconColor.DISABLED);
 	});
 
 	it('shows the primary number, not the first one', () => {
@@ -66,7 +107,7 @@ describe('contact-phones-cell', () => {
 			},
 		]);
 
-		expect(wrapper.find('.contact-phones-cell__number').text()).toBe('222');
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe('222');
 	});
 
 	it('falls back to the first number when none is primary', () => {
@@ -79,7 +120,7 @@ describe('contact-phones-cell', () => {
 			},
 		]);
 
-		expect(wrapper.find('.contact-phones-cell__number').text()).toBe('111');
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe('111');
 	});
 
 	it('calls the shown number on button click', async () => {
@@ -95,11 +136,7 @@ describe('contact-phones-cell', () => {
 
 		await wrapper.find('.call-button').trigger('click');
 
-		expect(wrapper.emitted('call')).toEqual([
-			[
-				'222',
-			],
-		]);
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith('222');
 	});
 
 	it('shows no counter for a single number', () => {
@@ -144,15 +181,11 @@ describe('contact-phones-cell', () => {
 			})
 			.vm.$emit('click', {
 				option: {
-					number: '222',
+					text: '222',
 				},
 			});
 
-		expect(wrapper.emitted('call')).toEqual([
-			[
-				'222',
-			],
-		]);
+		expect(outboundCallAttemptsStore.start).toHaveBeenCalledWith('222');
 	});
 
 	it('ignores entries without a number', () => {
@@ -163,7 +196,7 @@ describe('contact-phones-cell', () => {
 			},
 		]);
 
-		expect(wrapper.find('.contact-phones-cell__number').text()).toBe('111');
+		expect(wrapper.find('.communication-cell-list__value').text()).toBe('111');
 		expect(wrapper.find('.phones-menu').exists()).toBe(false);
 	});
 });

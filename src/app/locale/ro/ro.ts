@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Vei primi apeluri doar din cozi',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Contact necunoscut',
-		},
 		chatPreview: {
 			onlyUnread: 'Doar conversațiile necitite',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Solicitare de apel primit',
 					chat: 'Solicitare de chat primit',
 				},
-				unknownContact: 'Contact necunoscut',
-				queue: 'Coadă',
 				channel: 'Canal',
-				waitingTime: 'Timp de așteptare',
 				accept: 'Acceptă',
 				decline: 'Respinge',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Număr de telefon',
 			waitTime: 'Timp de așteptare',
 			select: 'Selectează',
+			unknownContact: 'Contact necunoscut',
+			info: 'Informații',
+			interactions: 'Interacțiuni',
 		},
 		numpad: {
 			call: 'Apelează',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Creați un contact',
 				addContacts: 'Adăugați contacte',
 				profile: 'Profil',
-				info: 'Informații',
 				groups: 'Grupuri',
 				attributes: 'Atribute',
 				noAttributes: 'Nu sunt definite variabile personalizate',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Auto-atribuite',
 				},
 				tabs: {
-					info: 'Informații',
-					postProcessing: 'Post-procesare',
-					interaction: 'Interacțiuni',
-					screenshots: 'Capturi de ecran',
-					contact: 'Contact',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Active',
 					closed: 'Închise',
 				},
 				tabs: {
-					chat: 'Chat',
-					info: 'Informații',
-					postProcessing: 'Post-procesare',
-					interaction: 'Interacțiune',
-					contact: 'Contact',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Informații',
-						postprocessing: 'Postprocesare',
 						agentDescription: 'Comentariul agentului',
 					},
 				},
@@ -170,14 +154,18 @@ export default {
 					moreNumbers: '+{count} număr(e) în plus',
 					noPhone: 'Fără telefon',
 				},
-			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Selectează coloanele variabile',
+				chats: {
+					moreChats: '+{count} chat(uri) în plus',
+					noChat: 'Fără chat',
+				},
+				emails: {
+					moreEmails: '+{count} e-mail(uri) în plus',
+					noEmail: 'Fără e-mail',
 				},
 			},
 		},
 		call: {
+			ringing: 'Sună',
 			activeCall: {
 				inCall: 'În apel',
 				onHold: 'În așteptare',
@@ -187,7 +175,6 @@ export default {
 					mute: 'Dezactivează microfonul',
 					hold: 'Pune în așteptare',
 					camera: 'Cameră',
-					message: 'Mesaj',
 					transfer: 'Transferă',
 					bridge: 'Conectează apelurile',
 					hangup: 'Închide apelul',
@@ -197,15 +184,12 @@ export default {
 			bridge: {
 				title: 'Conectarea apelurilor',
 				connect: 'Conectează',
-				unknownContact: 'Contact necunoscut',
 			},
 			transfer: {
 				title: 'Transfer apel',
 				emptyList: 'Nu s-a găsit nimic',
 				columns: {
 					name: 'Nume',
-					status: 'Stare',
-					team: 'Echipă',
 				},
 				phoneLabel: 'Transfer la numărul',
 				phonePlaceholder: 'Introduceți numărul de telefon',
@@ -215,7 +199,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Sună',
 				noAnswer: 'Niciun răspuns',
 				noAnswerDescription: 'Telefonul destinatarului nu a răspuns la apel.',
 				retryCall: 'Reîncearcă apelul',

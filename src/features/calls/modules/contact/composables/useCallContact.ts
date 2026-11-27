@@ -2,12 +2,20 @@ import {
 	ContactsAPI,
 	type ContactsSearchMode,
 } from '@webitel/api-services/api';
-import { EngineSystemSettingName } from '@webitel/api-services/gen/models';
+import {
+	EngineSystemSettingName,
+	type WebitelContactsContact,
+} from '@webitel/api-services/gen/models';
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 import { useSystemSettingsStore } from '../../../../system-settings/store/systemSettings';
 import { useCallsStore } from '../../../store/calls';
+import { CONTACT_FIELDS } from '../constants/contactFields';
+import {
+	createContactReloader,
+	replaceContact,
+} from '../scripts/createContactReloader';
 import { getCallContactId } from '../scripts/getCallContactId';
 import { identifyCallContact } from '../scripts/identifyCallContact';
 
@@ -24,28 +32,41 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	const callsStore = useCallsStore();
 	const systemSettingsStore = useSystemSettingsStore();
 
-	const identifiedContactIds = ref<string[]>([]);
+	const identifiedContacts = ref<WebitelContactsContact[]>([]);
 	const isIdentifying = ref(false);
+
+	/**
+	 * The call is linked to a contact that failed to load (no access, network).
+	 * It is not "no contact": the panel must not offer the Unknown contact for a
+	 * linked call. api-services notifies the agent of the failure.
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	const hasLinkedContactFailed = ref(false);
 
 	/**
 	 * @author Oleksandr Palonnyi
 	 * null until the agent searches; an empty list is a search that found nothing
 	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
 	 */
-	const searchedContactIds = ref<string[] | null>(null);
+	const searchedContacts = ref<WebitelContactsContact[] | null>(null);
 	const isSearching = ref(false);
 
-	const isSearchActive = computed(() => searchedContactIds.value !== null);
+	const isSearchActive = computed(() => searchedContacts.value !== null);
 
 	/**
 	 * @author Oleksandr Palonnyi
 	 * the agent's search replaces the identification result while it is active, since it is what they are looking at
 	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
 	 */
-	const contactIds = computed(
-		() => searchedContactIds.value ?? identifiedContactIds.value,
+	const contacts = computed(
+		() => searchedContacts.value ?? identifiedContacts.value,
 	);
 	const isLoading = computed(() => isIdentifying.value || isSearching.value);
+
+	// the agent's search shows its own result over it, and Cancel brings it back
+	const isLinkedContactUnavailable = computed(
+		() => hasLinkedContactFailed.value && !isSearchActive.value,
+	);
 
 	// as in cc-workspaces: a hidden contact is neither shown nor searched for
 	const isContactHidden = computed(
@@ -69,7 +90,7 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 
 	const resetSearch = () => {
 		lastSearchRequestId += 1;
-		searchedContactIds.value = null;
+		searchedContacts.value = null;
 		isSearching.value = false;
 	};
 
@@ -78,11 +99,55 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	 * a new identification result (another call, a contact linked meanwhile) ends the search of the previous one
 	 * [WS-76](https://webitel.atlassian.net/browse/WS-76)
 	 */
-	const showResult = (ids: string[]) => {
+	/**
+	 * What the number search found while the identification still runs (the
+	 * only match is being linked). Not shown: a failed link shows nothing.
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	let pendingContacts: WebitelContactsContact[] = [];
+
+	/**
+	 * A contact the panel already holds: shown, searched, or found and being
+	 * linked. The socket event of a link made here may come before
+	 * `setContact` resolves, as the SDK does not order a reply and an event, so
+	 * the link is looked up in all of them.
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	const findKnownContact = (contactId: string) =>
+		[
+			...(searchedContacts.value ?? []),
+			...identifiedContacts.value,
+			...pendingContacts,
+		].find(({ id }) => id === contactId);
+
+	const showResult = (result: WebitelContactsContact[]) => {
 		resetSearch();
-		identifiedContactIds.value = ids;
+		pendingContacts = [];
+		identifiedContacts.value = result;
+		hasLinkedContactFailed.value = false;
 		isIdentifying.value = false;
 	};
+
+	const showLinkedContactFailed = () => {
+		showResult([]);
+		hasLinkedContactFailed.value = true;
+	};
+
+	/**
+	 * The card added a phone or an email to a contact the panel holds: it is
+	 * reloaded and put in its place in every list that holds it, so switching
+	 * away from it and back keeps what was added
+	 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+	 */
+	const reloadContact = createContactReloader((contact) => {
+		identifiedContacts.value = replaceContact(
+			identifiedContacts.value,
+			contact,
+		);
+		if (searchedContacts.value)
+			searchedContacts.value = replaceContact(searchedContacts.value, contact);
+		pendingContacts = replaceContact(pendingContacts, contact);
+	});
 
 	let lastRequestId = 0;
 
@@ -93,25 +158,43 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 
 		if (isContactHidden.value) return showResult([]);
 
-		// already known: no request, no loader
-		if (linkedContactId.value)
+		/**
+		 * The contact linked here (the only one found, the agent's SELECT), or one
+		 * of the found contacts linked by someone else, is already loaded: the
+		 * socket event that links it shows it at once, with no request and no
+		 * loader. Any other linked contact is loaded by its id.
+		 * [WS-186](https://webitel.atlassian.net/browse/WS-186)
+		 */
+		const linkedId = linkedContactId.value;
+		const knownLinkedContact = linkedId
+			? findKnownContact(linkedId)
+			: undefined;
+		if (knownLinkedContact)
 			return showResult([
-				linkedContactId.value,
+				knownLinkedContact,
 			]);
 
 		resetSearch();
-		identifiedContactIds.value = [];
+		pendingContacts = [];
+		identifiedContacts.value = [];
+		hasLinkedContactFailed.value = false;
 		isIdentifying.value = true;
 
 		try {
-			const foundContactIds = await identifyCallContact(
+			const identifiedResult = await identifyCallContact(
 				currentCall,
 				callsStore.getCallById,
+				(foundContacts) => {
+					if (!isStale()) pendingContacts = foundContacts;
+				},
 			);
-			if (!isStale()) showResult(foundContactIds);
+			if (!isStale()) showResult(identifiedResult);
 		} catch {
-			// error notification is shown by api-services
-			if (!isStale()) showResult([]);
+			// error notification is shown by api-services; a failed load of the
+			// linked contact is not a failed search
+			if (isStale()) return;
+			if (linkedId) showLinkedContactFailed();
+			else showResult([]);
 		}
 	};
 
@@ -126,7 +209,7 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	 * Links the contact the agent chose among several found. Shown at once, as
 	 * the only found contact is, without waiting for the socket event.
 	 */
-	const selectContact = async (contactId: string) => {
+	const selectContact = async (contact: WebitelContactsContact) => {
 		const currentCall = toValue(call);
 		if (linkingCallIds.has(currentCall.id)) return;
 		linkingCallIds.add(currentCall.id);
@@ -134,10 +217,10 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		const requestId = lastRequestId;
 
 		try {
-			await currentCall.setContact(Number(contactId));
+			await currentCall.setContact(Number(contact.id));
 			if (requestId === lastRequestId)
 				showResult([
-					contactId,
+					contact,
 				]);
 		} catch (err) {
 			// as in cc-workspaces, the agent is not notified; the list stays to try again
@@ -170,14 +253,18 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 		isSearching.value = true;
 
 		try {
-			const { items } = await ContactsAPI.getList({
+			const {
+				items,
+			}: {
+				items: WebitelContactsContact[];
+			} = await ContactsAPI.getList({
 				[searchMode]: trimmedQuery,
 				size: FOUND_CONTACTS_MAX_COUNT,
+				// shown from the search's answer, as the identified contacts are
+				fields: CONTACT_FIELDS,
 			});
-			const foundContactIds = items
-				.map(({ id }) => id)
-				.filter((id): id is string => Boolean(id));
-			if (!isStale()) searchedContactIds.value = foundContactIds;
+			const foundContacts = items.filter(({ id }) => Boolean(id));
+			if (!isStale()) searchedContacts.value = foundContacts;
 		} catch {
 			/**
 			 * @author Oleksandr Palonnyi
@@ -203,11 +290,13 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	);
 
 	return {
-		contactIds,
+		contacts,
 		isLoading,
 		isContactHidden,
+		isLinkedContactUnavailable,
 		isSearchActive,
 		selectContact,
+		reloadContact,
 		search,
 		cancelSearch: resetSearch,
 	};

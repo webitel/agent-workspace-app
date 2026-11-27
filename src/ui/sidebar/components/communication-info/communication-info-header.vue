@@ -63,8 +63,17 @@ const slots = defineSlots<{
 	border-top-color: var(--success-color);
 }
 
+/**
+ * @author Oleksandr Palonnyi
+ * TODO: `--success-on-color` is meant for content on top of the success
+ * colour, not for a background, so it is used wrongly here. The right token
+ * is `--p-success-highlight-color`, but the styleguide's token generation does
+ * not work yet and the token is not available. Switch to it once the
+ * generation works.
+ * [WS-168](https://webitel.atlassian.net/browse/WS-168) [NWS] Вигляд правої панелі коли дзвінок ще не прийнято
+ */
 .communication-info-header--success .communication-info-header__icon {
-	background: var(--success-on-color);
+	background: var(--wt-ws-details-sidebar-interaction-icon-colors-inbound-call-background);
 }
 
 .communication-info-header--info {
@@ -72,7 +81,7 @@ const slots = defineSlots<{
 }
 
 .communication-info-header--info .communication-info-header__icon {
-	background: var(--info-on-color);
+	background: var(--wt-ws-details-sidebar-interaction-icon-colors-outbound-call-background);
 }
 
 .communication-info-header__icon {

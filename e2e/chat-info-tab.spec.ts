@@ -389,7 +389,7 @@ test.describe('chat info tab', () => {
 		});
 	}
 
-	test('keeps Interaction, Contact and Iframe in the strip but not selectable', async ({
+	test('keeps Interactions, Contact and Iframe in the strip but not selectable', async ({
 		page,
 		socket,
 	}) => {
@@ -400,14 +400,14 @@ test.describe('chat info tab', () => {
 		await expect(windowTabs.locator('.wt-tab')).toHaveText([
 			'Chat',
 			'Info',
-			'Interaction',
+			'Interactions',
 			'Contact',
 			'Iframe',
 		]);
 		await expect(windowTabs.locator('[aria-disabled="true"]')).toHaveCount(3);
 
 		for (const name of [
-			'Interaction',
+			'Interactions',
 			'Contact',
 			'Iframe',
 		]) {

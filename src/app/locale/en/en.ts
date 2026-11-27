@@ -9,9 +9,6 @@ export default {
 				tooltip: 'You will receive calls from queues only',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Unknown contact',
-		},
 		chatPreview: {
 			onlyUnread: 'Show only unread chats',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Incoming call request',
 					chat: 'Incoming chat request',
 				},
-				unknownContact: 'Unknown contact',
-				queue: 'Queue',
 				channel: 'Channel',
-				waitingTime: 'Waiting time',
 				accept: 'Accept',
 				decline: 'Decline',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Phone number',
 			waitTime: 'Wait time',
 			select: 'Select',
+			unknownContact: 'Unknown contact',
+			info: 'Info',
+			interactions: 'Interactions',
 		},
 		numpad: {
 			call: 'Call',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Create a contact',
 				addContacts: 'Add contacts',
 				profile: 'Profile',
-				info: 'Info',
 				groups: 'Groups',
 				attributes: 'Attributes',
 				noAttributes: 'No custom variables defined',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Self-assigned',
 				},
 				tabs: {
-					info: 'Info',
-					postProcessing: 'Post-processing',
-					interaction: 'Interactions',
-					screenshots: 'Screenshots',
-					contact: 'Contact',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Active',
 					closed: 'Closed',
 				},
 				tabs: {
-					chat: 'Chat',
-					info: 'Info',
-					postProcessing: 'Post-processing',
-					interaction: 'Interaction',
-					contact: 'Contact',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Information',
-						postprocessing: 'Postprocessing',
 						agentDescription: "Agent's comment",
 					},
 				},
@@ -170,14 +154,18 @@ export default {
 					moreNumbers: '+{count} more number(s)',
 					noPhone: 'No phone',
 				},
-			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Select variables columns',
+				chats: {
+					moreChats: '+{count} more chat(s)',
+					noChat: 'No chat',
+				},
+				emails: {
+					moreEmails: '+{count} more email(s)',
+					noEmail: 'No email',
 				},
 			},
 		},
 		call: {
+			ringing: 'Ringing',
 			activeCall: {
 				inCall: 'In call',
 				onHold: 'On hold',
@@ -187,7 +175,6 @@ export default {
 					mute: 'Mute',
 					hold: 'Hold',
 					camera: 'Camera',
-					message: 'Message',
 					transfer: 'Transfer',
 					bridge: 'Connect calls',
 					hangup: 'End call',
@@ -197,15 +184,12 @@ export default {
 			bridge: {
 				title: 'Bridge calls',
 				connect: 'Connect',
-				unknownContact: 'Unknown contact',
 			},
 			transfer: {
 				title: 'Transfer Call',
 				emptyList: 'Nothing found',
 				columns: {
 					name: 'Name',
-					status: 'Status',
-					team: 'Team',
 				},
 				phoneLabel: 'Transfer to number',
 				phonePlaceholder: 'Enter phone number',
@@ -215,7 +199,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Ringing',
 				noAnswer: 'No answer',
 				noAnswerDescription:
 					"The recipient's phone did not answer the request.",

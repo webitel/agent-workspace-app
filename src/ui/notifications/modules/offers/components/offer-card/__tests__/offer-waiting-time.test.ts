@@ -25,7 +25,7 @@ describe('offer-waiting-time', () => {
 			},
 		});
 
-		expect(wrapper.text()).toContain('ui.notifications.offer.waitingTime');
+		expect(wrapper.text()).toContain('ui.reusable.waitTime');
 		expect(wrapper.text()).toContain('01:22');
 	});
 

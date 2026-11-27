@@ -8,7 +8,7 @@
 		<span class="contact-card-communication-item__value typo-body-1-bold">
 			{{ item.value }}
 		</span>
-		<!-- call / send message actions land here (AC_07.07.05, 07.06) -->
+		<!-- per-tab actions, filled by the section (AC_07.07.05) -->
 		<slot name="actions" />
 	</li>
 </template>

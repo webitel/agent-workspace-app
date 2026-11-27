@@ -52,7 +52,7 @@
 						aria-hidden="true"
 					/>
 				</div>
-				<p class="outbound-call-card__no-answer-text typo-caption">
+				<p class="outbound-call-card__no-answer-text typo-body-1">
 					{{ t('ui.call.outboundCall.noAnswerDescription') }}
 				</p>
 			</template>
@@ -157,9 +157,7 @@ const isRinging = computed(
 );
 
 const statusLabel = computed(() =>
-	isRinging.value
-		? t('ui.call.outboundCall.ringing')
-		: t('ui.call.outboundCall.noAnswer'),
+	isRinging.value ? t('ui.call.ringing') : t('ui.call.outboundCall.noAnswer'),
 );
 
 /**

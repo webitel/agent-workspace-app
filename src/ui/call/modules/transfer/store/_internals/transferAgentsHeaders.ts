@@ -11,14 +11,14 @@ export const transferAgentsHeaders: DatalistTableHeader[] = [
 	},
 	{
 		value: 'status',
-		locale: 'ui.call.transfer.columns.status',
+		locale: 'reusable.status',
 		show: true,
 		field: 'status',
 		width: TRANSFER_STATUS_COLUMN_WIDTH,
 	},
 	{
 		value: 'teamName',
-		locale: 'ui.call.transfer.columns.team',
+		locale: 'objects.team',
 		show: true,
 		field: 'team',
 	},

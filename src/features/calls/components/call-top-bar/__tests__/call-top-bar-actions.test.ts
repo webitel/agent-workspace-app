@@ -84,10 +84,12 @@ describe('call-top-bar-actions', () => {
 		for (const name of [
 			'numpad',
 			'camera',
-			'message',
 		]) {
 			expect(findAction(wrapper, name).attributes('disabled')).toBeDefined();
 		}
+		expect(
+			wrapper.find('[aria-label="ui.reusable.message"]').attributes('disabled'),
+		).toBeDefined();
 	});
 
 	it('toggles the microphone of this call (AC_13.01.04)', async () => {

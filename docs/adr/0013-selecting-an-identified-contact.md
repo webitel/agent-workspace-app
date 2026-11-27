@@ -32,7 +32,7 @@ loading on SELECT.
 ## Decision
 
 **The contact block shows, the call links.** `contact-identification` holds
-which of the found contacts is on screen and emits `select` with its id. It
+which of the found contacts is on screen and emits `select` with that contact. It
 knows nothing of the call; the panel passes `canSelect`. Linking is
 `selectContact` in `useCallContact`, the one owner of the call's contacts: the
 identification and every action that changes it, sharing one state and one
@@ -46,9 +46,10 @@ rings (AC_07.04.20), and not in post-processing, as in `cc-workspaces`. Both
 follow one condition in the call panel, so they never disagree.
 
 **The linked contact shows at once.** After `setContact` succeeds the panel
-shows that contact alone, without waiting for the socket event, as the only
-found contact is linked automatically. The event then brings the same contact,
-so nothing flickers. A second SELECT on the same call while its request runs is
+shows the selected contact alone, as the search returned it, without waiting for
+the socket event, as the only found contact is linked automatically. The event
+then brings the same contact's id, and the panel keeps the contact it holds
+instead of loading it again (ADR-0020), so nothing flickers. A second SELECT on the same call while its request runs is
 ignored (kept per call: the SDK's socket requests have no timeout, so a hung
 link must not block other calls), and a link that completes after another call
 was opened is not shown on the new call's panel.

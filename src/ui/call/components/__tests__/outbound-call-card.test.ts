@@ -58,7 +58,7 @@ describe('outbound-call-card', () => {
 	it('shows the ringing state with call controls', () => {
 		const wrapper = mountCard();
 
-		expect(wrapper.text()).toContain('ui.call.outboundCall.ringing');
+		expect(wrapper.text()).toContain('ui.call.ringing');
 		expect(
 			wrapper
 				.findComponent({
@@ -105,6 +105,17 @@ describe('outbound-call-card', () => {
 
 		expect(wrapper.emitted('retry')).toHaveLength(1);
 		expect(wrapper.emitted('backToDialpad')).toHaveLength(1);
+	});
+
+	it('sets the no answer description in upright body text, not the italic caption', () => {
+		const wrapper = mountCard({
+			status: OutboundCallStatus.NoAnswer,
+		});
+
+		const description = wrapper.find('.outbound-call-card__no-answer-text');
+
+		expect(description.classes()).toContain('typo-body-1');
+		expect(description.classes()).not.toContain('typo-caption');
 	});
 
 	it('closes from the no answer state', async () => {

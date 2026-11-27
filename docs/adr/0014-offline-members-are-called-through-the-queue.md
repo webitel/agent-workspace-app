@@ -5,7 +5,8 @@ Date: 2026-11-12
 ## Status
 
 Accepted. Implemented in [WS-34](https://webitel.atlassian.net/browse/WS-34)
-(Calls section, Offline tab).
+and [WS-170](https://webitel.atlassian.net/browse/WS-170) (Calls section,
+Offline tab).
 
 ## Context
 
@@ -34,8 +35,10 @@ contact identification.
 cell emits the whole communication, not its number, and the table asks the queue
 with `directMember(memberId, communicationId)`. The call stays the queue's, and
 the member leaves the offline queue. The cell looks like the contacts' one: the
-first communication with a destination on the button, the others behind a "+N"
-menu that lists numbers only (a member has no primary communication).
+first communication with a destination on the shared `phone-call-button`, the
+others behind a "+N" menu that lists numbers only (a member has no primary
+communication). Only the button's look is shared: its click goes to the cell,
+not to `useOutboundCall`, which dials by number.
 
 **As in `cc-workspaces` around the request.** One request at a time per member,
 with the loader on its button; once the queue has taken the call the list is
@@ -46,7 +49,7 @@ one would read only that page); a refused request is only logged with
 **The Offline tab has its own panel, which searches the contact by the member's
 number.** The name cell selects the member's first number
 (`selectPhoneNumber`, a selection of its own type, `PhoneNumber`). The panel
-searches the contacts by it with `findContactIdsByNumber`, the same search a
+searches the contacts by it with `findContactsByNumber`, the same search a
 call's identification uses, honours `WbtHideContact`, and drops an answer for a
 number no longer selected. None found, or contacts hidden, shows the unknown
 contact card; one or several go to `contact-identification` (ADR-0013), without

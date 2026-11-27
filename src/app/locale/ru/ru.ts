@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Вы будете получать звонки только из очередей',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Неизвестный контакт',
-		},
 		chatPreview: {
 			onlyUnread: 'Только непрочитанные чаты',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Запрос входящего звонка',
 					chat: 'Запрос входящего чата',
 				},
-				unknownContact: 'Неизвестный контакт',
-				queue: 'Очередь',
 				channel: 'Канал',
-				waitingTime: 'Время ожидания',
 				accept: 'Принять',
 				decline: 'Отклонить',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Номер телефона',
 			waitTime: 'Время ожидания',
 			select: 'Выбрать',
+			unknownContact: 'Неизвестный контакт',
+			info: 'Информация',
+			interactions: 'Взаимодействия',
 		},
 		numpad: {
 			call: 'Позвонить',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Создать контакт',
 				addContacts: 'Добавить контакты',
 				profile: 'Профиль',
-				info: 'Информация',
 				groups: 'Группы',
 				attributes: 'Атрибуты',
 				noAttributes: 'Пользовательские переменные не заданы',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Самостоятельно назначенные',
 				},
 				tabs: {
-					info: 'Информация',
-					postProcessing: 'Пост-обработка',
-					interaction: 'Взаимодействия',
-					screenshots: 'Скриншоты',
-					contact: 'Контакт',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Активные',
 					closed: 'Закрытые',
 				},
 				tabs: {
-					chat: 'Чат',
-					info: 'Инфо',
-					postProcessing: 'Пост-обработка',
-					interaction: 'Взаимодействие',
-					contact: 'Контакт',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Информация',
-						postprocessing: 'Пост-обработка',
 						agentDescription: 'Комментарий оператора',
 					},
 				},
@@ -170,14 +154,18 @@ export default {
 					moreNumbers: '+{count} ещё номер(ов)',
 					noPhone: 'Нет телефона',
 				},
-			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Выбрать колонки с переменными',
+				chats: {
+					moreChats: '+{count} ещё чат(ов)',
+					noChat: 'Нет чата',
+				},
+				emails: {
+					moreEmails: '+{count} ещё email',
+					noEmail: 'Нет email',
 				},
 			},
 		},
 		call: {
+			ringing: 'Вызов',
 			activeCall: {
 				inCall: 'В разговоре',
 				onHold: 'На удержании',
@@ -187,7 +175,6 @@ export default {
 					mute: 'Выключить микрофон',
 					hold: 'Удержание',
 					camera: 'Камера',
-					message: 'Сообщение',
 					transfer: 'Переадресация',
 					bridge: 'Соединить звонки',
 					hangup: 'Завершить звонок',
@@ -197,15 +184,12 @@ export default {
 			bridge: {
 				title: 'Соединение звонков',
 				connect: 'Соединить',
-				unknownContact: 'Неизвестный контакт',
 			},
 			transfer: {
 				title: 'Перевод звонка',
 				emptyList: 'Ничего не найдено',
 				columns: {
 					name: 'Имя',
-					status: 'Статус',
-					team: 'Команда',
 				},
 				phoneLabel: 'Перевести на номер',
 				phonePlaceholder: 'Введите номер телефона',
@@ -215,7 +199,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Вызов',
 				noAnswer: 'Нет ответа',
 				noAnswerDescription: 'Телефон получателя не ответил на запрос.',
 				retryCall: 'Повторить звонок',

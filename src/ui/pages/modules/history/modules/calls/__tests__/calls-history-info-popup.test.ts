@@ -191,7 +191,7 @@ describe('calls-history-info-popup', () => {
 			},
 			{
 				value: CallInfoTab.Postprocessing,
-				text: 'ui.pages.history.calls.callInfo.postprocessing',
+				text: 'ui.processing.postProcessing.title',
 			},
 			{
 				value: CallInfoTab.Transcription,

@@ -46,7 +46,7 @@ and should not be carried over wholesale.
 - [ADR-0012](docs/adr/0012-contact-card-communication.md) — the contact card's
   Communication section lists the phones, emails and messengers the contact
   returns, shows a messenger's name as it comes, and a messenger without one as
-  its gateway icon alone.
+  its gateway icon alone; phones and emails are added inline on their tab.
 - [ADR-0013](docs/adr/0013-selecting-an-identified-contact.md) — the agent picks
   one of several identified contacts while the call is active or on hold, the
   link shows at once, a failed one is silent, and CREATE follows the same
@@ -76,9 +76,10 @@ and should not be carried over wholesale.
   picks its screen and title.
 - [ADR-0020](docs/adr/0020-call-contact-identification.md) — a call's contact
   is its linked one (or the bridged call's), otherwise the contacts its number
-  finds by the same loose search as `cc-workspaces`; the only match is linked at
-  once, a failed link or search shows nothing, and a hidden contact is neither
-  searched for nor shown.
+  finds by the same loose search as `cc-workspaces`; found contacts are shown
+  from the search's answer, so switching between them loads nothing, the only
+  match is linked at once, a failed link or search shows nothing, and a hidden
+  contact is neither searched for nor shown.
 - [ADR-0021](docs/adr/0021-calls-tabs-over-socket-lists.md) — the Offline and
   Self-assigned tabs are datalist tables over socket lists: offline members are
   read a page at a time through an adapter and not polled, self-assigned calls
@@ -108,6 +109,9 @@ and should not be carried over wholesale.
   transfer tab list clears only its store's rows on unmount, because
   ui-datalist's `$reset` keeps the store set up and its cleared filters reload a
   list no longer shown.
+- [ADR-0030](docs/adr/0030-one-locale-key-per-meaning.md) — one locale key per
+  meaning: a text ui-sdk already translates is read from ui-sdk, one shared in
+  the app is one key, and a test with reasoned allow-lists keeps it that way.
 
 ## Language
 
@@ -399,6 +403,13 @@ legacy chat client, which carries the client's `user` from the external service,
 or an **IM-stack** contact, which carries only an `imContactId` (a UUID from the
 backend's im-contact-service) and no name. IM is instant messaging; the gateway
 it comes through is its `protocol` (ADR-0012).
+
+**No phone / No chat / No email** — what the Phone number, Chat and Email
+columns of the Contacts and Users tabs show for a contact that cannot be reached
+that way: the column's icon, disabled, with the text. A contact has a chat when
+it has any IM client, named or not: one without a name still counts, it just has
+no name to show. A phone or email record without a value does not count. A user
+without an extension has no phone.
 
 **Identified contact** — a contact the search by a call's number found. There
 can be none, one or several; with several, the right panel shows them one at a

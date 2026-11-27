@@ -9,9 +9,6 @@ export default {
 				tooltip: 'Bạn sẽ chỉ nhận cuộc gọi từ hàng đợi',
 			},
 		},
-		clientIdentity: {
-			unknownContact: 'Liên hệ không xác định',
-		},
 		chatPreview: {
 			onlyUnread: 'Chỉ hiện cuộc trò chuyện chưa đọc',
 		},
@@ -31,10 +28,7 @@ export default {
 					call: 'Yêu cầu cuộc gọi đến',
 					chat: 'Yêu cầu trò chuyện đến',
 				},
-				unknownContact: 'Liên hệ không xác định',
-				queue: 'Hàng đợi',
 				channel: 'Kênh',
-				waitingTime: 'Thời gian chờ',
 				accept: 'Chấp nhận',
 				decline: 'Từ chối',
 			},
@@ -54,6 +48,9 @@ export default {
 			phoneNumber: 'Số điện thoại',
 			waitTime: 'Thời gian chờ',
 			select: 'Chọn',
+			unknownContact: 'Liên hệ không xác định',
+			info: 'Thông tin',
+			interactions: 'Tương tác',
 		},
 		numpad: {
 			call: 'Gọi',
@@ -82,7 +79,6 @@ export default {
 				createContact: 'Tạo liên hệ',
 				addContacts: 'Thêm liên hệ',
 				profile: 'Hồ sơ',
-				info: 'Thông tin',
 				groups: 'Nhóm',
 				attributes: 'Thuộc tính',
 				noAttributes: 'Chưa xác định biến tùy chỉnh',
@@ -107,25 +103,14 @@ export default {
 					selfAssigned: 'Tự gán',
 				},
 				tabs: {
-					info: 'Thông tin',
-					postProcessing: 'Xử lý sau',
-					interaction: 'Tương tác',
-					screenshots: 'Ảnh chụp màn hình',
-					contact: 'Liên hệ',
 					iframe: 'iFrame',
 				},
 			},
 			chats: {
 				pageTabs: {
-					active: 'Đang hoạt động',
 					closed: 'Đã đóng',
 				},
 				tabs: {
-					chat: 'Trò chuyện',
-					info: 'Thông tin',
-					postProcessing: 'Xử lý sau',
-					interaction: 'Tương tác',
-					contact: 'Liên hệ',
 					iframe: 'Iframe',
 				},
 				topBar: {
@@ -159,7 +144,6 @@ export default {
 					},
 					callInfo: {
 						title: 'Thông tin',
-						postprocessing: 'Xử lý sau cuộc gọi',
 						agentDescription: 'Nhận xét của nhân viên',
 					},
 				},
@@ -170,14 +154,18 @@ export default {
 					moreNumbers: '+{count} số khác',
 					noPhone: 'Không có số điện thoại',
 				},
-			},
-			tableActionPanel: {
-				variableColumnSelect: {
-					title: 'Chọn cột biến',
+				chats: {
+					moreChats: '+{count} chat khác',
+					noChat: 'Không có chat',
+				},
+				emails: {
+					moreEmails: '+{count} email khác',
+					noEmail: 'Không có email',
 				},
 			},
 		},
 		call: {
+			ringing: 'Đang đổ chuông',
 			activeCall: {
 				inCall: 'Đang gọi',
 				onHold: 'Đang giữ máy',
@@ -187,7 +175,6 @@ export default {
 					mute: 'Tắt micrô',
 					hold: 'Giữ máy',
 					camera: 'Camera',
-					message: 'Tin nhắn',
 					transfer: 'Chuyển cuộc gọi',
 					bridge: 'Kết nối cuộc gọi',
 					hangup: 'Kết thúc cuộc gọi',
@@ -197,15 +184,12 @@ export default {
 			bridge: {
 				title: 'Kết nối cuộc gọi',
 				connect: 'Kết nối',
-				unknownContact: 'Liên hệ không xác định',
 			},
 			transfer: {
 				title: 'Chuyển cuộc gọi',
 				emptyList: 'Không tìm thấy gì',
 				columns: {
 					name: 'Tên',
-					status: 'Trạng thái',
-					team: 'Nhóm',
 				},
 				phoneLabel: 'Chuyển đến số',
 				phonePlaceholder: 'Nhập số điện thoại',
@@ -215,7 +199,6 @@ export default {
 				},
 			},
 			outboundCall: {
-				ringing: 'Đang đổ chuông',
 				noAnswer: 'Không trả lời',
 				noAnswerDescription: 'Điện thoại người nhận không trả lời cuộc gọi.',
 				retryCall: 'Gọi lại',

@@ -224,11 +224,11 @@ describe('the-call-window', () => {
 		const wrapper = mountWindow();
 
 		expect(tabsOf(wrapper).map((tab) => tab.text)).toEqual([
-			'ui.pages.calls.tabs.postProcessing',
-			'ui.pages.calls.tabs.info',
-			'ui.pages.calls.tabs.interaction',
-			'ui.pages.calls.tabs.screenshots',
-			'ui.pages.calls.tabs.contact',
+			'ui.processing.postProcessing.title',
+			'ui.reusable.info',
+			'ui.reusable.interactions',
+			'objects.screenshots',
+			'objects.contact',
 			'ui.pages.calls.tabs.iframe',
 		]);
 	});

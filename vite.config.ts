@@ -44,6 +44,14 @@ export default ({ mode }) => {
 				// only ever loaded lazily, which the dependency scan doesn't follow: found
 				// at runtime instead, it re-optimizes and reloads the page mid-boot
 				'jszip',
+				// the players in @webitel/ui-sdk import vidstack through several entry
+				// points; pre-bundled apart, they become separate vidstack copies whose
+				// `media-*` elements can't attach to each other, so the video player's
+				// controls stay dead (WS-175)
+				'vidstack',
+				'vidstack/player',
+				'vidstack/player/ui',
+				'vidstack/elements',
 			],
 		},
 		server: {
