@@ -6,10 +6,12 @@ import { reactive, ref } from 'vue';
 vi.mock('@webitel/ui-datalist/filters', () => ({
 	DynamicFilterSearchComponent: {
 		name: 'DynamicFilterSearch',
-		props: [
-			'filtersManager',
-			'isFiltersRestoring',
-		],
+		props: {
+			filtersManager: null,
+			isFiltersRestoring: null,
+			collapsible: Boolean,
+			placeholder: null,
+		},
 		emits: [
 			'filter:add',
 			'filter:update',
@@ -135,6 +137,8 @@ describe('history-page-action-panel', () => {
 		expect(search.props()).toEqual({
 			filtersManager,
 			isFiltersRestoring: true,
+			collapsible: true,
+			placeholder: undefined,
 		});
 
 		search.vm.$emit('filter:add', 'added');

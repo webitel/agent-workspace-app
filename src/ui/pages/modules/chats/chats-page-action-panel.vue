@@ -1,6 +1,7 @@
 <template>
 	<table-action-panel>
 		<dynamic-filter-search
+			collapsible
 			:filters-manager="filtersManager"
 			:is-filters-restoring="isFiltersRestoring"
 			@filter:add="addFilter"

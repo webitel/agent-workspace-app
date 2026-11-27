@@ -102,6 +102,7 @@ export default {
 					offline: 'Fuera de línea',
 					selfAssigned: 'Autoasignadas',
 				},
+				searchByNumber: 'Buscar por número',
 				tabs: {
 					iframe: 'iFrame',
 				},

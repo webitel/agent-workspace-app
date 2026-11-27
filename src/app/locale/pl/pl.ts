@@ -102,6 +102,7 @@ export default {
 					offline: 'Offline',
 					selfAssigned: 'Ręcznie przypisane',
 				},
+				searchByNumber: 'Szukaj po numerze',
 				tabs: {
 					iframe: 'iFrame',
 				},

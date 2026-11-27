@@ -5,6 +5,7 @@
 				v-if="currentTab?.store"
 				:key="currentTab.value"
 				:store="currentTab.store"
+				:search-placeholder="searchPlaceholder"
 			/>
 		</template>
 		<template #main>
@@ -62,5 +63,14 @@ const tabs = computed<PageTab<CallsPageStore>[]>(() => [
 
 const currentTab = computed(() =>
 	tabs.value.find((tab) => tab.pathName === route.name),
+);
+
+/**
+ * Missed calls are searched by number (BA)
+ */
+const searchPlaceholder = computed(() =>
+	currentTab.value?.value === CallsPageTab.Missed
+		? t('ui.pages.calls.searchByNumber')
+		: undefined,
 );
 </script>

@@ -102,6 +102,7 @@ export default {
 					offline: 'Офлайн',
 					selfAssigned: 'Өзіне тағайындалған',
 				},
+				searchByNumber: 'Нөмір бойынша іздеу',
 				tabs: {
 					iframe: 'iFrame',
 				},

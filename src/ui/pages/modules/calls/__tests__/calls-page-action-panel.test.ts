@@ -6,10 +6,12 @@ import { reactive, ref } from 'vue';
 vi.mock('@webitel/ui-datalist/filters', () => ({
 	DynamicFilterSearchComponent: {
 		name: 'DynamicFilterSearch',
-		props: [
-			'filtersManager',
-			'isFiltersRestoring',
-		],
+		props: {
+			filtersManager: null,
+			isFiltersRestoring: null,
+			collapsible: Boolean,
+			placeholder: null,
+		},
 		emits: [
 			'filter:add',
 			'filter:update',
@@ -41,12 +43,13 @@ const createStore = () =>
 		deleteFilter: vi.fn(),
 	});
 
-const mountPanel = () => {
+const mountPanel = (props: { searchPlaceholder?: string } = {}) => {
 	const store = createStore();
 	const wrapper = mount(CallsPageActionPanel, {
 		props: {
 			// only the part of the datalist store the panel uses
 			store: store as never,
+			...props,
 		},
 		global: {
 			stubs,
@@ -68,6 +71,8 @@ describe('calls-page-action-panel', () => {
 		expect(search.props()).toEqual({
 			filtersManager,
 			isFiltersRestoring: true,
+			collapsible: true,
+			placeholder: undefined,
 		});
 
 		search.vm.$emit('filter:add', 'added');
@@ -77,5 +82,13 @@ describe('calls-page-action-panel', () => {
 		expect(store.addFilter).toHaveBeenCalledWith('added');
 		expect(store.updateFilter).toHaveBeenCalledWith('updated');
 		expect(store.deleteFilter).toHaveBeenCalledWith('deleted');
+	});
+
+	it('passes the search placeholder to the search', () => {
+		const { search } = mountPanel({
+			searchPlaceholder: 'Search by number',
+		});
+
+		expect(search.props('placeholder')).toBe('Search by number');
 	});
 });

@@ -1,6 +1,8 @@
 <template>
 	<table-action-panel>
 		<dynamic-filter-search
+			collapsible
+			:placeholder="searchPlaceholder"
 			:filters-manager="filtersManager"
 			:is-filters-restoring="isFiltersRestoring"
 			@filter:add="addFilter"
@@ -23,6 +25,10 @@ const props = defineProps<{
 		| ReturnType<typeof useMissedCallsDataListStore>
 		| ReturnType<typeof useSelfAssignedCallsDataListStore>
 		| ReturnType<typeof useOfflineCallsDataListStore>;
+	/**
+	 * the search's own "Search" when not set
+	 */
+	searchPlaceholder?: string;
 }>();
 
 const { filtersManager, isFiltersRestoring } = storeToRefs(props.store);
