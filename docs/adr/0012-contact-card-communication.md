@@ -82,10 +82,12 @@ cc-workspaces do. The form only checks and hands over what was typed; the
 section saves it, since a tab switch drops the form mid-save and the emit of an
 unmounted form is lost. While it is saving, save is disabled; a failure is
 notified by api-services and leaves an open form with what was typed. On
-success an open form closes, and the card refetches the contact in place
-(`useContact().reload`) even if the agent has switched tabs meanwhile: no
-loader, the order stays the API's. If the panel has moved to another contact,
-nothing is refetched, as that contact loads anew.
+success an open form closes, and the card reports the contact changed even if
+the agent has switched tabs meanwhile. Whoever holds the contact reloads it in
+place: `contact-card-by-id` with `useContact().reload`, a call's and a table
+row's found contacts by putting the reloaded one in place of the found one
+(ADR-0020). No loader, the order stays the API's. If the panel has moved to
+another contact, nothing is reloaded, as that contact loads anew.
 
 The add button is shown to every agent: the spec sets no rights for it and
 cc-workspaces checks none. A save the backend refuses fails like any other.

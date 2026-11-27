@@ -1,17 +1,19 @@
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, toValue } from 'vue';
-import ContactCard from '../../../components/contact/contact-card.vue';
+import ContactCardById from '../../../components/contact/contact-card-by-id.vue';
 import ContactCardUnknown from '../../../components/contact/contact-card-unknown.vue';
 import ContactIdentification from '../../../components/contact/contact-identification.vue';
 import ContactPanelEmpty from '../../../components/contact/contact-panel-empty.vue';
 import SidebarSectionHeader from '../../../components/sidebar-section-header.vue';
 import { useSidebarSelectionStore } from '../../../store/sidebar-selection';
 
-const contactIds = ref<string[]>([]);
+const contacts = ref<WebitelContactsContact[]>([]);
 const isLoading = ref(false);
+const reloadContact = vi.fn();
 let searchedNumber: () => string | undefined = () => undefined;
 
 vi.mock(
@@ -22,8 +24,9 @@ vi.mock(
 		) => {
 			searchedNumber = () => toValue(phoneNumber);
 			return {
-				contactIds,
+				contacts,
 				isLoading,
+				reloadContact,
 			};
 		},
 	}),
@@ -35,7 +38,7 @@ const mountPanel = () =>
 	mount(TheMissedCallPanel, {
 		global: {
 			stubs: {
-				ContactCard: true,
+				ContactCardById: true,
 				ContactCardUnknown: true,
 				ContactIdentification: true,
 				ContactPanelEmpty: true,
@@ -58,7 +61,7 @@ describe('the-missed-call-panel', () => {
 				stubActions: false,
 			}),
 		);
-		contactIds.value = [];
+		contacts.value = [];
 		isLoading.value = false;
 	});
 
@@ -66,7 +69,7 @@ describe('the-missed-call-panel', () => {
 		const wrapper = mountPanel();
 
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
-		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
+		expect(wrapper.findComponent(ContactCardById).exists()).toBe(false);
 		expect(wrapper.findComponent(ContactIdentification).exists()).toBe(false);
 		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(false);
 		expect(getTitle(wrapper)).toBe('objects.contact');
@@ -79,7 +82,9 @@ describe('the-missed-call-panel', () => {
 			useSidebarSelectionStore().selectContact('7');
 			await nextTick();
 
-			expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('7');
+			expect(wrapper.findComponent(ContactCardById).props('contactId')).toBe(
+				'7',
+			);
 			expect(wrapper.findComponent(ContactIdentification).exists()).toBe(false);
 			expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
 		});
@@ -117,34 +122,46 @@ describe('the-missed-call-panel', () => {
 
 		it('shows the found contact with the Profile title', async () => {
 			const wrapper = mountPanel();
-			contactIds.value = [
-				'15',
+			contacts.value = [
+				{
+					id: '15',
+				},
 			];
 
 			await selectNumber('380501112233');
 
 			expect(
-				wrapper.findComponent(ContactIdentification).props('contactIds'),
+				wrapper.findComponent(ContactIdentification).props('contacts'),
 			).toEqual([
-				'15',
+				{
+					id: '15',
+				},
 			]);
 			expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
 		});
 
 		it('leaves several found contacts to the identification, under the Contacts title', async () => {
 			const wrapper = mountPanel();
-			contactIds.value = [
-				'15',
-				'16',
+			contacts.value = [
+				{
+					id: '15',
+				},
+				{
+					id: '16',
+				},
 			];
 
 			await selectNumber('380501112233');
 
 			expect(
-				wrapper.findComponent(ContactIdentification).props('contactIds'),
+				wrapper.findComponent(ContactIdentification).props('contacts'),
 			).toEqual([
-				'15',
-				'16',
+				{
+					id: '15',
+				},
+				{
+					id: '16',
+				},
 			]);
 			expect(getTitle(wrapper)).toBe('objects.contact');
 		});
@@ -178,5 +195,22 @@ describe('the-missed-call-panel', () => {
 
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
 		expect(searchedNumber()).toBeUndefined();
+	});
+
+	it('reloads the found contact the card changed (WS-186)', async () => {
+		const wrapper = mountPanel();
+		contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
+		];
+		await selectNumber('380501112233');
+
+		wrapper.findComponent(ContactIdentification).vm.$emit('changed', '16');
+
+		expect(reloadContact).toHaveBeenCalledWith('16');
 	});
 });

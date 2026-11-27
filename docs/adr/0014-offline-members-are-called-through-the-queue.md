@@ -49,7 +49,7 @@ one would read only that page); a refused request is only logged with
 **The Offline tab has its own panel, which searches the contact by the member's
 number.** The name cell selects the member's first number
 (`selectPhoneNumber`, a selection of its own type, `PhoneNumber`). The panel
-searches the contacts by it with `findContactIdsByNumber`, the same search a
+searches the contacts by it with `findContactsByNumber`, the same search a
 call's identification uses, honours `WbtHideContact`, and drops an answer for a
 number no longer selected. None found, or contacts hidden, shows the unknown
 contact card; one or several go to `contact-identification` (ADR-0013), without

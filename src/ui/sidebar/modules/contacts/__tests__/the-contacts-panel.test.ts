@@ -4,7 +4,7 @@ import { WtButton } from '@webitel/ui-sdk/components';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
-import ContactCard from '../../../components/contact/contact-card.vue';
+import ContactCardById from '../../../components/contact/contact-card-by-id.vue';
 import ContactCardUnknown from '../../../components/contact/contact-card-unknown.vue';
 import ContactCreateForm from '../../../components/contact/contact-create-form.vue';
 import ContactPanelEmpty from '../../../components/contact/contact-panel-empty.vue';
@@ -63,7 +63,7 @@ describe('the-contacts-panel', () => {
 
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
 		expect(wrapper.findComponent(ContactCreateForm).exists()).toBe(false);
-		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
+		expect(wrapper.findComponent(ContactCardById).exists()).toBe(false);
 		expect(getTitle(wrapper)).toBe('objects.contact');
 	});
 
@@ -93,7 +93,7 @@ describe('the-contacts-panel', () => {
 
 		await selectContact('1');
 
-		expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('1');
+		expect(wrapper.findComponent(ContactCardById).props('contactId')).toBe('1');
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
 		expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
 	});
@@ -105,7 +105,7 @@ describe('the-contacts-panel', () => {
 		await selectContact('2');
 
 		expect(wrapper.findComponent(ContactCreateForm).exists()).toBe(false);
-		expect(wrapper.findComponent(ContactCard).props('contactId')).toBe('2');
+		expect(wrapper.findComponent(ContactCardById).props('contactId')).toBe('2');
 		expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
 	});
 
@@ -116,7 +116,7 @@ describe('the-contacts-panel', () => {
 
 		expect(wrapper.findComponent(ContactCardUnknown).exists()).toBe(true);
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(false);
-		expect(wrapper.findComponent(ContactCard).exists()).toBe(false);
+		expect(wrapper.findComponent(ContactCardById).exists()).toBe(false);
 		expect(getTitle(wrapper)).toBe('objects.contact');
 	});
 

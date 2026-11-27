@@ -9,17 +9,20 @@ import {
 	type EffectScope,
 	effectScope,
 	nextTick,
+	type Ref,
 	reactive,
 	shallowRef,
 } from 'vue';
 import { type Call, CallDirection } from 'webitel-sdk';
 
+import { CONTACT_FIELDS } from '../../constants/contactFields';
 import { useCallContact } from '../useCallContact';
 
 vi.mock('@webitel/api-services/api', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@webitel/api-services/api')>()),
 	ContactsAPI: {
 		getList: vi.fn(),
+		get: vi.fn(),
 	},
 }));
 
@@ -40,6 +43,7 @@ vi.mock('../../../../../system-settings/store/systemSettings', () => ({
 }));
 
 const getList = vi.mocked(ContactsAPI.getList);
+const get = vi.mocked(ContactsAPI.get);
 
 type ContactsResponse = {
 	items: WebitelContactsContact[];
@@ -60,15 +64,20 @@ const createDeferred = <T>() => {
 	};
 };
 
-const found = (...ids: string[]): ContactsResponse => ({
-	items: ids.map((id) => ({
-		id,
-		name: {
-			commonName: `Contact ${id}`,
-		},
-	})),
+const buildContact = (id: string): WebitelContactsContact => ({
+	id,
+	name: {
+		commonName: `Contact ${id}`,
+	},
+});
+
+const found = (...contactIds: string[]): ContactsResponse => ({
+	items: contactIds.map(buildContact),
 	next: false,
 });
+
+const ids = (contacts: Ref<WebitelContactsContact[]>) =>
+	contacts.value.map(({ id }) => id);
 
 const buildCall = (overrides: Partial<Call> = {}): Call =>
 	reactive({
@@ -105,8 +114,11 @@ afterEach(() => {
 });
 
 describe('useCallContact', () => {
-	it('shows the linked contact at once, without a request or a loader', () => {
-		const { contactIds, isLoading } = setup(
+	it('loads the linked contact by its id, with a loader and without searching', async () => {
+		const response = createDeferred<WebitelContactsContact>();
+		get.mockReturnValue(response.promise);
+
+		const { contacts, isLoading } = setup(
 			buildCall({
 				contact: {
 					id: 42,
@@ -114,27 +126,193 @@ describe('useCallContact', () => {
 				},
 			}),
 		);
+		expect(isLoading.value).toBe(true);
 
-		expect(contactIds.value).toEqual([
+		response.resolve(buildContact('42'));
+		await flushPromises();
+
+		expect(get).toHaveBeenCalledWith({
+			itemId: '42',
+		});
+		expect(ids(contacts)).toEqual([
 			'42',
 		]);
 		expect(isLoading.value).toBe(false);
 		expect(getList).not.toHaveBeenCalled();
 	});
 
+	it('reports a linked contact that fails to load as unavailable, not as no contact', async () => {
+		get.mockRejectedValue(new Error('forbidden'));
+
+		const { contacts, isLoading, isLinkedContactUnavailable } = setup(
+			buildCall({
+				contact: {
+					id: 42,
+					hide: false,
+				},
+			}),
+		);
+		await flushPromises();
+
+		expect(isLinkedContactUnavailable.value).toBe(true);
+		expect(contacts.value).toEqual([]);
+		expect(isLoading.value).toBe(false);
+	});
+
+	it('shows the agent search over an unavailable linked contact, and gives it back on cancel', async () => {
+		get.mockRejectedValue(new Error('forbidden'));
+		const { contacts, isLinkedContactUnavailable, search, cancelSearch } =
+			setup(
+				buildCall({
+					contact: {
+						id: 42,
+						hide: false,
+					},
+				}),
+			);
+		await flushPromises();
+
+		getList.mockResolvedValueOnce(found('31'));
+		await search({
+			query: 'sarah',
+			searchMode: ContactsSearchMode.NAME,
+		});
+
+		expect(isLinkedContactUnavailable.value).toBe(false);
+		expect(ids(contacts)).toEqual([
+			'31',
+		]);
+
+		cancelSearch();
+
+		expect(isLinkedContactUnavailable.value).toBe(true);
+	});
+
+	it('does not report a failed number search as an unavailable linked contact', async () => {
+		getList.mockRejectedValue(new Error('network error'));
+
+		const { isLinkedContactUnavailable } = setup(buildCall());
+		await flushPromises();
+
+		expect(isLinkedContactUnavailable.value).toBe(false);
+	});
+
+	it('forgets an unavailable linked contact once another call is opened', async () => {
+		get.mockRejectedValue(new Error('forbidden'));
+		const { isLinkedContactUnavailable, callRef } = setup(
+			buildCall({
+				contact: {
+					id: 42,
+					hide: false,
+				},
+			}),
+		);
+		await flushPromises();
+
+		getList.mockResolvedValueOnce(found());
+		callRef.value = buildCall({
+			id: 'call-2',
+		});
+		await flushPromises();
+
+		expect(isLinkedContactUnavailable.value).toBe(false);
+	});
+
+	it('loads nothing when the only found contact it linked comes back from the socket', async () => {
+		getList.mockResolvedValue(found('15'));
+		const call = buildCall();
+
+		const { contacts, isLoading } = setup(call);
+		await flushPromises();
+		// what the socket `set_contact` event does through the SDK's setContactId
+		call.contact = {
+			id: 15,
+			hide: false,
+		};
+		await nextTick();
+
+		expect(get).not.toHaveBeenCalled();
+		expect(isLoading.value).toBe(false);
+		expect(ids(contacts)).toEqual([
+			'15',
+		]);
+	});
+
+	it('loads nothing when the link of the only found contact comes from the socket before setContact resolves', async () => {
+		getList.mockResolvedValue(found('15'));
+		const linking = createDeferred<object>();
+		const call = buildCall({
+			setContact: vi.fn().mockReturnValue(linking.promise),
+		});
+
+		const { contacts, isLoading } = setup(call);
+		await flushPromises();
+		// the SDK does not order the `set_contact` event and the request's reply
+		call.contact = {
+			id: 15,
+			hide: false,
+		};
+		await flushPromises();
+
+		expect(get).not.toHaveBeenCalled();
+		expect(isLoading.value).toBe(false);
+		expect(ids(contacts)).toEqual([
+			'15',
+		]);
+
+		linking.resolve({});
+		await flushPromises();
+
+		expect(ids(contacts)).toEqual([
+			'15',
+		]);
+	});
+
+	it('shows at once, without loading it, a found contact someone else links', async () => {
+		getList.mockResolvedValue(found('15', '16'));
+		const call = buildCall();
+
+		const { contacts, isLoading } = setup(call);
+		await flushPromises();
+		call.contact = {
+			id: 16,
+			hide: false,
+		};
+		await nextTick();
+
+		expect(get).not.toHaveBeenCalled();
+		expect(isLoading.value).toBe(false);
+		expect(contacts.value).toEqual([
+			buildContact('16'),
+		]);
+	});
+
+	it('searches the number with every field the contact card shows', async () => {
+		getList.mockResolvedValue(found());
+
+		setup(buildCall());
+		await flushPromises();
+
+		expect(getList).toHaveBeenCalledWith(
+			expect.objectContaining({
+				fields: CONTACT_FIELDS,
+			}),
+		);
+	});
+
 	it('shows the loader while searching, then the found contacts', async () => {
 		const response = createDeferred<ContactsResponse>();
 		getList.mockReturnValue(response.promise);
 
-		const { contactIds, isLoading } = setup(buildCall());
+		const { contacts, isLoading } = setup(buildCall());
 		expect(isLoading.value).toBe(true);
-		expect(contactIds.value).toEqual([]);
+		expect(ids(contacts)).toEqual([]);
 
 		response.resolve(found('15', '16'));
 		await flushPromises();
 
 		expect(isLoading.value).toBe(false);
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'15',
 			'16',
 		]);
@@ -142,7 +320,7 @@ describe('useCallContact', () => {
 
 	it('searches again when the call changes', async () => {
 		getList.mockResolvedValueOnce(found('15', '16'));
-		const { contactIds, callRef } = setup(buildCall());
+		const { contacts, callRef } = setup(buildCall());
 		await flushPromises();
 
 		getList.mockResolvedValueOnce(found());
@@ -153,7 +331,7 @@ describe('useCallContact', () => {
 		await flushPromises();
 
 		expect(getList).toHaveBeenCalledTimes(2);
-		expect(contactIds.value).toEqual([]);
+		expect(ids(contacts)).toEqual([]);
 	});
 
 	it('does not let a late result of the previous call overwrite the current one', async () => {
@@ -162,7 +340,7 @@ describe('useCallContact', () => {
 		getList.mockReturnValueOnce(first.promise);
 		getList.mockReturnValueOnce(second.promise);
 
-		const { contactIds, isLoading, callRef } = setup(buildCall());
+		const { contacts, isLoading, callRef } = setup(buildCall());
 		callRef.value = buildCall({
 			id: 'call-2',
 			displayNumber: '+12023417843',
@@ -174,7 +352,7 @@ describe('useCallContact', () => {
 		first.resolve(found('10', '11'));
 		await flushPromises();
 
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'20',
 			'21',
 		]);
@@ -184,10 +362,10 @@ describe('useCallContact', () => {
 	it('shows nothing found when the search fails', async () => {
 		getList.mockRejectedValue(new Error('network error'));
 
-		const { contactIds, isLoading } = setup(buildCall());
+		const { contacts, isLoading } = setup(buildCall());
 		await flushPromises();
 
-		expect(contactIds.value).toEqual([]);
+		expect(ids(contacts)).toEqual([]);
 		expect(isLoading.value).toBe(false);
 	});
 
@@ -195,14 +373,14 @@ describe('useCallContact', () => {
 		getList.mockResolvedValue(found('15'));
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-		const { contactIds, isLoading } = setup(
+		const { contacts, isLoading } = setup(
 			buildCall({
 				setContact: vi.fn().mockRejectedValue(new Error('socket error')),
 			}),
 		);
 		await flushPromises();
 
-		expect(contactIds.value).toEqual([]);
+		expect(ids(contacts)).toEqual([]);
 		expect(isLoading.value).toBe(false);
 		warn.mockRestore();
 	});
@@ -211,11 +389,11 @@ describe('useCallContact', () => {
 		getList.mockResolvedValue(found('15'));
 		const call = buildCall();
 
-		const { contactIds } = setup(call);
+		const { contacts } = setup(call);
 		await flushPromises();
 
 		expect(call.setContact).toHaveBeenCalledWith(15);
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'15',
 		]);
 	});
@@ -225,15 +403,17 @@ describe('useCallContact', () => {
 		getList.mockReturnValue(response.promise);
 		const call = buildCall();
 
-		const { contactIds, isLoading } = setup(call);
+		get.mockResolvedValue(buildContact('99'));
+
+		const { contacts, isLoading } = setup(call);
 		// what the socket `set_contact` event does through the SDK's setContactId
 		call.contact = {
 			id: 99,
 			hide: false,
 		};
-		await nextTick();
+		await flushPromises();
 
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'99',
 		]);
 		expect(isLoading.value).toBe(false);
@@ -241,20 +421,20 @@ describe('useCallContact', () => {
 		response.resolve(found('15', '16'));
 		await flushPromises();
 
-		expect(contactIds.value).toEqual([
+		expect(ids(contacts)).toEqual([
 			'99',
 		]);
 	});
 
 	it('neither shows nor searches a contact the call hides', () => {
-		const { contactIds, isLoading, isContactHidden } = setup(
+		const { contacts, isLoading, isContactHidden } = setup(
 			buildCall({
 				hideContact: true,
 			}),
 		);
 
 		expect(isContactHidden.value).toBe(true);
-		expect(contactIds.value).toEqual([]);
+		expect(ids(contacts)).toEqual([]);
 		expect(isLoading.value).toBe(false);
 		expect(getList).not.toHaveBeenCalled();
 	});
@@ -273,12 +453,32 @@ describe('useCallContact', () => {
 			getList.mockResolvedValue(found('15', '16'));
 			const call = buildCall();
 
-			const { contactIds, selectContact } = setup(call);
+			const { contacts, selectContact } = setup(call);
 			await flushPromises();
-			await selectContact('16');
+			await selectContact(buildContact('16'));
 
 			expect(call.setContact).toHaveBeenCalledWith(16);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
+				'16',
+			]);
+		});
+
+		it('loads nothing when the chosen contact comes back from the socket', async () => {
+			getList.mockResolvedValue(found('15', '16'));
+			const call = buildCall();
+
+			const { contacts, isLoading, selectContact } = setup(call);
+			await flushPromises();
+			await selectContact(buildContact('16'));
+			call.contact = {
+				id: 16,
+				hide: false,
+			};
+			await nextTick();
+
+			expect(get).not.toHaveBeenCalled();
+			expect(isLoading.value).toBe(false);
+			expect(ids(contacts)).toEqual([
 				'16',
 			]);
 		});
@@ -290,11 +490,11 @@ describe('useCallContact', () => {
 				setContact: vi.fn().mockRejectedValue(new Error('socket error')),
 			});
 
-			const { contactIds, selectContact } = setup(call);
+			const { contacts, selectContact } = setup(call);
 			await flushPromises();
-			await selectContact('16');
+			await selectContact(buildContact('16'));
 
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'15',
 				'16',
 			]);
@@ -312,13 +512,13 @@ describe('useCallContact', () => {
 					.mockResolvedValueOnce({}),
 			});
 
-			const { contactIds, selectContact } = setup(call);
+			const { contacts, selectContact } = setup(call);
 			await flushPromises();
-			await selectContact('16');
-			await selectContact('16');
+			await selectContact(buildContact('16'));
+			await selectContact(buildContact('16'));
 
 			expect(call.setContact).toHaveBeenCalledTimes(2);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'16',
 			]);
 			warn.mockRestore();
@@ -331,10 +531,10 @@ describe('useCallContact', () => {
 				setContact: vi.fn().mockReturnValue(linking.promise),
 			});
 
-			const { contactIds, selectContact } = setup(call);
+			const { contacts, selectContact } = setup(call);
 			await flushPromises();
-			const first = selectContact('15');
-			const second = selectContact('16');
+			const first = selectContact(buildContact('15'));
+			const second = selectContact(buildContact('16'));
 			linking.resolve({});
 			await Promise.all([
 				first,
@@ -343,7 +543,7 @@ describe('useCallContact', () => {
 
 			expect(call.setContact).toHaveBeenCalledTimes(1);
 			expect(call.setContact).toHaveBeenCalledWith(15);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'15',
 			]);
 		});
@@ -354,9 +554,9 @@ describe('useCallContact', () => {
 				setContact: vi.fn().mockReturnValue(new Promise(() => {})),
 			});
 
-			const { contactIds, selectContact, callRef } = setup(firstCall);
+			const { contacts, selectContact, callRef } = setup(firstCall);
 			await flushPromises();
-			void selectContact('16');
+			void selectContact(buildContact('16'));
 
 			getList.mockResolvedValueOnce(found('20', '21'));
 			const secondCall = buildCall({
@@ -365,10 +565,10 @@ describe('useCallContact', () => {
 			});
 			callRef.value = secondCall;
 			await flushPromises();
-			await selectContact('21');
+			await selectContact(buildContact('21'));
 
 			expect(secondCall.setContact).toHaveBeenCalledWith(21);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'21',
 			]);
 		});
@@ -380,9 +580,9 @@ describe('useCallContact', () => {
 				setContact: vi.fn().mockReturnValue(linking.promise),
 			});
 
-			const { contactIds, selectContact, callRef } = setup(call);
+			const { contacts, selectContact, callRef } = setup(call);
 			await flushPromises();
-			const selecting = selectContact('16');
+			const selecting = selectContact(buildContact('16'));
 
 			getList.mockResolvedValueOnce(found('20', '21'));
 			callRef.value = buildCall({
@@ -393,7 +593,7 @@ describe('useCallContact', () => {
 			linking.resolve({});
 			await selecting;
 
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'20',
 				'21',
 			]);
@@ -433,13 +633,14 @@ describe('useCallContact', () => {
 				expect.objectContaining({
 					[searchMode]: 'sarah',
 					size: 100,
+					fields: CONTACT_FIELDS,
 				}),
 			);
 		});
 
 		it('shows the contacts the search found instead of the identified ones', async () => {
 			getList.mockResolvedValueOnce(found());
-			const { contactIds, isSearchActive, search } = setup(buildCall());
+			const { contacts, isSearchActive, search } = setup(buildCall());
 			await flushPromises();
 
 			getList.mockResolvedValueOnce(found('31', '32'));
@@ -449,7 +650,7 @@ describe('useCallContact', () => {
 			});
 
 			expect(isSearchActive.value).toBe(true);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'31',
 				'32',
 			]);
@@ -457,7 +658,7 @@ describe('useCallContact', () => {
 
 		it('is an active search with nothing in it when nothing is found', async () => {
 			getList.mockResolvedValueOnce(found());
-			const { contactIds, isSearchActive, search } = setup(buildCall());
+			const { contacts, isSearchActive, search } = setup(buildCall());
 			await flushPromises();
 
 			getList.mockResolvedValueOnce(found());
@@ -467,7 +668,7 @@ describe('useCallContact', () => {
 			});
 
 			expect(isSearchActive.value).toBe(true);
-			expect(contactIds.value).toEqual([]);
+			expect(ids(contacts)).toEqual([]);
 		});
 
 		it('links nothing to the call, even for the only match', async () => {
@@ -527,7 +728,7 @@ describe('useCallContact', () => {
 
 		it('goes back to the identified contacts on cancel', async () => {
 			getList.mockResolvedValueOnce(found('15', '16'));
-			const { contactIds, isSearchActive, search, cancelSearch } = setup(
+			const { contacts, isSearchActive, search, cancelSearch } = setup(
 				buildCall(),
 			);
 			await flushPromises();
@@ -540,7 +741,7 @@ describe('useCallContact', () => {
 			cancelSearch();
 
 			expect(isSearchActive.value).toBe(false);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'15',
 				'16',
 			]);
@@ -548,7 +749,7 @@ describe('useCallContact', () => {
 
 		it('shows the answer of the latest search only', async () => {
 			getList.mockResolvedValueOnce(found());
-			const { contactIds, search } = setup(buildCall());
+			const { contacts, search } = setup(buildCall());
 			await flushPromises();
 
 			const first = createDeferred<ContactsResponse>();
@@ -565,7 +766,7 @@ describe('useCallContact', () => {
 			first.resolve(found('31'));
 			await firstSearch;
 
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'32',
 			]);
 		});
@@ -591,7 +792,7 @@ describe('useCallContact', () => {
 
 		it('ends the search and shows the identified contacts when the search fails', async () => {
 			getList.mockResolvedValueOnce(found('15', '16'));
-			const { contactIds, isLoading, isSearchActive, search } = setup(
+			const { contacts, isLoading, isSearchActive, search } = setup(
 				buildCall(),
 			);
 			await flushPromises();
@@ -604,7 +805,7 @@ describe('useCallContact', () => {
 
 			expect(isSearchActive.value).toBe(false);
 			expect(isLoading.value).toBe(false);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'15',
 				'16',
 			]);
@@ -613,7 +814,7 @@ describe('useCallContact', () => {
 		it('ends the search when a contact is linked to the call meanwhile', async () => {
 			getList.mockResolvedValueOnce(found());
 			const call = buildCall();
-			const { contactIds, isSearchActive, search } = setup(call);
+			const { contacts, isSearchActive, search } = setup(call);
 			await flushPromises();
 			getList.mockResolvedValueOnce(found('31', '32'));
 			await search({
@@ -621,21 +822,22 @@ describe('useCallContact', () => {
 				searchMode: ContactsSearchMode.NAME,
 			});
 
+			get.mockResolvedValue(buildContact('99'));
 			call.contact = {
 				id: 99,
 				hide: false,
 			};
-			await nextTick();
+			await flushPromises();
 
 			expect(isSearchActive.value).toBe(false);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'99',
 			]);
 		});
 
 		it('ends the search once the selected contact is linked', async () => {
 			getList.mockResolvedValueOnce(found('15', '16'));
-			const { contactIds, isSearchActive, search, selectContact } = setup(
+			const { contacts, isSearchActive, search, selectContact } = setup(
 				buildCall(),
 			);
 			await flushPromises();
@@ -645,11 +847,119 @@ describe('useCallContact', () => {
 				searchMode: ContactsSearchMode.NAME,
 			});
 
-			await selectContact('32');
+			await selectContact(buildContact('32'));
 
 			expect(isSearchActive.value).toBe(false);
-			expect(contactIds.value).toEqual([
+			expect(ids(contacts)).toEqual([
 				'32',
+			]);
+		});
+
+		it('loads nothing when the link of a searched contact comes from the socket before setContact resolves', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const linking = createDeferred<object>();
+			const call = buildCall({
+				setContact: vi.fn().mockReturnValue(linking.promise),
+			});
+			const { contacts, isLoading, isSearchActive, search, selectContact } =
+				setup(call);
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('31', '32'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+
+			const selecting = selectContact(buildContact('32'));
+			// the SDK does not order the `set_contact` event and the request's reply
+			call.contact = {
+				id: 32,
+				hide: false,
+			};
+			await flushPromises();
+
+			expect(get).not.toHaveBeenCalled();
+			expect(isLoading.value).toBe(false);
+			expect(isSearchActive.value).toBe(false);
+			expect(ids(contacts)).toEqual([
+				'32',
+			]);
+
+			linking.resolve({});
+			await selecting;
+
+			expect(ids(contacts)).toEqual([
+				'32',
+			]);
+		});
+	});
+
+	describe('reloading a contact the card changed', () => {
+		it('puts the reloaded contact in place of the found one, keeping the others', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contacts, reloadContact } = setup(buildCall());
+			await flushPromises();
+			const fresh = {
+				...buildContact('16'),
+				about: 'reloaded',
+			};
+			get.mockResolvedValueOnce(fresh);
+
+			await reloadContact('16');
+
+			expect(contacts.value).toEqual([
+				buildContact('15'),
+				fresh,
+			]);
+			expect(get).toHaveBeenCalledWith({
+				itemId: '16',
+			});
+		});
+
+		it('puts the reloaded contact in the agent search result too, and keeps it after Cancel', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contacts, isSearchActive, search, cancelSearch, reloadContact } =
+				setup(buildCall());
+			await flushPromises();
+			getList.mockResolvedValueOnce(found('16', '31'));
+			await search({
+				query: 'sarah',
+				searchMode: ContactsSearchMode.NAME,
+			});
+			const fresh = {
+				...buildContact('16'),
+				about: 'reloaded',
+			};
+			get.mockResolvedValueOnce(fresh);
+
+			await reloadContact('16');
+
+			expect(isSearchActive.value).toBe(true);
+			expect(contacts.value).toEqual([
+				fresh,
+				buildContact('31'),
+			]);
+
+			cancelSearch();
+
+			expect(contacts.value).toEqual([
+				buildContact('15'),
+				fresh,
+			]);
+		});
+
+		it('keeps the contact as it is when the reload fails', async () => {
+			getList.mockResolvedValueOnce(found('15', '16'));
+			const { contacts, isLoading, reloadContact } = setup(buildCall());
+			await flushPromises();
+			get.mockRejectedValueOnce(new Error('network error'));
+
+			await reloadContact('16');
+
+			expect(isLoading.value).toBe(false);
+			expect(ids(contacts)).toEqual([
+				'15',
+				'16',
 			]);
 		});
 	});
