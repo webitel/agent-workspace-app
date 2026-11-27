@@ -1,5 +1,7 @@
 import { createI18n } from 'vue-i18n';
 
+import { LocaleStorageKey } from '../enums/LocaleStorageKey.enum';
+import { getStoredLocale } from '../scripts/getStoredLocale';
 import en from './en/en';
 import es from './es/es';
 import kz from './kz/kz';
@@ -22,8 +24,19 @@ const messages = {
 	vi,
 };
 
+const DEFAULT_LOCALE = 'en';
+const availableLocales = Object.keys(messages);
+
 export default createI18n({
-	locale: 'en',
-	fallbackLocale: 'en',
+	locale: getStoredLocale(
+		LocaleStorageKey.Locale,
+		availableLocales,
+		DEFAULT_LOCALE,
+	),
+	fallbackLocale: getStoredLocale(
+		LocaleStorageKey.FallbackLocale,
+		availableLocales,
+		DEFAULT_LOCALE,
+	),
 	messages,
 });
