@@ -1,8 +1,5 @@
 <template>
-	<form
-		class="contact-create-form"
-		@submit.prevent="submit"
-	>
+	<div class="contact-create-form">
 		<div class="contact-create-form__fields">
 			<wt-input-text
 				v-model="draft.name"
@@ -65,7 +62,7 @@
 				{{ t('reusable.cancel') }}
 			</wt-button>
 		</div>
-	</form>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -156,6 +153,14 @@ const { r$ } = useRegleSchema(draft, draftSchema, {
 
 const canSave = computed(() => !props.isSaving && !r$.$invalid);
 
+/**
+ * @author Oleksandr Palonnyi
+ * Saved by SAVE's click only, so the form is a plain element, not a `<form>`:
+ * `wt-button` prevents its click's default, so a native submit never fires,
+ * neither on click nor on Enter, even with `type="submit"`. US_07.06 does not
+ * ask for Enter to save
+ * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
+ */
 function submit() {
 	if (!canSave.value) return;
 	emit('submit', {
