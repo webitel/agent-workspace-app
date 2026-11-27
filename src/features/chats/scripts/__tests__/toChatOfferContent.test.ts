@@ -19,6 +19,7 @@ const buildTask = (overrides: Partial<Task> = {}): Task =>
 		channel: 'im',
 		displayName: 'John Smith',
 		displayNumber: '@john',
+		communication: {},
 		thread: {
 			id: 'thread-1',
 			lastMsg: 'is anyone there?',
@@ -124,20 +125,8 @@ describe('toChatOfferContent', () => {
 		expect(content.body).toBeUndefined();
 	});
 
-	it('maps the gateway name from the raw distribute event', () => {
-		const task = buildTask() as unknown as {
-			distribute: {
-				communication: {
-					thread: {
-						channel: {
-							name: string;
-							type: string;
-						};
-					};
-				};
-			};
-		};
-		task.distribute = {
+	it('maps the gateway name from the thread channel', () => {
+		const task = buildTask({
 			communication: {
 				thread: {
 					channel: {
@@ -145,10 +134,10 @@ describe('toChatOfferContent', () => {
 						type: 'portal',
 					},
 				},
-			},
-		};
+			} as unknown as Task['communication'],
+		});
 
-		expect(toChatOfferContent(task as unknown as Task).source).toEqual({
+		expect(toChatOfferContent(task).source).toEqual({
 			label: 'ui.notifications.offer.channel',
 			value: 'illia bot',
 		});

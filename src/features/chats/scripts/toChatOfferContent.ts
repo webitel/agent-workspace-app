@@ -1,4 +1,4 @@
-import type { Task } from 'webitel-sdk';
+import type { ChatChannel, RawThreadPreview, Task } from 'webitel-sdk';
 
 import i18n from '../../../app/locale/i18n';
 import {
@@ -8,17 +8,13 @@ import {
 } from '../../../ui/notifications/modules/offers/types/Offer.types';
 import { formatVariableValue } from '../../variables/scripts/formatVariableValue';
 
-type ChatChannel = {
-	name?: string;
-	type?: string;
-};
-
-type ChatDistribute = {
-	communication?: {
-		thread?: {
-			channel?: ChatChannel;
-		};
-	};
+/**
+ * The call-center adds the gateway to the thread it pushes with a chat task,
+ * but the SDK's `RawThreadPreview` does not declare `channel` yet. Drop this
+ * once the SDK does.
+ */
+type ThreadPreviewWithChannel = RawThreadPreview & {
+	channel?: ChatChannel;
 };
 
 /**
@@ -46,18 +42,11 @@ function resolveIdentifier(task: Task): string | undefined {
 	return identifier === resolveName(task) ? undefined : identifier;
 }
 
-/**
- * The call-center payload adds the gateway to the raw distribute event. The
- * current SDK keeps that event on the task but has not exposed its channel in
- * the public Task thread type yet.
- */
 function resolveSource(task: Task): OfferCardContent['source'] {
-	const distribute = (
-		task as unknown as {
-			distribute?: ChatDistribute;
-		}
-	).distribute;
-	const channel = distribute?.communication?.thread?.channel;
+	const thread = task.communication.thread as
+		| ThreadPreviewWithChannel
+		| undefined;
+	const channel = thread?.channel;
 
 	return channel?.name
 		? {
