@@ -311,6 +311,18 @@ watch(hasForm, (value) => {
 	opacity: 0.4;
 }
 
+/* WtTabs has no disabled state: a disabled tab's button would still take the
+   click and the focus, and its focus and hover underline would sit next to the
+   open tab's. Its own label marks it, as the button is the library's. */
+.the-chat-window__tabs :deep(.wt-tab:has(.the-chat-window__tab--disabled)) {
+	pointer-events: none;
+}
+
+.the-chat-window__tabs
+	:deep(.wt-tab:has(.the-chat-window__tab--disabled)::before) {
+	background: transparent;
+}
+
 .the-chat-window__loader,
 .the-chat-window__empty {
 	margin: auto;

@@ -6,8 +6,16 @@
 		:subtitle-label="t('objects.queue.queue')"
 	>
 		<template #leading>
+			<!-- an offered chat rings like the offer card (АС_05.01.03); once
+			     accepted it is a live chat again -->
 			<wt-icon
-				color="success"
+				v-if="isOffered"
+				:color="IconColor.INFO"
+				icon="bell"
+			/>
+			<wt-icon
+				v-else
+				:color="IconColor.SUCCESS"
 				icon="ws-chat-clock"
 			/>
 			<wt-avatar
@@ -79,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { IconColor } from '@webitel/ui-sdk/enums';
 import { eventBus } from '@webitel/ui-sdk/scripts';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
