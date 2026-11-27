@@ -172,6 +172,9 @@ test.describe('call window', () => {
 		await expect(tab(page, 'Post-processing')).toBeVisible();
 		await expect(tab(page, 'Info')).toHaveClass(/wt-tab--highlight/);
 
+		const contentRow = page.locator('.workspace-content-row');
+		const contentHeightInCall = (await contentRow.boundingBox())?.height ?? 0;
+
 		startPostProcessing(socket);
 
 		await expect(tab(page, 'Post-processing')).toHaveClass(/wt-tab--highlight/);
@@ -183,13 +186,22 @@ test.describe('call window', () => {
 		const pill = page.locator('.post-processing-call-bar');
 		await expect(pill).toContainText(/00:[0-5]\d/);
 
+		// the hung-up card floats over the page, it takes no height from it (WS-192)
+		expect(
+			(await contentRow.boundingBox())?.height ?? 0,
+		).toBeGreaterThanOrEqual(contentHeightInCall);
+
 		// in-app, not `goto`: a reload would drop the SDK's call and task
 		await page
 			.locator('.wt-navigation-rail .navigation-rail-button')
 			.nth(2)
 			.click();
 		await expect(page).toHaveURL(/\/chats$/);
-		await pill.click();
+		await pill
+			.getByRole('button', {
+				name: 'Open full view',
+			})
+			.click();
 
 		await expect(page).toHaveURL(new RegExp(`/calls/${CALL_ID}$`));
 		await expect(page.locator('.processing-wrapper input').first()).toHaveValue(

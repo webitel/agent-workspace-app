@@ -143,6 +143,38 @@ export async function mockAppApis(page: Page) {
 			}),
 		});
 	});
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the system settings load at boot; unmocked, the request reaches the real
+	 * instance, which answers 401, and the app redirects to its login. no item
+	 * leaves every setting unset, the same as an instance that never set one
+	 * [WS-192](https://webitel.atlassian.net/browse/WS-192)
+	 */
+	await page.route(
+		(url) => url.pathname.endsWith('/api/settings'),
+		async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					items: [],
+				}),
+			});
+		},
+	);
+	/**
+	 * @author Oleksandr Palonnyi
+	 * the chat account loads at boot and reached the real instance too. a 404
+	 * keeps what the specs ran with so far: the account stays unknown, which the
+	 * chat account store allows, and own messages are told by the user id
+	 * [WS-192](https://webitel.atlassian.net/browse/WS-192)
+	 */
+	await page.route('**/api/v1/auth/token', async (route) => {
+		await route.fulfill({
+			status: 404,
+			body: '',
+		});
+	});
 }
 
 /** Per-action reply bodies; everything unmodelled still gets an empty object. */
