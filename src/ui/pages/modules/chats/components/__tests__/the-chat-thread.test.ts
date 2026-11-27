@@ -58,6 +58,16 @@ vi.mock(
 	}),
 );
 
+const markReadMock = vi.fn();
+vi.mock(
+	'../../../../../../features/chats/modules/previews/store/chat-previews',
+	() => ({
+		useChatPreviewsStore: () => ({
+			markRead: markReadMock,
+		}),
+	}),
+);
+
 const ChatSnoozeButtonStub = {
 	name: 'ChatSnoozeButton',
 	props: [
@@ -202,5 +212,18 @@ describe('the-chat-thread', () => {
 		});
 
 		expect(markRead).toHaveBeenCalledOnce();
+	});
+
+	// the list's unread count follows what the agent has seen
+	it('tells the chat list the chat has been seen', async () => {
+		const wrapper = mountThread();
+		await withThread(wrapper);
+		markReadMock.mockClear();
+
+		await chatThread(wrapper).vm.$emit('seen', {
+			id: 'm1',
+		});
+
+		expect(markReadMock).toHaveBeenCalledWith('chat-1');
 	});
 });

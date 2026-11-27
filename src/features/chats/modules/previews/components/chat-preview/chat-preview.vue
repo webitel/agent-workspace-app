@@ -17,6 +17,12 @@
                 >
                     {{ time }}
                 </time>
+                <!-- the messages the agent has not seen (AC_02.03.03) -->
+                <wt-badge-new
+                    v-if="unreadCount > 0"
+                    :value="unreadCount"
+                    severity="success"
+                />
             </template>
         </client-identity-block>
         <chat-preview-body
@@ -33,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import { WtBadgeNew } from '@webitel/ui-sdk/components';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { type Task } from 'webitel-sdk';
@@ -64,6 +71,10 @@ const preview = computed(() =>
 		previewsStore.lastMessages[threadId.value],
 		accountStore.account,
 	),
+);
+
+const unreadCount = computed(
+	() => previewsStore.unreadByThread[threadId.value] ?? 0,
 );
 
 const time = computed(() => {

@@ -12,7 +12,7 @@ import { expect, test } from './fixtures/test';
  * searchable by the client's name, and the unread control, which has to stay
  * out of sight until the backend says how many unread messages a chat has. Also
  * its tab indicators (US_02.12) and the Snoozed tab (US_02.02), fed by the chat
- * backend's snoozed threads (ADR-0008).
+ * backend's snoozed threads (ADR-0008) and unread chats (ADR-0011).
  */
 
 const firstAttemptId = 200;
@@ -61,6 +61,49 @@ async function snoozeThreads(page: Page, threadIds: string[]) {
 	);
 }
 
+/**
+ * The chat backend says these threads have unread messages, as `unread=true`
+ * answers; `'fail'` makes that read fail.
+ */
+async function unreadThreads(
+	page: Page,
+	threads:
+		| {
+				id: string;
+				unreadCount: number;
+		  }[]
+		| 'fail',
+) {
+	await page.route(
+		(url) =>
+			url.pathname.endsWith('/api/v1/threads') &&
+			url.searchParams.get('unread') === 'true',
+		async (route) => {
+			if (threads === 'fail') {
+				await route.fulfill({
+					status: 500,
+					contentType: 'application/json',
+					body: JSON.stringify({
+						message: 'failed',
+					}),
+				});
+				return;
+			}
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					items: threads.map(({ id, unreadCount }) => ({
+						id,
+						unread_count: unreadCount,
+					})),
+					next: false,
+				}),
+			});
+		},
+	);
+}
+
 async function openChats(page: Page) {
 	await page.route('**/api/v1/*/messages**', async (route) => {
 		await route.fulfill({
@@ -80,6 +123,8 @@ async function openChats(page: Page) {
 		timeout: 30_000,
 	});
 }
+
+const rows = (page: Page) => page.locator('.chat-preview');
 
 test.describe('chat list', () => {
 	test('lists every active chat', async ({ page, socket }) => {
@@ -124,6 +169,39 @@ test.describe('chat list', () => {
 
 		await expect(page.locator('.chat-preview')).toHaveCount(3);
 		await expect(page.locator('.chat-unread-filter')).toHaveCount(0);
+	});
+
+	test('counts the unread messages on the row and the unread chats on the tab', async ({
+		page,
+		socket,
+	}) => {
+		await unreadThreads(page, [
+			{
+				id: 'e2e-thread-1',
+				unreadCount: 3,
+			},
+			{
+				id: 'e2e-thread-2',
+				unreadCount: 1,
+			},
+		]);
+		await openChats(page);
+
+		acceptChats(socket, 3);
+
+		await expect(rows(page)).toHaveCount(3);
+		await expect(rows(page).nth(1).locator('.wt-badge')).toHaveText('3');
+		await expect(rows(page).nth(0).locator('.wt-badge')).toHaveCount(0);
+		await expect(
+			page
+				.locator('.chat-list-tabs .wt-tab', {
+					hasText: 'Active',
+				})
+				.locator('.wt-badge'),
+		).toHaveText([
+			'3',
+			'2',
+		]);
 	});
 
 	test.describe('tabs', () => {

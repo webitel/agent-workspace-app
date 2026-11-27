@@ -16,6 +16,7 @@ vi.mock('../../../../../store/chats', () => ({
 
 const previewsStore = {
 	lastMessages: {} as Record<string, unknown>,
+	unreadByThread: {} as Record<string, number>,
 };
 vi.mock('../../../store/chat-previews', () => ({
 	useChatPreviewsStore: () => previewsStore,
@@ -80,7 +81,30 @@ describe('chat-preview', () => {
 				},
 			},
 		};
+		previewsStore.unreadByThread = {};
 		accountStore.account = account;
+	});
+
+	describe('unread counter', () => {
+		it('shows the number of messages the agent has not seen', () => {
+			previewsStore.unreadByThread = {
+				t1: 4,
+			};
+
+			expect(mountPreview().find('.wt-badge').attributes('value')).toBe('4');
+		});
+
+		it('is absent when everything has been seen', () => {
+			previewsStore.unreadByThread = {
+				t1: 0,
+			};
+
+			expect(mountPreview().find('.wt-badge').exists()).toBe(false);
+		});
+
+		it('is absent while nothing is known of the chat', () => {
+			expect(mountPreview().find('.wt-badge').exists()).toBe(false);
+		});
 	});
 
 	it('shows who the client is, the last message and the queue', () => {
