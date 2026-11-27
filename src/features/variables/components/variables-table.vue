@@ -31,7 +31,7 @@
 			@sort="handleSort"
 		>
 			<template #key="{ item }">
-				<span class="variables-table__cell typo-body-1-bold">
+				<span class="variables-table__cell ws-typo-body-1-bold">
 					{{ item.key }}
 				</span>
 			</template>

@@ -5,7 +5,7 @@
 			:icon="item.icon"
 			:size="ComponentSize.SM"
 		/>
-		<span class="contact-card-communication-item__value typo-body-1-bold">
+		<span class="contact-card-communication-item__value ws-typo-body-1-bold">
 			{{ item.value }}
 		</span>
 		<!-- per-tab actions, filled by the section (AC_07.07.05) -->

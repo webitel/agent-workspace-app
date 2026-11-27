@@ -5,7 +5,7 @@
 				:size="ComponentSize.SM"
 				:username="name"
 			/>
-			<span class="contact-card-header__name typo-body-2-bold">{{ name }}</span>
+			<span class="contact-card-header__name ws-typo-body-2-bold">{{ name }}</span>
 		</div>
 
 		<template v-if="labels.length">

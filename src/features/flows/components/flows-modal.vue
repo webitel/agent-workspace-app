@@ -19,7 +19,7 @@
 					>
 						<wt-divider v-if="index !== 0" />
 						<li class="flow-item">
-							<span class="flow-item__name typo-body-2">
+							<span class="flow-item__name ws-typo-body-2">
 								{{ flow.name }}
 							</span>
 							<run-flow-button

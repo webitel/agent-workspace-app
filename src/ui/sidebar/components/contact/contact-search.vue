@@ -1,6 +1,6 @@
 <template>
 	<div class="contact-search">
-		<p class="contact-search__title typo-body-2-bold">
+		<p class="contact-search__title ws-typo-body-2-bold">
 			{{ t('ui.sidebar.contact.search.title') }}
 		</p>
 		<wt-search-bar

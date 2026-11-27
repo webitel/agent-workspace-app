@@ -15,7 +15,7 @@
 				v-if="content.answeredAt"
 				#aside
 			>
-				<span class="outbound-call-info-panel__timer typo-heading-6">
+				<span class="outbound-call-info-panel__timer ws-typo-heading-6">
 					{{ duration }}
 				</span>
 			</template>

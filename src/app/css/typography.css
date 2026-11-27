@@ -2,17 +2,49 @@
 
 /**
  * @author Oleksandr Palonnyi
- * Overrides the `typo-*` classes of `@webitel/styleguide` with the new Work Sans
- * typography from the "New-WorkSpace" Figma file (Typography section, node 7854:49976),
- * until the styleguide ships it. Same layer as the library's, so PrimeVue and
- * component styles keep winning over it. Work Sans has no Cyrillic glyphs, so
- * Montserrat (loaded by the styleguide) stays as the per-glyph fallback.
+ * The new Work Sans typography from the "New-WorkSpace" Figma file (Typography
+ * section, node 7854:49976), until the styleguide ships it. The app's classes are
+ * `ws-typo-*`, not the styleguide's `typo-*`: `wt-*` components carry `typo-*` in
+ * their own templates (`wt-label` is `typo-subtitle-2`), and the Figma tokens of the
+ * same name have other sizes, so redefining `typo-*` resized every library
+ * component. Same layer as the library's, so PrimeVue and component styles keep
+ * winning over it. Work Sans has no Cyrillic glyphs, so Montserrat (loaded by the
+ * styleguide) stays as the per-glyph fallback.
  * Remove this file, `fonts.css` and `assets/fonts/work-sans` once the styleguide
  * carries the same tokens.
  * [WTEL-WS-95](https://webitel.atlassian.net/browse/WTEL-WS-95)
+ * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
  */
 @layer wt-typography {
-	.typo-heading-1 {
+	/**
+	 * @author Oleksandr Palonnyi
+	 * Only the font of the styleguide's own classes changes, so `wt-*` components
+	 * render in Work Sans and keep the sizes, weights and line heights the design
+	 * gives them. Declared after the styleguide in the same layer, so it wins on
+	 * `font-family` alone.
+	 * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
+	 */
+	:is(
+		.typo-heading-1,
+		.typo-heading-2,
+		.typo-heading-3,
+		.typo-heading-4,
+		.typo-subtitle-1,
+		.typo-subtitle-2,
+		.typo-body-1,
+		.typo-body-1-bold,
+		.typo-body-2,
+		.typo-body-2-bold,
+		.typo-button--md,
+		.typo-button--sm,
+		.typo-caption,
+		.typo-caption-bold,
+		.typo-overline
+	) {
+		font-family: "Work Sans", "Montserrat", sans-serif;
+	}
+
+	.ws-typo-heading-1 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 40px;
 		font-weight: 600;
@@ -22,7 +54,7 @@
 		text-transform: none;
 	}
 
-	.typo-heading-2 {
+	.ws-typo-heading-2 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 32px;
 		font-weight: 600;
@@ -32,7 +64,7 @@
 		text-transform: none;
 	}
 
-	.typo-heading-3 {
+	.ws-typo-heading-3 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 24px;
 		font-weight: 600;
@@ -42,7 +74,7 @@
 		text-transform: none;
 	}
 
-	.typo-heading-4 {
+	.ws-typo-heading-4 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 20px;
 		font-weight: 600;
@@ -52,7 +84,7 @@
 		text-transform: none;
 	}
 
-	.typo-heading-5 {
+	.ws-typo-heading-5 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 18px;
 		font-weight: 600;
@@ -62,7 +94,7 @@
 		text-transform: none;
 	}
 
-	.typo-heading-6 {
+	.ws-typo-heading-6 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 16px;
 		font-weight: 600;
@@ -72,7 +104,7 @@
 		text-transform: none;
 	}
 
-	.typo-subtitle-1 {
+	.ws-typo-subtitle-1 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 14px;
 		font-weight: 400;
@@ -82,7 +114,7 @@
 		text-transform: none;
 	}
 
-	.typo-subtitle-2 {
+	.ws-typo-subtitle-2 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 16px;
 		font-weight: 400;
@@ -92,7 +124,7 @@
 		text-transform: none;
 	}
 
-	.typo-body-1 {
+	.ws-typo-body-1 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 12px;
 		font-weight: 300;
@@ -102,7 +134,7 @@
 		text-transform: none;
 	}
 
-	.typo-body-1-bold {
+	.ws-typo-body-1-bold {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 12px;
 		font-weight: 600;
@@ -112,7 +144,7 @@
 		text-transform: none;
 	}
 
-	.typo-body-2 {
+	.ws-typo-body-2 {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 14px;
 		font-weight: 300;
@@ -122,7 +154,7 @@
 		text-transform: none;
 	}
 
-	.typo-body-2-bold {
+	.ws-typo-body-2-bold {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 14px;
 		font-weight: 600;
@@ -132,7 +164,7 @@
 		text-transform: none;
 	}
 
-	.typo-caption {
+	.ws-typo-caption {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 12px;
 		font-style: italic;
@@ -143,7 +175,7 @@
 		text-transform: none;
 	}
 
-	.typo-caption-bold {
+	.ws-typo-caption-bold {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 12px;
 		font-style: italic;
@@ -154,7 +186,7 @@
 		text-transform: none;
 	}
 
-	.typo-overline {
+	.ws-typo-overline {
 		font-family: "Work Sans", "Montserrat", sans-serif;
 		font-size: 12px;
 		font-weight: 400;

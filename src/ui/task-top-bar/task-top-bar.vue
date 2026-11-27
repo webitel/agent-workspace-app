@@ -4,7 +4,7 @@
 			<slot name="leading" />
 			<div class="task-top-bar__info">
 				<span class="task-top-bar__name-line">
-					<span class="task-top-bar__name typo-body-2-bold">
+					<span class="task-top-bar__name ws-typo-body-2-bold">
 						{{ name || t('ui.reusable.unknownContact') }}
 					</span>
 					<slot name="name-append" />
@@ -15,11 +15,11 @@
 				>
 					<span
 						v-if="subtitleLabel"
-						class="task-top-bar__subtitle-label typo-caption-bold"
+						class="task-top-bar__subtitle-label ws-typo-caption-bold"
 					>
 						{{ subtitleLabel }}:
 					</span>
-					<span class="task-top-bar__subtitle-value typo-caption">
+					<span class="task-top-bar__subtitle-value ws-typo-caption">
 						{{ subtitle }}
 					</span>
 				</span>

@@ -6,10 +6,10 @@
 			alt=""
 		/>
 		<div class="empty-state-block__info">
-			<h3 class="empty-state-block__title typo-heading-4">
+			<h3 class="empty-state-block__title ws-typo-heading-4">
 				{{ title }}
 			</h3>
-			<p class="empty-state-block__text typo-body-1">
+			<p class="empty-state-block__text ws-typo-body-1">
 				{{ text }}
 			</p>
 		</div>

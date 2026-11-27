@@ -12,7 +12,7 @@
 			class="floating-call-widget__avatar"
 		/>
 
-		<span class="floating-call-widget__timer typo-body-1">
+		<span class="floating-call-widget__timer ws-typo-body-1">
 			{{ displayedTime }}
 		</span>
 

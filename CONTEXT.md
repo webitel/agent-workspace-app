@@ -96,7 +96,7 @@ and should not be carried over wholesale.
 - [ADR-0024](docs/adr/0024-work-sans-typography-override.md) — the new Work Sans
   typography overrides the styleguide's `typo-*` classes locally until the
   styleguide ships it, keeps the old class names, and falls back to Montserrat
-  for Cyrillic.
+  for Cyrillic. Superseded by ADR-0031.
 - [ADR-0025](docs/adr/0025-handed-over-call-is-a-hung-up-call.md) — a call the
   agent transferred away is an ordinary hung-up call, not a status of its own;
   the SDK marks it so about 0.5 s after a blind transfer, which ends the
@@ -108,6 +108,9 @@ and should not be carried over wholesale.
 - [ADR-0030](docs/adr/0030-one-locale-key-per-meaning.md) — one locale key per
   meaning: a text ui-sdk already translates is read from ui-sdk, one shared in
   the app is one key, and a test with reasoned allow-lists keeps it that way.
+- [ADR-0031](docs/adr/0031-app-typography-classes-are-ws-typo.md) — the app's
+  Work Sans typography classes are `ws-typo-*`, and the styleguide's `typo-*`,
+  which `wt-*` components use, only get the Work Sans font and keep their sizes.
 
 ## Language
 

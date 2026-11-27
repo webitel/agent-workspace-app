@@ -114,8 +114,8 @@ describe('outbound-call-card', () => {
 
 		const description = wrapper.find('.outbound-call-card__no-answer-text');
 
-		expect(description.classes()).toContain('typo-body-1');
-		expect(description.classes()).not.toContain('typo-caption');
+		expect(description.classes()).toContain('ws-typo-body-1');
+		expect(description.classes()).not.toContain('ws-typo-caption');
 	});
 
 	it('closes from the no answer state', async () => {

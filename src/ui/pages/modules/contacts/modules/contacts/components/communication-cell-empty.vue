@@ -4,7 +4,7 @@
 			:icon="icon"
 			:color="IconColor.DISABLED"
 		/>
-		<span class="typo-body-2">{{ text }}</span>
+		<span class="ws-typo-body-2">{{ text }}</span>
 	</div>
 </template>
 

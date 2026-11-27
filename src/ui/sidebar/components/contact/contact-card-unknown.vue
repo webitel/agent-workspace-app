@@ -4,7 +4,7 @@
 			:size="ComponentSize.SM"
 			:src="unknownContactAvatar"
 		/>
-		<p class="contact-card-unknown__name typo-body-2-bold">
+		<p class="contact-card-unknown__name ws-typo-body-2-bold">
 			{{ t('ui.reusable.unknownContact') }}
 		</p>
 	</div>

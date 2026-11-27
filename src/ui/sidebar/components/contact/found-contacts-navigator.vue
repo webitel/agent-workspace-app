@@ -8,7 +8,7 @@
 			:size="ComponentSize.SM"
 			@click="emit('prev')"
 		/>
-		<span class="found-contacts-navigator__label typo-body-2-bold">
+		<span class="found-contacts-navigator__label ws-typo-body-2-bold">
 			{{
 				t('ui.sidebar.contact.contactPosition', {
 					current: props.position,

@@ -5,10 +5,10 @@
 			:key="field.key"
 			class="communication-info-fields__field"
 		>
-			<dt class="communication-info-fields__label typo-caption-bold">
+			<dt class="communication-info-fields__label ws-typo-caption-bold">
 				{{ field.label }}:
 			</dt>
-			<dd class="communication-info-fields__value typo-caption">
+			<dd class="communication-info-fields__value ws-typo-caption">
 				<!-- a field's value can be replaced by its own slot, e.g. #value-from -->
 				<slot
 					:name="`value-${field.key}`"

@@ -3,7 +3,7 @@
 		<div class="processing-wrapper__content wt-scrollbar">
 			<header
 				v-if="$slots.title"
-				class="processing-wrapper__header typo-heading-2"
+				class="processing-wrapper__header ws-typo-heading-2"
 			>
 				<slot name="title" />
 			</header>

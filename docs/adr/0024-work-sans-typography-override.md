@@ -4,7 +4,9 @@ Date: 2026-11-18
 
 ## Status
 
-Accepted, temporary. Source: the Typography section of the "New-WorkSpace"
+Superseded by [ADR-0031](0031-app-typography-classes-are-ws-typo.md): the app's
+classes are now `ws-typo-*`, and the styleguide's `typo-*` change their font only.
+Was: accepted, temporary. Source: the Typography section of the "New-WorkSpace"
 Figma file (node 7854:49976).
 
 ## Context

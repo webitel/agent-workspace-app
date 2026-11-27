@@ -22,14 +22,14 @@
 			/>
 			<span
 				v-if="preview.name"
-				class="outbound-call-card__name typo-body-2-bold"
+				class="outbound-call-card__name ws-typo-body-2-bold"
 			>
 				{{ preview.name }}
 			</span>
 		</div>
 
 		<div class="outbound-call-card__destination">
-			<span class="outbound-call-card__number typo-heading-4">
+			<span class="outbound-call-card__number ws-typo-heading-4">
 				{{ preview.number }}
 			</span>
 			<wt-chip :color="statusChipColor">
@@ -52,7 +52,7 @@
 						aria-hidden="true"
 					/>
 				</div>
-				<p class="outbound-call-card__no-answer-text typo-body-1">
+				<p class="outbound-call-card__no-answer-text ws-typo-body-1">
 					{{ t('ui.call.outboundCall.noAnswerDescription') }}
 				</p>
 			</template>

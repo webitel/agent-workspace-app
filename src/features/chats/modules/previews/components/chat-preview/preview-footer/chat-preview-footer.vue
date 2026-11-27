@@ -1,10 +1,10 @@
 <template>
     <p
-        class="chat-preview-footer typo-caption"
+        class="chat-preview-footer ws-typo-caption"
         :title="queueName"
     >
         <span class="chat-preview-footer__text">
-            <span class="typo-caption-bold">
+            <span class="ws-typo-caption-bold">
                 {{ t('objects.queue.queue', 1) }}:
             </span>
             {{ queueName }}

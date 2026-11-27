@@ -7,13 +7,13 @@
 			/>
 
 			<div class="call-dock__identity-info">
-				<span class="call-dock__identity-name typo-body-2-bold">
+				<span class="call-dock__identity-name ws-typo-body-2-bold">
 					{{ preview.name || t('ui.reusable.unknownContact') }}
 				</span>
 
 				<span
 					v-if="preview.number"
-					class="call-dock__identity-number typo-caption"
+					class="call-dock__identity-number ws-typo-caption"
 				>
 					{{ preview.number }}
 				</span>
@@ -37,9 +37,9 @@
 
 		<p
 			v-if="preview.queueName"
-			class="call-dock__queue typo-caption"
+			class="call-dock__queue ws-typo-caption"
 		>
-			<span class="typo-caption-bold">
+			<span class="ws-typo-caption-bold">
 				{{ t('objects.queue.queue') }}:
 			</span>
 			{{ preview.queueName }}

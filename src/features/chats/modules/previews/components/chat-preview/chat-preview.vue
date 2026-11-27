@@ -13,7 +13,7 @@
             <template #aside>
                 <time
                     v-if="time"
-                    class="chat-preview__time typo-caption"
+                    class="chat-preview__time ws-typo-caption"
                 >
                     {{ time }}
                 </time>

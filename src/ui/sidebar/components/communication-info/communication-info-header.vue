@@ -13,12 +13,12 @@
 			/>
 		</span>
 		<div class="communication-info-header__heading">
-			<span class="communication-info-header__title typo-body-1-bold">
+			<span class="communication-info-header__title ws-typo-body-1-bold">
 				{{ title }}
 			</span>
 			<span
 				v-if="slots.subtitle"
-				class="communication-info-header__subtitle typo-body-1"
+				class="communication-info-header__subtitle ws-typo-body-1"
 			>
 				<slot name="subtitle" />
 			</span>

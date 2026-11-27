@@ -1,11 +1,11 @@
 <template>
 	<div class="post-processing-timer">
-		<span class="post-processing-timer__label typo-body-1-bold">
+		<span class="post-processing-timer__label ws-typo-body-1-bold">
 			{{ t('ui.processing.postProcessing.title') }}
 		</span>
 		<span
 			:class="`post-processing-timer__time--${tone}`"
-			class="post-processing-timer__time typo-body-2-bold"
+			class="post-processing-timer__time ws-typo-body-2-bold"
 		>
 			{{ timeLeft }}
 		</span>

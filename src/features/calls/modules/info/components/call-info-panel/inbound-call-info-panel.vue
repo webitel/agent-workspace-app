@@ -15,7 +15,7 @@
 				v-if="content.answeredAt"
 				#aside
 			>
-				<span class="inbound-call-info-panel__timer typo-heading-6">
+				<span class="inbound-call-info-panel__timer ws-typo-heading-6">
 					{{ duration }}
 				</span>
 			</template>
@@ -23,7 +23,7 @@
 				v-else-if="content.isRinging"
 				#aside
 			>
-				<span class="inbound-call-info-panel__status typo-heading-6">
+				<span class="inbound-call-info-panel__status ws-typo-heading-6">
 					{{ t('ui.call.ringing') }}
 				</span>
 			</template>

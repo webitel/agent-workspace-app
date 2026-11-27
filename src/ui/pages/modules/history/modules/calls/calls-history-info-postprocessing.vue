@@ -6,7 +6,7 @@
 		>
 			<div
 				v-if="section.agent"
-				class="calls-history-info-postprocessing__agent typo-body-2-bold"
+				class="calls-history-info-postprocessing__agent ws-typo-body-2-bold"
 			>
 				<wt-icon icon="agent" />
 				{{ section.agent.name }}
@@ -17,8 +17,8 @@
 				:key="field.key"
 			>
 				<wt-divider v-if="index" />
-				<p class="calls-history-info-postprocessing__field typo-body-2">
-					<span class="typo-body-2-bold">{{ field.key }}:</span>
+				<p class="calls-history-info-postprocessing__field ws-typo-body-2">
+					<span class="ws-typo-body-2-bold">{{ field.key }}:</span>
 					{{ field.value }}
 				</p>
 			</template>

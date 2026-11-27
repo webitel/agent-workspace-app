@@ -13,7 +13,7 @@
         </div>
         <div class="client-identity-block__info">
             <div class="client-identity-block__name-row">
-                <p class="client-identity-block__name typo-body-1-bold">
+                <p class="client-identity-block__name ws-typo-body-1-bold">
                     {{ name || t('ui.reusable.unknownContact') }}
                 </p>
                 <!-- identification can match several contacts; this is the remainder -->
@@ -34,13 +34,13 @@
             <p
                 v-if="identifier"
                 class="client-identity-block__identifier"
-                :class="size === 'lg' ? 'typo-body-1' : 'typo-caption'"
+                :class="size === 'lg' ? 'ws-typo-body-1' : 'ws-typo-caption'"
             >
                 {{ identifier }}
             </p>
             <p
                 v-if="channel"
-                class="client-identity-block__channel typo-caption"
+                class="client-identity-block__channel ws-typo-caption"
                 :title="channel.value"
             >
                 <wt-icon

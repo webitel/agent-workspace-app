@@ -1,5 +1,5 @@
 <template>
-    <p class="offer-last-message typo-body-1">
+    <p class="offer-last-message ws-typo-body-1">
         {{ text }}
     </p>
 </template>

@@ -18,7 +18,7 @@
 			</template>
 
 			<template #option="{ icon, text }">
-				<div class="calls-history-row-actions__option typo-body-2">
+				<div class="calls-history-row-actions__option ws-typo-body-2">
 					<wt-icon :icon="icon" />
 					{{ text }}
 				</div>

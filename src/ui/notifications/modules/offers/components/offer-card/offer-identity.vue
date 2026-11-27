@@ -5,7 +5,7 @@
             size="lg"
         />
         <div class="offer-identity__name-row">
-            <p class="offer-identity__name typo-body-1-bold">
+            <p class="offer-identity__name ws-typo-body-1-bold">
                 {{ name || t('ui.reusable.unknownContact') }}
             </p>
             <!-- identification can match several contacts; this is the remainder -->
@@ -18,7 +18,7 @@
         </div>
         <p
             v-if="identifier"
-            class="offer-identity__identifier typo-body-1"
+            class="offer-identity__identifier ws-typo-body-1"
         >
             {{ identifier }}
         </p>

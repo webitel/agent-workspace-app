@@ -9,7 +9,7 @@
             size="xs"
             :username="sender === 'client' ? name : undefined"
         />
-        <p class="chat-preview-body__text typo-body-1">
+        <p class="chat-preview-body__text ws-typo-body-1">
             {{ text }}
         </p>
     </div>

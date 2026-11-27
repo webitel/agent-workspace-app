@@ -1,6 +1,6 @@
 <template>
 	<section class="contact-card-communication">
-		<div class="typo-body-1-bold">
+		<div class="ws-typo-body-1-bold">
 			{{ t('ui.sidebar.contact.communicationOptions') }}
 		</div>
 

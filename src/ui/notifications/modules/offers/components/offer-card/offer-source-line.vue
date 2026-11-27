@@ -1,6 +1,6 @@
 <template>
     <p
-        class="offer-source-line typo-caption"
+        class="offer-source-line ws-typo-caption"
         :title="source.value"
     >
         <wt-icon
