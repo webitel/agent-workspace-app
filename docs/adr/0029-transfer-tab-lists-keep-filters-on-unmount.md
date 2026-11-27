@@ -51,8 +51,9 @@ remount from showing the last list while that load runs.
 
 - A remount loading at all relies on `addFilter` always replacing the filter
   object. If ui-datalist ever skips a replacement with the same value, a remount
-  with an unchanged search loads nothing. The unit tests mock the store and
-  cannot catch that.
+  with an unchanged search loads nothing. The tables' unit tests run on the
+  real store with only the API mocked, so a ui-datalist update that changes
+  this fails them.
 - A request still in flight when the list unmounts lands in the cleared rows.
   The next mount's load replaces it unless it is the slower one, the same
   last-answer-wins gap ADR-0016 leaves open.
