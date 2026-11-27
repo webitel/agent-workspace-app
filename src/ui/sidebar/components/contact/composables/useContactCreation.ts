@@ -46,6 +46,11 @@ const loadDefaultCommunicationTypes = async (
 	};
 };
 
+export interface UseContactCreationReturn {
+	isSaving: Ref<boolean>;
+	createContact: (draft: NewContactDraft) => Promise<string | null>;
+}
+
 /**
  * @author Oleksandr Palonnyi
  * Saves a contact from the create form and returns its id, or null when
@@ -55,10 +60,7 @@ const loadDefaultCommunicationTypes = async (
  * it. A repeated SAVE while one is in flight is ignored
  * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
  */
-export function useContactCreation(): {
-	isSaving: Ref<boolean>;
-	createContact: (draft: NewContactDraft) => Promise<string | null>;
-} {
+export function useContactCreation(): UseContactCreationReturn {
 	const isSaving = ref(false);
 
 	const createContact = async (

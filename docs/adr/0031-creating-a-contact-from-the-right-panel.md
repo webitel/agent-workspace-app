@@ -94,8 +94,8 @@ rule CRM and the card's add form use. A phone has no format rule there either.
 
 ## Consequences
 
-- A contact created during a call whose link fails stays in CRM unlinked. The
-  agent can find it with the panel's search and SELECT it.
+- If the link fails, the contact is still created, but it is not linked to the
+  call. The agent can find it with the panel's search and SELECT it.
 - The saving state belongs to the call panel, not to one call. If an agent
   starts a save on one call, opens another and opens the form there, SAVE there
   waits for the first save.

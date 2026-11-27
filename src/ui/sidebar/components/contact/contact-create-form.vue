@@ -8,6 +8,7 @@
 				v-model="draft.name"
 				:label="t('reusable.name')"
 				:regle-validation="r$.$fields.name"
+				required
 			/>
 			<wt-input-text
 				v-model="draft.phoneNumber"

@@ -22,6 +22,7 @@ const { fieldStub } = vi.hoisted(() => ({
 			modelValue: null,
 			label: String,
 			placeholder: String,
+			required: Boolean,
 			regleValidation: Object,
 			searchMethod: Function,
 			allowCustomValues: Boolean,
@@ -130,6 +131,18 @@ describe('contact-create-form', () => {
 			'vocabulary.description',
 		]) {
 			expect(fieldLabeled(wrapper, label).exists()).toBe(true);
+		}
+	});
+
+	it('marks the name, and only the name, as required', () => {
+		const wrapper = mountForm();
+
+		expect(fieldLabeled(wrapper, 'reusable.name').props('required')).toBe(true);
+		for (const label of [
+			'ui.reusable.phoneNumber',
+			'vocabulary.emails',
+		]) {
+			expect(fieldLabeled(wrapper, label).props('required')).toBe(false);
 		}
 	});
 
