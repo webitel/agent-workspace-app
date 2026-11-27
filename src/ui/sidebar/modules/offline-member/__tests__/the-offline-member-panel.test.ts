@@ -1,5 +1,6 @@
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, toValue } from 'vue';
@@ -9,8 +10,9 @@ import ContactPanelEmpty from '../../../components/contact/contact-panel-empty.v
 import SidebarSectionHeader from '../../../components/sidebar-section-header.vue';
 import { useSidebarSelectionStore } from '../../../store/sidebar-selection';
 
-const contactIds = ref<string[]>([]);
+const contacts = ref<WebitelContactsContact[]>([]);
 const isLoading = ref(false);
+const reloadContact = vi.fn();
 let searchedNumber: () => string | undefined = () => undefined;
 
 vi.mock(
@@ -21,8 +23,9 @@ vi.mock(
 		) => {
 			searchedNumber = () => toValue(phoneNumber);
 			return {
-				contactIds,
+				contacts,
 				isLoading,
+				reloadContact,
 			};
 		},
 	}),
@@ -56,7 +59,7 @@ describe('the-offline-member-panel', () => {
 				stubActions: false,
 			}),
 		);
-		contactIds.value = [];
+		contacts.value = [];
 		isLoading.value = false;
 	});
 
@@ -91,43 +94,59 @@ describe('the-offline-member-panel', () => {
 
 	it('shows the found contact with the Profile title', async () => {
 		const wrapper = mountPanel();
-		contactIds.value = [
-			'15',
+		contacts.value = [
+			{
+				id: '15',
+			},
 		];
 
 		await selectMember('380501112233');
 
 		expect(
-			wrapper.findComponent(ContactIdentification).props('contactIds'),
+			wrapper.findComponent(ContactIdentification).props('contacts'),
 		).toEqual([
-			'15',
+			{
+				id: '15',
+			},
 		]);
 		expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
 	});
 
 	it('leaves several found contacts to the identification, under the Profile title', async () => {
 		const wrapper = mountPanel();
-		contactIds.value = [
-			'15',
-			'16',
+		contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		];
 
 		await selectMember('380501112233');
 
 		expect(
-			wrapper.findComponent(ContactIdentification).props('contactIds'),
+			wrapper.findComponent(ContactIdentification).props('contacts'),
 		).toEqual([
-			'15',
-			'16',
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		]);
 		expect(getTitle(wrapper)).toBe('ui.sidebar.contact.profile');
 	});
 
 	it('offers no SELECT: there is no call to link a contact to', async () => {
 		const wrapper = mountPanel();
-		contactIds.value = [
-			'15',
-			'16',
+		contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		];
 
 		await selectMember('380501112233');
@@ -156,5 +175,22 @@ describe('the-offline-member-panel', () => {
 
 		expect(wrapper.findComponent(ContactPanelEmpty).exists()).toBe(true);
 		expect(searchedNumber()).toBeUndefined();
+	});
+
+	it('reloads the found contact the card changed (WS-186)', async () => {
+		const wrapper = mountPanel();
+		contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
+		];
+		await selectMember('380501112233');
+
+		wrapper.findComponent(ContactIdentification).vm.$emit('changed', '16');
+
+		expect(reloadContact).toHaveBeenCalledWith('16');
 	});
 });

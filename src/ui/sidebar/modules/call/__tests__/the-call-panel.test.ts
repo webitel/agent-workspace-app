@@ -1,4 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
+import { ContactsAPI } from '@webitel/api-services/api';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, toRaw } from 'vue';
 import { type Call, CallActions, CallDirection } from 'webitel-sdk';
@@ -26,11 +28,29 @@ vi.mock(
 	}),
 );
 
+vi.mock('@webitel/api-services/api', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@webitel/api-services/api')>()),
+	ContactsAPI: {
+		get: vi.fn(),
+	},
+}));
+
+const getContact = vi.mocked(ContactsAPI.get);
+
+const createdContact: WebitelContactsContact = {
+	id: '42',
+	name: {
+		commonName: 'Jane Doe',
+	},
+};
+
 const identification = {
-	contactIds: ref<string[]>([]),
+	contacts: ref<WebitelContactsContact[]>([]),
 	isLoading: ref(false),
 	isContactHidden: ref(false),
+	isLinkedContactUnavailable: ref(false),
 	selectContact: vi.fn(),
+	reloadContact: vi.fn(),
 };
 let identifiedCall: (() => Call) | undefined;
 
@@ -49,12 +69,14 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 	default: {
 		name: 'ContactIdentification',
 		props: [
-			'contactIds',
+			'contacts',
 			'isLoading',
+			'isLinkedContactUnavailable',
 			'canSelect',
 		],
 		emits: [
 			'select',
+			'changed',
 		],
 		template:
 			'<div class="contact-identification-stub"><slot name="actions" /></div>',
@@ -154,13 +176,16 @@ const findCreateButton = (wrapper: ReturnType<typeof mountPanel>) =>
 
 describe('the-call-panel', () => {
 	beforeEach(() => {
-		identification.contactIds.value = [];
+		identification.contacts.value = [];
 		identification.isLoading.value = false;
 		identification.isContactHidden.value = false;
+		identification.isLinkedContactUnavailable.value = false;
 		identifiedCall = undefined;
 		identification.selectContact.mockClear();
 		creation.isSaving.value = false;
 		creation.createContact.mockReset();
+		getContact.mockReset();
+		getContact.mockResolvedValue(createdContact);
 	});
 
 	it('shows the info of the given call', () => {
@@ -188,19 +213,38 @@ describe('the-call-panel', () => {
 	it('passes the identification result to the block', async () => {
 		const wrapper = mountPanel();
 
-		identification.contactIds.value = [
-			'15',
-			'16',
+		identification.contacts.value = [
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		];
 		identification.isLoading.value = true;
 		await nextTick();
 
 		const block = findIdentification(wrapper);
-		expect(block.props('contactIds')).toEqual([
-			'15',
-			'16',
+		expect(block.props('contacts')).toEqual([
+			{
+				id: '15',
+			},
+			{
+				id: '16',
+			},
 		]);
 		expect(block.props('isLoading')).toBe(true);
+	});
+
+	it('tells the block the linked contact failed to load (WS-186)', async () => {
+		const wrapper = mountPanel();
+
+		identification.isLinkedContactUnavailable.value = true;
+		await nextTick();
+
+		expect(
+			findIdentification(wrapper).props('isLinkedContactUnavailable'),
+		).toBe(true);
 	});
 
 	it('shows neither the block nor CREATE when the contact is hidden', () => {
@@ -307,6 +351,14 @@ describe('the-call-panel', () => {
 		expect(identification.selectContact).toHaveBeenCalledWith('16');
 	});
 
+	it('reloads the contact the card changed in the block (WS-186)', () => {
+		const wrapper = mountPanel();
+
+		findIdentification(wrapper).vm.$emit('changed', '16');
+
+		expect(identification.reloadContact).toHaveBeenCalledWith('16');
+	});
+
 	it('heads the create form with Add contacts', async () => {
 		const wrapper = mountPanel();
 
@@ -324,7 +376,23 @@ describe('the-call-panel', () => {
 		await flushPromises();
 
 		expect(creation.createContact).toHaveBeenCalledWith(draft);
-		expect(identification.selectContact).toHaveBeenCalledWith('42');
+		expect(getContact).toHaveBeenCalledWith({
+			itemId: '42',
+		});
+		expect(identification.selectContact).toHaveBeenCalledWith(createdContact);
+		expect(findCreateForm(wrapper).exists()).toBe(false);
+	});
+
+	it('leaves the created contact unlinked and closes the form when it fails to load', async () => {
+		creation.createContact.mockResolvedValue('42');
+		getContact.mockRejectedValueOnce(new Error('500'));
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await flushPromises();
+
+		expect(identification.selectContact).not.toHaveBeenCalled();
 		expect(findCreateForm(wrapper).exists()).toBe(false);
 	});
 

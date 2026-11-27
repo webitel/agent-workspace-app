@@ -102,6 +102,7 @@ export default {
 					offline: 'Ngoại tuyến',
 					selfAssigned: 'Tự gán',
 				},
+				searchByNumber: 'Tìm theo số',
 				tabs: {
 					iframe: 'iFrame',
 				},

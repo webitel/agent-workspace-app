@@ -7,7 +7,7 @@
 			@submit="saveContact"
 			@cancel="closeCreateForm"
 		/>
-		<contact-card
+		<contact-card-by-id
 			v-else-if="contactId"
 			:contact-id="contactId"
 		/>
@@ -35,7 +35,7 @@ import { useRoute } from 'vue-router';
 import { ContactsPageTab } from '../../../pages/modules/contacts/enums/ContactsPageTab.enum';
 import { useContactsDataListStore } from '../../../pages/modules/contacts/modules/contacts/store/contacts';
 import { useContactCreation } from '../../components/contact/composables/useContactCreation';
-import ContactCard from '../../components/contact/contact-card.vue';
+import ContactCardById from '../../components/contact/contact-card-by-id.vue';
 import ContactCardUnknown from '../../components/contact/contact-card-unknown.vue';
 import type { NewContactDraft } from '../../components/contact/contact-create-form.types';
 import ContactCreateForm from '../../components/contact/contact-create-form.vue';

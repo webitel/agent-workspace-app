@@ -11,12 +11,14 @@
 		</template>
 		<template v-else-if="!isContactHidden">
 			<contact-identification
-				:contact-ids="contactIds"
+				:contacts="contacts"
 				:is-loading="isLoading"
+				:is-linked-contact-unavailable="isLinkedContactUnavailable"
 				:can-select="isCallActive"
 				:can-search="isCallActive"
 				:is-search-active="isSearchActive"
 				@select="selectContact"
+				@changed="reloadContact"
 				@search="search"
 				@cancel-search="cancelSearch"
 			>
@@ -34,6 +36,8 @@
 </template>
 
 <script setup lang="ts">
+import { ContactsAPI } from '@webitel/api-services/api';
+import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { WtButton } from '@webitel/ui-sdk/components';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -57,11 +61,13 @@ const { t } = useI18n();
 const content = computed(() => toCallInfoPanelContent(props.call));
 
 const {
-	contactIds,
+	contacts,
 	isLoading,
 	isContactHidden,
+	isLinkedContactUnavailable,
 	isSearchActive,
 	selectContact,
+	reloadContact,
 	search,
 	cancelSearch,
 } = useCallContact(() => props.call);
@@ -100,7 +106,8 @@ function closeCreateForm() {
  * @author Oleksandr Palonnyi
  * A contact created during the call is linked to it at once, through the same
  * link as SELECT (as cc-workspaces does, WTEL-10527), so the panel then shows
- * it as the linked contact. Only to the call it was created for: if the agent
+ * it as the linked contact. SELECT links a loaded contact, so the new one is
+ * read by its id first. Only to the call it was created for: if the agent
  * has moved to another call or this one has hung up meanwhile, the contact is
  * created and left unlinked (ADR-0031)
  * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
@@ -113,7 +120,17 @@ async function saveContact(draft: NewContactDraft) {
 
 	isLinking.value = true;
 	try {
-		await selectContact(createdContactId);
+		const createdContact: WebitelContactsContact = await ContactsAPI.get({
+			itemId: createdContactId,
+		});
+		if (props.call.id !== callId || !isCallActive.value) return;
+		await selectContact(createdContact);
+	} catch {
+		/**
+		 * @author Oleksandr Palonnyi
+		 * api-services has notified the agent; the contact is created and left unlinked, as a failed SELECT leaves it
+		 * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
+		 */
 	} finally {
 		isLinking.value = false;
 		if (props.call.id === callId) closeCreateForm();

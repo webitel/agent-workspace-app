@@ -5,8 +5,7 @@ Date: 2026-11-26
 ## Status
 
 Accepted. Implemented in [WS-82](https://webitel.atlassian.net/browse/WS-82)
-(US_07.06). Changes one consequence of ADR-0013: a create form left open now
-closes when the call hangs up.
+(US_07.06).
 
 ## Context
 
@@ -31,7 +30,7 @@ behaviour.
 **The form checks, the panel saves.** `contact-create-form` holds the draft,
 checks it and emits `submit`. `useContactCreation` saves it: it sends
 `ContactsAPI.add`, ignores a second SAVE while one is in flight, and returns the
-new id, or `null` when nothing was created. The form then stays open with what
+created contact's id, or `null` when nothing was created. The form then stays open with what
 was typed, and api-services has already notified the agent. CANCEL is disabled
 while the form is saving: a request already sent cannot be taken back, so a
 CANCEL then would close the form over a contact that is created anyway (and,
@@ -42,9 +41,13 @@ add form (WS-171) works the same way. Each panel decides what follows:
   On the Contacts tab it then reads the list again from its first page. The
   Users tab lists users, and the Contacts list is read afresh when its tab
   opens, so nothing is reloaded there.
-- The **call panel** links the contact to the call through `selectContact` in
-  `useCallContact`, the same path SELECT uses. The panel then shows it as the
-  **Linked contact**. It links only to the call the contact was created for:
+- The **call panel** reads the created contact by that id (`ContactsAPI.get`)
+  and links it to the call through `selectContact` in `useCallContact`, the
+  same path SELECT uses: it links a loaded contact, not an id. The panel then
+  shows it as the **Linked contact**. `selectContact` holds the contact it is
+  linking, so the socket event of the link, which may come before `setContact`
+  resolves, shows it without loading it again behind a loader. If the read
+  fails, the contact is created and left unlinked. It links only to the call the contact was created for:
   if the agent has opened another call, or this one has hung up during the
   save, the contact is created and left unlinked. The form stays open and
   saving until the link answers. If it closed earlier, the panel would show the
@@ -94,8 +97,8 @@ rule CRM and the card's add form use. A phone has no format rule there either.
 
 ## Consequences
 
-- If the link fails, the contact is still created, but it is not linked to the
-  call. The agent can find it with the panel's search and SELECT it.
+- If the read or the link fails, the contact is still created, but it is not
+  linked to the call. The agent can find it with the panel's search and SELECT it.
 - The saving state belongs to the call panel, not to one call. If an agent
   starts a save on one call, opens another and opens the form there, SAVE there
   waits for the first save.

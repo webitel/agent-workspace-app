@@ -102,6 +102,7 @@ export default {
 					offline: 'Oflayn',
 					selfAssigned: 'Qoʼlda tayinlangan',
 				},
+				searchByNumber: 'Raqam boʼyicha qidirish',
 				tabs: {
 					iframe: 'iFrame',
 				},

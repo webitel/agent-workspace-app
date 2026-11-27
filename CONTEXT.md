@@ -76,9 +76,10 @@ and should not be carried over wholesale.
   picks its screen and title.
 - [ADR-0020](docs/adr/0020-call-contact-identification.md) — a call's contact
   is its linked one (or the bridged call's), otherwise the contacts its number
-  finds by the same loose search as `cc-workspaces`; the only match is linked at
-  once, a failed link or search shows nothing, and a hidden contact is neither
-  searched for nor shown.
+  finds by the same loose search as `cc-workspaces`; found contacts are shown
+  from the search's answer, so switching between them loads nothing, the only
+  match is linked at once, a failed link or search shows nothing, and a hidden
+  contact is neither searched for nor shown.
 - [ADR-0021](docs/adr/0021-calls-tabs-over-socket-lists.md) — the Offline and
   Self-assigned tabs are datalist tables over socket lists: offline members are
   read a page at a time through an adapter and not polled, self-assigned calls

@@ -102,6 +102,7 @@ export default {
 					offline: 'Офлайн',
 					selfAssigned: 'Самостійно призначені',
 				},
+				searchByNumber: 'Пошук за номером',
 				tabs: {
 					iframe: 'iFrame',
 				},
