@@ -4,6 +4,7 @@
 		:data="dataList"
 		:headers="shownHeaders"
 		:active-row="selectedRow"
+		clickable-rows
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -20,14 +21,7 @@
 		</template>
 
 		<template #status="{ item }">
-			<div class="transfer-agents-table__cell">
-				<wt-badge
-					:hidden="!item.status"
-					:icon-badge="item.status"
-					:color-variable="getBadgeColorVariable(item.status)"
-				/>
-				{{ getStatusLabel(item.status) }}
-			</div>
+			<transfer-status-cell :status="item.status" />
 		</template>
 
 		<template #empty>
@@ -44,11 +38,9 @@ import { storeToRefs } from 'pinia';
 import { computed, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import UsernameTableCell from '../../../../pages/components/username-table-cell.vue';
-import type { TransferAgentStatus } from '../enums/TransferAgentStatus.enum';
-import { TRANSFER_AGENT_BADGE_COLOR_VARIABLES } from '../mappings/transferAgentStatusColors';
-import { TRANSFER_AGENT_STATUS_LABEL_KEYS } from '../mappings/transferAgentStatusLabelKeys';
 import { useTransferAgentsDataListStore } from '../store/transferAgentsDataList';
 import type { TransferAgentRow } from '../types/CallTransfer.types';
+import TransferStatusCell from './transfer-status-cell.vue';
 
 const SEARCH_FILTER_NAME = 'search';
 
@@ -63,7 +55,7 @@ const selectedRowId = defineModel<string | null>('selectedRowId', {
 const { t } = useI18n();
 
 const store = useTransferAgentsDataListStore();
-const { setupStore, appendToDataList, addFilter, $reset } = store;
+const { setupStore, appendToDataList, addFilter } = store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
 /**
@@ -72,10 +64,8 @@ const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
  * from page 1 whenever a filter changes once the store is set up. Adding the
  * search filter after setupStore is that change, so every mount loads exactly
  * once; `initialize` would load as well and, on a remount, race the watcher.
- * The store is a singleton and the popup opens many times, so it is reset on
- * unmount, which also drops the search filter for the next mount to add.
  * addFilter replaces a filter of the same name, so a search typed while the
- * store is still being set up needs no separate path
+ * store is still being set up needs no separate path (ADR-0016)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 function applySearch(search: string): void {
@@ -99,23 +89,19 @@ watch(() => props.search, applySearch);
 
 loadFirstPage();
 
-onUnmounted($reset);
-
-function getBadgeColorVariable(
-	status?: TransferAgentStatus,
-): string | undefined {
-	return status && TRANSFER_AGENT_BADGE_COLOR_VARIABLES[status];
-}
-
 /**
  * @author Oleksandr Palonnyi
- * TODO: the label is drawn beside wt-badge by hand until the component can
- * show a status text itself; refactor after that component update
+ * the store is a singleton the popup remounts many times, yet it is not
+ * `$reset`: that clears the filters while the store stays set up, so its
+ * filter watcher sends a request for a list no longer shown. Only the rows
+ * go, so a remount does not show the old ones while it loads; the next
+ * mount's addFilter puts in a new search filter, which the watcher reloads
+ * page 1 on even when the search is the same (ADR-0029)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
-function getStatusLabel(status?: TransferAgentStatus): string {
-	return status ? t(TRANSFER_AGENT_STATUS_LABEL_KEYS[status]) : '';
-}
+onUnmounted(() => {
+	dataList.value = [];
+});
 
 /**
  * @author Oleksandr Palonnyi
@@ -143,9 +129,5 @@ function onRowClick({ data: row }: { data: TransferAgentRow }): void {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
-}
-
-.transfer-agents-table :deep(tbody tr) {
-	cursor: pointer;
 }
 </style>

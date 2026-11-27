@@ -4,6 +4,7 @@
 		:data="dataList"
 		:headers="shownHeaders"
 		:active-row="selectedRow"
+		clickable-rows
 		:loading="isLoading"
 		:on-loading="onLoading"
 		:selectable="false"
@@ -55,15 +56,14 @@ const selectedRowId = defineModel<string | null>('selectedRowId', {
 const { t } = useI18n();
 
 const store = useTransferQueuesDataListStore();
-const { setupStore, appendToDataList, addFilter, $reset } = store;
+const { setupStore, appendToDataList, addFilter } = store;
 const { dataList, shownHeaders, next, isLoading } = storeToRefs(store);
 
 /**
  * @author Oleksandr Palonnyi
  * same loading scheme as the Agents tab (transfer-agents-table.vue): the first
  * page comes from the store's filter watcher once the search filter is added
- * after setupStore, and the singleton store is reset on unmount so the next
- * popup mounts clean
+ * after setupStore (ADR-0016)
  * [WS-95](https://webitel.atlassian.net/browse/WS-95)
  */
 function applySearch(search: string): void {
@@ -87,7 +87,15 @@ watch(() => props.search, applySearch);
 
 loadFirstPage();
 
-onUnmounted($reset);
+/**
+ * @author Oleksandr Palonnyi
+ * only the rows are cleared, not `$reset`, the same as on the Agents tab:
+ * a reset would make the set-up store reload a list no longer shown (ADR-0029)
+ * [WS-95](https://webitel.atlassian.net/browse/WS-95)
+ */
+onUnmounted(() => {
+	dataList.value = [];
+});
 
 const selectedRow = computed(
 	() => dataList.value.find((row) => row.id === selectedRowId.value) ?? null,
@@ -109,6 +117,5 @@ function onRowClick({ data: row }: { data: TransferQueueRow }): void {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-xs);
-	cursor: pointer;
 }
 </style>

@@ -105,6 +105,10 @@ and should not be carried over wholesale.
   list is a table store like the agents list, its selected row is painted by
   `wt-table`'s `active-row` rather than by a token that does not exist, and a
   disabled queue is still listed.
+- [ADR-0029](docs/adr/0029-transfer-tab-lists-keep-filters-on-unmount.md) — a
+  transfer tab list clears only its store's rows on unmount, because
+  ui-datalist's `$reset` keeps the store set up and its cleared filters reload a
+  list no longer shown.
 - [ADR-0030](docs/adr/0030-one-locale-key-per-meaning.md) — one locale key per
   meaning: a text ui-sdk already translates is read from ui-sdk, one shared in
   the app is one key, and a test with reasoned allow-lists keeps it that way.
