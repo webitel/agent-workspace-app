@@ -1,9 +1,11 @@
+import { createEventHook } from '@vueuse/core';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, shallowRef, watch } from 'vue';
 import type { Call } from 'webitel-sdk';
 
 import { OutboundCallStatus } from '../enums/OutboundCallStatus.enum';
 import { getOutboundCallStatus } from '../scripts/getOutboundCallStatus';
+import { isPlacedCallNamedByDial } from '../scripts/isPlacedCallNamedByDial';
 import { linkAttemptsToCalls } from '../scripts/linkAttemptsToCalls';
 import { toOutboundCallPreview } from '../scripts/toOutboundCallPreview';
 import type {
@@ -29,9 +31,20 @@ export const useOutboundCallAttemptsStore = defineStore(
 
 		const trackedAttempts = shallowRef<OutboundCallAttempt[]>([]);
 
+		/**
+		 * @author Oleksandr Palonnyi
+		 * The attempt is cleared the moment it is answered, so a UI that watches
+		 * `attempts` can miss that moment. The hook hands over the id of the answered
+		 * call instead, for UI that must react only to a call the agent dialled here,
+		 * not to one answered on a desk phone or in another tab
+		 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
+		 */
+		const answeredHook = createEventHook<string>();
+
 		let isInitialized = false;
 		let attemptsStartedCount = 0;
-		const claimedCallIds = new Set<string>();
+		const callIdsClaimedByDial = new Set<string>();
+		const callIdsClaimedByElimination = new Set<string>();
 
 		/**
 		 * @author Oleksandr Palonnyi
@@ -75,7 +88,23 @@ export const useOutboundCallAttemptsStore = defineStore(
 			);
 		}
 
+		/**
+		 * @author Oleksandr Palonnyi
+		 * A call is claimed when its attempt goes, not when it is linked: while the attempt
+		 * is tracked, its `placedCall` already says whose the call is. The claim remembers
+		 * how the call was linked, as the ids of another attempt may still take a call
+		 * claimed by elimination only
+		 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
+		 */
 		function clearAttempt(attemptId: string) {
+			const clearedAttempt = findAttemptById(attemptId);
+			if (clearedAttempt?.placedCall) {
+				const claimedCallIds = isPlacedCallNamedByDial(clearedAttempt)
+					? callIdsClaimedByDial
+					: callIdsClaimedByElimination;
+				claimedCallIds.add(clearedAttempt.placedCall.id);
+			}
+
 			trackedAttempts.value = trackedAttempts.value.filter(
 				(attempt) => attempt.id !== attemptId,
 			);
@@ -98,6 +127,7 @@ export const useOutboundCallAttemptsStore = defineStore(
 				callIdsBeforeDial: new Set(
 					callsStore.callList.map((existingCall) => existingCall.id),
 				),
+				dialedCallIds: {},
 				isHangupRequested: false,
 			};
 			trackedAttempts.value = [
@@ -105,10 +135,24 @@ export const useOutboundCallAttemptsStore = defineStore(
 				attempt,
 			];
 
-			const isPlaced = await callsStore.call({
+			const dialedCallIds = await callsStore.call({
 				destination: rawDestination,
 			});
-			if (!isPlaced) clearAttempt(attempt.id);
+			if (!dialedCallIds) {
+				clearAttempt(attempt.id);
+				return;
+			}
+
+			updateAttempt(attempt.id, {
+				dialedCallIds,
+			});
+			/**
+			 * @author Oleksandr Palonnyi
+			 * The call list may not change again before the call rings, or at all when the
+			 * call already rang during the request, so the ids are matched against it now
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
+			 */
+			linkPlacedCalls(callsStore.callList);
 		}
 
 		/**
@@ -163,29 +207,32 @@ export const useOutboundCallAttemptsStore = defineStore(
 
 		function linkPlacedCalls(callList: Call[]) {
 			const currentCallIds = new Set(callList.map((call) => call.id));
-			for (const claimedCallId of claimedCallIds) {
-				if (!currentCallIds.has(claimedCallId)) {
-					claimedCallIds.delete(claimedCallId);
+			for (const claimedCallIds of [
+				callIdsClaimedByDial,
+				callIdsClaimedByElimination,
+			]) {
+				for (const claimedCallId of claimedCallIds) {
+					if (!currentCallIds.has(claimedCallId)) {
+						claimedCallIds.delete(claimedCallId);
+					}
 				}
 			}
 
 			const assignments = linkAttemptsToCalls({
 				attempts: trackedAttempts.value,
 				callList,
-				claimedCallIds,
+				callIdsClaimedByDial,
+				callIdsClaimedByElimination,
 			});
 
 			for (const { attemptId, call } of assignments) {
-				claimedCallIds.add(call.id);
-
-				if (findAttemptById(attemptId)?.isHangupRequested) {
-					clearAttempt(attemptId);
-					callsStore.hangup(call.id);
-					continue;
-				}
 				updateAttempt(attemptId, {
 					placedCall: call,
 				});
+				if (call && findAttemptById(attemptId)?.isHangupRequested) {
+					clearAttempt(attemptId);
+					callsStore.hangup(call.id);
+				}
 			}
 		}
 
@@ -195,10 +242,12 @@ export const useOutboundCallAttemptsStore = defineStore(
 
 			/**
 			 * @author Oleksandr Palonnyi
-			 * `callsStore.call` returns no call id, and the `Call` reaches `callList` only
-			 * later (on `Ringing`), at an unknown moment. Each list change is therefore
-			 * checked for a new outbound call to attach to an attempt that has none yet
+			 * The `Call` reaches `callList` only later (on `Ringing`), at an unknown moment,
+			 * so each list change is checked for the call of an attempt that has none yet.
+			 * The list is enough: the SDK sets a call's `id` and `sipId` only when it
+			 * creates the call (`webitel-sdk` 26.4.45)
 			 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
+			 * [WS-155](https://webitel.atlassian.net/browse/WS-155) [NWS][FE] Відкривати плажку активного дзвінка в розгорнутому стані після прийняття вихідного дзвінка
 			 */
 			watch(() => callsStore.callList, linkPlacedCalls);
 
@@ -210,7 +259,16 @@ export const useOutboundCallAttemptsStore = defineStore(
 			 */
 			watch(attempts, (currentAttempts) => {
 				for (const { id, status } of currentAttempts) {
-					if (status === OutboundCallStatus.Answered) clearAttempt(id);
+					if (status !== OutboundCallStatus.Answered) continue;
+
+					const answeredAttempt = findAttemptById(id);
+					clearAttempt(id);
+					if (
+						answeredAttempt?.placedCall &&
+						isPlacedCallNamedByDial(answeredAttempt)
+					) {
+						answeredHook.trigger(answeredAttempt.placedCall.id);
+					}
 				}
 			});
 		}
@@ -218,6 +276,7 @@ export const useOutboundCallAttemptsStore = defineStore(
 		return {
 			attempts,
 
+			onAttemptAnswered: answeredHook.on,
 			initialize,
 			start,
 			retry,

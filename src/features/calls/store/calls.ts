@@ -23,6 +23,8 @@ import { isMicrophoneAllowed } from '../scripts/mediaPermissions';
 import { notifyCallError } from '../scripts/notifyCallError';
 import { sanitizeDestination } from '../scripts/sanitizeDestination';
 import { toCallOfferContent } from '../scripts/toCallOfferContent';
+import { toDialedCallIds } from '../scripts/toDialedCallIds';
+import type { DialedCallIds } from '../types/DialedCallIds.types';
 
 /**
  * Call feed coordinator.
@@ -232,7 +234,7 @@ export const useCallsStore = defineStore('calls', () => {
 		destination: rawDestination,
 	}: {
 		destination: string;
-	}): Promise<boolean> {
+	}): Promise<DialedCallIds | null> {
 		const destination = sanitizeDestination(rawDestination);
 		/**
 		 * @author Oleksandr Palonnyi
@@ -240,27 +242,27 @@ export const useCallsStore = defineStore('calls', () => {
 		 * microphone permission prompt, and a second call in that window would dial twice
 		 * [WTEL-WS-13](https://webitel.atlassian.net/browse/WTEL-WS-13)
 		 */
-		if (!destination || isOutboundCallRequestPending.value) return false;
+		if (!destination || isOutboundCallRequestPending.value) return null;
 
 		isOutboundCallRequestPending.value = true;
 		try {
-			if (!(await ensureMicrophoneAllowed())) return false;
+			if (!(await ensureMicrophoneAllowed())) return null;
 
 			await holdOtherLiveCalls();
-			await getClient().call({
+			const dialResult = await getClient().call({
 				destination,
 				params: {
 					disableStun: !getStunEnabled(),
 				},
 			});
-			return true;
+			return toDialedCallIds(dialResult);
 		} catch (err) {
 			console.error('[calls] outbound call failed', err);
 			eventBus.$emit('notification', {
 				type: 'error',
 				text: i18n.global.t('error.calls.outboundCallFailed'),
 			});
-			return false;
+			return null;
 		} finally {
 			isOutboundCallRequestPending.value = false;
 		}
