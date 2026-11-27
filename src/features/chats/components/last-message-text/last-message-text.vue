@@ -64,7 +64,7 @@ const look = computed(() => {
 	background-color: inherit;
 	content: '';
 	transform: translateY(-50%);
-	mask-image: url('../../../app/assets/message-tail/message-tail-top.svg'), url('../../../app/assets/message-tail/message-tail-bottom.svg');
+	mask-image: url("../../../../app/assets/message-tail/message-tail-top.svg"), url("../../../../app/assets/message-tail/message-tail-bottom.svg");
 	mask-position: top, bottom;
 	mask-size: 100% 50%;
 	mask-repeat: no-repeat;

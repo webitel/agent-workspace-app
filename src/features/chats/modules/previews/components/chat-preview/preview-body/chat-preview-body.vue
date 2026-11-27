@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { WtAvatar } from '@webitel/ui-sdk/components';
 
-import LastMessageText from '../../../../../../../ui/components/last-message-text/last-message-text.vue';
+import LastMessageText from '../../../../../components/last-message-text/last-message-text.vue';
 import type { LastMessageSender } from '../../../types/ChatPreview.types';
 
 /** The last message of a chat, in the look AC_02.03.01 gives it by sender and unread. */
