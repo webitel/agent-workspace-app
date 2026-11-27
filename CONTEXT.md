@@ -108,6 +108,10 @@ and should not be carried over wholesale.
 - [ADR-0030](docs/adr/0030-one-locale-key-per-meaning.md) — one locale key per
   meaning: a text ui-sdk already translates is read from ui-sdk, one shared in
   the app is one key, and a test with reasoned allow-lists keeps it that way.
+- [ADR-0031](docs/adr/0031-creating-a-contact-from-the-right-panel.md) — a
+  contact is created in the right panel: the form checks, the panel saves and
+  decides what follows; a call links it through SELECT's path, only to the call
+  it was made for; phones and emails take their channel's default type.
 
 ## Language
 
@@ -423,8 +427,17 @@ Unknown contact card.
 
 **Linked contact** — the contact a call is linked to (`call.setContact`), at
 most one. The only identified contact is linked automatically, one of several
-when the agent selects it. Once there is one, the panel shows it alone instead
-of the identified contacts, whoever linked it (ADR-0013).
+when the agent selects it, and a contact the agent creates during the call as
+soon as it is saved. Once there is one, the panel shows it alone instead
+of the identified contacts, whoever linked it (ADR-0013, ADR-0031).
+
+**Contact creation** — the agent adding a new CRM contact from the right panel
+with CREATE, in a create form that replaces the panel's contact block
+(US_07.06). It is offered on the Contacts page and while a call is an **Active
+call**. SAVE opens the new contact's card. During a call, SAVE also makes the
+contact the call's **Linked contact**. CANCEL creates nothing (ADR-0031).
+CREATE is offered even when the call already has a Linked contact, and the new
+contact then replaces it.
 
 **Right panel** — the column beside the central area that shows the contact or
 the communication behind what is open there: the row the agent picked in a

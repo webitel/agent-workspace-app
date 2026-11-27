@@ -5,7 +5,7 @@ Date: 2026-11-11
 ## Status
 
 Accepted. Implemented in [WS-78](https://webitel.atlassian.net/browse/WS-78)
-(US_07.04, calls).
+(US_07.04, calls). Amended by ADR-0031: a hangup closes the create form.
 
 ## Context
 
@@ -85,7 +85,7 @@ hidden while the contacts are being identified.
   21"): after a number their noun depends on it, and the app's i18n has no
   plural rules for them.
 - A create form left open stays open after the call hangs up; it is closed only
-  when another call is opened.
+  when another call is opened. Changed by ADR-0031: a hangup closes it too.
 - An agent who wants to link the call in post-processing cannot. If the spec
   asks for it, the change is the call panel's one condition.
 		

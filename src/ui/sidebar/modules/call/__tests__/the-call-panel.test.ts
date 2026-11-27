@@ -1,4 +1,5 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
+import { ContactsAPI } from '@webitel/api-services/api';
 import type { WebitelContactsContact } from '@webitel/api-services/gen/models';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref, toRaw } from 'vue';
@@ -26,6 +27,22 @@ vi.mock(
 		},
 	}),
 );
+
+vi.mock('@webitel/api-services/api', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@webitel/api-services/api')>()),
+	ContactsAPI: {
+		get: vi.fn(),
+	},
+}));
+
+const getContact = vi.mocked(ContactsAPI.get);
+
+const createdContact: WebitelContactsContact = {
+	id: '42',
+	name: {
+		commonName: 'Jane Doe',
+	},
+};
 
 const identification = {
 	contacts: ref<WebitelContactsContact[]>([]),
@@ -69,14 +86,47 @@ vi.mock('../../../components/contact/contact-identification.vue', () => ({
 vi.mock('../../../components/contact/contact-create-form.vue', () => ({
 	default: {
 		name: 'ContactCreateForm',
+		props: [
+			'isSaving',
+		],
 		emits: [
+			'submit',
 			'cancel',
 		],
 		template: '<div class="contact-create-form-stub" />',
 	},
 }));
 
+const creation = {
+	isSaving: ref(false),
+	createContact: vi.fn<() => Promise<string | null>>(),
+};
+vi.mock('../../../components/contact/composables/useContactCreation', () => ({
+	useContactCreation: () => creation,
+}));
+
 import TheCallPanel from '../the-call-panel.vue';
+
+const draft = {
+	name: 'Jane Doe',
+	phoneNumber: '',
+	email: '',
+	timezone: null,
+	owner: null,
+	labels: [],
+	description: '',
+};
+
+const createDeferred = <T>() => {
+	let resolve!: (value: T) => void;
+	const promise = new Promise<T>((resolvePromise) => {
+		resolve = resolvePromise;
+	});
+	return {
+		promise,
+		resolve,
+	};
+};
 
 const buildCall = (overrides: Record<string, unknown> = {}) =>
 	({
@@ -132,6 +182,10 @@ describe('the-call-panel', () => {
 		identification.isLinkedContactUnavailable.value = false;
 		identifiedCall = undefined;
 		identification.selectContact.mockClear();
+		creation.isSaving.value = false;
+		creation.createContact.mockReset();
+		getContact.mockReset();
+		getContact.mockResolvedValue(createdContact);
 	});
 
 	it('shows the info of the given call', () => {
@@ -303,5 +357,121 @@ describe('the-call-panel', () => {
 		findIdentification(wrapper).vm.$emit('changed', '16');
 
 		expect(identification.reloadContact).toHaveBeenCalledWith('16');
+	});
+
+	it('heads the create form with Add contacts', async () => {
+		const wrapper = mountPanel();
+
+		await findCreateButton(wrapper).trigger('click');
+
+		expect(wrapper.text()).toContain('ui.sidebar.contact.addContacts');
+	});
+
+	it('links the created contact to the call and closes the form', async () => {
+		creation.createContact.mockResolvedValue('42');
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await flushPromises();
+
+		expect(creation.createContact).toHaveBeenCalledWith(draft);
+		expect(getContact).toHaveBeenCalledWith({
+			itemId: '42',
+		});
+		expect(identification.selectContact).toHaveBeenCalledWith(createdContact);
+		expect(findCreateForm(wrapper).exists()).toBe(false);
+	});
+
+	it('leaves the created contact unlinked and closes the form when it fails to load', async () => {
+		creation.createContact.mockResolvedValue('42');
+		getContact.mockRejectedValueOnce(new Error('500'));
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await flushPromises();
+
+		expect(identification.selectContact).not.toHaveBeenCalled();
+		expect(findCreateForm(wrapper).exists()).toBe(false);
+	});
+
+	it('keeps the form saving until the created contact is linked', async () => {
+		const link = createDeferred<void>();
+		identification.selectContact.mockReturnValueOnce(link.promise);
+		creation.createContact.mockResolvedValue('42');
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await flushPromises();
+
+		expect(findCreateForm(wrapper).props('isSaving')).toBe(true);
+
+		link.resolve();
+		await flushPromises();
+
+		expect(findCreateForm(wrapper).exists()).toBe(false);
+	});
+
+	it('keeps the create form open when the contact was not created', async () => {
+		creation.createContact.mockResolvedValue(null);
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await flushPromises();
+
+		expect(findCreateForm(wrapper).exists()).toBe(true);
+		expect(identification.selectContact).not.toHaveBeenCalled();
+	});
+
+	it('does not link the created contact to a call opened meanwhile', async () => {
+		const request = createDeferred<string | null>();
+		creation.createContact.mockReturnValue(request.promise);
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await wrapper.setProps({
+			call: buildCall({
+				id: 'call-2',
+			}),
+		});
+		request.resolve('42');
+		await flushPromises();
+
+		expect(identification.selectContact).not.toHaveBeenCalled();
+	});
+
+	it('does not link the created contact to a call hung up meanwhile', async () => {
+		const request = createDeferred<string | null>();
+		creation.createContact.mockReturnValue(request.promise);
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		findCreateForm(wrapper).vm.$emit('submit', draft);
+		await wrapper.setProps({
+			call: buildCall({
+				state: CallActions.Hangup,
+			}),
+		});
+		request.resolve('42');
+		await flushPromises();
+
+		expect(identification.selectContact).not.toHaveBeenCalled();
+	});
+
+	it('closes the create form when the call hangs up', async () => {
+		const wrapper = mountPanel();
+		await findCreateButton(wrapper).trigger('click');
+
+		await wrapper.setProps({
+			call: buildCall({
+				state: CallActions.Hangup,
+			}),
+		});
+
+		expect(findCreateForm(wrapper).exists()).toBe(false);
 	});
 });

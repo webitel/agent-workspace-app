@@ -483,6 +483,36 @@ describe('useCallContact', () => {
 			]);
 		});
 
+		it('loads nothing when the link of a contact in no list comes from the socket before setContact resolves', async () => {
+			getList.mockResolvedValue(found());
+			const linking = createDeferred<object>();
+			const call = buildCall({
+				setContact: vi.fn().mockReturnValue(linking.promise),
+			});
+
+			const { contacts, isLoading, selectContact } = setup(call);
+			await flushPromises();
+			const link = selectContact(buildContact('42'));
+			call.contact = {
+				id: 42,
+				hide: false,
+			};
+			await nextTick();
+
+			expect(get).not.toHaveBeenCalled();
+			expect(isLoading.value).toBe(false);
+			expect(ids(contacts)).toEqual([
+				'42',
+			]);
+
+			linking.resolve({});
+			await link;
+
+			expect(ids(contacts)).toEqual([
+				'42',
+			]);
+		});
+
 		it('keeps the found contacts when linking fails', async () => {
 			getList.mockResolvedValue(found('15', '16'));
 			const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});

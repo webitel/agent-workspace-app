@@ -107,6 +107,20 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	let pendingContacts: WebitelContactsContact[] = [];
 
 	/**
+	 * Calls whose link is in flight. Kept per call: the panel outlives a call,
+	 * and the SDK's socket requests have no timeout, so a hung link must block
+	 * SELECT only on its own call.
+	 */
+	/**
+	 * @author Oleksandr Palonnyi
+	 * Each in-flight link keeps the contact being linked. A contact created in the
+	 * panel is in no list yet, so without it a socket event that comes before
+	 * `setContact` resolves would load the contact a second time, behind the loader
+	 * [WS-82](https://webitel.atlassian.net/browse/WS-82) [NWS][FE] US_07.06. Картка Контакту. Створити контакт
+	 */
+	const linkingContacts = new Map<string, WebitelContactsContact>();
+
+	/**
 	 * A contact the panel already holds: shown, searched, or found and being
 	 * linked. The socket event of a link made here may come before
 	 * `setContact` resolves, as the SDK does not order a reply and an event, so
@@ -118,6 +132,7 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 			...(searchedContacts.value ?? []),
 			...identifiedContacts.value,
 			...pendingContacts,
+			...linkingContacts.values(),
 		].find(({ id }) => id === contactId);
 
 	const showResult = (result: WebitelContactsContact[]) => {
@@ -199,20 +214,14 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 	};
 
 	/**
-	 * Calls whose link is in flight. Kept per call: the panel outlives a call,
-	 * and the SDK's socket requests have no timeout, so a hung link must block
-	 * SELECT only on its own call.
-	 */
-	const linkingCallIds = new Set<string>();
-
-	/**
-	 * Links the contact the agent chose among several found. Shown at once, as
+	 * Links the contact the agent chose among several found, or created in the
+	 * panel. Shown at once, as
 	 * the only found contact is, without waiting for the socket event.
 	 */
 	const selectContact = async (contact: WebitelContactsContact) => {
 		const currentCall = toValue(call);
-		if (linkingCallIds.has(currentCall.id)) return;
-		linkingCallIds.add(currentCall.id);
+		if (linkingContacts.has(currentCall.id)) return;
+		linkingContacts.set(currentCall.id, contact);
 		// a search started meanwhile (another call opened) owns the result
 		const requestId = lastRequestId;
 
@@ -226,7 +235,7 @@ export function useCallContact(call: MaybeRefOrGetter<Call>) {
 			// as in cc-workspaces, the agent is not notified; the list stays to try again
 			console.warn('[calls] linking the selected contact failed', err);
 		} finally {
-			linkingCallIds.delete(currentCall.id);
+			linkingContacts.delete(currentCall.id);
 		}
 	};
 
