@@ -1,60 +1,39 @@
 <template>
-    <div
-        class="chat-preview-body"
-        :class="`chat-preview-body--${sender === 'client' ? 'client' : 'agent'}`"
-    >
+    <div class="chat-preview-body">
         <!-- the client's own avatar, or the standard one for the agent -->
         <wt-avatar
             v-if="sender"
             size="xs"
             :username="sender === 'client' ? name : undefined"
         />
-        <p class="chat-preview-body__text typo-body-1">
-            {{ text }}
-        </p>
+        <last-message-text
+            :text="text"
+            :sender="sender === 'client' ? 'client' : 'agent'"
+            :is-unread="isUnread"
+        />
     </div>
 </template>
 
 <script lang="ts" setup>
 import { WtAvatar } from '@webitel/ui-sdk/components';
 
+import LastMessageText from '../../../../../components/last-message-text/last-message-text.vue';
 import type { LastMessageSender } from '../../../types/ChatPreview.types';
 
-/**
- * The last message of a chat. Only the read look exists: whether a message is
- * unread has no source yet, so the unread colours are not wired.
- */
+/** The last message of a chat, in the look AC_02.03.01 gives it by sender and unread. */
 defineProps<{
 	text: string;
 	/** Unknown while it cannot be told; the row then shows no avatar. */
 	sender?: LastMessageSender;
 	/** The client's name, for their avatar. */
 	name?: string;
+	isUnread?: boolean;
 }>();
 </script>
 
 <style scoped>
 .chat-preview-body {
     display: flex;
-    gap: var(--wt-ws-chat-queue-pannel-sizes-last-message-text-gap);
     align-items: center;
-    padding: var(--wt-ws-chat-queue-pannel-sizes-last-message-text-padding-y) var(--wt-ws-chat-queue-pannel-sizes-last-message-text-padding-x);
-    border-radius: var(--wt-ws-chat-queue-pannel-sizes-last-message-text-border-radius);
-}
-
-.chat-preview-body--client {
-    background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-read-background);
-    color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-client-read-color);
-}
-
-.chat-preview-body--agent {
-    background: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-read-background);
-    color: var(--wt-ws-chat-queue-pannel-colors-last-message-text-agent-read-color);
-}
-
-.chat-preview-body__text {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 </style>

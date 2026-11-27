@@ -24,6 +24,7 @@
             :text="preview.lastMessage.body"
             :sender="preview.lastMessage.sender"
             :name="preview.name"
+            :is-unread="previewsStore.isUnread(threadId)"
         />
         <chat-preview-footer
             v-if="preview.queueName"
